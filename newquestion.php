@@ -1,0 +1,137 @@
+
+<?php
+$language="enus";
+include_once("js/jquery/RichTextEditor/locale/".$language.".php");
+function getLabel($key,$language){
+   global $label;
+   return $label[$language][$key];
+}
+
+$headcommands='
+<link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
+<link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
+<link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
+
+<script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
+<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
+<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>';
+
+include('header.php');
+$userid=isloggedin();
+if ($userid)
+{
+?>
+
+
+
+<?php
+
+#echo '<div id="leftfloatbox">';
+			
+	?>
+	<div id="actionbox">
+			<h2>Create a New Question</h2>
+				<p><strong>The question must be an open question</strong>: A question that has multiple possible answers.<br/> 
+					So many, in fact, that you cannot think yourself of ALL the alternatives! <br/>
+					Open questions generally start with 'what' or 'how', although other formulations are also possible. <br/>
+					Yes/no questions are not the right type of question to ask over here. <br/>
+					Please see the <a href="FAQ.php">frequently asked questions.</a></p> 
+			<form method="POST" action="newquestiontake.php">			
+<h3>Title (max 120 ch):
+					<textarea name="title" class="title" rows="1" cols="120"></textarea></h3>
+					<h3>Content:
+      <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
+      <?php
+         include_once("js/jquery/RichTextEditor/content_editor.php");
+         include_once("js/jquery/RichTextEditor/editor.php");
+      ?></h3>
+      Minimum Time:
+      <select name="minimumtime" title="after this time, from when the first person has voted or proposed you are allowed to move the question on">
+  <option value="3600">1 hour</option>
+  <option value="7200">2 hours</option>
+  <option value="10800">3 hours</option>
+  <option value="21600">6 hours</option>
+  <option value="43200">12 hours / half a day</option>
+  <option value="64800">18 hours</option>
+  <option value="86400" selected="yes" >1 day</option>
+  <option value="172800">2 days</option>
+  <option value="259200">3 days</option>
+  <option value="302400">half a week</option>
+  <option value="345600">4 days</option>
+  <option value="432000">5 days</option>
+  <option value="518400">6 days</option>
+  <option value="604800">1 week</option>
+  <option value="864000">10 days</option>
+  <option value="907200">1 week and a half</option>
+  <option value="1209600">2 weeks</option>
+  <option value="1296000">15 days</option>
+  <option value="1728000">20 days</option>
+  <option value="1814400">3 weeks</option>
+  <option value="2419200">4 weeks</option>
+  <option value="2592000">30 days / 1 month</option>
+  <option value="2678400">31 days</option>
+</select> <br/>
+Maximum Time:
+<select name="maximumtime" title="after this time, from when the first person has voted or proposed the system will automatically move on">
+  <option value="3600">1 hour</option>
+  <option value="7200">2 hours</option>
+  <option value="10800">3 hours</option>
+  <option value="21600">6 hours</option>
+  <option value="43200">12 hours / half a day</option>
+  <option value="64800">18 hours</option>
+  <option value="86400">1 day</option>
+  <option value="172800">2 days</option>
+  <option value="259200">3 days</option>
+  <option value="302400">half a week</option>
+  <option value="345600">4 days</option>
+  <option value="432000">5 days</option>
+  <option value="518400">6 days</option>
+  <option value="604800" selected="yes" >1 week</option>
+  <option value="864000">10 days</option>
+  <option value="907200">1 week and a half</option>
+  <option value="1209600">2 weeks</option>
+  <option value="1296000">15 days</option>
+  <option value="1728000">20 days</option>
+  <option value="1814400">3 weeks</option>
+  <option value="2419200">4 weeks</option>
+  <option value="2592000">30 days / 1 month</option>
+  <option value="2678400">31 days</option>
+</select> <br/>
+If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
+Yes, this is a feature!)<br/>
+      
+				<input type="submit" name="submit" id="submit" value="Create question" />
+			</form>
+<script type="text/javascript">
+   window.onload = function(){ 
+      try{
+         $("#content_rte").jqrte();
+      }
+      catch(e){}
+   } 
+
+   $(document).ready(function() {
+         $("#content_rte").jqrte_setIcon();
+         $("#content_rte").jqrte_setContent();
+   });
+</script>
+	<?php
+	
+	echo '</div>';
+#	echo '</div>';
+	echo '<br/>';
+
+
+}
+else
+{
+		header("Location: login.php");
+}
+
+include('footer.php');
+
+
+?> 

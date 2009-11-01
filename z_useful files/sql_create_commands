@@ -1,0 +1,29 @@
+$sql = 'CREATE TABLE `pareto`.`users` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL) ENGINE = MyISAM';
+
+$sql = 'CREATE TABLE `pareto`.`endorse` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `userid` INT NOT NULL, `proposalid` INT NOT NULL) ENGINE = MyISAM';
+
+$sql = 'CREATE TABLE `pareto`.`proposals` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `blurb` BLOB NOT NULL, `usercreatorid` INT NOT NULL, `roundid` INT NOT NULL, `experimentid` INT NOT NULL) ENGINE = MyISAM';
+
+$sql = 'INSERT INTO `pareto`.`proposals` (`id`, `usercreatorid`, `roundid`, `experimentid`) VALUES (\'1\', \'1\', \'1\', \'1\');';
+
+$sql = 'ALTER TABLE `proposals` ADD `source` INT NOT NULL, ADD `dominatedby` INT NOT NULL;';
+
+$sql = 'ALTER TABLE `questions` ADD `title` TINYTEXT NOT NULL AFTER `usercreatorid`' ; 
+
+$sql = ' CREATE TABLE `pareto`.`updates` (
+`id` INT( 11 ) NOT NULL ,
+`user` INT( 11 ) NOT NULL ,
+`question` INT( 11 ) NOT NULL ,
+`how` ENUM( 'daily', 'weekly', 'asap' ) NOT NULL DEFAULT 'asap',
+`lastupdate` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+UNIQUE (`id`) ) ENGINE = MYISAM ';
+ALTER TABLE `updates` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT  
+
+ ALTER TABLE `questions` ADD `lastmoveon` DATETIME NOT NULL  
+
+ ALTER TABLE `proposals` ADD `creationtime` DATETIME NULL ;
+ 
+ ALTER TABLE `endorse` ADD `endorsementdate` DATETIME NOT NULL ;
+ 
+ ALTER TABLE `questions` ADD `minimumtime` INT UNSIGNED NULL DEFAULT '86400' COMMENT 'in minutes, default 1 day',
+ADD `maximumtime` INT UNSIGNED NULL DEFAULT '604800' COMMENT 'in minutes, default 1 week';
