@@ -12,7 +12,7 @@ if ($userid)
 	
 	$sql = 'SELECT id, username FROM users WHERE email != "" ';
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	if (mysql_num_rows($response) > 0)
 	{
 	
 		echo "<h2>Invite Users to answer your question:</h2>";
