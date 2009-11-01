@@ -4,7 +4,7 @@
 
 include('header.php');
 $userid=isloggedin();
-if ($userid)
+if ($userid==2)
 {
 	$question = $_GET['q'];
 	
