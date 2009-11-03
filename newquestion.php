@@ -23,33 +23,47 @@ include('header.php');
 $userid=isloggedin();
 if ($userid)
 {
+	$randomID = getUniqueRoomCode();
 ?>
 
+<script type="text/javascript">
 
+var roomId = <?php echo "'$randomID'" ?>;
+
+</script>
 
 <?php
 
 #echo '<div id="leftfloatbox">';
-			
-	?>
-	<div id="actionbox">
-			<h2>Create a New Question</h2>
-				<p><strong>The question must be an open question</strong>: A question that has multiple possible answers.<br/> 
-					So many, in fact, that you cannot think yourself of ALL the alternatives! <br/>
-					Open questions generally start with 'what' or 'how', although other formulations are also possible. <br/>
-					Yes/no questions are not the right type of question to ask over here. <br/>
-					Please see the <a href="FAQ.php">frequently asked questions.</a></p> 
-			<form method="POST" action="newquestiontake.php">			
-<h3>Title (max 120 ch):
-					<textarea name="title" class="title" rows="1" cols="120"></textarea></h3>
-					<h3>Content:
+
+    ?>
+    <div id="actionbox">
+	<p>
+    <h2>Create a New Question</h2>
+	<form method="POST" action="newquestiontake.php">
+	<p><strong>Create a new room for your question (Optional)</strong>: <input name="roomid" id="roomid" type="text" size="22" maxlength="20" value=""/> <input name="getRoomID" value="Generate Room ID" type="button" onclick="document.getElementById('roomid').value=roomId"/></p>
+
+
+	<p><strong>The question must be an open question</strong>: A question that has multiple possible answers.<br/>
+    So many, in fact, that you cannot think yourself of ALL the alternatives! <br/>
+    Open questions generally start with 'what' or 'how', although other formulations are also possible. <br/>
+    Yes/no questions are not the right type of question to ask over here. <br/>
+    Please see the <a href="FAQ.php">frequently asked questions.</a></p>
+
+    <h3>Title (max 120 ch):
+    <textarea name="title" class="title" rows="1" cols="120"></textarea></h3>
+    <h3>Content:
       <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
          include_once("js/jquery/RichTextEditor/content_editor.php");
-         include_once("js/jquery/RichTextEditor/editor.php");
+         include_once("js/jquery/RichTextEditor/editor.php");
+
       ?></h3>
       Minimum Time:
       <select name="minimumtime" title="after this time, from when the first person has voted or proposed you are allowed to move the question on">
+  <option value="60">1 min</option>
+  <option value="120">2 min</option>
+  <option value="300">5 min</option>
   <option value="3600">1 hour</option>
   <option value="7200">2 hours</option>
   <option value="10800">3 hours</option>
@@ -76,6 +90,9 @@ if ($userid)
 </select> <br/>
 Maximum Time:
 <select name="maximumtime" title="after this time, from when the first person has voted or proposed the system will automatically move on">
+  <option value="60">1 min</option>
+  <option value="120">2 min</option>
+  <option value="300">5 min</option>
   <option value="3600">1 hour</option>
   <option value="7200">2 hours</option>
   <option value="10800">3 hours</option>
@@ -102,16 +119,16 @@ Maximum Time:
 </select> <br/>
 If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
 Yes, this is a feature!)<br/>
-      
+
 				<input type="submit" name="submit" id="submit" value="Create question" />
 			</form>
 <script type="text/javascript">
-   window.onload = function(){ 
+   window.onload = function(){
       try{
          $("#content_rte").jqrte();
       }
       catch(e){}
-   } 
+   }
 
    $(document).ready(function() {
          $("#content_rte").jqrte_setIcon();
@@ -119,7 +136,7 @@ Yes, this is a feature!)<br/>
    });
 </script>
 	<?php
-	
+
 	echo '</div>';
 #	echo '</div>';
 	echo '<br/>';
@@ -134,4 +151,4 @@ else
 include('footer.php');
 
 
-?> 
+?>

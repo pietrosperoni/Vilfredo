@@ -1,7 +1,8 @@
 <?php
 include('header.php');
 
-if (isloggedin())
+$userid=isloggedin();
+if ($userid)
 {
 ?>
 
@@ -12,7 +13,14 @@ if (isloggedin())
 
 <?php
 
-	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid ORDER BY questions.id DESC LIMIT 4";
+	// **
+	// Set room access filter
+	// **
+	$room_access = GetRoomAccessFilter($userid);
+	
+	// Get Recent Questions
+	//
+	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id, questions.room FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.id DESC LIMIT 4";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -22,6 +30,8 @@ if (isloggedin())
 		$thatuserid=$row[5];
 		$proposalsid=$row[6];
 		$questionid=$row[0];
+		$room=$row[7];
+		$urlquery = CreateQuestionURL($questionid, $room);
 
 		if ($phase)
 		{
@@ -39,16 +49,16 @@ if (isloggedin())
 			{
 				echo '<p>';
 
-	
-				#echo '('.$generation.') <img src="images/writing.jpg" height=32> ('.$nAuthorsNewProposals.':'.$nactualproposals.')('.$nrecentparetofront.'/'.$nrecentproposals.')"<a href="viewquestion.php?q=' . $row[0] . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';	
-				echo ' "<a href="viewquestion.php?q=' . $row[0] . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';	
+
+				#echo '('.$generation.') <img src="images/writing.jpg" height=32> ('.$nAuthorsNewProposals.':'.$nactualproposals.')('.$nrecentparetofront.'/'.$nrecentproposals.')"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
+				echo ' "<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
 
 				echo '</p>';
 			}
 		}
-	}	
-	
-	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id GROUP BY questions.id ORDER BY latest DESC LIMIT 5";
+	}
+
+	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest, questions.room FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id " . $room_access . " GROUP BY questions.id ORDER BY latest DESC LIMIT 5";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -59,7 +69,9 @@ if (isloggedin())
 		$thatuserid=$row[5];
 		$proposalsid=$row[6];
 		$questionid=$row[0];
-		
+		$room=$row[8];
+		$urlquery = CreateQuestionURL($questionid, $room);
+
 		if ($phase)
 		{
 		}
@@ -73,13 +85,13 @@ if (isloggedin())
 			$nAuthorsNewProposals=count(AuthorsOfNewProposals($questionid,$generation));
 			$nAuthorsRecentProposals=count(AuthorsOfNewProposals($questionid,$generation-1));
 			$nactualproposals=CountProposals($questionid,$generation);
-			
-			echo '"<a href="viewquestion.php?q=' . $row[0] . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';	
-				
+
+			echo '"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
+
 		}
 
-		echo '</p>';		
-	}	
+		echo '</p>';
+	}
 	echo '</div>';
 ?>
 
@@ -89,7 +101,9 @@ if (isloggedin())
 	<p>Please endorse the answers you agree with</p>
 
 <?php
-		$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid ORDER BY questions.roundid DESC, questions.phase DESC, questions.id DESC LIMIT 6";
+		// Get Recent Endorsments
+		//
+		$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.room FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.roundid DESC, questions.phase DESC, questions.id DESC LIMIT 6";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -97,14 +111,16 @@ if (isloggedin())
 		$phase=$row[3];
 		$thatusername=$row[4];
 		$thatuserid=$row[5];
-			
-			echo '"<a href="viewquestion.php?q=' . $row[0] . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
+		$room=$row[7];
+		$urlquery = CreateQuestionURL($questionid, $room);
 
-		echo '</p>';	
-		
-	}	
+			echo '"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
 
-	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest FROM questions, users, proposals WHERE questions.phase = 1 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id GROUP BY questions.id ORDER BY latest DESC LIMIT 4";
+		echo '</p>';
+
+	}
+
+	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest, questions.room FROM questions, users, proposals WHERE questions.phase = 1 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id GROUP BY questions.id ORDER BY latest DESC LIMIT 4";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -115,7 +131,9 @@ if (isloggedin())
 		$thatuserid=$row[5];
 		$proposalsid=$row[6];
 		$questionid=$row[0];
-		
+		$room=$row[7];
+		$urlquery = CreateQuestionURL($questionid, $room);
+
 		if ($phase)
 		{
 		}
@@ -129,13 +147,13 @@ if (isloggedin())
 			$nAuthorsNewProposals=count(AuthorsOfNewProposals($questionid,$generation));
 			$nAuthorsRecentProposals=count(AuthorsOfNewProposals($questionid,$generation-1));
 			$nactualproposals=CountProposals($questionid,$generation);
-			
-			echo '"<a href="viewquestion.php?q=' . $row[0] . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';	
-				
+
+			echo '"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
+
 		}
 
-		echo '</p>';		
-	}	
+		echo '</p>';
+	}
 	echo '</div>';
 ?>
 
@@ -190,4 +208,4 @@ else
 
 include('footer.php');
 
-?> 
+?>

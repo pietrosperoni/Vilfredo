@@ -4,9 +4,9 @@ include('header.php');
 
 $userid=isloggedin();
 if ($userid)
-{	
-	
-	if (!get_magic_quotes_gpc()) 
+{
+
+	if (!get_magic_quotes_gpc())
 	{
 		$blurb = addslashes($_POST['blurb']);
 	}
@@ -15,12 +15,16 @@ if ($userid)
 		$blurb = $_POST['blurb'];
 	}
 #	$blurb=nl2br($blurb);
-	
+
 	$question = $_POST['question'];
+
+	$room = GetRoom($question);
+	$urlquery = CreateQuestionURL($question, $room);
+
 	$sql2 = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response2 = mysql_query($sql2);
 	while ($row2 = mysql_fetch_row($response2))
-	{		
+	{
 		$roundid =	$row2[0];
 	}
 	$nAuthorsNewProposals=count(AuthorsOfNewProposals($question,$roundid));
@@ -34,10 +38,10 @@ if ($userid)
 		AwareAuthorOfNewProposal($question);
 	}
 
-	header("Location: viewquestion.php?q=".$question."");
+	header("Location: viewquestion.php".$urlquery."");
 }
 else
 {
 		header("Location: login.php");
 }
-?> 
+?>

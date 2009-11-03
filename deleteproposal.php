@@ -23,7 +23,7 @@ include('header.php');
 
 
 $userid=isloggedin();
-if ($userid==2)
+if (isAdmin($userid))
 {	
 	
 	$proposal = $_POST['p'];

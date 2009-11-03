@@ -4,9 +4,9 @@ include('header.php');
 
 $userid=isloggedin();
 if ($userid)
-{	
+{
 	$proposal = $_POST['proposal'];
-	
+
 	$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $proposal . " LIMIT 1";
 	if(mysql_fetch_row(mysql_query($sql)))
 	{
@@ -22,8 +22,10 @@ if ($userid)
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
-		header("Location: viewquestion.php?q=".$row[0]."");
-		
+		$room = GetRoom($row[0]);
+		$urlquery = CreateQuestionURL($row[0], $room);
+		header("Location: viewquestion.php".$urlquery."");
+
 	}
 //	header("Location: viewproposal.php?p=".$proposal."");
 //	echo $row ;
@@ -32,4 +34,4 @@ else
 {
 		header("Location: login.php");
 }
-?> 
+?>

@@ -7,6 +7,10 @@
 -- Server version: 5.0.67
 -- PHP Version: 5.2.9
 
+CREATE DATABASE IF NOT EXISTS goes_to_athens;
+
+USE goes_to_athens;
+
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
@@ -92,3 +96,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` text NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=52 ;
+
+
+ALTER TABLE `questions` ADD `room` VARCHAR(20) NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id` int(11) NOT NULL auto_increment,
+  `userid` int(11) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=34 ;
+
+
+
+

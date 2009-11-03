@@ -4,15 +4,15 @@
 
 include('header.php');
 $userid=isloggedin();
-if ($userid==2)
+if (isAdmin($userid))
 {
 	$question = $_GET['q'];
 	
-	
+	/*
 	if ($userid!=2)
 	{
 		exit;
-	}
+	}*/
 	
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  ";
 	$response = mysql_query($sql);

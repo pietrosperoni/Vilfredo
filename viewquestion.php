@@ -24,8 +24,17 @@ include('header.php');
 $userid=isloggedin();
 if ($userid)
 {
-	$question = $_GET['q'];
-	
+
+	// Check if user has room access.
+	if (!HasRoomAccess($userid))
+	{
+		header("Location: index.php");
+	}
+
+	$question = $_GET[QUERY_KEY_QUESTION];
+
+	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_row($response);
@@ -40,6 +49,7 @@ if ($userid)
 	?>
 	<form method="POST" action="changeupdate.php">
 		<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+		<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
 		<input type="submit" name="submit" id="submit" value="Switch the update On/Off" />
 	</form>
 	<?php
@@ -58,7 +68,7 @@ if ($userid)
 			$lastmoveonTime=strtotime( $row[6] );
 		}
 		$minimumtime= $row[7] ;
-		
+
 		$timeelapsed=time()-$lastmoveonTime;
 		if ($timeelapsed>=$minimumtime)
 		{
@@ -73,61 +83,61 @@ if ($userid)
 		$hourseselapsed=(int)($timeelapsed/(60*60));
 		$timeelapsed=$timeelapsed-$hourseselapsed*60*60;
 		$minuteselapsed=(int)($timeelapsed/60);
-		
+
 
 		$minimumdays=(int)($minimumtime/(60*60*24));
 		$minimumtime=$minimumtime-$minimumdays*60*60*24;
 		$minimumhours=(int)($minimumtime/(60*60));
 		$minimumtime=$minimumtime-$minimumhours*60*60;
 		$minimumminutes=(int)($minimumtime/60);
-		
-		
+
+
 		echo '<h2 id="question">' . $title . '</h2>';
 		echo '<div id="question">' . $content . '</div>';
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
 		$response2 = mysql_query($sql2);
 		while ($row2 = mysql_fetch_row($response2))
-		{					
+		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 		}
-		
+
 		if (($phase==0) && ($generation>1))
 		{
 			echo '<div id="paretofrontbox">';
 			echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
-			echo "<p><i>The different proposals do not represent the best proposals, nor the more popular. 
-Strictly speaking they are the pareto front of the set of proposals. 
+			echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
+Strictly speaking they are the pareto front of the set of proposals.
 You can think of it as the smallest set of proposals such that every participant is represented.</i></p>
 
 ";
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
-			{	
+			{
 				$sql3 = "SELECT blurb FROM proposals WHERE id = ".$p." LIMIT 1 ";
 				$response3 = mysql_query($sql3);
 				while ($row3 = mysql_fetch_row($response3))
 				{
 					echo '<p class="paretoproposal">' . $row3[0] ;
-					
-					
+
+
 					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
 					$response4 = mysql_query($sql4);
 					echo '<br>Endorsed by: ';
 					while ($row4 = mysql_fetch_row($response4))
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
-					}	
+					}
 					echo '</br>';
 					echo '</p>';
 
 
 				}
 			}
-			
+
 			echo '</div>';
 		}
-		
+
 		echo '<div id="actionbox">';
 		echo "<h3>Generation ".$generation.": ";
 		if ( $phase==0)
@@ -135,7 +145,7 @@ You can think of it as the smallest set of proposals such that every participant
 			echo "Phase: Writing New Proposals</h3>";
 			if ($generation==1)
 			{
-				echo "<p><i>What should you do now? 
+				echo "<p><i>What should you do now?
 You should now answer the question. Giving your best shot. Later, after everybody has written their answer, you will all be given the possibility to endorse each other question, and try to find common denominators.</i></p>
 ";
 			}
@@ -146,18 +156,18 @@ You can insert brand new ideas;
 rewrite previous ideas (maybe trying to explain them better);
 recover old ideas from the history of the question;
 try to write a proposal that represent an acceptable compromise between different winning proposals. If you do this well, the new proposal will be endorsed by both the proponent of the first and of the second proposal, and you will have effectively joined those proposals.</i></p>
-";			
+";
 			}
-			
+
 	$NProposals=CountProposals($question,$generation);
 	echo "<p>Number of authors of new proposals: ".count(AuthorsOfNewProposals($question,$generation))."</p>";
 	echo "<p>Number of proposals written so far: ".$NProposals."</p>";
 #	echo "<p>Number of proposals written by you: ".."</p>";
 #	echo "<p>Number of proposals inherited from the past geeration: ".."</p>";
 #	echo "<p>Number of new proposals written by others: ".."</p>";
-			
-			
-		
+
+
+
 
 		}
 		if ( $phase==1)
@@ -172,11 +182,11 @@ try to write a proposal that represent an acceptable compromise between differen
 
 	if ( $phase==0 and CountProposals($question,$generation) and $userid==$creatorid and $tomoveon==1)
 	{
-	
+
 
 		?>
 		<form method="POST" action="moveontoendorse.php">
-		If everybody has written their proposals, you can: 
+		If everybody has written their proposals, you can:
 			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 			<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
 		</form>
@@ -196,7 +206,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		{
 			?>
 			<form method="POST" action="moveontowriting.php">
-			If everybody has endorsed the proposals they wanted to endorse, you can: 
+			If everybody has endorsed the proposals they wanted to endorse, you can:
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
 			</form>
@@ -217,7 +227,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		echo "must have passed between the first proposal and the moment when the questioner can move the question on.</p>";
 
 ?>
-			<form method="POST" action="newproposaltake.php">			
+			<form method="POST" action="newproposaltake.php">
       <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
          include_once("js/jquery/RichTextEditor/content_editor_proposal.php");
@@ -227,12 +237,12 @@ try to write a proposal that represent an acceptable compromise between differen
 				<input type="submit" name="submit" id="submit" value="Create proposal" />
 			</form>
 <script type="text/javascript">
-   window.onload = function(){ 
+   window.onload = function(){
       try{
          $("#content_rte").jqrte();
       }
       catch(e){}
-   } 
+   }
 
    $(document).ready(function() {
          $("#content_rte").jqrte_setIcon();
@@ -249,14 +259,14 @@ try to write a proposal that represent an acceptable compromise between differen
 			echo '<table border="1">';
 			while ($row = mysql_fetch_row($response))
 			{
-				?>		
+				?>
 						<tr>
 						<td><p><?php echo $row[1];?></p>
 						</td>
 						<td>
 							<form method="POST" action="deleteproposal.php">
 								<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-								<input type="submit" name="submit" id="submit" value="Edit or Delete" />
+								<input type="submit" name="submit" id="submit" value="Edit or Delete" <?php if (!isAdmin($userid)) echo 'disabled="true"' ?> />
 							</form>
 						</td>
 						</tr>
@@ -271,7 +281,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		}
 	}
 
-	
+
 	if ( $phase==1)
 	{
 		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation."  ORDER BY `id` DESC  ";
@@ -285,7 +295,7 @@ try to write a proposal that represent an acceptable compromise between differen
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1">
 			<tr><td><h4>Proposed Solution</h4></td><td><b>Check all the ones you endorse</b></td></tr>
-			
+
 			<?php
 
 			while ($row = mysql_fetch_row($response))
@@ -293,8 +303,8 @@ try to write a proposal that represent an acceptable compromise between differen
 				echo '<tr>';
 				#echo '<td><p><a href="viewproposal.php?p='.$row[0].'">link</a></td><td>';
 				echo '<td><p>' . $row[1] . '</td><td>';
-				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';  
-				
+				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
+
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
 				if(mysql_fetch_row(mysql_query($sql)))
 				{
@@ -308,7 +318,7 @@ try to write a proposal that represent an acceptable compromise between differen
 			<tr><td></td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
 			</tr></table>
 			</form>
-			<?php			
+			<?php
 
 		}
 		else
@@ -316,7 +326,7 @@ try to write a proposal that represent an acceptable compromise between differen
 			echo "Sorry no proposals yet";
 		}
 	}
-	
+
 	echo '</div>';
 	if ($generation>1)
 	{
@@ -334,12 +344,4 @@ else
 
 include('footer.php');
 
-?> 
-
-
-
-
-
-
-
-	
+?>
