@@ -291,7 +291,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		{
 			echo "<h3>Proposals:</h3>";
 			?>
-			<form method="POST" action="endorse_or_not2.php">
+			<form method="POST" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1">
 			<tr><td><h4>Proposed Solution</h4></td><td><b>Check all the ones you endorse</b></td></tr>
