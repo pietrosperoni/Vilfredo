@@ -53,9 +53,10 @@ if ($userid)
 		AwareAuthorOfNewEndorsement($question);
 	}
 	
+	$room = GetRoom($question);
+	$urlquery = CreateQuestionURL($question, $room);
 	
-	
-	header("Location: viewquestion.php?q=".$question."");
+	header("Location: viewquestion.php".$urlquery);
 }
 else
 {
