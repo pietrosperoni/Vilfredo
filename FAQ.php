@@ -12,6 +12,9 @@ if (isloggedin())
 <h3><b>What is an open question?</b></h3>
 <p>An open question is a question whose answer is not implicit in the question. Generally open questions start with "how", "why", "what shall".</p>
 <p>Par contro a closed question is a question where the answers are already given (implicitly or explicitly). Open questions invite the person who is answering them to think, and can bring on unexpected results. As such open questions are good educative tools, but are often feared for they give a lot of power to the person who is answering them.</p>
+<h3><b>What is a room?</b></h3>
+<p>When you ask a new question you are given the option to assign it to a room. You can name the room (alpha-numeric characters and underscores only) or generate a random name - good if you want privacy. Only people who know the room will see your question. For the moment, in order to view a question in a room you need to enter the question number and the room parameter in the URL, eg</p>
+<p>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</p>
 <h3><b>What are generations?</b></h3>
 <p>To make sure that each answer competes with the others in a fair way we need to let everybody chose which of them to endorse at the same time, and stop at the same time. So we need to have two phases, a writing phase, where everybody can write their proposals, and an endorsing time, where everybody is allowed to endorse each other questions (and its own's as well). A writing phase followed by an endorsing phase constitute a generation</p>
 <h3><b>what does it mean to "ignore vs endorese"?</b></h3>

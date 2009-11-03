@@ -71,6 +71,18 @@ define("QUERY_KEY_ROOM", "room");
 define("RANDOM_ROOM_CODE_LENGTH", 8);
 define("USE_PRIVACY_FILTER", TRUE);
 
+function FormatRoomId($room)
+{
+	// Alpha-numeric characters and underscores only.
+	if (!empty($room))
+	{
+		$room = trim($room);
+		$room = ereg_replace("[^A-Za-z0-9_[:space:]]", "", $room );
+		$room = str_replace(" ", "_", $room);
+	}
+	return $room;
+}
+
 function GetRoomAccessFilter($userid)
 {
 	#$filter = "(questions.usercreatorid = '".$userid."' OR questions.room = '')";

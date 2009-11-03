@@ -42,7 +42,7 @@ var roomId = <?php echo "'$randomID'" ?>;
     <h2>Create a New Question</h2>
 	<form method="POST" action="newquestiontake.php">
 	<p><strong>Create a new room for your question (Optional)</strong>: <input name="roomid" id="roomid" type="text" size="22" maxlength="20" value=""/> <input name="getRoomID" value="Generate Room ID" type="button" onclick="document.getElementById('roomid').value=roomId"/></p>
-
+	<p>When you ask a new question you are given the option to assign it to a room. You can name the room (alpha-numeric characters and underscores only) or generate a random name - good if you want privacy. Only people who know the room will see your question. For the moment, in order to view a question in a room you need to enter the question number and the room parameter in the URL, eg</p><p>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</p>
 
 	<p><strong>The question must be an open question</strong>: A question that has multiple possible answers.<br/>
     So many, in fact, that you cannot think yourself of ALL the alternatives! <br/>

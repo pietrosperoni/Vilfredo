@@ -9,7 +9,8 @@ $maximumtime=(int)$_POST['maximumtime'];
 
 // Equals empty string if field lift blank
 $room = '';
-$room = $_POST['roomid'];
+// Alpha-numeric characters and underscores only.
+$room = FormatRoomId($_POST['roomid']);
     
 
 	if (!get_magic_quotes_gpc())
