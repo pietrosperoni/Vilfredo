@@ -24,9 +24,8 @@ include('header.php');
 $userid=isloggedin();
 if ($userid)
 {
-
 	// Check if user has room access.
-	if (!HasRoomAccess($userid))
+	if (!HasQuestionAccess())
 	{
 		header("Location: index.php");
 	}

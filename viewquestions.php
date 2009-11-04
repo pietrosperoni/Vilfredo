@@ -45,7 +45,10 @@ $(".foottip a").tooltip({
 	// **
 	// Set room access filter
 	// **
-	$room_access = GetRoomAccessFilter($userid);
+	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+	$room_access = GetRoomAccessFilter($userid, $room);
+	#echo $room_access;
+	#exit;
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room FROM questions, users WHERE questions.phase = 0 AND questions.roundid = 1 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.id DESC LIMIT 50";
 	$response = mysql_query($sql);

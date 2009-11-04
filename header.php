@@ -108,18 +108,6 @@ function FormatRoomId($room)
 	return $room;
 }
 
-function GetRoomAccessFilter($userid)
-{
-	#$filter = "(questions.usercreatorid = '".$userid."' OR questions.room = '')";
-	
-	if (USE_PRIVACY_FILTER)
-		$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
-	else
-		$filter = "";
-	
-	return $filter;
-}
-
 function getUniqueRoomCode()
 {
 	$code = md5(uniqid(rand(), true));
@@ -163,7 +151,60 @@ function GetParamFromQuery($key)
 	return $param;
 }
 
-function HasRoomAccess($userid)
+function GetRoomAccessFilter($userid, $room='')
+{
+	#$filter = "(questions.usercreatorid = '".$userid."' OR questions.room = '')";
+	
+	if (USE_PRIVACY_FILTER)
+	{	
+		if (empty($room)) 
+		{
+			$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
+		}
+		else 
+		{
+			$filter=" AND (questions.room = '$room') ";
+		}
+	}
+	else
+	{
+		$filter = "";
+	}
+	
+	return $filter;
+}
+
+function HasRoomAccess($room="")
+{
+	if (empty($room))
+		return true;
+
+	$sql = "SELECT * FROM questions WHERE room = '$room'";
+	$response = mysql_query($sql);
+	        
+        if (mysql_num_rows($response) > 0)
+	
+	if (isset($_GET[QUERY_KEY_QUESTION]))
+             $question = $_GET[QUERY_KEY_QUESTION];
+	else
+            return false;
+
+	$roomdetails = GetRoomDetails($question);
+
+	if ($userid ==  $roomdetails['creator']) return true;
+
+	if (isset($_GET[QUERY_KEY_ROOM]))
+		$room = $_GET[QUERY_KEY_ROOM];
+	else
+		$room = "";
+
+	if (empty($roomdetails['room']) or ($room == $roomdetails['room']))
+            return true;
+	else
+            return false;
+}
+
+function HasQuestionAccess()
 {
 	$question = "";
 	$room = "";
@@ -175,7 +216,8 @@ function HasRoomAccess($userid)
 
 	$roomdetails = GetRoomDetails($question);
 
-	if ($userid ==  $roomdetails['creator']) return true;
+	#// Return true if owner
+	#if ($userid ==  $roomdetails['creator']) return true;
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
 		$room = $_GET[QUERY_KEY_ROOM];
