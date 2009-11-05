@@ -45,11 +45,11 @@ $(".foottip a").tooltip({
 	echo '<h3>'. $user . ' has asked the following questions:</h3>';
 	
 	// **
-	// Set room access filter
+	// Set user access filter
 	// **
-	$room_access = GetRoomAccessFilter($userid);
+	$user_access = GetUserAccessFilter($uid);
 
-	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.roundid, questions.title, questions.room FROM questions WHERE questions.usercreatorid = " . $uid .  $room_access . " ORDER BY  questions.id DESC ";
+	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.roundid, questions.title, questions.room FROM questions WHERE questions.usercreatorid = " . $uid .  $user_access . " ORDER BY  questions.id DESC ";
 
 	$response = mysql_query($sql);
 
@@ -78,7 +78,7 @@ $(".foottip a").tooltip({
 
 	#$sql = "SELECT endorse.userid, endorse.proposalid, proposals.blurb, proposals.id, proposals.roundid, proposals.experimentid FROM endorse, proposals WHERE endorse.userid = ".$uid." AND proposals.id = endorse.proposalid ORDER BY proposals.experimentid DESC, proposals.roundid DESC ";
 	
-	$sql = "SELECT endorse.userid, endorse.proposalid, proposals.blurb, proposals.id, proposals.roundid, proposals.experimentid FROM endorse, proposals, questions WHERE endorse.userid = ".$uid." AND proposals.id = endorse.proposalid AND proposals.experimentid = questions.id " . $room_access . " ORDER BY proposals.experimentid DESC, proposals.roundid DESC ";
+	$sql = "SELECT endorse.userid, endorse.proposalid, proposals.blurb, proposals.id, proposals.roundid, proposals.experimentid FROM endorse, proposals, questions WHERE endorse.userid = ".$uid." AND proposals.id = endorse.proposalid AND proposals.experimentid = questions.id " . $user_access . " ORDER BY proposals.experimentid DESC, proposals.roundid DESC ";
 
 	$response = mysql_query($sql);
 

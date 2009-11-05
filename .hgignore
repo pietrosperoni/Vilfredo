@@ -1,3 +1,4 @@
 glob:priv/
 glob:js/
 glob:images/
+glob:nbproject

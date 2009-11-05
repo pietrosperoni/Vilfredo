@@ -30,10 +30,12 @@ $(".foottip a").tooltip({
 });
 </script>
 <?php
+// Prepare room query param if set
+$room_param = CreateNewQuestionURL();
 	?>
 		<div class="centerbox">
 		<div class="newquestionbox">
-			<h3><a href="newquestion.php">Ask a New Question</a></h3>
+			<h3><a href="newquestion.php<?php echo $room_param?>">Ask a New Question</a></h3>
 		</div>
 		<?php
 
@@ -45,8 +47,8 @@ $(".foottip a").tooltip({
 	// **
 	// Set room access filter
 	// **
-	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-	$room_access = GetRoomAccessFilter($userid, $room);
+	#$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+	$room_access = GetViewAllRoomAccessFilter($userid);
 	#echo $room_access;
 	#exit;
 

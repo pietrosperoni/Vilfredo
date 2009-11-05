@@ -91,10 +91,150 @@ function error($message, $level=VILFREDO_ERROR)
 // VILFREDO ROOMS
 //
 //******************************************
+define("QUERY_KEY_USER", "u");
 define("QUERY_KEY_QUESTION", "q");
 define("QUERY_KEY_ROOM", "room");
 define("RANDOM_ROOM_CODE_LENGTH", 8);
 define("USE_PRIVACY_FILTER", TRUE);
+
+function GetParamFromQuery($key)
+{
+	$param = isset($_GET[$key]) ? $_GET[$key] : "";
+	return $param;
+}
+
+function CheckQuery($key)
+{
+	$isSet = (isset($_GET[$key]) & !empty($_GET[$key])) ? true : false;
+	return $isSet;
+}
+
+function CreateNewQuestionURL()
+{
+	$question_url = '';
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
+	// Add room id if not empty
+	if (!empty($room)) {
+        	$question_url .= "?" . QUERY_KEY_ROOM . "=".$room;
+        }
+        
+        return  $question_url;
+}
+
+function CreateQuestionURL($question, $room="")
+{
+	if (!isset($question) or empty($question))
+             error("Question parameter not set!!!");
+
+	$question_url = "?" . QUERY_KEY_QUESTION . "=".$question;
+
+	// Add room id if not empty
+	if (!empty($room))
+            $question_url .= "&" . QUERY_KEY_ROOM . "=".$room;
+
+	return $question_url;
+}
+
+function GetViewAllRoomAccessFilter($userid)
+{	
+	// Get room if set
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
+	// Get user if set
+	$uid = GetParamFromQuery(QUERY_KEY_USER);
+	// Check if user IDs match
+	$sameuser = ($uid == $userid);
+	
+	if (USE_PRIVACY_FILTER === false) return '';
+
+
+	// View All Questions
+	//
+	// USER
+	//
+	// A different user
+	if (CheckQuery(QUERY_KEY_USER) & !$sameuser & !CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '') ";
+	}
+	//
+	// Current user - 'View My Questions' Menu Option
+	elseif (CheckQuery(QUERY_KEY_USER) & $sameuser & !CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$uid') ";
+	}
+	//
+	//USER & ROOM
+	//
+	// Makes no difference whether same or different user. Room is the key.
+	elseif (CheckQuery(QUERY_KEY_USER) & CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '$room') ";
+	}
+	//
+	// ROOM
+	// 
+	// Room is the key.
+	elseif  (!CheckQuery(QUERY_KEY_USER) & CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.room = '$room') ";
+	}
+	else
+	{
+		$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
+	}
+	
+	return $filter;
+}
+
+function GetUserAccessFilter($uid)
+{	
+	// Get logged in ID
+	$userid = isloggedin();
+	// Check if user IDs match
+	$is_current_user = ($userid == $uid);
+	
+	$filter = "";
+	
+	if (USE_PRIVACY_FILTER)
+	{	
+		if (!$is_current_user)
+		{
+			$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '') ";
+		}
+	}
+	
+	return $filter;
+}
+
+function GetRoomAccessFilter($userid, $room='')
+{	
+	// Get logged in ID
+	$current_user = isloggedin();
+	// Check if user IDs match
+	$is_current_user = ($current_user == $userid);
+	
+	if (USE_PRIVACY_FILTER)
+	{	
+		if ((!$is_current_user) & empty($room))
+		{
+			$filter=" AND (questions.usercreatorid = '$userid' AND questions.room = '') ";
+		}
+		if (empty($room)) 
+		{
+			$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
+		}
+		else 
+		{
+			$filter=" AND (questions.room = '$room') ";
+		}
+	}
+	else
+	{
+		$filter = "";
+	}
+	
+	return $filter;
+}
 
 function FormatRoomId($room)
 {
@@ -114,20 +254,6 @@ function getUniqueRoomCode()
 	return substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
 }
 
-function CreateQuestionURL($question, $room="")
-{
-	if (!isset($question) or empty($question))
-             error("Question parameter not set!!!");
-
-	$question_url = "?" . QUERY_KEY_QUESTION . "=".$question;
-
-	// Add room id if not empty
-	if (!empty($room))
-            $question_url .= "&" . QUERY_KEY_ROOM . "=".$room;
-
-	return $question_url;
-}
-
 function CreateVFURL($url, $question="", $room="")
 {
 	if (!isset($url) or empty($url))
@@ -143,35 +269,6 @@ function CreateVFURL($url, $question="", $room="")
             $vf_url .= "&" . QUERY_KEY_ROOM . "=". $room;
 
 	return $vf_url;
-}
-
-function GetParamFromQuery($key)
-{
-	$param = isset($_GET[$key]) ? $_GET[$key] : "";
-	return $param;
-}
-
-function GetRoomAccessFilter($userid, $room='')
-{
-	#$filter = "(questions.usercreatorid = '".$userid."' OR questions.room = '')";
-	
-	if (USE_PRIVACY_FILTER)
-	{	
-		if (empty($room)) 
-		{
-			$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
-		}
-		else 
-		{
-			$filter=" AND (questions.room = '$room') ";
-		}
-	}
-	else
-	{
-		$filter = "";
-	}
-	
-	return $filter;
 }
 
 function HasRoomAccess($room="")
@@ -1304,7 +1401,8 @@ pageTracker._trackPageview();
 
 				<ul id="nav">
 					<li><a href="index.php">Home</a></li>
-					<li><a href="viewquestions.php">View Questions</a></li>
+					<li><a href="viewquestions.php">View All Questions</a></li>
+					<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
 					<li><a href="FAQ.php">F.A.Q.</a></li>
 					<li>Hello <?php echo $_COOKIE['ID_my_site']; ?></li>
 					<li><a href="editdetails.php">Update Email</a></li>
