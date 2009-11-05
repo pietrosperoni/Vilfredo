@@ -5,7 +5,7 @@ include('header.php');
 $userid=isloggedin();
 if ($userid)
 {
-	$question = '70';//$_POST['question'];
+	$question = $_POST['question'];
 	MoveOnToWriting($question);
 
 	$room = GetRoom($question);
