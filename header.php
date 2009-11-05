@@ -49,7 +49,7 @@ ob_start();
 //
 //	Eg. From PHP Manual:  http://php.net/manual/en/function.checkdnsrr.php
 //	For compatibility with Windows before this was implemented, 
-//	then try the » PEAR class » Net_DNS. 
+//	then try the Â» PEAR class Â» Net_DNS. 
 //	
 //******************************************
 function check_dnsrr($host, $type)
@@ -119,6 +119,17 @@ function CreateNewQuestionURL()
         }
         
         return  $question_url;
+}
+function CreateNewRoomURL()
+{
+	$question_url = '';
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
+	// Add room id if not empty
+	if (!empty($room)) 
+		{
+        	$question_url .= "?" . QUERY_KEY_ROOM . "=".$room;
+        }        
+    return  $question_url;
 }
 
 function CreateQuestionURL($question, $room="")
@@ -1379,6 +1390,9 @@ function WhoDominatesWho($proposal1,$proposal2)
 $userid=isloggedin();
 if ($userid)
 {
+
+	$room_param = GetParamFromQuery(QUERY_KEY_ROOM);
+	
 	?>
 
 		<body>
@@ -1400,8 +1414,15 @@ pageTracker._trackPageview();
 				<h1><img src="images/titleimg.png" alt="Vilfredo goes to Athens" /></h1>
 
 				<ul id="nav">
-					<li><a href="index.php">Home</a></li>
-					<li><a href="viewquestions.php">View All Questions</a></li>
+					<li><a href="viewquestions.php">View Common Room</a></li>
+					<?php if  ($room_param)
+						{ 
+						QUERY_KEY_ROOM
+						?>
+						<li><a href="viewquestions.php<?php echo CreateNewRoomURL(); ?>">View Room <?php echo $room_param; ?></a></li>
+						<?php
+						} 
+					?>
 					<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
 					<li><a href="FAQ.php">F.A.Q.</a></li>
 					<li>Hello <?php echo $_COOKIE['ID_my_site']; ?></li>
