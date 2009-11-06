@@ -265,7 +265,7 @@ try to write a proposal that represent an acceptable compromise between differen
 						<td>
 							<form method="POST" action="deleteproposal.php">
 								<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-								<input type="submit" name="submit" id="submit" value="Edit or Delete" <?php if (!isAdmin($userid)) echo 'disabled="true"' ?> />
+								<input type="submit" name="submit" id="submit" value="Edit or Delete" />
 							</form>
 						</td>
 						</tr>
