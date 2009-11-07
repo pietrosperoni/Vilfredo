@@ -105,7 +105,7 @@ function GetParamFromQuery($key)
 
 function CheckQuery($key)
 {
-	$isSet = (isset($_GET[$key]) & !empty($_GET[$key])) ? true : false;
+	$isSet = (isset($_GET[$key]) && !empty($_GET[$key])) ? true : false;
 	return $isSet;
 }
 
@@ -163,21 +163,21 @@ function GetViewAllRoomAccessFilter($userid)
 	// USER
 	//
 	// A different user
-	if (CheckQuery(QUERY_KEY_USER) & !$sameuser & !CheckQuery(QUERY_KEY_ROOM)) 
+	if (CheckQuery(QUERY_KEY_USER) && !$sameuser && !CheckQuery(QUERY_KEY_ROOM)) 
 	{
 		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '') ";
 	}
 	//
 	// Current user - 'View My Questions' Menu Option
-	elseif (CheckQuery(QUERY_KEY_USER) & $sameuser & !CheckQuery(QUERY_KEY_ROOM)) 
+	elseif (CheckQuery(QUERY_KEY_USER) && $sameuser && !CheckQuery(QUERY_KEY_ROOM)) 
 	{
-		$filter=" AND (questions.usercreatorid = '$uid') ";
+		$filter=" AND (questions.usercreatorid = '$userid') ";
 	}
 	//
 	//USER & ROOM
 	//
 	// Makes no difference whether same or different user. Room is the key.
-	elseif (CheckQuery(QUERY_KEY_USER) & CheckQuery(QUERY_KEY_ROOM)) 
+	elseif (CheckQuery(QUERY_KEY_USER) && CheckQuery(QUERY_KEY_ROOM)) 
 	{
 		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '$room') ";
 	}
@@ -185,10 +185,13 @@ function GetViewAllRoomAccessFilter($userid)
 	// ROOM
 	// 
 	// Room is the key.
-	elseif  (!CheckQuery(QUERY_KEY_USER) & CheckQuery(QUERY_KEY_ROOM)) 
+	elseif  (!CheckQuery(QUERY_KEY_USER) && CheckQuery(QUERY_KEY_ROOM)) 
 	{
 		$filter=" AND (questions.room = '$room') ";
 	}
+	// 
+	// View COMMON ROOM
+	// 
 	else
 	{
 		$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
@@ -226,7 +229,7 @@ function GetRoomAccessFilter($userid, $room='')
 	
 	if (USE_PRIVACY_FILTER)
 	{	
-		if ((!$is_current_user) & empty($room))
+		if ((!$is_current_user) && empty($room))
 		{
 			$filter=" AND (questions.usercreatorid = '$userid' AND questions.room = '') ";
 		}
