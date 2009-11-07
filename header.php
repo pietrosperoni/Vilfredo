@@ -194,7 +194,7 @@ function GetViewAllRoomAccessFilter($userid)
 	// 
 	else
 	{
-		$filter=" AND (questions.usercreatorid = '$userid' OR questions.room = '') ";
+		$filter=" AND questions.room = '' ";
 	}
 	
 	return $filter;
