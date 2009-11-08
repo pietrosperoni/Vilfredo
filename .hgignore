@@ -2,3 +2,4 @@ glob:priv/
 glob:js/
 glob:images/
 glob:nbproject
+glob:config.inc.php

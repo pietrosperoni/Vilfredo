@@ -39,7 +39,12 @@ ob_start();
 	<?php
 #	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
-
+//******************************************
+// Load System Serttings
+//	
+//******************************************
+require_once 'config.inc.php';
+//
 //******************************************
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()
@@ -79,9 +84,6 @@ function isAdmin($userid)
 // ERRORS
 //
 //******************************************
-// define("VILFREDO_ERROR", E_USER_NOTICE);
-define("VILFREDO_ERROR", E_USER_ERROR);
-
 function error($message, $level=VILFREDO_ERROR) 
 {
 	$caller = next(debug_backtrace());
@@ -91,13 +93,6 @@ function error($message, $level=VILFREDO_ERROR)
 // VILFREDO ROOMS
 //
 //******************************************
-define("QUERY_KEY_TODO", "todo");
-define("QUERY_KEY_USER", "u");
-define("QUERY_KEY_QUESTION", "q");
-define("QUERY_KEY_ROOM", "room");
-define("RANDOM_ROOM_CODE_LENGTH", 8);
-define("USE_PRIVACY_FILTER", TRUE);
-
 function GetParamFromQuery($key)
 {
 	$param = isset($_GET[$key]) ? $_GET[$key] : "";
