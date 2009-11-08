@@ -45,14 +45,14 @@ $room_param = CreateNewQuestionURL();
 	// *****
 	
 	// **
-	// Set room access filter
+	// Set question filter
 	// **
 	#$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-	$room_access = GetViewAllRoomAccessFilter($userid);
-	#echo $room_access;
+	$question_filter = GetQuestionFilter($userid);
+	#echo $question_filter;
 	#exit;
 
-	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room FROM questions, users WHERE questions.phase = 0 AND questions.roundid = 1 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.id DESC LIMIT 50";
+	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room FROM questions, users WHERE questions.phase = 0 AND questions.roundid = 1 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY questions.id DESC LIMIT 50";
 	$response = mysql_query($sql);
 	$newquestionswritten=0;
 	while ($row = mysql_fetch_row($response))
@@ -131,7 +131,7 @@ $room_param = CreateNewQuestionURL();
 
 #	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid ORDER BY questions.roundid DESC, questions.phase DESC, questions.id DESC ";
 
-	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.minimumtime, questions.maximumtime, questions.room  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.lastmoveon DESC, questions.roundid DESC, questions.phase DESC, questions.id DESC ";
+	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.minimumtime, questions.maximumtime, questions.room  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY questions.lastmoveon DESC, questions.roundid DESC, questions.phase DESC, questions.id DESC ";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -232,7 +232,7 @@ echo '<div class="proposingbox">';
 echo '<h2> <img src="images/writing.jpg" height=48> Propose an Answer to a Question</h2><p>';
 
 #echo "<h3>Questions Being Discussed</h3><p>";
-$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest , questions.question, questions.minimumtime, questions.maximumtime, questions.room FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id " . $room_access . " GROUP BY questions.id ORDER BY latest DESC";
+$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest , questions.question, questions.minimumtime, questions.maximumtime, questions.room FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id " . $question_filter . " GROUP BY questions.id ORDER BY latest DESC";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{
@@ -402,7 +402,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 	echo '<h2><img src="images/manyhands.jpg" height=48>Questions that reached unanimity</h2><p>';
 	echo "<p>If you do not agree with tha answers you can reopen them, by adding other proposals.</p>";
 
-	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.room  FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY  questions.lastmoveon DESC, questions.id DESC  ";
+	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.room  FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY  questions.lastmoveon DESC, questions.id DESC  ";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
 	{

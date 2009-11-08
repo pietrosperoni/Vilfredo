@@ -13,6 +13,9 @@ if ($userid)
 	foreach ($userstoinvite as $user)
 	{
 		InviteUserToQuestion($user,$question,$room,$userid);
+		// Add entry to invites table so user can see the question
+		// in his To-Do List page
+		SendInvite($userid, $user, $question);
 	}
 	#echo "Invitations Sent";
 

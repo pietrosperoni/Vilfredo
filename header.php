@@ -91,6 +91,7 @@ function error($message, $level=VILFREDO_ERROR)
 // VILFREDO ROOMS
 //
 //******************************************
+define("QUERY_KEY_TODO", "todo");
 define("QUERY_KEY_USER", "u");
 define("QUERY_KEY_QUESTION", "q");
 define("QUERY_KEY_ROOM", "room");
@@ -146,8 +147,99 @@ function CreateQuestionURL($question, $room="")
 	return $question_url;
 }
 
-function GetViewAllRoomAccessFilter($userid)
+function printbr($str)
+{
+	echo $str . "<br/>";
+}
+
+// prints out the contents of an array
+function print_array($arr, $name='', $quit=TRUE) {
+	if (is_array($arr))
+	{
+		print '<pre>';
+		if (!empty($name))
+			print $name.' :<br/>';
+		print_r($arr);
+		print '</pre>';
+	}
+
+	else printbr($name . ' ' . $arr);
+
+	if ($quit) exit;
+}
+
+//
+// To-Do Lists
+//
+// Return id's as sql list, eg '34', '45', '78'
+function db_make_id_list($id_array)
+{
+	$id_sql = "";
+
+	for ($i=0; $i < count($id_array); $i++)
+	{
+		if ($i == count($id_array)-1)
+			$id_sql .= "'" . $id_array[$i] . "'";
+		else
+			$id_sql .= "'" . $id_array[$i] . "', ";
+	}
+	return $id_sql;
+}
+
+function GetRelatedQuestions($userid)
+{
+	$related=array();
+	
+	$sql =  "SELECT questions.id as id FROM questions WHERE `usercreatorid` = '$userid' 
+	UNION
+	SELECT DISTINCT 
+	proposals.experimentid as id FROM proposals WHERE `usercreatorid` = '$userid'
+	UNION
+	SELECT question as id FROM  updates WHERE user = '$userid'
+	UNION
+	SELECT question as id FROM invites WHERE receiver = '$userid'
+	UNION
+	SELECT questions.id as id 
+	FROM questions, endorse, proposals
+	WHERE 
+	endorse.userid = '$userid'
+	AND
+	endorse.proposalid = proposals.id
+	AND
+	proposals.experimentid = questions.id ORDER BY id";
+	
+	#printbr($sql);
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_row($response))
+	{
+		array_push($related,$row[0]);
+	}
+	#print_array($related);
+	return ($related);
+}
+
+ function SendInvite($userid, $receiver, $question)
+ {  	     
+  	$sql = "INSERT INTO `invites` (sender, receiver, question, creationtime) 
+  	VALUES ('$userid', '$receiver', '$question', NOW())";
+  
+  	mysql_query($sql) or die(mysql_error());
+}
+//**************************************
+
+function GetQuestionFilter($userid)
 {	
+	if (isset($_GET[QUERY_KEY_TODO]))
+	{
+		$related_ids = db_make_id_list(GetRelatedQuestions($userid));
+		#printbr($related_ids);
+		if (empty($related_ids))
+			$filter = " AND questions.id IN (0) ";
+		else
+			$filter = " AND questions.id IN ($related_ids) ";
+		return $filter;
+	}
+	
 	// Get room if set
 	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 	// Get user if set
@@ -1427,6 +1519,7 @@ pageTracker._trackPageview();
 						} 
 					?>
 					<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
+					<li><a href="viewquestions.php?todo=">ToDo List</a></li>
 					<li><a href="FAQ.php">F.A.Q.</a></li>
 					<li>Hello <?php echo $_COOKIE['ID_my_site']; ?></li>
 					<li><a href="editdetails.php">Update Email</a></li>
