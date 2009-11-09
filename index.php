@@ -30,7 +30,7 @@ if ($userid)
 		$thatuserid=$row[5];
 		$proposalsid=$row[6];
 		$questionid=$row[0];
-		$room=$row[7];
+		$room=$row[6];
 		$urlquery = CreateQuestionURL($questionid, $room);
 
 		if ($phase)
@@ -69,7 +69,7 @@ if ($userid)
 		$thatuserid=$row[5];
 		$proposalsid=$row[6];
 		$questionid=$row[0];
-		$room=$row[8];
+		$room=$row[7];
 		$urlquery = CreateQuestionURL($questionid, $room);
 
 		if ($phase)
@@ -111,7 +111,7 @@ if ($userid)
 		$phase=$row[3];
 		$thatusername=$row[4];
 		$thatuserid=$row[5];
-		$room=$row[7];
+		$room=$row[6];
 		$urlquery = CreateQuestionURL($questionid, $room);
 
 			echo '"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
