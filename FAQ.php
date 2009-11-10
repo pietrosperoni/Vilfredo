@@ -15,6 +15,7 @@ if (isloggedin())
 <h3><b>What is a room?</b></h3>
 <p>When you ask a new question you are given the option to assign it to a room. You can name the room (alpha-numeric characters and underscores only) or generate a random name - good if you want privacy. Only people who know the room will see your question. For the moment, in order to view a question in a room you need to enter the question number and the room parameter in the URL, eg</p>
 <p>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</p>
+<p>However, the people you invite to submit proposals will be see your new question listed on their ToDo List page.</p>
 <h3><b>What are generations?</b></h3>
 <p>To make sure that each answer competes with the others in a fair way we need to let everybody chose which of them to endorse at the same time, and stop at the same time. So we need to have two phases, a writing phase, where everybody can write their proposals, and an endorsing time, where everybody is allowed to endorse each other questions (and its own's as well). A writing phase followed by an endorsing phase constitute a generation</p>
 <h3><b>what does it mean to "ignore vs endorese"?</b></h3>
