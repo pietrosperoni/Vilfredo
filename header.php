@@ -142,9 +142,19 @@ function CreateQuestionURL($question, $room="")
 	return $question_url;
 }
 
-function printbr($str)
+function DoLogin()
+{
+	// Store user's request for after login
+	session_start(); 
+	$_SESSION['request'] = $_SERVER[REQUEST_URI];
+	header("Location: login.php");
+}
+
+function printbr($str, $quit=FALSE)
 {
 	echo $str . "<br/>";
+	
+	if ($quit) exit;
 }
 
 // prints out the contents of an array

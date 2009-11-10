@@ -507,7 +507,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 }
 else
 {
-		header("Location: login.php");
+		DoLogin();
 }
 
 #		include('footer.php');

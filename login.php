@@ -52,7 +52,20 @@ else
 				setcookie(Key_my_site, $_POST['pass'], $hour);
 
 				//then redirect them to the members area
-				header("Location: viewquestions.php");
+				session_start(); 
+				if (isset($_SESSION['request'] )) 
+				{
+					// 
+					$request = $_SESSION['request'];
+					// 
+					unset($_SESSION['request']);
+					// 
+					$request = array_pop(explode('/', $request));
+					header("Location: " . $request);
+				}
+				else {
+					header("Location: viewquestions.php");
+				}
 			}
 		}
 	}
