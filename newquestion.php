@@ -148,7 +148,7 @@ Yes, this is a feature!)<br/>
 }
 else
 {
-		header("Location: login.php");
+		DoLogin();
 }
 
 include('footer.php');

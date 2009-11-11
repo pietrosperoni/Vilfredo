@@ -27,7 +27,7 @@ if (isloggedin())
 }
 else
 {
-		header("Location: login.php");
+		DoLogin();
 }
 
 include('footer.php');
