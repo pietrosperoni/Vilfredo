@@ -7,6 +7,12 @@ include('header.php');
 $userid=isloggedin();
 if ($userid)
 {
+	// Check if user has room access.
+	if (!HasQuestionAccess())
+	{
+		header("Location: index.php");
+	}
+	
 	$question = $_GET['q'];
 
 	echo "<h2>Question:</h2>";
@@ -144,7 +150,7 @@ if ($userid)
 }
 else
 {
-		header("Location: login.php");
+		DoLogin();
 }
 
 include('footer.php');
