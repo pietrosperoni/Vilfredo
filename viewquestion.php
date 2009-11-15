@@ -330,7 +330,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	if ($generation>1)
 	{
 		echo '<div>';
-		echo '<a href="viewhistoryofquestion.php?q=' . $question . '">View History of The Question</a>. Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.';
+		echo '<a href="viewhistoryofquestion.php?' . $_SERVER['QUERY_STRING'] . '">View History of The Question</a>. Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.';
 		echo '</div>';
 	}
 
