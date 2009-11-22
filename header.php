@@ -1086,16 +1086,16 @@ function SendMails($question)
 		if ($consensus)
 		{
 			$subject="VgtA, Agreement Found on: ".$title."";
-			$message="Hello, \n The question: ".$title."\n\n has just been updated, and we found an agreement!\n Please read the agreed answer here:\nhttp://vilfredo.org/viewquestion.php".$urlquery." \n If you are not satisfied and want to reopen the question you can do so by proposing something better at:\nhttp://vilfredo.org/viewquestion.php".$urlquery." ";
+			$message="Hello, \n The question: ".$title."\n\n has just been updated, and we found an agreement!\n Please read the agreed answer here:\n".SITE_DOMAIN."/viewquestion.php".$urlquery." \n If you are not satisfied and want to reopen the question you can do so by proposing something better at:\n".SITE_DOMAIN."/viewquestion.php".$urlquery." ";
 		}
 		else
 		{
 			$subject="VgtA: ".$title."";
-			$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\nYou can now see the minimum set of proposal on which everybody agrees.\nIf you think you can propose something better,\nthat would satisfy more people,\nplease do so. Here:\nhttp://vilfredo.org/viewquestion.php".$urlquery."";
+			$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\nYou can now see the minimum set of proposal on which everybody agrees.\nIf you think you can propose something better,\nthat would satisfy more people,\nplease do so. Here:\n".SITE_DOMAIN."/viewquestion.php".$urlquery."";
 		}
 	}else{
 		$subject="VgtA: ".$title."";
-		$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\n You can now see proposals that has been suggested. Please vote on ALL the ones you agree on here:\nhttp://vilfredo.org/viewquestion.php".$urlquery."";
+		$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\n You can now see proposals that has been suggested. Please vote on ALL the ones you agree on here:\n".SITE_DOMAIN."/viewquestion.php".$urlquery."";
 	}
 
 	$sql = "SELECT user FROM updates WHERE question = ".$question." and how = 'asap' ";
@@ -1190,7 +1190,7 @@ function AwareAuthorOfNewProposal($question)
 		Throught this process the best answers (the pareto front of the chosen answers) will be selected.
 
 		to move on you should go to the page of the question:
-		http://vilfredo.org/viewquestion.php'.$urlquery.'
+		'.SITE_DOMAIN.'/viewquestion.php'.$urlquery.'
 		and click on the moveon button.
 
 		Please consider that until you do so,
@@ -1241,7 +1241,7 @@ Now the question has endorsement(s) from '.$nEndorsers.' user(s).
 	The previous answers are also added as possible answers and will run for evaluation again.
 
 	To move on you should go to the page of the question:
-http://vilfredo.org/viewquestion.php'.$urlquery.'
+'.SITE_DOMAIN.'/viewquestion.php'.$urlquery.'
 and click on the "moveon" button.
 
 	Please consider that until you do so, no one is allowed to post new solutions to this question, and the question will just wait there. It is thus very important that after the question has waited enough you move it on.';
@@ -1277,7 +1277,7 @@ user '.$authorusername.' would like to invite you to participate in the question
 '.$title.'
 
 You can do this by going to the page
-http://vilfredo.org/viewquestion.php'.$question_url.'
+'.SITE_DOMAIN.'/viewquestion.php'.$question_url.'
 
 If you would like not to receive any more invitations from '.$authorusername.' you can tell him directly.';
 
