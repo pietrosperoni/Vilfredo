@@ -3,7 +3,7 @@
 
 
 include('header.php');
-$userid=isloggedin();
+#$userid=isloggedin();
 if (isAdmin($userid))
 {
 	$question = $_GET['q'];

@@ -266,3 +266,19 @@ div.tooltip {
     -moz-outline-radius:4px; 
     -webkit-outline-radius:4px; 
 }
+
+.login_sector {
+  width: 270px;
+  float: left;
+  border-right: solid 1px #839553;
+}
+
+.login_sector_soc {
+  float: left;
+  padding-left: 30px;
+  padding-top: 25px;
+}
+
+.clear {
+clear:both;
+}

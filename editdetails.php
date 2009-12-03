@@ -1,80 +1,6 @@
 <?php
-
-/**
-Validate an email address.
-Provide email address (raw input)
-Returns true if the email address has the email 
-address format and the domain exists.
-*/
-function validEmail($email)
-{
-   $isValid = true;
-   $atIndex = strrpos($email, "@");
-   if (is_bool($atIndex) && !$atIndex)
-   {
-      $isValid = false;
-   }
-   else
-   {
-      $domain = substr($email, $atIndex+1);
-      $local = substr($email, 0, $atIndex);
-      $localLen = strlen($local);
-      $domainLen = strlen($domain);
-      if ($localLen < 1 || $localLen > 64)
-      {
-         // local part length exceeded
-         $isValid = false;
-      }
-      else if ($domainLen < 1 || $domainLen > 255)
-      {
-         // domain part length exceeded
-         $isValid = false;
-      }
-      else if ($local[0] == '.' || $local[$localLen-1] == '.')
-      {
-         // local part starts or ends with '.'
-         $isValid = false;
-      }
-      else if (preg_match('/\\.\\./', $local))
-      {
-         // local part has two consecutive dots
-         $isValid = false;
-      }
-      else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
-      {
-         // character not valid in domain part
-         $isValid = false;
-      }
-      else if (preg_match('/\\.\\./', $domain))
-      {
-         // domain part has two consecutive dots
-         $isValid = false;
-      }
-      else if
-(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
-                 str_replace("\\\\","",$local)))
-      {
-         // character not valid in local part unless 
-         // local part is quoted
-         if (!preg_match('/^"(\\\\"|[^"])+"$/',
-             str_replace("\\\\","",$local)))
-         {
-            $isValid = false;
-         }
-      }
-      if ($isValid && !(check_dnsrr($domain,"MX") || check_dnsrr($domain,"A")))
-      {
-         // domain not found in DNS
-         $isValid = false;
-      }
-   }
-   return $isValid;
-}
-
-
-
 include('header.php');
-
+#$userid=isloggedin();
 if ($userid)
 {
 	//This code runs if the form has been submitted
@@ -98,13 +24,29 @@ if ($userid)
 			$sql = "UPDATE `users` SET `email` = '".$email."'  WHERE `users`.`id` = ".$userid." ";
 			mysql_query($sql);
 		}
+		
+		if (isset($_POST['request']) && empty($_POST['request']) == false)
+		{
+			$location = $_POST['request'];
+		}
+
+		$userinfo = getuserdetails($userid);
 		?>
 		<h1>email modified</h1>
+		<p><?php echo $userinfo['email']; ?></p>
+		<?php
+		
+		if (!empty($location))
+		echo '<p><a href="'.$location.'">Click to continue</a></p>';
+		?>
+		
 		<?php
 	}
 	else
 	{
+		$userinfo = getuserdetails($userid);
 		?>
+		<p>Your current email : <?php echo $userinfo['email'];?></p>
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 			<table border="0">
 				<tr>

@@ -4,7 +4,7 @@ $headcommands='';
 
 
 include('header.php');
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 	$question = $_GET[QUERY_KEY_QUESTION];

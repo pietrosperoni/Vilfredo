@@ -14,7 +14,7 @@ $headcommands='
 
 
 include('header.php');
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 ?>
@@ -509,9 +509,8 @@ else
 {
 		DoLogin();
 }
-
-#		include('footer.php');
-
-
-
+?>
+	<div class="clear"></div>
+<?php
+		include('footer.php');
 ?>

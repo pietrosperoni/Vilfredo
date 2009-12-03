@@ -1,5 +1,13 @@
-glob:priv/
-glob:js/
-glob:images/
-glob:nbproject
-glob:config.inc.php
+syntax: glob
+priv/
+js/
+lib/
+loc/
+images/
+work/
+nbproject/
+*.jpg
+test*
+*[0-9].php
+xd_receiver.htm
+Thumbs.db

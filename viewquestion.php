@@ -21,13 +21,13 @@ $headcommands='
 
 
 include('header.php');
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 	// Check if user has room access.
 	if (!HasQuestionAccess())
 	{
-		header("Location: index.php");
+		header("Location: viewquestions.php");
 	}
 
 	$question = $_GET[QUERY_KEY_QUESTION];

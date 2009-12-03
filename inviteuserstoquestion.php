@@ -1,7 +1,7 @@
 <?php
 include('header.php');
 
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 

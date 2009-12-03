@@ -1,15 +1,18 @@
 <?php
 include('header.php');
 
-if (isloggedin())
-{
-	$past = time() - 100;
-	setcookie(ID_my_site, gone, $past);
-	setcookie(Key_my_site, gone, $past);
+	// Logout if in loggedin in VGA mode
+	if (IsAuthenticated() && $_SESSION[USER_LOGIN_MODE] == 'VGA')
+	{
+		unset($_SESSION[USER_LOGIN_ID]);
+		unset($_SESSION[USER_LOGIN_MODE]);
+		
+		// Unset cookies
+		$past = time() - 100;
+		setcookie(ID_my_site, gone, $past);
+		setcookie(Key_my_site, gone, $past);
+	}
+	
 	header("Location: login.php");
-}
-else
-{
-		header("Location: login.php");
-}
+
 ?> 

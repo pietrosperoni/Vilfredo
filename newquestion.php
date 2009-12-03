@@ -20,7 +20,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>';
 
 include('header.php');
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 	$randomID = getUniqueRoomCode();

@@ -24,6 +24,7 @@
 *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *  
 */
+// Start output buffer
 ob_start();
 ?>
 <html>
@@ -42,10 +43,15 @@ ob_start();
 //******************************************
 // Load System Serttings
 //	
-//******************************************
 require_once 'config.inc.php';
 //
+$fb=new Facebook($facebook_key, $facebook_secret);
+// Start session for login
+session_start();
+// If $FACEBOOK_ID != NULL then current user is Facebook Authroized 
+$FACEBOOK_ID = get_current_facebook_userid($fb);
 //******************************************
+//
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()
 // --  This function not available on Windows platforms
@@ -56,7 +62,6 @@ require_once 'config.inc.php';
 //	For compatibility with Windows before this was implemented, 
 //	then try the » PEAR class » Net_DNS. 
 //	
-//******************************************
 function check_dnsrr($host, $type)
 {
 	if (function_exists('checkdnsrr'))
@@ -68,6 +73,7 @@ function check_dnsrr($host, $type)
 // ADMIN
 //	Users with id listed in admin table can delete 
 //	questions and proposals.
+//
 //******************************************
 function isAdmin($userid)
 {
@@ -140,14 +146,6 @@ function CreateQuestionURL($question, $room="")
             $question_url .= "&" . QUERY_KEY_ROOM . "=".$room;
 
 	return $question_url;
-}
-
-function DoLogin()
-{
-	// Store user's request for after login
-	session_start(); 
-	$_SESSION['request'] = $_SERVER[REQUEST_URI];
-	header("Location: login.php");
 }
 
 function printbr($str, $quit=FALSE)
@@ -237,11 +235,12 @@ function GetQuestionFilter($userid)
 	if (isset($_GET[QUERY_KEY_TODO]))
 	{
 		$related_ids = db_make_id_list(GetRelatedQuestions($userid));
-		#printbr($related_ids);
+
 		if (empty($related_ids))
 			$filter = " AND questions.id IN (0) ";
 		else
 			$filter = " AND questions.id IN ($related_ids) ";
+		
 		return $filter;
 	}
 	
@@ -252,7 +251,7 @@ function GetQuestionFilter($userid)
 	// Check if user IDs match
 	$sameuser = ($uid == $userid);
 	
-	if (USE_PRIVACY_FILTER === false) return '';
+	#if (USE_PRIVACY_FILTER === false) return '';
 
 
 	// View All Questions
@@ -306,13 +305,13 @@ function GetUserAccessFilter($uid)
 	
 	$filter = "";
 	
-	if (USE_PRIVACY_FILTER)
-	{	
+	#if (USE_PRIVACY_FILTER)
+	#{	
 		if (!$is_current_user)
 		{
 			$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '') ";
 		}
-	}
+	#}
 	
 	return $filter;
 }
@@ -324,8 +323,8 @@ function GetRoomAccessFilter($userid, $room='')
 	// Check if user IDs match
 	$is_current_user = ($current_user == $userid);
 	
-	if (USE_PRIVACY_FILTER)
-	{	
+	#if (USE_PRIVACY_FILTER)
+#	{	
 		if ((!$is_current_user) && empty($room))
 		{
 			$filter=" AND (questions.usercreatorid = '$userid' AND questions.room = '') ";
@@ -338,11 +337,11 @@ function GetRoomAccessFilter($userid, $room='')
 		{
 			$filter=" AND (questions.room = '$room') ";
 		}
-	}
-	else
-	{
-		$filter = "";
-	}
+	#}
+#	else
+#	{
+#		$filter = "";
+#	}
 	
 	return $filter;
 }
@@ -382,36 +381,6 @@ function CreateVFURL($url, $question="", $room="")
 	return $vf_url;
 }
 
-function HasRoomAccess($room="")
-{
-	if (empty($room))
-		return true;
-
-	$sql = "SELECT * FROM questions WHERE room = '$room'";
-	$response = mysql_query($sql);
-	        
-        if (mysql_num_rows($response) > 0)
-	
-	if (isset($_GET[QUERY_KEY_QUESTION]))
-             $question = $_GET[QUERY_KEY_QUESTION];
-	else
-            return false;
-
-	$roomdetails = GetRoomDetails($question);
-
-	if ($userid ==  $roomdetails['creator']) return true;
-
-	if (isset($_GET[QUERY_KEY_ROOM]))
-		$room = $_GET[QUERY_KEY_ROOM];
-	else
-		$room = "";
-
-	if (empty($roomdetails['room']) or ($room == $roomdetails['room']))
-            return true;
-	else
-            return false;
-}
-
 function HasQuestionAccess()
 {
 	$question = "";
@@ -423,9 +392,6 @@ function HasQuestionAccess()
             return false;
 
 	$roomdetails = GetRoomDetails($question);
-
-	#// Return true if owner
-	#if ($userid ==  $roomdetails['creator']) return true;
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
 		$room = $_GET[QUERY_KEY_ROOM];
@@ -448,9 +414,6 @@ function GetRoomDetails($question)
 
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_row($result);
-
-	$response = mysql_query($sql);
-	$row = mysql_fetch_row($response);
 
 	$roomdetails['creator'] = $row[0];
 	$roomdetails['room'] = $row[1];
@@ -487,25 +450,241 @@ function GetQuestionCreator($question)
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_row($result);
 
-	$response = mysql_query($sql);
-	$row = mysql_fetch_row($response);
 	$creator=$row[0];
 
 	return $creator;
 }
+
 //******************************************
-//******************************************
-###############################################################
 // Connects to the Database
-include('priv/dbdata.php');
 mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
 mysql_select_db($dbname) or die(mysql_error());
 
+//****************************
+// AUTHENTICATION
+//
+//****************************
+// Returns true if ping comes from Facebook
+function fb_verify_ping($secret)
+{
+	$sig = ''; 
+	ksort($_POST); 
+	foreach ($_POST as $key => $val) 
+	{ 
+		if (substr($key, 0, 7) == 'fb_sig_') 
+		{ 
+			$sig .= substr($key, 7) . '=' . $val; 
+		} 
+	} 
+	$sig .= $secret; 
+	$verify = md5($sig); 
+	return $verify == $_POST['fb_sig'];
+}
 
-// returns true if the user is logged in
+function set_error($msg, $log = VERBOSE)
+{
+	if ($log) {
+		error_log($msg . "\n", 3, ERROR_FILE);
+	}
+}
+
+function display_logout_link()
+{
+	if ($_SESSION[USER_LOGIN_MODE] == 'FB') 
+	{
+		return facebook_logout_link('fb_logout.php', 'Logout of Facebook'); 
+	}
+	else
+	{
+		return '<a href="logout.php">Logout</a>';
+	}
+}
+
+function getpostloginredirectlink()
+{
+	if (isset($_SESSION['request'] )) 
+	{
+		// Now send the user to his desired page
+		$request = $_SESSION['request'];
+		unset($_SESSION['request']);
+		return $request;
+	}
+	else 
+	{
+		return "viewquestions.php";
+	}
+}
+
+function postloginredirect()
+{
+	if (isset($_SESSION['request'] )) 
+	{
+		// Now send the user to his desired page
+		$request = $_SESSION['request'];
+		unset($_SESSION['request']);
+		return $request;
+		#header("Location: " . $request);
+	}
+	else 
+	{
+		return "viewquestions.php";
+		#header("Location: viewquestions.php");
+	}
+}
+
+function GetRequestString()
+{
+	return array_pop(explode('/', $_SERVER[REQUEST_URI]));
+}
+
+function GetRequest($location="viewquestions.php")
+{
+	//then redirect them to the members area
+	if (isset($_SESSION['request'] )) 
+	{
+		// Now send the user to his desired page
+		$request = $_SESSION['request'];
+		unset($_SESSION['request']);
+		header("Location: " . $request);
+	}
+	else {
+		header("Location: ".$location);
+	}
+}
+
+function SetRequest($location="viewquestions.php")
+{
+	if (DEBUG) {
+		unset($_SESSION['request']);
+		header("Location: ".$location);
+	}
+	else {
+		// Store user's request for after login
+		$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
+		header("Location: ".$location);
+	}
+}
+
+function DoLogin()
+{
+	if (DEBUG) {
+		unset($_SESSION['request']);
+		header("Location: login.php");
+	}
+	else {
+		// Store user's request for after login
+		$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
+		header("Location: login.php");
+	}
+}
+
+function IsAuthenticated()
+{            
+	return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
+}
+
+function fb_user_logout()
+{
+	if (IsAuthenticated() && $_SESSION[USER_LOGIN_MODE] == 'FB')
+	{
+		unset($_SESSION[USER_LOGIN_ID]);
+		unset($_SESSION[USER_LOGIN_MODE]);
+	}
+}
+
+// Workaround to detect invalid Facebook session
+function get_current_facebook_userid($fb)
+{
+	try 
+	{
+		// Test the current Facebook session with API call
+		$fb->api_client->users_isAppUser();
+		// Session valid, so get Facebook ID
+		$fb_uid = $fb->get_loggedin_user();
+		return $fb_uid;
+	} 
+	catch (FacebookRestClientException $e) 
+	{
+		// Exception thrown, session invalid
+		return null;
+	}
+}
+
 function isloggedin()
 {
+	global $FACEBOOK_ID;
+	
+	// First check if user has a current login session
+	if ($userid = IsAuthenticated())
+	{
+		// verify facebook session
+		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
+		{
+		 	if (is_null($FACEBOOK_ID))
+		 	{
+		 		fb_user_logout();
+		 		return false;
+		 	}
+		}
+		return $userid;
+	}
+	// Check of user has opted for permenant login
+	elseif ($userid = vga_cookie_login())
+	{
+		$_SESSION[USER_LOGIN_ID] = $userid;
+		$_SESSION[USER_LOGIN_MODE] = 'VGA';
+		return $userid;
+	}
+	// Finally check if a current Facebook session is available for a connected account
+	elseif ($FACEBOOK_ID != null && ($userid = fb_user_login($FACEBOOK_ID)))
+	{
+		$_SESSION[USER_LOGIN_ID] = $userid;
+		$_SESSION[USER_LOGIN_MODE] = 'FB';
+		return $userid;
+	}
+	// Else return false so the user can be redirected to the login page
+	else
+	{
+		return false;
+	}
+}
 
+// returns true if the user is logged in
+function fb_user_login($fb_uid)
+{
+	if ($fb_uid)
+	{
+		// Return the local user ID conected to the Facebook account
+		return fb_isconnected($fb_uid);
+	}
+	
+	else
+	{
+		// Facebook session may have expired,
+		// so end the active FB session if one exists. 
+		fb_user_logout();
+		return false;
+	}
+}
+
+// Return user ID of connected account
+function fb_isconnected($fb_uid)
+{
+	$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
+	$response = mysql_query($sql) or die(mysql_error());
+	
+	if (mysql_num_rows($response) > 0)
+	{
+		$user = mysql_fetch_assoc($response);
+		return $user['id'];
+	}
+	else 
+		return false;
+}
+
+// returns true if the user is logged in
+function vga_cookie_login()
+{
 	if(isset($_COOKIE['ID_my_site']))
 	{
 		$username = $_COOKIE['ID_my_site'];
@@ -533,6 +712,138 @@ function isloggedin()
 	}
 }
 
+// Return user details of connected account
+function fb_getuserdetails($fb_uid)
+{
+	$sql = "SELECT * FROM users WHERE fb_userid = '$fb_uid'";
+	$response = mysql_query($sql) or die(mysql_error());
+	
+	if (mysql_num_rows($response) > 0)
+		return mysql_fetch_assoc($response);
+	else 
+		return false;
+}
+
+// Return user details of connected account
+function getuserdetails($userid)
+{
+	$sql = "SELECT * FROM users WHERE id = '$userid'";
+	$response = mysql_query($sql) or die(mysql_error());
+	
+	if (mysql_num_rows($response) > 0)
+		return mysql_fetch_assoc($response);
+	else 
+		return false;
+}
+
+// Return user details of connected account
+function get_session_username()
+{
+	if (!IsAuthenticated())
+	{
+		error('invalid user id / session');
+	}	
+	$userid = $_SESSION[USER_LOGIN_ID];
+	$sql = "SELECT username FROM users WHERE id = '$userid'";
+	$response = mysql_query($sql) or die(mysql_error());
+	if ($info = mysql_fetch_assoc($response))
+	{
+		return $info['username'];
+	}
+	else
+	{
+		error('Unable to retrieve username for user $userid');
+	}
+}
+//***********************************************
+function longestproposal()
+{
+	$sql = "SELECT username as user, proposals.id, blurb, LENGTH(blurb) as length  
+		FROM proposals, users
+		WHERE proposals.usercreatorid = users.id
+		ORDER BY LENGTH(blurb) DESC LIMIT 1 ";
+		
+	$result = mysql_query($sql) or die(mysql_error());
+	$proposal = mysql_fetch_assoc($result);
+	$proposal['blurb'] = strip_tags($proposal['blurb'] );
+	$proposal['text'] = strlen($proposal['blurb']);
+	$proposal['html'] =  $proposal['length'] - $proposal['text'];
+	
+	$proposal['blurb'] = substr($proposal['blurb'], 0, 50 ) . '...';
+	
+	return $proposal;
+}
+
+/**
+Validate an email address.
+Provide email address (raw input)
+Returns true if the email address has the email 
+address format and the domain exists.
+*/
+function validEmail($email)
+{
+   $isValid = true;
+   $atIndex = strrpos($email, "@");
+   if (is_bool($atIndex) && !$atIndex)
+   {
+      $isValid = false;
+   }
+   else
+   {
+      $domain = substr($email, $atIndex+1);
+      $local = substr($email, 0, $atIndex);
+      $localLen = strlen($local);
+      $domainLen = strlen($domain);
+      if ($localLen < 1 || $localLen > 64)
+      {
+         // local part length exceeded
+         $isValid = false;
+      }
+      else if ($domainLen < 1 || $domainLen > 255)
+      {
+         // domain part length exceeded
+         $isValid = false;
+      }
+      else if ($local[0] == '.' || $local[$localLen-1] == '.')
+      {
+         // local part starts or ends with '.'
+         $isValid = false;
+      }
+      else if (preg_match('/\\.\\./', $local))
+      {
+         // local part has two consecutive dots
+         $isValid = false;
+      }
+      else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
+      {
+         // character not valid in domain part
+         $isValid = false;
+      }
+      else if (preg_match('/\\.\\./', $domain))
+      {
+         // domain part has two consecutive dots
+         $isValid = false;
+      }
+      else if
+(!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
+                 str_replace("\\\\","",$local)))
+      {
+         // character not valid in local part unless 
+         // local part is quoted
+         if (!preg_match('/^"(\\\\"|[^"])+"$/',
+             str_replace("\\\\","",$local)))
+         {
+            $isValid = false;
+         }
+      }
+      if ($isValid && !(check_dnsrr($domain,"MX") || check_dnsrr($domain,"A")))
+      {
+         // domain not found in DNS
+         $isValid = false;
+      }
+   }
+   return $isValid;
+}
 
 function CountProposals($question,$generation)
 {
@@ -545,8 +856,6 @@ function CountProposals($question,$generation)
 	}
 	return $n;
 }
-
-
 
 
 function CountEndorsersToAProposal($proposal)
@@ -1526,10 +1835,10 @@ pageTracker._trackPageview();
 					<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
 					<li><a href="viewquestions.php?todo=">ToDo List</a></li>
 					<li><a href="FAQ.php">F.A.Q.</a></li>
-					<li>Hello <?php echo $_COOKIE['ID_my_site']; ?></li>
+					<li>Hello <?php echo get_session_username(); ?></li>
 					<li><a href="editdetails.php">Update Email</a></li>
 					<li><a href="map.php">Website Map</a></li>
-					<li><a href="logout.php">Logout</a></li>
+					<li><?php echo display_logout_link(); ?></li>
 				</ul>
 
 			</div>
@@ -1546,6 +1855,7 @@ pageTracker._trackPageview();
 					<td>Please insert your email address (<a href="FAQ.php#email">why</a>?):</td>
 					<td>
 						<input type="text" name="email" maxlength="60">
+						<input type="hidden" name="request" value="<?php echo GetRequestString(); ?>"
 					</td>
 				</tr>
 				<tr>
@@ -1565,7 +1875,6 @@ pageTracker._trackPageview();
 else
 {
 	?>
-	<body>
 		<script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -1596,6 +1905,5 @@ pageTracker._trackPageview();
 			<div id="content_page">
 
 	<?php
+	
 }
-
-

@@ -1,13 +1,13 @@
 <?php
 include('header.php');
 
-if (isloggedin())
+#if (isloggedin())
+if ($userid)
 {
-	header("Location: index.php");
+	postloginredirect();
 }
 else
 {
-	
 	//if the login form is submitted
 	if (isset($_POST['submit'])) 
 	{ // if form has been submitted
@@ -45,22 +45,25 @@ else
 			}
 			else
 			{
-				// if login is ok then we add a cookie
-				$_POST['username'] = stripslashes($_POST['username']);
-				$hour = time() + (3600)*24*365;
-				setcookie(ID_my_site, $_POST['username'], $hour);
-				setcookie(Key_my_site, $_POST['pass'], $hour);
+				// if login is ok then we start a user session
+				$_SESSION[USER_LOGIN_ID] = $info['id'];
+				$_SESSION[USER_LOGIN_MODE] = 'VGA';
+				
+				// if Keep Logged In is checked then we add a cookie
+				if (isset($_POST['remember']) && $_POST['remember'] == 'on')
+				{
+					$_POST['username'] = stripslashes($_POST['username']);
+					$hour = time() + COOKIE_LIFETIME;
+					setcookie(ID_my_site, $_POST['username'], $hour);
+					setcookie(Key_my_site, $_POST['pass'], $hour);
+				}
 
 				//then redirect them to the members area
-				session_start(); 
 				if (isset($_SESSION['request'] )) 
 				{
-					// 
+					// Now send the user to his desired page
 					$request = $_SESSION['request'];
-					// 
 					unset($_SESSION['request']);
-					// 
-					$request = array_pop(explode('/', $request));
 					header("Location: " . $request);
 				}
 				else {
@@ -74,6 +77,7 @@ else
 
 	// if they are not logged in
 	?>
+	<div class="login_sector">
 	<form action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
 		<table border="0">
 		<tr>
@@ -94,12 +98,24 @@ else
 			</td>
 		</tr>
 		<tr>
+			<td>Keep me logged in:</td>
+			<td>
+				<input name="remember" type="checkbox">
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2" align="right">
 				<input type="submit" name="submit" value="Login">
 			</td>
 		</tr>
 		</table>
 	</form>
+	</div>
+	
+	<div class="login_sector_soc">
+	<?php echo facebook_login_button_refresh("fb_register.php"); ?>
+	</div>
+	<div class="clear"></div>
 	<?php
 	}
 }
