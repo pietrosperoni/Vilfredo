@@ -5,7 +5,7 @@ if ($userid)
 {
 	$proposal = $_GET['p'];
 
-	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
+	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
 
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_row($response))
@@ -17,9 +17,11 @@ if ($userid)
 		$proposalround=$row[4];
 		$questionid=$row[5];
 		$room=$row[6];
+		$questiontitle=$row[7];
 		$urlquery = CreateQuestionURL($questionid, $room);
 
-		echo '<h2>"<a href="viewquestion.php' . $urlquery . '">' . $questiontext . '</a>"</h2>';
+		echo '<h2 id="question">"<a href="viewquestion.php' . $urlquery . '">' . $questiontitle . '</a>"</h2>';
+		echo '<div id="question">' . $questiontext . '</div>';		
 		echo 'now on Generation ' . $questionround . '<br>';
 
 		echo '<h3>Proposal:</h3>';
