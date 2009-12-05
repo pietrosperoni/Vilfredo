@@ -4,7 +4,7 @@ include('header.php');
 #if (isloggedin())
 if ($userid)
 {
-	$redirect = postloginredirect();
+	$redirect = getpostloginredirectlink();
 	header("Location: " . $redirect);
 }
 else

@@ -13,7 +13,8 @@ if ($userid)
 		header("Location: index.php");
 	}
 	
-	$question = $_GET['q'];
+	$question = GetParamFromQuery(QUERY_KEY_QUESTION);
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 
 	echo "<h2>Question:</h2>";
 
@@ -92,7 +93,10 @@ if ($userid)
 			{$Endorsed=1;}
 			else
 			{$Endorsed=0;}
-			echo '<td><a href="viewproposal.php?p='.$row[0].'">link</a></td>';
+			
+			$urlquery = CreateProposalURL($row[0], $room);
+			
+			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
 			echo '<td>' . $row[1] . '</td>';
 
 			echo '<td>';

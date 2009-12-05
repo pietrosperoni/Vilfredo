@@ -148,6 +148,21 @@ function CreateQuestionURL($question, $room="")
 	return $question_url;
 }
 
+function CreateProposalURL($proposal, $room="")
+{
+	if (!isset($proposal) or empty($proposal))
+             error("Question proposal not set!!!");
+
+	$proposal_url = "?" . QUERY_KEY_PROPOSAL . "=".$proposal;
+
+	// Add room id if not empty
+	if (!empty($room))
+            $proposal_url .= "&" . QUERY_KEY_ROOM . "=".$room;
+
+	return $proposal_url;
+}
+
+
 function printbr($str, $quit=FALSE)
 {
 	echo $str . "<br/>";
@@ -381,6 +396,29 @@ function CreateVFURL($url, $question="", $room="")
 	return $vf_url;
 }
 
+function HasProposalAccess()
+{
+	$proposal = "";
+	$room = "";
+
+	if (isset($_GET[QUERY_KEY_PROPOSAL]))
+             $proposal = $_GET[QUERY_KEY_PROPOSAL];
+	else
+            return false;
+
+	$room_id = GetProposalRoom($proposal);
+
+	if (isset($_GET[QUERY_KEY_ROOM]))
+		$room = $_GET[QUERY_KEY_ROOM];
+	else
+		$room = "";
+
+	if (empty($room_id) or ($room == $room_id))
+            return true;
+	else
+            return false;
+}
+
 function HasQuestionAccess()
 {
 	$question = "";
@@ -391,34 +429,41 @@ function HasQuestionAccess()
 	else
             return false;
 
-	$roomdetails = GetRoomDetails($question);
+	$room_id = GetQuestionRoom($question);
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
 		$room = $_GET[QUERY_KEY_ROOM];
 	else
 		$room = "";
 
-	if (empty($roomdetails['room']) or ($room == $roomdetails['room']))
+	if (empty($room_id) or ($room == $room_id))
             return true;
 	else
             return false;
 }
 
-function GetRoomDetails($question)
+function GetProposalRoom($proposal)
 {
-	 $roomdetails = array();
+	 $sql="SELECT room FROM proposals, questions 
+	 WHERE proposals.experimentid = questions.id 
+	 AND proposals.id = '$proposal'";
 
-	 $sql="SELECT usercreatorid, room
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+
+	return $row['room'];
+}
+
+function GetQuestionRoom($question)
+{
+	 $sql="SELECT room
 	     FROM questions
 	     WHERE id='$question'";
 
 	$result = mysql_query($sql) or die(mysql_error());
-	$row = mysql_fetch_row($result);
+	$row = mysql_fetch_assoc($result);
 
-	$roomdetails['creator'] = $row[0];
-	$roomdetails['room'] = $row[1];
-
-	return $roomdetails;
+	return $row['room'];
 }
 
 // Returns empty string if no room set,
@@ -522,13 +567,13 @@ function postloginredirect()
 		// Now send the user to his desired page
 		$request = $_SESSION['request'];
 		unset($_SESSION['request']);
-		return $request;
-		#header("Location: " . $request);
+		#return $request;
+		header("Location: " . $request);
 	}
 	else 
 	{
-		return "viewquestions.php";
-		#header("Location: viewquestions.php");
+		#return "viewquestions.php";
+		header("Location: viewquestions.php");
 	}
 }
 

@@ -3,7 +3,13 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
-	$proposal = $_GET['p'];
+	// Check if user has room access.
+	if (!HasProposalAccess())
+	{
+		header("Location: viewquestions.php");
+	}
+	
+	$proposal = $_GET[QUERY_KEY_PROPOSAL];
 
 	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
 
