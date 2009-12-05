@@ -114,6 +114,12 @@ else
 	</div>
 	
 	<div class="login_sector_soc">
+	<?php
+	if (ADMIN_ACCESS_ONLY)
+	{
+		echo "<strong>Sorry: Vilfredo is currently closed for maintenance.</strong></p>";
+	}
+	?>
 	<?php echo facebook_login_button_refresh("fb_register.php"); ?>
 	</div>
 	<div class="clear"></div>

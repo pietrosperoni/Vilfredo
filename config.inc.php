@@ -13,6 +13,24 @@ require_once 'lib/facebook/php/facebook.php';
 //******************************************
 // Set domain for email links
 define("SITE_DOMAIN", "http://" . $_SERVER['HTTP_HOST']);
+//
+
+define("CLOSE_SITE", FALSE);
+//
+if (CLOSE_SITE)
+{
+	define("ADMIN_ACCESS_ONLY", TRUE);
+	// Use Facebook Connect
+	define("USE_FACEBOOK_CONNECT", FALSE);
+}
+else
+{
+	define("ADMIN_ACCESS_ONLY", FALSE);
+	// Use Facebook Connect
+	define("USE_FACEBOOK_CONNECT", TRUE);
+}
+
+//
 // Query string parameters
 define("QUERY_KEY_TODO", "todo");
 define("QUERY_KEY_USER", "u");
@@ -30,8 +48,6 @@ define('COOKIE_LIFETIME', 1-YEAR);
 //
 // Get rid off this
 #define("USE_PRIVACY_FILTER", TRUE);
-// Use Facebook Connect
-define("USE_FACEBOOK_CONNECT", TRUE);
 //******************************************
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()

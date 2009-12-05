@@ -314,7 +314,7 @@ function GetQuestionFilter($userid)
 function GetUserAccessFilter($uid)
 {	
 	// Get logged in ID
-	$userid = isloggedin();
+	$userid = getCurrentUser();
 	// Check if user IDs match
 	$is_current_user = ($userid == $uid);
 	
@@ -334,7 +334,7 @@ function GetUserAccessFilter($uid)
 function GetRoomAccessFilter($userid, $room='')
 {	
 	// Get logged in ID
-	$current_user = isloggedin();
+	$current_user = getCurrentUser();
 	// Check if user IDs match
 	$is_current_user = ($current_user == $userid);
 	
@@ -560,6 +560,13 @@ function getpostloginredirectlink()
 	}
 }
 
+function make_URI_absolute($loc)
+{
+	$host  = $_SERVER['HTTP_HOST'];
+	$uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+	return "http://$host$uri/$loc";
+}
+
 function postloginredirect()
 {
 	if (isset($_SESSION['request'] )) 
@@ -655,7 +662,53 @@ function get_current_facebook_userid($fb)
 	}
 }
 
-function isloggedin()
+function getCurrentUser()
+{            
+	return IsAuthenticated();
+}
+
+function unsetcookies()
+{
+	// Unset cookies
+	$past = time() - 100;
+	if(isset($_COOKIE['ID_my_site']))
+	{
+		setcookie(ID_my_site, gone, $past);
+	}
+	if(isset($_COOKIE['Key_my_site']))
+	{
+		setcookie(Key_my_site, gone, $past);
+	}
+}
+
+function user_logout()
+{
+	if (IsAuthenticated())
+	{
+		unset($_SESSION[USER_LOGIN_ID]);
+		unset($_SESSION[USER_LOGIN_MODE]);
+		
+		// Unset any cookies
+		unsetcookies();
+	}
+}
+
+function isadminonly($userid)
+{
+	if (ADMIN_ACCESS_ONLY)
+	{
+		if (isAdmin($userid))
+			return $userid;
+		else
+			return false;
+	}
+	else
+	{
+		return $userid;
+	}
+}
+
+function isloggedin2()
 {
 	global $FACEBOOK_ID;
 	
@@ -694,22 +747,59 @@ function isloggedin()
 	}
 }
 
+function isloggedin()
+{
+	global $FACEBOOK_ID;
+	
+	// First check if user has a current login session
+	if ($userid = IsAuthenticated())
+	{
+		// verify facebook session
+		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
+		{
+		 	if (is_null($FACEBOOK_ID))
+		 	{
+		 		fb_user_logout();
+		 		return false;
+		 	}
+		}
+		$userid = isadminonly($userid);
+		return $userid;
+	}
+	// Check of user has opted for permenant login
+	elseif ($userid = vga_cookie_login())
+	{
+		$userid = isadminonly($userid);
+		if ($userid)
+		{
+			$_SESSION[USER_LOGIN_ID] = $userid;
+			$_SESSION[USER_LOGIN_MODE] = 'VGA';
+		}
+		return $userid;
+	}
+	// Finally check if a current Facebook session is available for a connected account
+	elseif ($FACEBOOK_ID != null && ($userid = fb_user_login($FACEBOOK_ID)))
+	{
+		$userid = isadminonly($userid);
+		if ($userid)
+		{
+			$_SESSION[USER_LOGIN_ID] = $userid;
+			$_SESSION[USER_LOGIN_MODE] = 'FB';
+		}
+		return $userid;
+	}
+	// Else return false so the user can be redirected to the login page
+	else
+	{
+		return false;
+	}
+}
+
 // returns true if the user is logged in
 function fb_user_login($fb_uid)
 {
-	if ($fb_uid)
-	{
-		// Return the local user ID conected to the Facebook account
-		return fb_isconnected($fb_uid);
-	}
-	
-	else
-	{
-		// Facebook session may have expired,
-		// so end the active FB session if one exists. 
-		fb_user_logout();
-		return false;
-	}
+	// Return the local user ID conected to the Facebook account
+	return fb_isconnected($fb_uid);
 }
 
 // Return user ID of connected account

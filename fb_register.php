@@ -7,8 +7,11 @@ if ($userid)
 	$redirect = getpostloginredirectlink();
 	header("Location: " . $redirect);
 }
-else
+elseif(!$FACEBOOK_ID)
 {
+	header("Location: login.php");
+}
+else{
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
