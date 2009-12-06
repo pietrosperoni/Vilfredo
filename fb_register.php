@@ -11,57 +11,21 @@ elseif(!$FACEBOOK_ID)
 {
 	header("Location: login.php");
 }
-else{
+else
+{
+	$message = "";
+	$registered = false;
+	
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
-
-		//This makes sure they did not leave any fields blank
-		if (!$_POST['username']) 
-		{
-			die('You did not complete all of the required fields');
-		}
-		
-		$UsernameIsEmail=validEmail($_POST['username']);
-		if ($UsernameIsEmail)
-		{
-			die('Your username will be public and as such it cannot be an email address (for security reasons)');
-		}
-
-		if ($_POST['email'] ) 
-		{
-			$EmailIsValid=validEmail($_POST['email']);
-			if (!$EmailIsValid)
-			{
-				die('The Email address you inserted is not a valid email address.');
-			}
-		}
-
-		// checks if the username is in use
-		if (!get_magic_quotes_gpc()) 
-		{
-			$_POST['username'] = addslashes($_POST['username']);
-		}
-		$usercheck = $_POST['username'];
-		$check = mysql_query("SELECT username FROM users WHERE username = '$usercheck'") or die(mysql_error());
-		$check2 = mysql_num_rows($check);
-
-		//if the name exists it gives an error
-		if ($check2 != 0) 
-		{
-			die('Sorry, the username '.$_POST['username'].' is already in use.');
-		}
-
-		if (!get_magic_quotes_gpc()) 
-		{
-			$_POST['username'] = addslashes($_POST['username']);
-			$_POST['email'] = addslashes($_POST['email']);
-		}
-
-		// now we insert it into the database
-		$insert = "INSERT INTO users (username, email, fb_userid) VALUES ('".$_POST['username']."', '".$_POST['email']."', '".$FACEBOOK_ID."')";
-		$add_member = mysql_query($insert);
-		
+		$registered = fb_register_user();
+		$m = get_messages();
+		$error_message = $m['error'][0];
+	}
+	
+	if ($registered)
+	{
 		//then redirect them to the members area
 		$location = "viewquestions.php";
 		if (isset($_SESSION['request'] )) 
@@ -98,7 +62,7 @@ else{
 
 		?>
 		
-		
+<p><span class="errorMessage"><?php echo $error_message; ?></span></p>
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 	<table border="0">
 		<tr>

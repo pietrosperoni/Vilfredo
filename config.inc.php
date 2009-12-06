@@ -14,23 +14,6 @@ require_once 'lib/facebook/php/facebook.php';
 // Set domain for email links
 define("SITE_DOMAIN", "http://" . $_SERVER['HTTP_HOST']);
 //
-
-define("CLOSE_SITE", TRUE);
-//
-if (CLOSE_SITE)
-{
-	define("ADMIN_ACCESS_ONLY", TRUE);
-	// Hide Facebook Connect Login
-	define("DISPLAY_FACEBOOK_LOGIN", FALSE);
-}
-else
-{
-	define("ADMIN_ACCESS_ONLY", FALSE);
-	// Display Facebook Connect Login
-	define("DISPLAY_FACEBOOK_LOGIN", TRUE);
-}
-
-//
 // Query string parameters
 define("QUERY_KEY_TODO", "todo");
 define("QUERY_KEY_USER", "u");

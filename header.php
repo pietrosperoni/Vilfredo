@@ -44,6 +44,7 @@ ob_start();
 // Load System Serttings
 //	
 require_once 'config.inc.php';
+require_once 'process_input.php';
 //
 $fb=new Facebook($facebook_key, $facebook_secret);
 // Start session for login
@@ -94,6 +95,42 @@ function error($message, $level=VILFREDO_ERROR)
 {
 	$caller = next(debug_backtrace());
 	trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong>'."\n<br />error handler", $level);
+}
+
+function set_error($msg, $log = VERBOSE)
+{
+	if ($log) {
+		error_log($msg . "\n", 3, ERROR_FILE);
+	}
+}
+
+function log_error($msg)
+{
+	if ($log) {
+		error_log($msg . "\n", 3, ERROR_FILE);
+	}
+}
+
+function handle_db_error($result)
+{
+	if ($result === FALSE)
+	{
+		$msg = "MySQL Error: " .  mysql_errno(  ) . " : " . mysql_error(  );
+		log_error($msg);
+	}
+	return $result;
+}
+
+function set_message($message_type, $message)
+{
+    $_SESSION['messages'][$message_type][] = $message;
+}
+
+function get_messages()
+{
+    $messages_array = $_SESSION['messages'];
+    unset($_SESSION['messages']);
+    return $messages_array;
 }
 //******************************************
 // VILFREDO ROOMS
@@ -524,13 +561,6 @@ function fb_verify_ping($secret)
 	$sig .= $secret; 
 	$verify = md5($sig); 
 	return $verify == $_POST['fb_sig'];
-}
-
-function set_error($msg, $log = VERBOSE)
-{
-	if ($log) {
-		error_log($msg . "\n", 3, ERROR_FILE);
-	}
 }
 
 function display_logout_link()
