@@ -8,79 +8,29 @@ if ($userid)
 }
 else
 {
+	$registered = false;
+	$error_message = "";
+	
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
-
-		//This makes sure they did not leave any fields blank
-		if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] ) 
-		{
-			die('You did not complete all of the required fields');
-		}
-		
-		$UsernameIsEmail=validEmail($_POST['username']);
-		if ($UsernameIsEmail)
-		{
-			die('Your username will be public and as such it cannot be an email address (for security reasons)');
-		}
-
-		if ($_POST['email'] ) 
-		{
-			$EmailIsValid=validEmail($_POST['email']);
-			if (!$EmailIsValid)
-			{
-				die('The Email address you inserted is not a valid email address.');
-			}
-		}
-
-
-		if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] ) 
-		{
-			die('You did not complete all of the required fields');
-		}
-
-		// checks if the username is in use
-		if (!get_magic_quotes_gpc()) 
-		{
-			$_POST['username'] = addslashes($_POST['username']);
-		}
-		$usercheck = $_POST['username'];
-		$check = mysql_query("SELECT username FROM users WHERE username = '$usercheck'") or die(mysql_error());
-		$check2 = mysql_num_rows($check);
-
-		//if the name exists it gives an error
-		if ($check2 != 0) 
-		{
-			die('Sorry, the username '.$_POST['username'].' is already in use.');
-		}
-
-		// this makes sure both passwords entered match
-		if ($_POST['pass'] != $_POST['pass2']) 
-		{
-			die('Your passwords did not match. ');
-		}
-
-		// here we encrypt the password and add slashes if needed
-		$_POST['pass'] = md5($_POST['pass']);
-		if (!get_magic_quotes_gpc()) 
-		{
-			$_POST['pass'] = addslashes($_POST['pass']);
-			$_POST['username'] = addslashes($_POST['username']);
-			$_POST['email'] = addslashes($_POST['email']);
-		}
-
-		// now we insert it into the database
-		$insert = "INSERT INTO users (username, password, email) VALUES ('".$_POST['username']."', '".$_POST['pass']."', '".$_POST['email']."')";//'
-		$add_member = mysql_query($insert);
+		$registered = register_user();
+		$m = get_messages();
+		$error_message = $m['error'][0];
+	}
+	
+	if ($registered)
+	{
 		?>
 
 		<h1>Registered</h1>
-		<p>Thank you, you have registered - you may now login.</p>
+		<p>Thank you, you have registered - you may now <a href="login.php">login</a></p>
 		<?php
 	}
 	else
 	{
 		?>
+		<p><span class="errorMessage"><?php echo $error_message; ?></span></p>
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 			<table border="0">
 				<tr>
@@ -90,7 +40,7 @@ else
 					</td>
 				</tr>
 				<tr>
-					<td>Email:</td>
+					<td>Email: (Optional)</td>
 					<td>
 						<input type="text" name="email" maxlength="60">
 					</td>

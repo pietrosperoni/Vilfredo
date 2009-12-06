@@ -1,6 +1,6 @@
 <?php
 include('header.php');
-$message = "";
+$error_message = "";
 $connected = false;
 //This code runs if the form has been submitted
 if (isset($_POST['submit'])) 

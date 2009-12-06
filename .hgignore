@@ -3,6 +3,8 @@ priv/
 js/
 lib/
 loc/
+new/
+temp/
 images/
 work/
 nbproject/

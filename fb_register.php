@@ -13,7 +13,7 @@ elseif(!$FACEBOOK_ID)
 }
 else
 {
-	$message = "";
+	$error_message = "";
 	$registered = false;
 	
 	//This code runs if the form has been submitted
