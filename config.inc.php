@@ -15,19 +15,19 @@ require_once 'lib/facebook/php/facebook.php';
 define("SITE_DOMAIN", "http://" . $_SERVER['HTTP_HOST']);
 //
 
-define("CLOSE_SITE", FALSE);
+define("CLOSE_SITE", TRUE);
 //
 if (CLOSE_SITE)
 {
 	define("ADMIN_ACCESS_ONLY", TRUE);
-	// Use Facebook Connect
-	define("USE_FACEBOOK_CONNECT", FALSE);
+	// Hide Facebook Connect Login
+	define("DISPLAY_FACEBOOK_LOGIN", FALSE);
 }
 else
 {
 	define("ADMIN_ACCESS_ONLY", FALSE);
-	// Use Facebook Connect
-	define("USE_FACEBOOK_CONNECT", TRUE);
+	// Display Facebook Connect Login
+	define("DISPLAY_FACEBOOK_LOGIN", TRUE);
 }
 
 //
