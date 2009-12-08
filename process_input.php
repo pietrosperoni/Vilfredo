@@ -147,7 +147,7 @@ function login_user()
 			}
 
 			//then redirect them to the members area
-			if (isset($_SESSION['request'] )) 
+			if (isset($_SESSION['request']) && !empty($_SESSION['request']))
 			{
 				// Now send the user to his desired page
 				$request = $_SESSION['request'];
