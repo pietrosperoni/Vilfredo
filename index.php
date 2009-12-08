@@ -1,7 +1,7 @@
 <?php
 include('header.php');
 
-$userid=isloggedin();
+#$userid=isloggedin();
 if ($userid)
 {
 ?>
@@ -203,7 +203,7 @@ if ($userid)
 }
 else
 {
-		DoLogin();
+		header("Location: login.php");
 }
 
 include('footer.php');
