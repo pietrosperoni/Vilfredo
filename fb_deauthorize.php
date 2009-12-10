@@ -5,7 +5,7 @@ set_error("deauthorizing Facebook account... Verbose");
 
 $fb_userid = $_POST['fb_sig_user'];
 $info = fb_getuserdetails($fb_userid);
-set_error("deauthorizing : Facebook account for user " . $fb_userid, true);
+set_error(date(DATE_RFC822) . ": Deauthorizing Facebook account for user: " . $fb_userid, true);
 
 $verified = fb_verify_ping($facebook_secret);
 

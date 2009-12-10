@@ -50,7 +50,9 @@ $fb=new Facebook($facebook_key, $facebook_secret);
 // Start session for login
 session_start();
 // If $FACEBOOK_ID != NULL then current user is Facebook Authroized 
-$FACEBOOK_ID = get_current_facebook_userid($fb);
+$FACEBOOK_ID = null;
+if (USE_FACEBOOK_CONNECT)
+	$FACEBOOK_ID = get_current_facebook_userid($fb);
 //******************************************
 //
 // TEMP WIN/PHP FIX
@@ -208,7 +210,7 @@ function printbr($str, $quit=FALSE)
 }
 
 // prints out the contents of an array
-function print_array($arr, $name='', $quit=TRUE) {
+function print_array($arr, $quit=FALSE, $name='') {
 	if (is_array($arr))
 	{
 		print '<pre>';

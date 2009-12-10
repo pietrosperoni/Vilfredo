@@ -222,7 +222,7 @@ function fb_register_user()
 	}
 
 	// now we insert it into the database
-	$insert = "INSERT INTO users (username, email, fb_userid) VALUES ('".$_POST['username']."', '".$_POST['email']."', '".$FACEBOOK_ID."')";
+	$insert = "INSERT INTO users (username, password, email, fb_userid) VALUES ('".$_POST['username']."', '', '".$_POST['email']."', '".$FACEBOOK_ID."')";
 	$add_member = mysql_query($insert);
 	
 	if (!$add_member)
