@@ -15,7 +15,7 @@ if ($verified)
 	{ 	// The user has deauthorized Vilfredo
 		set_error("The user has deauthorized Vilfredo");
 	
-		if (is_null($info['password']))
+		if (empty($info['password']))
 		{	// Delete Facebook-only account
 			set_error("Delete Facebook-only account", true);
 			$sql = "DELETE FROM users WHERE fb_userid = $fb_userid";
@@ -23,7 +23,7 @@ if ($verified)
 		else 
 		{	// Unconnect accounts
 			set_error("Unconnect account", true);
-			$sql = "UPDATE users SET fb_userid = NULL WHERE fb_userid = $fb_userid";
+			$sql = "UPDATE users SET fb_userid = '' WHERE fb_userid = $fb_userid";
 		}
 	
 		$ret = mysql_query($sql);
