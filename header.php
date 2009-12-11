@@ -798,6 +798,17 @@ function isloggedin()
 		$userid = isadminonly($userid);
 		return $userid;
 	}
+	// Check if logging in
+	elseif (!empty($_POST['username']) && !empty($_POST['pass']))
+	{
+		return false;
+	}
+	// Check if logging out
+	elseif (isset($_SESSION['logout']))
+	{
+			unset($_SESSION['logout']);
+			return false;
+	}
 	// Check of user has opted for permenant login
 	elseif ($userid = vga_cookie_login())
 	{

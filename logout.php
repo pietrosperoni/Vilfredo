@@ -13,6 +13,8 @@ include('header.php');
 		setcookie(Key_my_site, gone, $past);
 	}
 	
+	$_SESSION['logout'] = true;
+	
 	header("Location: login.php");
 
 ?> 
