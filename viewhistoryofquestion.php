@@ -40,7 +40,7 @@ if ($userid)
 
 #		echo '<div id="actionbox">';
 		echo "<h3>Current Generation: ".$generation." </h3>";
-		echo '<a href="http://pareto.ironfire.org/viewquestion.php'.$urlquery.'" >Question Page</a>';
+		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >Question Page</a>';
 #		echo '</div>';
 	}
 

@@ -293,14 +293,44 @@ try to write a proposal that represent an acceptable compromise between differen
 			<form method="POST" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1">
-			<tr><td><h4>Proposed Solution</h4></td><td><b>Check all the ones you endorse</b></td></tr>
+			<tr><td><h4>Voting</br>History</h4></td>
+			<td><h4>Proposed Solution</h4></td><td><b>Check all the ones you endorse</b></td></tr>
 
 			<?php
 
-			while ($row = mysql_fetch_row($response))
+			while ($row = mysql_fetch_array($response))
 			{
 				echo '<tr>';
-				#echo '<td><p><a href="viewproposal.php?p='.$row[0].'">link</a></td><td>';
+				echo '<td class="vote_list">';
+				if ($row['source'] != 0) 
+				{
+					// Display voting history for aesexual parents
+					$proposal = $row['id'];
+					$source = $row['source'];
+					$ancestors = GetAncestorEndorsements($source, $userid, $question, $generation);					
+					foreach($ancestors as $ancestor)
+					{
+						if ($ancestor['endorsed'] == -1)
+						{
+							#echo "<span>" . $ancestor[generation] . "</span>";
+							#echo ' <img src="images/novote.jpg" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
+							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';							
+						}
+						elseif ($ancestor['endorsed'] == 1)
+						{
+							#echo "<span>$ancestor[generation] </span>";
+							echo ' <img src="images/thumbsup.jpg" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30">';
+						}
+						elseif ($ancestor['endorsed'] == 0)
+						{
+							#echo "<span>$ancestor[generation] </span>";
+							echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30">';
+						} 
+						echo '</br>';
+					}
+				}
+				else{ echo '&nbsp;'; }
+				echo '</td>';
 				echo '<td><p>' . $row[1] . '</td><td>';
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
 
@@ -313,8 +343,8 @@ try to write a proposal that represent an acceptable compromise between differen
 				echo ' /></p> </td></tr>';
 			}
 			?>
-			</tr>
-			<tr><td></td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
+			
+			<tr><td colspan="2">&nbsp;</td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
 			</tr></table>
 			</form>
 			<?php

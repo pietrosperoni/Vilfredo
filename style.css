@@ -289,3 +289,8 @@ clear:both;
 	font-size: 11pt;
 	font-weight: bold;
 }
+
+td.vote_list 
+{
+	text-align: center;
+}

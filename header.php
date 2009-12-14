@@ -505,6 +505,18 @@ function GetQuestionRoom($question)
 	return $row['room'];
 }
 
+function GetQuestion($question)
+{
+	 $sql="SELECT *
+	     FROM questions
+	     WHERE id='$question'";
+
+	$result = mysql_query($sql) or die(mysql_error());
+	$info = mysql_fetch_assoc($result);
+
+	return $info;
+}
+
 // Returns empty string if no room set,
 // or room id as a string
 function GetRoom($question)
@@ -799,7 +811,7 @@ function isloggedin()
 		return $userid;
 	}
 	// Check if logging in
-	elseif (!empty($_POST['username']) && !empty($_POST['pass']))
+	elseif (isset($_POST['user_login_action']))
 	{
 		return false;
 	}
@@ -1023,6 +1035,89 @@ function validEmail($email)
    return $isValid;
 }
 
+function GetAncestorEndorsements($source, $userid, $question, $generation)
+{
+	$ancestors = GetAncestors($source);	
+	$results = GetEndorsements($userid, $ancestors, $question, $generation);
+	$ancestorendorsements = array_reverse($results);
+	return $ancestorendorsements;
+}
+
+function GetEndorsements($userid, $proposals, $question, $generation)
+{
+	$endorsements = array();
+	
+	foreach ($proposals as $proposal)
+	{
+		$endorsement['proposal'] = $proposal;
+		$generation--;
+		$endorsement['generation'] = $generation;
+		
+		if (HasThisUserEndorsedSomething($question, $generation, $userid) == 0)
+		{
+			$endorsement['endorsed'] = -1;
+		}
+		else
+		{
+			$sql = "SELECT  id FROM endorse WHERE 
+			userid = $userid AND proposalid = $proposal LIMIT 1";
+
+			$response = mysql_query($sql);
+
+			if (!$response)
+			{
+				handle_db_error($response);
+				set_error("GetEndorsements(): MySQL error: " . mysql_error());
+				return false;
+			}
+
+			if(mysql_fetch_assoc($response))
+			{
+				$endorsement['endorsed'] = 1;
+			}
+			else
+			{
+				$endorsement['endorsed'] = 0;
+			}
+		}
+		
+		$endorsements[] = $endorsement;
+	}
+	
+	return $endorsements;
+}
+
+function GetAncestors($source)
+{
+	$ancestors = array();
+	
+	if ($source == 0)
+	{
+		return $ancestors;
+	}
+
+	while ($source != 0)
+	{		
+		$sql = "SELECT id as proposal, source from proposals
+		WHERE id = $source";
+		
+		$response = mysql_query($sql);
+		
+		if (!$response)
+		{
+			handle_db_error($response);
+			set_error("GetAncestors(): MySQL error: " . mysql_error());
+			return false;
+		}
+		
+		$info = mysql_fetch_assoc($response);
+		$ancestors[] = $info['proposal'];
+		$source = $info['source'];
+	}
+
+	return $ancestors;
+}
+
 function CountProposals($question,$generation)
 {
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation."";
@@ -1055,8 +1150,6 @@ function EndorsersToAProposal($proposal)
 
 }
 
-
-
 function HasThisUserEndorsedSomething($question,$generation,$user)
 {
 	$proposals=ProposalsInGeneration($question,$generation);
@@ -1064,11 +1157,12 @@ function HasThisUserEndorsedSomething($question,$generation,$user)
 	{
 		if(in_array($user,EndorsersToAProposal($proposal)))
 		{
-			return $proposal;
+			return 1;
 		}
 	}
 	return 0;
 }
+
 function HasThisUserProposedSomething($question,$generation,$user)
 {
 	if(in_array($user,AuthorsOfNewProposals($question,$generation)))

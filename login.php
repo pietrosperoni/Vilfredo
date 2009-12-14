@@ -38,6 +38,7 @@ else
 		<tr>
 			<td>Username:</td>
 			<td>
+				<input type="hidden" name="user_login_action">
 				<input type="text" name="username" maxlength="40">
 			</td>
 		</tr>

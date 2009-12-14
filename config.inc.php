@@ -11,8 +11,6 @@ require_once "priv/social.php";
 require_once 'config.facebook.php';
 require_once 'lib/facebook/php/facebook.php';
 //******************************************
-// Set domain for email links
-define("SITE_DOMAIN", "http://" . $_SERVER['HTTP_HOST']);
 //
 // Query string parameters
 define("QUERY_KEY_TODO", "todo");
