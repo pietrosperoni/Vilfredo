@@ -11,6 +11,8 @@ require_once "priv/social.php";
 require_once 'config.facebook.php';
 require_once 'lib/facebook/php/facebook.php';
 //******************************************
+define("COOKIE_USER", "ID_my_site");
+define("COOKIE_PASSWORD", "Key_my_site");
 //
 // Query string parameters
 define("QUERY_KEY_TODO", "todo");
@@ -23,9 +25,7 @@ define("RANDOM_ROOM_CODE_LENGTH", 16);
 define("USER_LOGIN_ID", 'vilfredo_user_id');
 define("USER_LOGIN_MODE", 'vilfredo_login_mode');
 //
-define('1-YEAR', 3600*24*365);
-//
-define('COOKIE_LIFETIME', 1-YEAR);
+define('COOKIE_LIFETIME', 3600*24*365);
 //
 // Get rid off this
 #define("USE_PRIVACY_FILTER", TRUE);

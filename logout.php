@@ -9,8 +9,8 @@ include('header.php');
 		
 		// Unset cookies
 		$past = time() - 100;
-		setcookie(ID_my_site, gone, $past);
-		setcookie(Key_my_site, gone, $past);
+		setcookie(COOKIE_USER, gone, $past);
+		setcookie(COOKIE_PASSWORD, gone, $past);
 	}
 	
 	$_SESSION['logout'] = true;

@@ -715,13 +715,13 @@ function unsetcookies()
 {
 	// Unset cookies
 	$past = time() - 100;
-	if(isset($_COOKIE['ID_my_site']))
+	if(isset($_COOKIE[COOKIE_USER]))
 	{
-		setcookie(ID_my_site, gone, $past);
+		setcookie(COOKIE_USER, gone, $past);
 	}
-	if(isset($_COOKIE['Key_my_site']))
+	if(isset($_COOKIE[COOKIE_PASSWORD]))
 	{
-		setcookie(Key_my_site, gone, $past);
+		setcookie(COOKIE_PASSWORD, gone, $past);
 	}
 }
 
@@ -875,10 +875,10 @@ function fb_isconnected($fb_uid)
 // returns true if the user is logged in
 function vga_cookie_login()
 {
-	if(isset($_COOKIE['ID_my_site']))
+	if(isset($_COOKIE[COOKIE_USER]))
 	{
-		$username = $_COOKIE['ID_my_site'];
-		$pass = $_COOKIE['Key_my_site'];
+		$username = $_COOKIE[COOKIE_USER];
+		$pass = $_COOKIE[COOKIE_PASSWORD];
 		$check = mysql_query("SELECT * FROM users WHERE username = '$username'")or die(mysql_error());
 		while($info = mysql_fetch_array( $check ))
 		{

@@ -141,9 +141,9 @@ function login_user()
 			if (isset($_POST['remember']) && $_POST['remember'] == 'on')
 			{
 				$_POST['username'] = stripslashes($_POST['username']);
-				$hour = time() + COOKIE_LIFETIME;
-				setcookie(ID_my_site, $_POST['username'], $hour);
-				setcookie(Key_my_site, $_POST['pass'], $hour);
+				$expire = time() + COOKIE_LIFETIME;
+				setcookie(COOKIE_USER, $_POST['username'], $expire);
+				setcookie(COOKIE_PASSWORD, $_POST['pass'], $expire);
 			}
 
 			//then redirect them to the members area
