@@ -1,4 +1,3 @@
-
 <?php
 $language="enus";
 include_once("js/jquery/RichTextEditor/locale/".$language.".php");
