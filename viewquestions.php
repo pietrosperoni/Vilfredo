@@ -101,7 +101,7 @@ $room_param = CreateNewQuestionURL();
 
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo 'by '.$UserString;
+					echo RenderQIconInfo($UserString, $room);
 					echo '</td></tr></table>';
 
 
@@ -172,7 +172,7 @@ $room_param = CreateNewQuestionURL();
 
 		$UserString=WriteUserVsReader($thatuserid,$userid);
 
-		echo 'by '.$UserString;
+		echo RenderQIconInfo($UserString, $room);
 
 		$ReadyToGo= IsQuestionReadyToBeMovedOn($questionid,$phase,$generation);
 		if($ReadyToGo)
@@ -312,7 +312,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo 'by '.$UserString;
+					echo RenderQIconInfo($UserString, $room);
 
 					$ReadyToGo= IsQuestionReadyToBeMovedOn($questionid,$phase,$generation);
 					if($ReadyToGo)
@@ -359,7 +359,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 				$UserString=WriteUserVsReader($thatuserid,$userid);
 
-				echo 'by '.$UserString;
+				echo RenderQIconInfo($UserString, $room);
 				$ReadyToGo= IsQuestionReadyToBeMovedOn($questionid,$phase,$generation);
 				if($ReadyToGo)
 				{
@@ -443,7 +443,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 					echo '<table border=0><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="Everybody Agreed on More than One Answer" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a>';
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo 'by '.$UserString.'</br>';
+					echo RenderQIconInfo($UserString, $room) . '</br>';
 
 					}
 					else
@@ -452,7 +452,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo 'by '.$UserString.'</br>';
+					echo RenderQIconInfo($UserString, $room) . '</br>';
 
 
 					}
@@ -462,7 +462,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 					{
 						$UserString=WriteUserVsReader($e,$userid);
 
-						echo ' '.$UserString;
+						echo $UserString . '&nbsp;&nbsp;';
 
 #						$sql5 = "SELECT username FROM users WHERE id = ".$e." ";
 #						$response5 = mysql_query($sql5);

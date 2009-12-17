@@ -225,6 +225,19 @@ function print_array($arr, $quit=FALSE, $name='') {
 	if ($quit) exit;
 }
 
+
+function RenderQIconInfo($username, $room)
+{	
+	if (!empty($room) && SHOW_QICON_ROOMS)
+	{
+		return "by $username in <a href=\"" . SITE_DOMAIN . "/viewquestions.php?room=$room\">$room</a>";
+	}
+	else
+	{
+		return "by $username";
+	}
+}
+
 //
 // To-Do Lists
 //
@@ -412,10 +425,20 @@ function FormatRoomId($room)
 	return $room;
 }
 
+function GetRoomList()
+{
+	$sql = "SELECT DISTINCT room FROM `questions` 
+	WHERE room != '' AND room NOT LIKE '\_%'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$rooms = mysql_fetch_row($result);
+	
+	return $rooms;
+}
+
 function getUniqueRoomCode()
 {
 	$code = md5(uniqid(rand(), true));
-	return substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
+	return '_' . substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
 }
 
 function CreateVFURL($url, $question="", $room="")
@@ -458,6 +481,28 @@ function HasProposalAccess()
             return false;
 }
 
+
+function add_querystring_var($url, $key, $value) 
+{
+	$url = preg_replace('/(.*)(\?|&)' . $key . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
+	$url = substr($url, 0, -1);
+	if (strpos($url, '?') === false) 
+	{
+		return ($url . '?' . $key . '=' . $value);
+	} 
+	else 
+	{
+		return ($url . '&' . $key . '=' . $value);
+	}
+}
+
+function remove_querystring_var($url, $key) 
+{
+	$url = preg_replace('/(.*)(\?|&)' . $key . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
+	$url = substr($url, 0, -1);
+	return ($url);
+}
+
 function HasQuestionAccess()
 {
 	$question = "";
@@ -471,11 +516,11 @@ function HasQuestionAccess()
 	$room_id = GetQuestionRoom($question);
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
-		$room = $_GET[QUERY_KEY_ROOM];
+		$room_param = $_GET[QUERY_KEY_ROOM];
 	else
-		$room = "";
-
-	if (empty($room_id) or ($room == $room_id))
+		$room_param = "";
+	
+	if ($room_param == $room_id)
             return true;
 	else
             return false;
