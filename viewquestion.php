@@ -117,19 +117,18 @@ You can think of it as the smallest set of proposals such that every participant
 				$response3 = mysql_query($sql3);
 				while ($row3 = mysql_fetch_array($response3))
 				{
-					echo '<p class="paretoproposal">' . $row3[0] ;
+					echo '<div class="paretoproposal">' . $row3[0] ;
 
 
 					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
 					$response4 = mysql_query($sql4);
-					echo '<br>Endorsed by: ';
+					echo '<br />Endorsed by: ';
 					while ($row4 = mysql_fetch_array($response4))
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
 					}
-					echo '</br>';
-					echo '</p>';
-
+					echo '<br />';
+					echo '</div>';
 
 				}
 			}

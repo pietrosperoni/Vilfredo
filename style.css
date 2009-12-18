@@ -1,296 +1,111 @@
 body {
-margin:15px 50px 0 50px;
-font-family:helvetica,arial,sans-serif;
-}
-
-#nav {
-	margin-top:20px;
-width:100%;
-padding:3px;
-clear:both;
-border-bottom:2px solid #000000;
-display:block;
-height:30px;
-}
-
-#nav li {
-float:left;
-list-style-type:none;
-margin-right:60px;
-margin-left:0;
-}
-
-#footer { 
-	margin-top:20px;
-border-top:2px solid #000000;
-}
-
-#recentproposal {
-	Border:2px solid #000000;
-	float:left;
-	width:230px;
-	padding:10px;
-	margin:0 15px 15px 0px;	
-}
-
-div.invisible{  display:none; }
-
-
-
-#recentvoting {
-	Border:2px solid #000000;
-	float:right;
-	width:230px;
-	padding:10px;
-	margin:0 0 15px 15px;	
-}
-
-#recentproposal h2, #recentvoting h2 {
+	margin:15px 50px 0 50px;	font-family:helvetica,arial,sans-serif;
+}#nav {
+	margin-top:20px;	width:100%;	padding:3px;	clear:both;	border-bottom:2px solid #000000;	display:block;	height:30px;
+}#nav li {
+	float:left;	list-style-type:none;	margin-right:60px;	margin-left:0;
+}#footer {
+	margin-top:20px;	border-top:2px solid #000000;
+}#recentproposal {
+	Border:2px solid #000000;	float:left;	width:230px;	padding:10px;	margin:0 15px 15px 0px;
+}div.invisible {
+	display:none;
+}#recentvoting {
+	Border:2px solid #000000;	float:right;	width:230px;	padding:10px;	margin:0 0 15px 15px;
+}#recentproposal h2, #recentvoting h2 {
 	margin:0;
-}
-
-#recentproposal img {
+}#recentproposal img {
 	margin-left:5px;
-}
-
-#author {
-	margin-top:0;
-	font-size:80%;
-}
-
-
-p.ignored,p.endorsed,#actionbox {
-	padding:3px 15px 3px 15px;
-	margin:3px;
-	border:1px solid #B45F04;
-}
-
-p.ignored a, p.endorsed a {
+}#author {
+	margin-top:0;	font-size:80%;
+}p.ignored,p.endorsed,#actionbox {
+	padding:3px 15px 3px 15px;	margin:3px;	border:1px solid #B45F04;
+}p.ignored a, p.endorsed a {
 	color:#0B0B3B;
-}
-
-p.ignored {
+}p.ignored {
 	background-color:#F5A9A9;
-}
-
-p.endorsed {
+}p.endorsed {
 	background-color:#D0F5A9;
-}
-
-p.dominated {
-}
-
-p.paretofront {
+}p.dominated {
+}p.paretofront {
 	margin-right:360px;
-}
-
-p.oldproposal {
-}
-
-p.newproposal {
-}
-
-
-
-#actionbox,#recentproposal,#recentvoting {
-
-background-color:#F6E3CE;
-padding-bottom:8px;
-}
-
-fieldset,form { 
-border:0;
-margin:0;
-padding:3px 30px 3px 3px;
-
-}
-
-textarea {font-family:helvetica;padding:15px; width:100%;height:150px;}
-textarea.title {font-family:helvetica;padding:0px; width:520px;height:20px;}
-
-input#submit {
+}p.oldproposal {
+}p.newproposal {
+}#actionbox,#recentproposal,#recentvoting {
+	background-color:#F6E3CE;	padding-bottom:8px;
+}fieldset,form {
+	border:0;	margin:0;	padding:3px 30px 3px 3px;
+}textarea {
+	font-family:helvetica;	padding:15px;	width:100%;	height:150px;
+}textarea.title {
+	font-family:helvetica;	padding:0px;	width:520px;	height:20px;
+}input#submit {
 	margin-top:8px;
-}
-
-#paretoimg,#athens {
+}#paretoimg,#athens {
 	border:none;
-}
-
-#paretoimg {
+}#paretoimg {
 	float:left;
-}
-
-#athens {
+}#athens {
 	float:right;
-}
-
-h1 img {
+}h1 img {
 	margin-left:15px;
-}
-
-.rightfloatbox {
-	float:right;
-	width:48.5%;
-	position:relative;
-
-}
-.leftfloatbox {
-	float:left;
-	width:48.5%;
-	position:relative;
-
-}
-
-.centerbox {
-	float:left;
+}.rightfloatbox {
+	float:right;	width:48.5%;	position:relative;
+}.leftfloatbox {
+	float:left;	width:48.5%;	position:relative;
+}.centerbox {
+	float:left;	width:100%;	position:relative;	padding:3px 0px 3px 0px;
+}.newquestionbox {
+	width:100%;	background-color:#CDFFCC;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;	text-align: center;
+}.endorsingbox {
+	width:100%;	background-color:#C5E0FB;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;
+}.proposingbox {
+	width:100%;	background-color:#f7c8c8;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;
+}#unanimitybox2 {
 	width:100%;
-	position:relative;
-	padding:3px 0px 3px 0px;
-
-}
-
-.newquestionbox {
-	width:100%;
-	background-color:#CDFFCC;
-	border:1px solid #B45F04;
-		padding:3px 15px 3px 15px;
-	text-align: center;
-
-}
-
-
-.endorsingbox {
-	width:100%;
-	background-color:#C5E0FB;
-	border:1px solid #B45F04;
-		padding:3px 15px 3px 15px;
-
-}
-
-.proposingbox {
-	width:100%;
-	background-color:#f7c8c8;
-	border:1px solid #B45F04;
-		padding:3px 15px 3px 15px;
-
-}
-
-
-#unanimitybox2 {
-	width:100%;
-}
-
-
-#endorsingbox {
+}#endorsingbox {
 	width:46%;
-}
-#endorsingbox2 {
+}#endorsingbox2 {
 	width:100%;
+}#writingbox2 {
+	float:right;	position:relative;	top:-3px;
+}#writingbox {
+	float:right;	width:46%;	position:relative;	top:-3px;
+}#endorsingbox2,#writingbox2 {
+	background-color:#F6E3CE;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;
+}.solvedbox {
+	background-color:#FFFFCB;	width:100%;	border:1px solid #B45F04;	padding:15px;	text-align: center;
+}#writingbox,#endorsingbox, blockquote {
+	background-color:#F6E3CE;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;	margin:3px 3px 15px 3px;
+}#paretofrontbox {
+	background-color:#D0F5A9;	border:1px solid #B45F04;	padding:3px 15px 3px 15px;	margin:3px 3px 15px 3px;
+}div.paretoproposal {
+	padding-bottom: 10px;	border-bottom:1px solid #B45F04;
 }
 
-
-#writingbox2 {
-	float:right;
-	position:relative;
-	top:-3px;
-}
-
-#writingbox {
-	float:right;
-	width:46%;
-	position:relative;
-	top:-3px;
-}
-
-#endorsingbox2,#writingbox2{
-	background-color:#F6E3CE;
-		border:1px solid #B45F04;
-			padding:3px 15px 3px 15px;
-}
-
-.solvedbox {
-	background-color:#FFFFCB;
-	width:100%;
-	border:1px solid #B45F04;
-	padding:15px;
-	text-align: center;
-}
-
-#writingbox,#endorsingbox, blockquote {
-	background-color:#F6E3CE;
-		border:1px solid #B45F04;
-			padding:3px 15px 3px 15px;
-	margin:3px 3px 15px 3px;
-}
-	
-	#paretofrontbox {
-	background-color:#D0F5A9;
-		border:1px solid #B45F04;
-			padding:3px 15px 3px 15px;
-	margin:3px 3px 15px 3px;}
-	
-	p.paretoproposal {
-		padding-bottom:5px;
-				border-bottom:1px solid #B45F04;
-	}
-	
-	#historybox {
-					padding:3px 15px 3px 15px;
-	margin:3px 3px 15px 3px;
-	border:1px solid #ffffff;
-	}
-	#title {
+div.paretoproposal:last-child {
+	border-bottom: none;
+}hr.pareto {
+	/*background-color: #B45F04;*/	color: #B45F04;
+}#historybox {
+	padding:3px 15px 3px 15px;	margin:3px 3px 15px 3px;	border:1px solid #ffffff;
+}#title {
 	margin:3px 15px 1px 15px;
-	}
-	
-	#question {
+}#question {
 	margin:3px 15px 1px 15px;
-	}
-	#author {
-		margin-left:15px;
-	}
-	
-	/* simple css-based tooltip     width:200px;   */ 
-div.tooltip { 
-    background-color:#000; 
-    outline:1px solid #669; 
-    border:2px solid #fff; 
-    padding:10px 15px; 
-    display:none; 
-    color:#fff; 
-    text-align:left; 
-    font-size:12px; 
- 
-    /* outline radius for mozilla/firefox only */ 
-    outline-radius:4px; 
-    -moz-outline-radius:4px; 
-    -webkit-outline-radius:4px; 
-}
-
-.login_sector {
-  width: 270px;
-  float: left;
-  border-right: solid 1px #839553;
-}
-
-.login_sector_soc {
-  float: left;
-  padding-left: 30px;
-  padding-top: 25px;
-}
-
-.clear {
-clear:both;
-}
-
-.errorMessage
-{
-	color: #FF0000;
-	font-size: 11pt;
-	font-weight: bold;
-}
-
-td.vote_list 
-{
+}#author {
+	margin-left:15px;
+}/* simple css-based tooltip     width:200px;   */div.tooltip {
+	background-color:#000;	outline:1px solid #669;	border:2px solid #fff;	padding:10px 15px;	display:none;	color:#fff;	text-align:left;	font-size:12px;	/* outline radius for mozilla/firefox only */
+outline-radius:4px;	-moz-outline-radius:4px;	-webkit-outline-radius:4px;
+}.login_sector {
+	width: 270px;	float: left;	border-right: solid 1px #839553;
+}.login_sector_soc {
+	float: left;	padding-left: 30px;	padding-top: 25px;
+}.clear {
+	clear:both;
+}.errorMessage {
+	color: #FF0000;	font-size: 11pt;	font-weight: bold;
+}td.vote_list {
 	text-align: center;
 }
