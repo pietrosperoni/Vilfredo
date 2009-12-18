@@ -22,7 +22,7 @@ if ($userid)
 	//
 	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id, questions.room FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.id DESC LIMIT 4";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$phase=$row[3];
 		$generation=$row[2];
@@ -60,7 +60,7 @@ if ($userid)
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest, questions.room FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id " . $room_access . " GROUP BY questions.id ORDER BY latest DESC LIMIT 5";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];
@@ -105,7 +105,7 @@ if ($userid)
 		//
 		$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.room FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $room_access . " ORDER BY questions.roundid DESC, questions.phase DESC, questions.id DESC LIMIT 6";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];
@@ -122,7 +122,7 @@ if ($userid)
 
 	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest, questions.room FROM questions, users, proposals WHERE questions.phase = 1 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id GROUP BY questions.id ORDER BY latest DESC LIMIT 4";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];

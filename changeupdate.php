@@ -11,7 +11,7 @@ if ($userid)
 
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_row($response);
+	$row = mysql_fetch_array($response);
 
 	if ($row)
 	{

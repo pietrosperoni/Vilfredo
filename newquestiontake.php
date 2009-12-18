@@ -33,7 +33,7 @@ $room = FormatRoomId($_POST['roomid']);
 
 		$sql = "SELECT id FROM questions WHERE usercreatorid = ".$userid." ORDER BY questions.id DESC LIMIT 1 ";
 		$response = mysql_query($sql);
-		$row = mysql_fetch_row($response);
+		$row = mysql_fetch_array($response);
 
                 $urlquery = CreateQuestionURL($row[0], $room);
 

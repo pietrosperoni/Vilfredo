@@ -33,7 +33,7 @@ $(".foottip a").tooltip({
 
 	$sql = "SELECT users.username FROM users WHERE users.id = " . $uid;
 	$response = mysql_query($sql);
-	$user = mysql_fetch_row($response);
+	$user = mysql_fetch_array($response);
 	$user = $user[0];
 
 	echo '<h2>' . $user . '</h2>';
@@ -54,7 +54,7 @@ $(".foottip a").tooltip({
 	$response = mysql_query($sql);
 
 
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$questionid = $row[0];
 		$questiontext = $row[1];
@@ -83,7 +83,7 @@ $(".foottip a").tooltip({
 	$response = mysql_query($sql);
 
 
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$proposal = $row[2];
 		$proposalid = $row[1];

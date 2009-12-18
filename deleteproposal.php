@@ -31,7 +31,7 @@ if ($userid)
 	
 	$sql = "SELECT proposals.blurb, proposals.experimentid FROM proposals, questions WHERE proposals.id = ".$proposal." and proposals.experimentid = questions.id and questions.roundid = proposals.roundid and questions.phase = 0  ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{		
 		$blurb =	$row[0];
 		$question =	$row[1];

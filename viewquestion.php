@@ -36,7 +36,7 @@ if ($userid)
 
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_row($response);
+	$row = mysql_fetch_array($response);
 	if ($row)
 	{
 		echo "Automatic Email Update On: You will receive an email every time the question moves on, even when you do not participate.";
@@ -52,15 +52,15 @@ if ($userid)
 		<input type="submit" name="submit" id="submit" value="Switch the update On/Off" />
 	</form>
 	<?php
-	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
+	$sql = "SELECT * FROM questions WHERE id = $question";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
-		$content=$row[1];
-		$phase=$row[3];
-		$generation=$row[2];
-		$creatorid=$row[4];
-		$title=$row[5];
+		$content=$row['question'];
+		$phase=$row['phase'];
+		$generation=$row['roundid'];
+		$creatorid=$row['usercreatorid'];
+		$title=$row['title'];
 		$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 		if (!$lastmoveonTime)
 		{
@@ -96,7 +96,7 @@ if ($userid)
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
 		$response2 = mysql_query($sql2);
-		while ($row2 = mysql_fetch_row($response2))
+		while ($row2 = mysql_fetch_array($response2))
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 		}
@@ -115,7 +115,7 @@ You can think of it as the smallest set of proposals such that every participant
 			{
 				$sql3 = "SELECT blurb FROM proposals WHERE id = ".$p." LIMIT 1 ";
 				$response3 = mysql_query($sql3);
-				while ($row3 = mysql_fetch_row($response3))
+				while ($row3 = mysql_fetch_array($response3))
 				{
 					echo '<p class="paretoproposal">' . $row3[0] ;
 
@@ -123,7 +123,7 @@ You can think of it as the smallest set of proposals such that every participant
 					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
 					$response4 = mysql_query($sql4);
 					echo '<br>Endorsed by: ';
-					while ($row4 = mysql_fetch_row($response4))
+					while ($row4 = mysql_fetch_array($response4))
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
 					}
@@ -256,7 +256,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		{
 			echo "<h3>Proposals You have written:</h3>";
 			echo '<table border="1">';
-			while ($row = mysql_fetch_row($response))
+			while ($row = mysql_fetch_array($response))
 			{
 				?>
 						<tr>
@@ -331,11 +331,11 @@ try to write a proposal that represent an acceptable compromise between differen
 				}
 				else{ echo '&nbsp;'; }
 				echo '</td>';
-				echo '<td><p>' . $row[1] . '</td><td>';
+				echo '<td><p>' . $row['blurb'] . '</td><td>';
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
 
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
-				if(mysql_fetch_row(mysql_query($sql)))
+				if(mysql_fetch_array(mysql_query($sql)))
 				{
 					echo ' checked="checked" ';
 				}

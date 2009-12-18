@@ -40,7 +40,7 @@ $(".foottip a").tooltip({
 #	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid ORDER BY questions.roundid DESC, questions.phase DESC, questions.id DESC ";
 	$sql = "SELECT questions.id FROM questions ORDER BY questions.id DESC ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo WriteQuestion($row[0],$userid);
 	}	

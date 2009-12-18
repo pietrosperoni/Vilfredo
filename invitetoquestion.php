@@ -20,7 +20,7 @@ if ($userid)
 
 		$sql2 = 'SELECT questions.title FROM questions WHERE questions.id = '.$question;
 		$response2 = mysql_query($sql2);
-		$row2 = mysql_fetch_row($response2);
+		$row2 = mysql_fetch_array($response2);
 		echo "<h3>".$row2[0]."</h3>";
 
 		echo "<p>Now that you have created a question, you can invite some users to answer it</p>";
@@ -32,7 +32,7 @@ if ($userid)
 			<table border="1">
 			<?php
 
-			while ($row = mysql_fetch_row($response))
+			while ($row = mysql_fetch_array($response))
 			{
 				echo '<tr><td><p>';
 				echo WriteUserVsReader($row[0],$userid);

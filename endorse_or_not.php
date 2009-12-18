@@ -12,7 +12,7 @@ if ($userid)
 
 	$sql2 = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response2 = mysql_query($sql2);
-	while ($row2 = mysql_fetch_row($response2))
+	while ($row2 = mysql_fetch_array($response2))
 	{		
 		$roundid =	$row2[0];
 	}
@@ -21,7 +21,7 @@ if ($userid)
 	$allproposals=array();	
 	$sql = "SELECT  id FROM proposals WHERE  proposals.experimentid = " . $question . " AND proposals.roundid= ".$roundid." ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))	
+	while ($row = mysql_fetch_array($response))	
 	{	
 		array_push($allproposals,$row[0]);
 	}
@@ -29,7 +29,7 @@ if ($userid)
 	foreach ($allproposals as $p)
 	{
 		$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $p . " LIMIT 1";
-		if(mysql_fetch_row(mysql_query($sql)))
+		if(mysql_fetch_array(mysql_query($sql)))
 		{
 			if (!in_array($p,$endorsedproposals))
 			{

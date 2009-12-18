@@ -16,7 +16,7 @@ if (isAdmin($userid))
 	
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo $row[0]."<br>";
 		echo $row[1]."<br>";
@@ -28,7 +28,7 @@ if (isAdmin($userid))
 		echo $row[7]."<br>";
 		$sql2 = "SELECT * FROM endorse WHERE proposalid = ".$row[0]."  ";
 		$response2 = mysql_query($sql2);
-		while ($row2 = mysql_fetch_row($response2))
+		while ($row2 = mysql_fetch_array($response2))
 		{
 			echo $row2[0]."<br>";
 			echo $row2[1]."<br>";
@@ -44,7 +44,7 @@ if (isAdmin($userid))
 	
 	$sql3 = "SELECT * FROM updates WHERE question = ".$question."  ";
 	$response3 = mysql_query($sql3);
-	while ($row3 = mysql_fetch_row($response3))
+	while ($row3 = mysql_fetch_array($response3))
 	{
 		echo $row3[0]."<br>";
 		echo $row3[1]."<br>";
@@ -57,7 +57,7 @@ if (isAdmin($userid))
 
 	$sql4 = "SELECT * FROM questions WHERE id = ".$question."  ";
 	$response4 = mysql_query($sql4);
-	while ($row4 = mysql_fetch_row($response4))
+	while ($row4 = mysql_fetch_array($response4))
 	{
 		echo $row4[0]."<br>";
 		echo $row4[1]."<br>";

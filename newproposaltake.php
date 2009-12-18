@@ -23,7 +23,7 @@ if ($userid)
 
 	$sql2 = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response2 = mysql_query($sql2);
-	while ($row2 = mysql_fetch_row($response2))
+	while ($row2 = mysql_fetch_array($response2))
 	{
 		$roundid =	$row2[0];
 	}

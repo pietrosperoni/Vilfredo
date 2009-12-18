@@ -55,7 +55,7 @@ $room_param = CreateNewQuestionURL();
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room FROM questions, users WHERE questions.phase = 0 AND questions.roundid = 1 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY questions.id DESC LIMIT 50";
 	$response = mysql_query($sql);
 	$newquestionswritten=0;
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$phase=$row[3];
 		$generation=$row[2];
@@ -133,7 +133,7 @@ $room_param = CreateNewQuestionURL();
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.minimumtime, questions.maximumtime, questions.room  FROM questions, users WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY questions.lastmoveon DESC, questions.roundid DESC, questions.phase DESC, questions.id DESC ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];
@@ -193,7 +193,7 @@ $room_param = CreateNewQuestionURL();
 		$sql3 = "SELECT id, blurb  FROM proposals WHERE experimentid = ".$row[0]." and roundid = ".$generation." ";
 		$response3 = mysql_query($sql3);
 
-		while ($row3 = mysql_fetch_row($response3))
+		while ($row3 = mysql_fetch_array($response3))
 		{
 			$answerid=$row3[0];
 			$answertext=$row3[1];
@@ -234,7 +234,7 @@ echo '<h2> <img src="images/writing.jpg" height=48> Propose an Answer to a Quest
 #echo "<h3>Questions Being Discussed</h3><p>";
 $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, MAX(proposals.id) AS latest , questions.question, questions.minimumtime, questions.maximumtime, questions.room FROM questions, users, proposals WHERE questions.phase = 0 AND users.id = questions.usercreatorid AND proposals.experimentid = questions.id " . $question_filter . " GROUP BY questions.id ORDER BY latest DESC";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];
@@ -258,7 +258,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 			$pastgeneration=$generation -1;
 			$sql2 = "SELECT id,source  FROM proposals WHERE experimentid = ".$questionid." and roundid = ".$pastgeneration." and dominatedby = 0 ";
 			$response2 = mysql_query($sql2);
-			$row2= mysql_fetch_row($response2);
+			$row2= mysql_fetch_array($response2);
 
 			if($row2)
 			{
@@ -404,7 +404,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.room  FROM questions, users WHERE questions.phase = 0 AND users.id = questions.usercreatorid " . $question_filter . " ORDER BY  questions.lastmoveon DESC, questions.id DESC  ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
 		$phase=$row[3];
@@ -427,7 +427,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 			$sql2 = "SELECT id,source  FROM proposals WHERE experimentid = ".$questionid." and roundid = ".$pastgeneration." and dominatedby = 0 ";
 			$response2 = mysql_query($sql2);
-			$row2= mysql_fetch_row($response2);
+			$row2= mysql_fetch_array($response2);
 
 			if($row2)
 			{
@@ -466,7 +466,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 #						$sql5 = "SELECT username FROM users WHERE id = ".$e." ";
 #						$response5 = mysql_query($sql5);
-#						$row5 = mysql_fetch_row($response5);
+#						$row5 = mysql_fetch_array($response5);
 #						echo '<a href="user.php?u=' . $e . '">'.$row5[0].'</a> ';
 					}
 
@@ -475,7 +475,7 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 					echo '<div class="invisible" id="footnote' . $row[0] . '">';
 					echo '<ol>';
 
-					while ($row3 = mysql_fetch_row($response3))
+					while ($row3 = mysql_fetch_array($response3))
 					{
 						$answerid=$row3[0];
 						$answertext=$row3[1];

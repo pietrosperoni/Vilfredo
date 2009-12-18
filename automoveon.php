@@ -2,7 +2,7 @@
 include('header.php');
 $sql = "SELECT *  FROM questions; ";
 $response = mysql_query($sql);
-while ($row = mysql_fetch_row($response))
+while ($row = mysql_fetch_array($response))
 {
 	$question=$row[0];
 	$generation=$row[2];

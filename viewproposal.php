@@ -14,7 +14,7 @@ if ($userid)
 	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
 
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$questiontext=$row[0];
 		$questionround=$row[1];
@@ -37,7 +37,7 @@ if ($userid)
 		if ( $questionphase==1 and $questionround==$proposalround)
 		{
 			$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $proposal . " LIMIT 1";
-			if(mysql_fetch_row(mysql_query($sql)))
+			if(mysql_fetch_array(mysql_query($sql)))
 			{
 				?><br/><br/>You are endorsing.<br/><br/>
 		<!--		<form method="POST" action="endorse_or_not.php">
@@ -62,7 +62,7 @@ if ($userid)
 
 			$sql2 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " . $proposal . " ";
 			$response2 = mysql_query($sql2);
-			while ($row2 = mysql_fetch_row($response2))
+			while ($row2 = mysql_fetch_array($response2))
 			{
 				echo '<li><a href="user.php?u='.$row2[1].'">' . $row2[0] . '</a></li>';
 			}
