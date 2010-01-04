@@ -178,18 +178,36 @@ try to write a proposal that represent an acceptable compromise between differen
 	}
 
 
-	if ( $phase==0 and CountProposals($question,$generation) and $userid==$creatorid and $tomoveon==1)
+	if ( $phase==0 and $userid==$creatorid and $tomoveon==1)
 	{
-
-
-		?>
-		<form method="POST" action="moveontoendorse.php">
-		If everybody has written their proposals, you can:
-			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-			<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
-		</form>
-		<?php
+		if ($generation==1)
+		{
+			if (CountProposals($question,$generation)>1)
+			{
+				?>
+					<form method="POST" action="moveontoendorse.php">
+					If everybody has written their proposals, you can:
+						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
+					</form>
+				<?php
+			}
+		}
+		else
+		{
+			if (CountProposals($question,$generation))
+			{
+				?>
+					<form method="POST" action="moveontoendorse.php">
+					If everybody has written their proposals, you can:
+						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
+					</form>
+				<?php
+			}
+		}
 	}
+
 	if ( $phase==1)
 	{
 		$nEndorsers=CountEndorsers($question,$generation);
@@ -200,7 +218,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		if ($minimumminutes){ echo $minimumminutes." minutes ";}
 		echo "must have passed between the first endorsement and the moment when the questioner can move the question on. </p>";
 
-		if ($nEndorsers and $userid==$creatorid and $tomoveon==1)
+		if ($nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
 		{
 			?>
 			<form method="POST" action="moveontowriting.php">
