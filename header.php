@@ -38,12 +38,13 @@ ob_start();
 
 	</head>
 	<?php
-#	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+//	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
-//******************************************
+// ******************************************
 // Load System Serttings
 //	
 require_once 'config.inc.php';
+
 require_once 'process_input.php';
 //
 $fb=new Facebook($facebook_key, $facebook_secret);
@@ -53,7 +54,7 @@ session_start();
 $FACEBOOK_ID = null;
 if (USE_FACEBOOK_CONNECT)
 	$FACEBOOK_ID = get_current_facebook_userid($fb);
-//******************************************
+// ******************************************
 //
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()
@@ -72,12 +73,12 @@ function check_dnsrr($host, $type)
 	else
 		return true;
 }
-//******************************************
+// ******************************************
 // ADMIN
 //	Users with id listed in admin table can delete 
 //	questions and proposals.
 //
-//******************************************
+// ******************************************
 function isAdmin($userid)
 {
 	$admin = false;
@@ -89,10 +90,10 @@ function isAdmin($userid)
 	
 	return $admin;
 }
-//******************************************
+// ******************************************
 // ERRORS
 //
-//******************************************
+// ******************************************
 function error($message, $level=VILFREDO_ERROR) 
 {
 	$caller = next(debug_backtrace());
@@ -134,10 +135,10 @@ function get_messages()
     unset($_SESSION['messages']);
     return $messages_array;
 }
-//******************************************
+// ******************************************
 // VILFREDO ROOMS
 //
-//******************************************
+// ******************************************
 function GetParamFromQuery($key)
 {
 	$param = isset($_GET[$key]) ? $_GET[$key] : "";
@@ -225,19 +226,6 @@ function print_array($arr, $quit=FALSE, $name='') {
 	if ($quit) exit;
 }
 
-
-function RenderQIconInfo($username, $room)
-{	
-	if (!empty($room) && SHOW_QICON_ROOMS)
-	{
-		return "by $username in <a href=\"" . SITE_DOMAIN . "/viewquestions.php?room=$room\">$room</a>";
-	}
-	else
-	{
-		return "by $username";
-	}
-}
-
 //
 // To-Do Lists
 //
@@ -280,7 +268,7 @@ function GetRelatedQuestions($userid)
 	
 	#printbr($sql);
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($related,$row[0]);
 	}
@@ -295,7 +283,7 @@ function GetRelatedQuestions($userid)
   
   	mysql_query($sql) or die(mysql_error());
 }
-//**************************************
+// **************************************
 
 function GetQuestionFilter($userid)
 {	
@@ -425,20 +413,10 @@ function FormatRoomId($room)
 	return $room;
 }
 
-function GetRoomList()
-{
-	$sql = "SELECT DISTINCT room FROM `questions` 
-	WHERE room != '' AND room NOT LIKE '\_%'";
-	$result = mysql_query($sql) or die(mysql_error());
-	$rooms = mysql_fetch_array($result);
-	
-	return $rooms;
-}
-
 function getUniqueRoomCode()
 {
 	$code = md5(uniqid(rand(), true));
-	return '_' . substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
+	return substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
 }
 
 function CreateVFURL($url, $question="", $room="")
@@ -481,28 +459,6 @@ function HasProposalAccess()
             return false;
 }
 
-
-function add_querystring_var($url, $key, $value) 
-{
-	$url = preg_replace('/(.*)(\?|&)' . $key . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
-	$url = substr($url, 0, -1);
-	if (strpos($url, '?') === false) 
-	{
-		return ($url . '?' . $key . '=' . $value);
-	} 
-	else 
-	{
-		return ($url . '&' . $key . '=' . $value);
-	}
-}
-
-function remove_querystring_var($url, $key) 
-{
-	$url = preg_replace('/(.*)(\?|&)' . $key . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
-	$url = substr($url, 0, -1);
-	return ($url);
-}
-
 function HasQuestionAccess()
 {
 	$question = "";
@@ -516,11 +472,11 @@ function HasQuestionAccess()
 	$room_id = GetQuestionRoom($question);
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
-		$room_param = $_GET[QUERY_KEY_ROOM];
+		$room = $_GET[QUERY_KEY_ROOM];
 	else
-		$room_param = "";
-	
-	if ($room_param == $room_id)
+		$room = "";
+
+	if (empty($room_id) or ($room == $room_id))
             return true;
 	else
             return false;
@@ -571,10 +527,10 @@ function GetRoom($question)
 	     WHERE id='$question'";
 
 	$result = mysql_query($sql) or die(mysql_error());
-	$row = mysql_fetch_array($result);
+	$row = mysql_fetch_row($result);
 
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	$room=$row[0];
 
 	return $room;
@@ -589,22 +545,22 @@ function GetQuestionCreator($question)
 	     WHERE id='$question'";
 
 	$result = mysql_query($sql) or die(mysql_error());
-	$row = mysql_fetch_array($result);
+	$row = mysql_fetch_row($result);
 
 	$creator=$row[0];
 
 	return $creator;
 }
 
-//******************************************
+// ******************************************
 // Connects to the Database
 mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
 mysql_select_db($dbname) or die(mysql_error());
 
-//****************************
+// ****************************
 // AUTHENTICATION
 //
-//****************************
+// ****************************
 // Returns true if ping comes from Facebook
 function fb_verify_ping($secret)
 {
@@ -990,7 +946,7 @@ function get_session_username()
 		error('Unable to retrieve username for user $userid');
 	}
 }
-//***********************************************
+// ***********************************************
 function longestproposal()
 {
 	$sql = "SELECT username as user, proposals.id, blurb, LENGTH(blurb) as length  
@@ -1009,7 +965,7 @@ function longestproposal()
 	return $proposal;
 }
 
-/**
+/* *
 Validate an email address.
 Provide email address (raw input)
 Returns true if the email address has the email 
@@ -1168,7 +1124,7 @@ function CountProposals($question,$generation)
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation."";
 	$n=0;
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$n+=1;
 	}
@@ -1187,7 +1143,7 @@ function EndorsersToAProposal($proposal)
 	$endorsers=array();
 	$sql = "SELECT DISTINCT userid FROM endorse WHERE proposalid = ".$proposal." ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($endorsers,$row[0]);
 	}
@@ -1224,7 +1180,7 @@ function CountEndorsers($question,$generation)
 	$sql = "SELECT DISTINCT endorse.userid FROM proposals,endorse WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.id = endorse.proposalid";
 	$n=0;
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$n+=1;
 	}
@@ -1236,7 +1192,7 @@ function ProposalsInGeneration($question,$generation)
 	$proposals=array();
 	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation." ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($proposals,$row[0]);
 	}
@@ -1244,13 +1200,54 @@ function ProposalsInGeneration($question,$generation)
 }
 
 
+function StudyQuestion($question)
+{
+	$sql = "SELECT roundid, phase FROM questions WHERE id = ".$question." ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_row($response))
+	{
+		$generations=$row[0];
+		$phasenow=$row[1];
+	}
+	
+	$gen=1;
+	$AllAuthors=array();
+	$AuthorsArray=array();
+	$AllParticipants=array();
+	$ParticipantsSoFar=array();
+	$AllVoters=array();
+	do {
+		$authors=AuthorsOfNewProposals($question,$gen);
+		$voters=Endorsers($question,$gen);
+		$AuthorsArray[]=count($authors);
+		$VotersArray[]=count($voters);
+		$participants=array_unique(array_merge($authors,$voters));
+		$ParticipantsSoFar=array_unique(array_merge($ParticipantsSoFar,$participants));
+		$ParticipantsSoFarArray[]=count($ParticipantsSoFar);
+		$ParticipantsArray[]=count($participants);
+		$PartDouble[]=count($authors);
+		$PartDouble[]=count($voters);
+		
+		$AllAuthors= array_merge ( $AllAuthors,	$authors );
+		$AllVoters= array_merge ( $AllVoters,	$voters );
+		$gen++;
+	} while ($gen < $generations);
+	$AllAuthors=array_unique($AllAuthors);
+	$AllVoters=array_unique($AllVoters);
+	$AllParticipants=array_merge ( $AllAuthors,	$AllVoters );
+	$AllParticipants=array_unique($AllParticipants);
+
+#	$graph="http://chart.apis.google.com/chart?cht=lc&chd=t:".implode(",",$PartDouble)."&chs=480x300&chds=0,".count($AllParticipants);
+	$graph="http://chart.apis.google.com/chart?cht=lc&chd=t:".implode(",",$AuthorsArray)."|".implode(",",$VotersArray)."|".implode(",",$ParticipantsArray)."|".implode(",",$ParticipantsSoFarArray)."&chs=700x300&chds=0,".count($AllParticipants)."&chco=FF0000,0000FF,FF00FF,00FF00&chdl=Authors|Voters|Participants for that Generation|Total Participants up to that Time";
+	return $graph;
+}
 
 function AuthorsOfNewProposals($question,$generation)
 {
 	$authors=array();
 	$sql = "SELECT usercreatorid FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation." and source = 0";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($authors,$row[0]);
 	}
@@ -1262,7 +1259,7 @@ function Endorsers($question,$generation)
 	$authors=array();
 	$sql = "SELECT endorse.userid  FROM endorse, proposals WHERE proposals.experimentid = ".$question." AND proposals.roundid = ".$generation." AND endorse.proposalid = proposals.id ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($authors,$row[0]);
 	}
@@ -1276,7 +1273,7 @@ function WriteQuestion($question,$userid)
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room  FROM questions, users WHERE questions.id = ".$question." AND users.id = questions.usercreatorid ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$answer=$answer.'<p>';
 		$title=$row[1];
@@ -1305,7 +1302,7 @@ function WriteQuestion($question,$userid)
 				{
 					$sql2 = "SELECT id, source FROM proposals WHERE experimentid = ".$questionid." and roundid = ".$pastgeneration." and dominatedby = 0 ";
 					$response2 = mysql_query($sql2);
-					$row2= mysql_fetch_array($response2);
+					$row2= mysql_fetch_row($response2);
 
 					if($row2)
 					{
@@ -1340,7 +1337,7 @@ function WriteQuestion($question,$userid)
 							$answer=$answer.'<div class="invisible" id="footnote' . $questionid . '">';
 							$answer=$answer.'<ol>';
 
-							while ($row3 = mysql_fetch_array($response3))
+							while ($row3 = mysql_fetch_row($response3))
 							{
 								$answerid=$row3[0];
 								$answertext=$row3[1];
@@ -1491,7 +1488,7 @@ function WriteQuestion($question,$userid)
 			$sql3 = "SELECT id, blurb  FROM proposals WHERE experimentid = ".$row[0]." and roundid = ".$generation." ";
 			$response3 = mysql_query($sql3);
 
-			while ($row3 = mysql_fetch_array($response3))
+			while ($row3 = mysql_fetch_row($response3))
 			{
 				$answerid=$row3[0];
 				$answertext=$row3[1];
@@ -1531,7 +1528,7 @@ function WriteUser($user)
 {
 	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$answer= '<a href="user.php?u='.$user.'">' . $row[0] . '</a> ';
 		if ($row[3])
@@ -1546,7 +1543,7 @@ function WriteUserVsReader($user,$reader)
 {
 	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$answer='<a href="user.php?u='.$user.'">' . $row[0] . '</a> ';
 		if ($row[1]=="")
@@ -1574,7 +1571,7 @@ function TimeLastProposalOrEndorsement($question, $phase, $generation)
 	{
 		$sql = "SELECT endorse.endorsementdate FROM proposals, endorse WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.id = endorse.proposalid  ORDER BY endorse.endorsementdate  LIMIT 100 ;";
 		$response = mysql_query($sql);
-		while ($row = mysql_fetch_array($response))
+		while ($row = mysql_fetch_row($response))
 		{
 			if ($row[0]!="0000-00-00 00:00:00")
 			{
@@ -1586,7 +1583,7 @@ function TimeLastProposalOrEndorsement($question, $phase, $generation)
 	{
 		$sql = "SELECT proposals.creationtime FROM proposals WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.creationtime is not NULL ORDER BY proposals.creationtime  LIMIT 1;";
 		$response = mysql_query($sql);
-		while ($row = mysql_fetch_array($response))
+		while ($row = mysql_fetch_row($response))
 		{
 			if ($row[0]!="0000-00-00 00:00:00")
 			{
@@ -1611,7 +1608,7 @@ function HasConsensusBeenFound($question,$phase,$generation)
 	$nrecentparetofront=count(ParetoFront($question,$pastgeneration));
 
 	$sql2 = "SELECT id,source  FROM proposals WHERE experimentid = ".$question." and roundid = ".$pastgeneration." and dominatedby = 0 ";
-	$row2= mysql_fetch_array(mysql_query($sql2));
+	$row2= mysql_fetch_row(mysql_query($sql2));
 	if(!$row2)
 		{return 0;}
 	if ($nrecentendorsers==CountEndorsersToAProposal($row2[0]))
@@ -1644,12 +1641,12 @@ function IsQuestionReadyToBeMovedOn($question,$phase,$generation)
 	if (!$timefrom) 	#{return 0;}
 	{
 		$sql = "SELECT questions.lastmoveon FROM questions WHERE questions.id = ".$question." ;";
-		$row = mysql_fetch_array(mysql_query($sql));
+		$row = mysql_fetch_row(mysql_query($sql));
 		$timefrom=strtotime( $row[0] );
 	}
 
 	$sql = "SELECT questions.minimumtime FROM questions WHERE questions.id = ".$question." ;";
-	$row = mysql_fetch_array(mysql_query($sql));
+	$row = mysql_fetch_row(mysql_query($sql));
 	$timepassed=time()-$timefrom;
 	if ($timepassed>$row[0])
 	{	return 1; }
@@ -1680,11 +1677,11 @@ function IsQuestionReadyToAutoMoveOn($question,$phase,$generation)
 	if (!$timefrom)
 	{
 		$sql = "SELECT questions.lastmoveon FROM questions WHERE questions.id = ".$question." ;";
-		$row = mysql_fetch_array(mysql_query($sql));
+		$row = mysql_fetch_row(mysql_query($sql));
 		$timefrom=strtotime( $row[0] );
 	}
 	$sql = "SELECT questions.maximumtime FROM questions WHERE questions.id = ".$question." ;";
-	$row = mysql_fetch_array(mysql_query($sql));
+	$row = mysql_fetch_row(mysql_query($sql));
 	$timepassed=time()-$timefrom;
 	if ($timepassed>$row[0])
 	{	return 1; }
@@ -1699,7 +1696,7 @@ function SendMails($question)
 
 	$sql2 = "SELECT * FROM questions WHERE id = ".$question." ";
 	$response2 = mysql_query($sql2);
-	$row2 = mysql_fetch_array($response2);
+	$row2 = mysql_fetch_row($response2);
 	$content=wordwrap($row2[1], 70,"\n",true);
 	$round=$row2[2];
 	$phase=$row2[3];
@@ -1726,7 +1723,7 @@ function SendMails($question)
 
 	$sql = "SELECT user FROM updates WHERE question = ".$question." and how = 'asap' ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$user=$row[0];
 		sendmail($user,$question,$subject,$message);
@@ -1784,7 +1781,7 @@ function AwareAuthorOfNewProposal($question)
 {
 	$sql = "SELECT users.username, users.email, questions.title, questions.roundid, questions.phase, questions.room FROM questions, users WHERE questions.id = ".$question." AND questions.usercreatorid = users.id ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	if ($row)
 	{
 		$username=$row[0];
@@ -1832,7 +1829,7 @@ function AwareAuthorOfNewEndorsement($question)
 {
 	$sql = "SELECT users.username, users.email, questions.title, questions.roundid, questions.phase, questions.room FROM questions, users WHERE questions.id = ".$question." AND questions.usercreatorid = users.id ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	if ($row)
 	{
 		$username=$row[0];
@@ -1882,17 +1879,17 @@ function InviteUserToQuestion($user,$question,$room,$userid)
 
         $sql = "SELECT users.username FROM users WHERE id = ".$userid." ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	$authorusername=$row[0];
 
 	$sql = "SELECT questions.title FROM questions WHERE questions.id = ".$question." ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	$title=$row[0];
 
 	$sql = "SELECT users.username, users.email FROM users WHERE id = ".$user." ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	$to=$row[1];
 	$username=$row[0];
 
@@ -1915,7 +1912,7 @@ function SendMail($user,$question,$subject,$message)
 {
 	$sql = "SELECT email FROM users WHERE id = ".$user." ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$to=$row[0];
 		if (!$to) continue;
@@ -1929,7 +1926,7 @@ function MoveOnToWriting($question)
 {
 	$sql2 = "SELECT phase FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response2 = mysql_query($sql2);
-	while ($row2 = mysql_fetch_array($response2))
+	while ($row2 = mysql_fetch_row($response2))
 	{
 		$phase =	$row2[0];
 	}
@@ -1950,7 +1947,7 @@ function MoveOnToEndorse($question)
 {
 	$sql2 = "SELECT phase FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response2 = mysql_query($sql2);
-	while ($row2 = mysql_fetch_array($response2))
+	while ($row2 = mysql_fetch_row($response2))
 	{
 		$phase =	$row2[0];
 	}
@@ -1972,7 +1969,7 @@ function ParetoFront($question,$generation)
 	$paretofront=array();
 	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation." and dominatedby = 0";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($paretofront,$row[0]);
 	}
@@ -1983,7 +1980,7 @@ function SelectParetoFront($question)
 {
 	$sql = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$generation=$row[0];
 		$pastgeneration=$generation-1;
@@ -1992,7 +1989,7 @@ function SelectParetoFront($question)
 	$dominated=array();
 	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$pastgeneration."";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		array_push($proposals,$row[0]);
 	}
@@ -2027,7 +2024,7 @@ function SelectParetoFront($question)
 		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
 		$response = mysql_query($sql);
 
-		while ($row = mysql_fetch_array($response))
+		while ($row = mysql_fetch_row($response))
 		{
 
 			if (!get_magic_quotes_gpc())
@@ -2054,14 +2051,14 @@ function WhoDominatesWho($proposal1,$proposal2)
 	$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$proposal1." ";
 	$response1 = mysql_query($sql1);
 	$users1=array();
-	while ($row1 = mysql_fetch_array($response1))
+	while ($row1 = mysql_fetch_row($response1))
 	{
 		array_push($users1,$row1[0]);
 	}
 	$sql2 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$proposal2." ";
 	$response2 = mysql_query($sql2);
 	$users2=array();
-	while ($row2 = mysql_fetch_array($response2))
+	while ($row2 = mysql_fetch_row($response2))
 	{
 		array_push($users2,$row2[0]);
 	}
@@ -2132,7 +2129,6 @@ var pageTracker = _gat._getTracker("UA-9953942-1");
 pageTracker._trackPageview();
 } catch(err) {}</script>
 
-
 			<div id="header">
 
 			<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto"><img src="images/pareto.png" id="paretoimg" /></a>
@@ -2172,10 +2168,13 @@ pageTracker._trackPageview();
 					} 
 				?>
 				</ul>
+
+
+
 	<?php
 	$sql = "SELECT email FROM users WHERE id = ".$userid." ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
+	$row = mysql_fetch_row($response);
 	if ($row[0]=="")
 	{
 		?>

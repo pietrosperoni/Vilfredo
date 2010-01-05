@@ -17,10 +17,14 @@ if ($userid)
 	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 
 	echo "<h2>Question:</h2>";
+	$graph=StudyQuestion($question);
+	
+	echo "<img src='".$graph."'>";
+
 
 	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	while ($row = mysql_fetch_row($response))
 	{
 		$content=$row[1];
 		$generation=$row[2];
@@ -33,7 +37,7 @@ if ($userid)
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
 		$response2 = mysql_query($sql2);
-		while ($row2 = mysql_fetch_array($response2))
+		while ($row2 = mysql_fetch_row($response2))
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 		}
@@ -56,7 +60,7 @@ if ($userid)
 		echo '<table border="1">';
 		echo '<tr><td>link</td><td><strong>Proposal</strong></td><td><strong>Author</strong></td><td><strong>Endorsers</strong></td><td><strong>Result</strong></td><td><strong>You</strong></td></tr>';
 		$genshowing=$generation;
-		while ($row = mysql_fetch_array($response))
+		while ($row = mysql_fetch_row($response))
 		{
 			if ($row[3]!=$genshowing)
 			{
@@ -68,7 +72,7 @@ if ($userid)
 #				{
 #					$sql5 = "SELECT username FROM users WHERE id = ".$p." ";
 #					$response5 = mysql_query($sql5);
-#					$row5 = mysql_fetch_array($response5);
+#					$row5 = mysql_fetch_row($response5);
 #					echo " ".$row5[0]." ";
 #				}
 				$endorsers=Endorsers($question,$genshowing);
@@ -78,7 +82,7 @@ if ($userid)
 #				{
 #					$sql5 = "SELECT username FROM users WHERE id = ".$e." ";
 #					$response5 = mysql_query($sql5);
-#					$row5 = mysql_fetch_array($response5);
+#					$row5 = mysql_fetch_row($response5);
 #					echo " ".$row5[0]." ";
 #				}
 
@@ -89,7 +93,7 @@ if ($userid)
 			$source=$row[5];
 
 			$sql6 = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . " LIMIT 1";
-			if(mysql_fetch_array(mysql_query($sql6)))
+			if(mysql_fetch_row(mysql_query($sql6)))
 			{$Endorsed=1;}
 			else
 			{$Endorsed=0;}
