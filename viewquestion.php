@@ -37,21 +37,11 @@ if ($userid)
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_array($response);
-	if ($row)
-	{
-		echo "Automatic Email Update On: You will receive an email every time the question moves on, even when you do not participate.";
-	}
+	if ($row)	
+		{$subscribed=1;}
 	else
-	{
-		echo "Automatic Email Update Off: You will only receive an update from the question if you have participated recently.";
-	}
-	?>
-	<form method="POST" action="changeupdate.php">
-		<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-		<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
-		<input type="submit" name="submit" id="submit" value="Switch the update On/Off" />
-	</form>
-	<?php
+		{$subscribed=0;}
+
 	$sql = "SELECT * FROM questions WHERE id = $question";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
@@ -90,8 +80,25 @@ if ($userid)
 		$minimumtime=$minimumtime-$minimumhours*60*60;
 		$minimumminutes=(int)($minimumtime/60);
 
+		?>
+			<h2 id="question">
+			<form method="POST" action="changeupdate.php">
+				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+				<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
+			<?php 
+			echo  $title; 	
+			if ($subscribed==1)
+			{
+				?> <input type="submit" name="submit" id="submit" value="email Unsubscribe" /> <?php
+			}else{
+				?> <input type="submit" name="submit" id="submit" value="email Subscribe" /> <?php
+			}
+			?>
+			</form>
+			</h2>
+		<?php
+		
 
-		echo '<h2 id="question">' . $title . '</h2>';
 		echo '<div id="question">' . $content . '</div>';
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";

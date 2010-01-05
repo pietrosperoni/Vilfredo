@@ -16,14 +16,14 @@ if ($userid)
 	if ($row)
 	{
 
-		$sql = "DELETE FROM update WHERE  updates.question = " . $question . " AND updates.user = " . $userid . "  ";
-		#if (!mysql_query($sql)) error("Database update failed");
-		mysql_query($sql);
+		$sql = "DELETE FROM updates WHERE  updates.question = " . $question . " AND updates.user = " . $userid . "  ";
+		if (!mysql_query($sql)) error("Database update failed");
+		#mysql_query($sql);
 	}else{
 		$how="asap";
 		$sql = 'INSERT INTO `updates` (`user`, `question`, `how`) VALUES (\'' . $userid . '\', \'' . $question . '\', \'' . $how . '\');';
-		#if (!mysql_query($sql)) error("Database update failed");
-		mysql_query($sql);
+		if (!mysql_query($sql)) error("Database update failed");
+		#mysql_query($sql);
 	}
 	header("Location: viewquestion.php".$urlquery);
 }
