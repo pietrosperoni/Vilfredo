@@ -1308,6 +1308,17 @@ function StudyQuestion($question)
 	return $graph;
 }
 
+function AuthorsOfInheritedProposals($question,$generation)
+{
+	$authors=array();
+	$sql = "SELECT usercreatorid FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation." and source > 0";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($authors,$row[0]);
+	}
+	return array_unique($authors);
+}
 
 function AuthorsOfNewProposals($question,$generation)
 {
