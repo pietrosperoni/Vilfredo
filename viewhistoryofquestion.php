@@ -65,7 +65,7 @@ if ($userid)
 			if ($row[3]!=$genshowing)
 			{
 				$genshowing=$row[3];
-				echo '<tr><td colspan="6"><h4> Generation '.$genshowing.'</h4></td></tr>';
+				echo '<tr><td colspan="2"><h4> Generation '.$genshowing.' ';
 				$proposers=AuthorsOfNewProposals($question,$genshowing);
 #				echo "Proposers:";
 #				foreach ($proposers as $p)
@@ -85,7 +85,37 @@ if ($userid)
 #					$row5 = mysql_fetch_row($response5);
 #					echo " ".$row5[0]." ";
 #				}
+				
+				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
 
+				$NVoters=count($endorsers); #B
+				$NOldAuthors=count($PreviousAuthors);
+				$NAuthors=count($proposers); #A
+
+				$IntersectionAP=array_intersect($endorsers,$proposers);
+				$IntersectionPO=array_intersect($proposers,$PreviousAuthors);
+				$IntersectionAO=array_intersect($endorsers,$PreviousAuthors);
+				
+				$SizeIntersectionAP=count($IntersectionAP);
+				$SizeIntersectionAO=count($IntersectionAO);
+				$SizeIntersectionPO=count($IntersectionPO);
+				
+				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
+				$SizeIntersectionAPO=count($IntersectionAPO);
+
+				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=Authors|Voters|Inherited&chtt=Authors+Vs+Voters+Relationship";
+
+				echo '</h4></td> <td colspan="4"><img src="'.$VenGraph.'">';
+#				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
+#				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
+#				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
+								
+#				echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
+#				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
+#				echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
+#				echo " ".$SizeIntersectionAPO." Full Intersection: ".implode(", ",$IntersectionAPO)."<br />";
+
+				echo '</td></tr>';
 			}
 
 
