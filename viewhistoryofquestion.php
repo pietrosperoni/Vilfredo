@@ -103,7 +103,8 @@ if ($userid)
 				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
 				$SizeIntersectionAPO=count($IntersectionAPO);
 
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=Authors|Voters|Inherited&chtt=Authors+Vs+Voters+Relationship";
+#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=Authors|Voters|Inherited&chtt=Authors+Vs+Voters+Relationship";
+				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
 
 				echo '</h4></td> <td colspan="4"><img src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
