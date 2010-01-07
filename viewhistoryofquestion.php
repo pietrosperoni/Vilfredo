@@ -94,7 +94,7 @@ if ($userid)
 
 				$IntersectionAP=array_intersect($endorsers,$proposers);
 				$IntersectionPO=array_intersect($proposers,$PreviousAuthors);
-				$IntersectionAO=array_intersect($endorsers,$PreviousAuthors);
+				$IntersectionAO=array_intersect($proposers,$PreviousAuthors);
 				
 				$SizeIntersectionAP=count($IntersectionAP);
 				$SizeIntersectionAO=count($IntersectionAO);
@@ -103,8 +103,8 @@ if ($userid)
 				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
 				$SizeIntersectionAPO=count($IntersectionAPO);
 
-#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=Authors|Voters|Inherited&chtt=Authors+Vs+Voters+Relationship";
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
+				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
+#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
 
 				echo '</h4></td> <td colspan="4"><img src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
@@ -112,8 +112,8 @@ if ($userid)
 #				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
 								
 #				echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
-#				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
 #				echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
+#				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
 #				echo " ".$SizeIntersectionAPO." Full Intersection: ".implode(", ",$IntersectionAPO)."<br />";
 
 				echo '</td></tr>';
