@@ -103,10 +103,12 @@ if ($userid)
 				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
 				$SizeIntersectionAPO=count($IntersectionAPO);
 
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
+				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
 #				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
 
-				echo '</h4></td> <td colspan="4"><img src="'.$VenGraph.'">';
+				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ∩ Voters= ".$SizeIntersectionAP.", Author ∩ Inherited Authors= ".$SizeIntersectionAO.", Voters ∩ Inherited Authors= ".$SizeIntersectionPO.", Authors ∩ Voters ∩ Inherited Authors= ".$SizeIntersectionAPO." ";
+
+				echo '</h4></td> <td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
 #				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
 #				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
@@ -137,7 +139,10 @@ if ($userid)
 			echo '<td>';
 			if ($row[5])
 			{
-				echo "<h6>Inherited</h6>";
+				echo "<h6>Inherited;<br />";
+				echo "originally written by: ";
+				echo WriteUserVsReader($row[2],$userid);
+				echo "</h6>";
 			}
 			else
 			{
@@ -153,7 +158,7 @@ if ($userid)
 			{
 			echo WriteUserVsReader($user,$userid);
 			}
-			echo '<a title="The list might not be complete, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
+#			echo '<a title="The list might not be complete, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
 
 			echo '&nbsp;</td>';
 			echo '<td>';
