@@ -42,6 +42,26 @@ $(".foottip a").tooltip({
 	echo '<div id="leftfloatbox">';
 	echo '<div id="endorsingbox2">';
 
+	$RoomsI=RoomsUsed($userid);
+	$RoomsThee=RoomsUsed($uid);
+	$WhereHaveWeMet=array();
+	$WhereHaveWeMet=WhereHaveWeMet($RoomsI,$RoomsThee);
+	if ($WhereHaveWeMet){
+		echo "You met in the following rooms:<br />";
+
+		foreach ($WhereHaveWeMet as $room)
+		{
+			if($room)
+			{
+				echo " Room= ".$room.";  <br />";
+			}
+			else
+			{
+				echo " The Common Room;<br />";
+			}
+		}
+	}
+
 	echo '<h3>'. $user . ' has asked the following questions:</h3>';
 	
 	// **

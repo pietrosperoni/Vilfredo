@@ -1332,6 +1332,55 @@ function AuthorsOfNewProposals($question,$generation)
 	return array_unique($authors);
 }
 
+function RoomsUsed($userid)
+{
+	$rooms=array();
+	$sql = "SELECT questions.room  FROM questions WHERE questions.usercreatorid = ".$userid." ";
+#	echo $sql;
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($rooms,$row[0]);
+	}
+	
+	$sql = "SELECT questions.room  FROM questions, proposals WHERE proposals.usercreatorid = ".$userid." AND proposals.experimentid = questions.id  ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($rooms,$row[0]);
+	}
+
+	$sql = "SELECT questions.room  FROM questions, proposals, endorse WHERE endorse.userid = ".$userid." AND endorse.proposalid=proposals.id AND proposals.experimentid = questions.id ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($rooms,$row[0]);
+	}
+
+	$sql = "SELECT questions.room  FROM questions, updates WHERE updates.user = ".$userid." AND updates.question = questions.id  ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($rooms,$row[0]);
+	}
+	
+	return array_unique($rooms);
+ }
+
+function WhereHaveWeMet($RoomsUser1,$RoomsUser2)
+{
+	$Intersect=array();
+	if (empty($RoomsUser1) OR empty($RoomsUser2)) 
+	{	
+		return $Intersect;
+	}
+
+	$Intersect=array_intersect ( $RoomsUser1, $RoomsUser2);
+	return $Intersect;
+}
+
+
+
 function Endorsers($question,$generation)
 {
 	$authors=array();

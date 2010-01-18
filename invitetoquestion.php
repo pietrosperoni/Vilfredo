@@ -13,10 +13,13 @@ if ($userid)
 	$sql = 'SELECT id, username FROM users WHERE email != "" ';
 	$response = mysql_query($sql);
         
-        if (mysql_num_rows($response) > 0)
+    if (mysql_num_rows($response) > 0)
 	{
 
 		echo "<h2>Invite Users to answer your question:</h2>";
+		echo "<h3>You can only invite people that you have met on Vilfredo.<br />";
+		echo "If you want to invite someone else, please send them an email directly.<br />"; 
+		echo "TIP:You can invite yourself, and the forward the email to them ;-)<br /></h3>";
 
 		$sql2 = 'SELECT questions.title FROM questions WHERE questions.id = '.$question;
 		$response2 = mysql_query($sql2);
@@ -32,12 +35,20 @@ if ($userid)
 			<table border="1">
 			<?php
 
+			$RoomsI=RoomsUsed($userid);
+
 			while ($row = mysql_fetch_array($response))
 			{
-				echo '<tr><td><p>';
-				echo WriteUserVsReader($row[0],$userid);
-				echo '</td><td>';
-				echo '<Input type = "Checkbox" Name ="users[]" title="Check this box if you want to invite this user" value="'.$row[0].'" /></td></tr>';
+				$RoomsThee=RoomsUsed($row[0]);
+				$WhereHaveWeMet=array();
+				$WhereHaveWeMet=WhereHaveWeMet($RoomsI,$RoomsThee);
+				if ($WhereHaveWeMet) #	if (1)
+				{
+					echo '<tr><td><p>';
+					echo WriteUserVsReader($row[0],$userid);
+					echo '</p></td><td>';
+					echo '<Input type = "Checkbox" Name ="users[]" title="Check this box if you want to invite this user" value="'.$row[0].'" /></td></tr>';
+				}
 			}
 			?>
 			</tr>
