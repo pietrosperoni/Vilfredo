@@ -5,16 +5,19 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
-
+	//print_array($_POST, true);
+	
+	$blurb = $_POST['blurb'];
+	$abstract = $_POST['abstract'];
+	
+	if ($abstract == '<br>') $abstract = '';
+	if ($blurb == '<br>') $blurb = '';
+	
 	if (!get_magic_quotes_gpc())
 	{
-		$blurb = addslashes($_POST['blurb']);
+		$blurb = addslashes($blurb);
+		$abstract = addslashes($abstract);
 	}
-	else
-	{
-		$blurb = $_POST['blurb'];
-	}
-#	$blurb=nl2br($blurb);
 
 	$question = $_POST['question'];
 
@@ -28,9 +31,16 @@ if ($userid)
 		$roundid =	$row2[0];
 	}
 	$nAuthorsNewProposals=count(AuthorsOfNewProposals($question,$roundid));
-
-	$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime` ) VALUES (\'' . $blurb . '\', \'' . $userid . '\', \'' . $roundid . '\', \'' . $question . '\', \'0\',\'0\', NOW() );';
-	mysql_query($sql);
+	
+	$sql = "INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) 
+	VALUES ('$blurb', $userid, $roundid, $question, 0, 0, NOW(), '$abstract')";
+	$add_proposal = mysql_query($sql);
+		
+	if (!$add_proposal)
+	{
+		handle_db_error($add_proposal);
+		set_message("error", "System error");
+	}
 
 	$NEWnAuthorsNewProposals=count(AuthorsOfNewProposals($question,$roundid));
 	if(	$nAuthorsNewProposals< $NEWnAuthorsNewProposals)

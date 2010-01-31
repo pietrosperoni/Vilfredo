@@ -52,8 +52,8 @@ var roomId = <?php echo "'$randomID'" ?>;
     Yes/no questions are not the right type of question to ask over here. <br/>
     Please see the <a href="FAQ.php">frequently asked questions.</a></p>
 
-    <h3>Title (max 120 ch):
-    <textarea name="title" class="title" rows="1" cols="120"></textarea></h3>
+    <h3>Title (max 100 ch):
+    <textarea name="title" class="title" rows="1" cols="100"></textarea></h3>
     <h3>Content:
       <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php

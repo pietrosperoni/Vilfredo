@@ -1,10 +1,27 @@
 <?php
 
 $headcommands='
-';
+<link type="text/css" href="css/theme/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+
+<script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$(".expandbtn").click(function () {	
+		     var fulltxt = $(this).siblings("div.paretoabstract");
+		      if (fulltxt.is(":hidden")) {
+		        fulltxt.slideDown("slow");
+		        $(this).text("Hide Full Text");
+		      } else {
+		        fulltxt.slideUp("slow");
+		        $(this).text("Show Full Text");
+		      }
+		    });
+	});
+</script>';
 
 include('header.php');
-#$userid=isloggedin();
+
 if ($userid)
 {
 	// Check if user has room access.
@@ -60,7 +77,7 @@ if ($userid)
 		echo '<table border="1">';
 		echo '<tr><td>link</td><td><strong>Proposal</strong></td><td><strong>Author</strong></td><td><strong>Endorsers</strong></td><td><strong>Result</strong></td><td><strong>You</strong></td></tr>';
 		$genshowing=$generation;
-		while ($row = mysql_fetch_row($response))
+		while ($row = mysql_fetch_array($response))
 		{
 			if ($row[3]!=$genshowing)
 			{
@@ -106,7 +123,7 @@ if ($userid)
 				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
 #				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
 
-				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ∩ Voters= ".$SizeIntersectionAP.", Author ∩ Inherited Authors= ".$SizeIntersectionAO.", Voters ∩ Inherited Authors= ".$SizeIntersectionPO.", Authors ∩ Voters ∩ Inherited Authors= ".$SizeIntersectionAPO." ";
+				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
 
 				echo '</h4></td> <td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
@@ -134,7 +151,31 @@ if ($userid)
 			$urlquery = CreateProposalURL($row[0], $room);
 			
 			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
-			echo '<td>' . $row[1] . '</td>';
+			
+			echo '<td>';
+			$has_abstract = false;
+			if (!empty($row['abstract'])) {
+				$has_abstract = true;
+				echo '<h3>Abstract</h3>';
+				echo $row['abstract'];
+				if ($has_abstract) {
+					echo '<span class="expandbtn">Show Full Text</span>';
+					echo '<div class="clear"></div>';
+				}
+			}
+			else {
+				echo $row['blurb'];
+			}
+			
+			if ($has_abstract)
+			{
+				echo '<div class="paretoabstract">';
+				echo '<h3>Full Text</h3>';
+				echo $row['blurb'];
+				echo '</div>';
+			}
+			echo '</td>';
+			
 
 			echo '<td>';
 			if ($row[5])

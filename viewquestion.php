@@ -11,17 +11,41 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
+<link type="text/css" href="css/theme/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
 
+<script type="text/javascript" src="js/jquery/retweet.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
-<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>';
+<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
+	<script type="text/javascript">
+	$(function() {
+		$("#abstract_panel").accordion({
+			collapsible: true,
+			autoHeight: false,
+			active: false
+		});
+
+		$(".expandbtn").click(function () {
+		     var fulltxt = $(this).siblings("div.paretoabstract");
+		      if (fulltxt.is(":hidden")) {
+		        fulltxt.slideDown("slow");
+		        $(this).text("Hide Full Text");
+		      } else {
+		        fulltxt.slideUp("slow");
+		        $(this).text("Show Full Text");
+		      }
+		    });
+
+	});
+	</script>';
 
 
 include('header.php');
-#$userid=isloggedin();
+
 if ($userid)
 {
 	// Check if user has room access.
@@ -37,7 +61,7 @@ if ($userid)
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_array($response);
-	if ($row)	
+	if ($row)
 		{$subscribed=1;}
 	else
 		{$subscribed=0;}
@@ -85,8 +109,8 @@ if ($userid)
 			<form method="POST" action="changeupdate.php">
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
-			<?php 
-			echo  $title; 	
+			<?php
+			echo  $title;
 			if ($subscribed==1)
 			{
 				?> <input type="submit" name="submit" id="submit" value="email Unsubscribe" /> <?php
@@ -97,7 +121,7 @@ if ($userid)
 			</form>
 			</h2>
 		<?php
-		
+
 
 		echo '<div id="question">' . $content . '</div>';
 
@@ -106,6 +130,12 @@ if ($userid)
 		while ($row2 = mysql_fetch_array($response2))
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+			
+			// Add retweet button
+			$twitter_title = htmlentities($title);
+			$loc = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			echo "<p><a class=\"retweet\" href=\"$loc\" title=\"RT @Vg2A $twitter_title\"></a></p>";
+			
 		}
 
 		if (($phase==0) && ($generation>1))
@@ -120,11 +150,20 @@ You can think of it as the smallest set of proposals such that every participant
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
 			{
-				$sql3 = "SELECT blurb FROM proposals WHERE id = ".$p." LIMIT 1 ";
+				$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
 				$response3 = mysql_query($sql3);
 				while ($row3 = mysql_fetch_array($response3))
 				{
-					echo '<div class="paretoproposal">' . $row3[0] ;
+					$has_abstract = false;
+					echo '<div class="paretoproposal">';
+					if (!empty($row3['abstract'])) {
+						$has_abstract = true;
+						echo '<h3>Abstract</h3>';
+						echo $row3['abstract'] ;
+					}
+					else {
+						echo $row3['blurb'] ;
+					}
 
 
 					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
@@ -134,8 +173,25 @@ You can think of it as the smallest set of proposals such that every participant
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
 					}
+
+					if ($has_abstract)
+					{
+						echo '<span class="expandbtn">Show Full Text</span>';
+					}
+
 					echo '<br />';
+
+					if ($has_abstract)
+					{
+						echo '<div class="paretoabstract">';
+						echo '<h3>Full Text</h3>';
+						echo $row3['blurb'];
+						echo '</div>';
+					}
+
 					echo '</div>';
+
+
 
 				}
 			}
@@ -240,7 +296,11 @@ try to write a proposal that represent an acceptable compromise between differen
 	if ( $phase==0)
 	{
 		?>
-			<h2>Propose an answer</h2>
+			
+		<h2>Propose an answer</h2>
+			
+		<p><strong>Note:</strong> Proposals can be of any length and may include an abstract of up to 500 characters in length if you wish. When proposals are listed at the voting stage the abstract will be displayed if one exists, otherwise the full proposal will be displayed. For proposals longer than 1000 characters the abstract is mandatory.</p>
+		
 		<?php	#echo "<p>Time since last moveon: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: 1 day need to pass between one moveon and the next</p>";
 		echo "<p>Time since first proposal on this generation: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: ";
 		if ($minimumdays)
@@ -248,32 +308,86 @@ try to write a proposal that represent an acceptable compromise between differen
 		if ($minimumhours)		{			echo $minimumhours." hours ";		}
 		if ($minimumminutes)		{			echo $minimumminutes." minutes ";		}
 		echo "must have passed between the first proposal and the moment when the questioner can move the question on.</p>";
-
 ?>
-			<form method="POST" action="newproposaltake.php">
-      <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
+
+	<form method="POST" action="newproposaltake.php">
+
+	<div id="editor_panel">
+	<!-- Input Proposal start -->
+	<div id="abstract_panel">
+		<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
+		<div id="abstract_RTE">
+			<?php require_once("abstract.php"); ?>
+		</div>
+	</div>
+
+	
+       <div id="proposal_RTE">
+       <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
+         $RTE_TextLimit_content = 1000;
          include_once("js/jquery/RichTextEditor/content_editor_proposal.php");
          include_once("js/jquery/RichTextEditor/editor.php");
       ?>
-      			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-				<input type="submit" name="submit" id="submit" value="Create proposal" />
-			</form>
+	<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+	<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
+	</div><!-- proposal_RTE -->
+	
+	</div><!-- editor_panel -->
+
+<!-- </form> -->
 <script type="text/javascript">
-   window.onload = function(){
-      try{
-         $("#content_rte").jqrte();
-      }
-      catch(e){}
-   }
+$(document).ready(function() {
+	var checklength = function (len) {
+		var title = $("#abstract_title");
+		var abstract_length = $("#abstract_rte").data('content_length');
+		var content_length =  $("#content_rte").data('content_length');
 
-   $(document).ready(function() {
-         $("#content_rte").jqrte_setIcon();
-         $("#content_rte").jqrte_setContent();
-   });
+		if ((content_length  > 0 && content_length <= limit) || (content_length  > 0 && abstract_length > 0))
+		{
+			$("input[value=Create proposal]").removeAttr("disabled");
+		}
+		else
+		{
+			$("input[value=Create proposal]").attr("disabled","disabled");
+		}
+
+		if (content_length  > limit)
+		{
+			title.html("Abstract Required: Enter up to 500 characters below:");
+			title.css("color", "green");
+			title.css("font-style", "bold");
+			$("#content_rte_chars_msg").html("Abstract Required");
+		}
+		else if ( content_length  <= limit )
+		{
+			title.html("Abstract (Optional)");
+			title.css("color", "black");
+			title.css("font-style", "none");
+			$("#content_rte_chars_msg").html("");
+		}
+	}
+
+	try{
+		$("#content_rte").jqrte();
+		$("#content_rte").jqrte_setIcon();
+		$("#content_rte").jqrte_setContent();
+		$("#content_rte").data('content_length', 0);
+		var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
+		if (limit) {
+			$("#content_rte").data('maxlength', limit);
+			$("#content_rte").data('callback', checklength);
+			$("#abstract_rte").data('callback', checklength);
+		}
+	}
+	catch(e){}
+});
 </script>
-		<?php
+<!-- Input Proposal end -->
+</form>
 
+<br /><br />
+		<?php
 		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation." and usercreatorid = ".$userid." and source = 0 ORDER BY `id` DESC  ";
 		$response = mysql_query($sql);
 		if ($response)
@@ -284,8 +398,47 @@ try to write a proposal that represent an acceptable compromise between differen
 			{
 				?>
 						<tr>
-						<td><p><?php echo $row[1];?></p>
-						</td>
+						
+						<?php
+						
+						
+						$has_abstract = false;
+						echo '<td>';
+						/* echo '<h3>' . $row['id'] . '</h3>'; */
+						if (!empty($row['abstract'])) {
+							$has_abstract = true;
+							echo '<h3>Abstract</h3>';
+							echo $row['abstract'] ;
+						}
+						else {
+							echo $row['blurb'] ;
+						}
+
+						if ($has_abstract)
+						{
+							echo '<span class="expandbtn">Show Full Text</span>';
+						}
+
+						echo '<br />';
+
+						if ($has_abstract)
+						{
+							echo '<div class="paretoabstract">';
+							echo '<h3>Full Text</h3>';
+							echo $row['blurb'];
+						}
+						
+						echo '</td>';
+	
+						
+					/* 	if (!empty($row['abstract'])) {
+							echo '<td>' . $row['abstract'] . '</td>';
+						}
+						else {
+							echo '<td>' . $row['blurb'] . '</td>';
+						} */
+						?>
+
 						<td>
 							<form method="POST" action="deleteproposal.php">
 								<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
@@ -326,19 +479,19 @@ try to write a proposal that represent an acceptable compromise between differen
 			{
 				echo '<tr>';
 				echo '<td class="vote_list">';
-				if ($row['source'] != 0) 
+				if ($row['source'] != 0)
 				{
 					// Display voting history for aesexual parents
 					$proposal = $row['id'];
 					$source = $row['source'];
-					$ancestors = GetAncestorEndorsements($source, $userid, $question, $generation);					
+					$ancestors = GetAncestorEndorsements($source, $userid, $question, $generation);
 					foreach($ancestors as $ancestor)
 					{
 						if ($ancestor['endorsed'] == -1)
 						{
 							#echo "<span>" . $ancestor[generation] . "</span>";
 							#echo ' <img src="images/novote.jpg" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
-							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';							
+							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
 						}
 						elseif ($ancestor['endorsed'] == 1)
 						{
@@ -349,13 +502,42 @@ try to write a proposal that represent an acceptable compromise between differen
 						{
 							#echo "<span>$ancestor[generation] </span>";
 							echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30">';
-						} 
+						}
 						echo '</br>';
 					}
 				}
 				else{ echo '&nbsp;'; }
 				echo '</td>';
-				echo '<td><p>' . $row['blurb'] . '</td><td>';
+				
+				
+				$has_abstract = false;
+				echo '<td>';
+				/* echo '<h3>' . $row['id'] . '</h3>'; */
+				if (!empty($row['abstract'])) {
+					$has_abstract = true;
+					echo '<h3>Abstract</h3>';
+					echo $row['abstract'] ;
+				}
+				else {
+					echo $row['blurb'] ;
+				}
+				
+				if ($has_abstract)
+				{
+					echo '<span class="expandbtn">Show Full Text</span>';
+				}
+
+				echo '<br />';
+
+				if ($has_abstract)
+				{
+					echo '<div class="paretoabstract">';
+					echo '<h3>Full Text</h3>';
+					echo $row['blurb'];
+				}
+				
+				echo '</td><td>';
+				
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
 
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
@@ -367,7 +549,7 @@ try to write a proposal that represent an acceptable compromise between differen
 				echo ' /></p> </td></tr>';
 			}
 			?>
-			
+
 			<tr><td colspan="2">&nbsp;</td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
 			</tr></table>
 			</form>
