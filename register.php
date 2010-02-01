@@ -4,7 +4,9 @@ include('header.php');
 #if (isloggedin())
 if ($userid)
 {
-	echo "You have already registered, and are logged in. Would you like to <a href=logout.php>Logout</a>?<p>";
+	//echo "You have already registered, and are logged in. Would you like to <a href=logout.php>Logout</a>?<p>";
+	$redirect = getpostloginredirectlink();
+	header("Location: " . $redirect);
 }
 else
 {
@@ -21,10 +23,25 @@ else
 	
 	if ($registered)
 	{
+		$userid = mysql_insert_id();
+		// start a user session
+		$_SESSION[USER_LOGIN_ID] = $userid;
+		$_SESSION[USER_LOGIN_MODE] = 'VGA';
+		//then redirect them to the members area
+		if (isset($_SESSION['request']) && !empty($_SESSION['request']))
+		{
+			// Now send the user to his desired page
+			$request = $_SESSION['request'];
+			unset($_SESSION['request']);
+			header("Location: " . $request);
+		}
+		else {
+			header("Location: viewquestions.php");
+		}
+		
 		?>
-
-		<h1>Registered</h1>
-		<p>Thank you, you have registered - you may now <a href="login.php">login</a></p>
+		<!-- <h1>Registered</h1>
+		<p>Thank you, you have registered - you may now <a href="login.php">login</a></p> -->
 		<?php
 	}
 	else
