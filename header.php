@@ -109,9 +109,7 @@ function set_error($msg, $log = VERBOSE)
 
 function log_error($msg)
 {
-	if ($log) {
-		error_log($msg . "\n", 3, ERROR_FILE);
-	}
+	error_log($msg . "\n", 3, ERROR_FILE);
 }
 
 function handle_db_error($result)
