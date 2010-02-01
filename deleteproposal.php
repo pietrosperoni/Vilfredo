@@ -57,7 +57,9 @@ if ($userid)
 			<p>Your proposal has been <B>DELETED</B>, please if necessary post the new version.</p>
 		
 			<form method="POST" action="newproposaltake.php">			
-     				<!-- Input Proposal start -->
+     				
+     				<div id="editor_panel">
+				<!-- Input Proposal start -->
 				<div id="abstract_panel">
 					<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
 					<div id="abstract_RTE">
@@ -87,10 +89,11 @@ if ($userid)
 								  catch(e){}
 							 });
 						 </script>
-					</div>
-				</div>
+					</div> <!-- abstract_RTE -->
+				</div> <!-- abstract_panel -->
 				
-			      <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
+			     <div id="proposal_RTE">
+			       <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
 			      <?php
 			         $RTE_TextLimit_content = 1000;
 			         include_once("js/jquery/RichTextEditor/content_editor_proposal.php");
@@ -98,6 +101,9 @@ if ($userid)
 			      ?>
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
+				</div> <!-- proposal_RTE -->
+				</div> <!-- editor_panel -->
+				
 			<!-- </form> -->
 			<script type="text/javascript">
 			$(document).ready(function() {
@@ -155,6 +161,8 @@ if ($userid)
 			</script>
 		<!-- Input Proposal end -->
 			</form>
+			
+			<br /><br /><br />
 		</div>
 
 		
@@ -166,4 +174,5 @@ else
 {
 		header("Location: login.php");
 }
+include('footer.php');
 ?> 
