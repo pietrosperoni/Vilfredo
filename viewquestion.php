@@ -393,7 +393,7 @@ $(document).ready(function() {
 		if ($response)
 		{
 			echo "<h3>Proposals You have written:</h3>";
-			echo '<table border="1">';
+			echo '<table border="1" class="your_proposals">';
 			while ($row = mysql_fetch_array($response))
 			{
 				?>
@@ -430,16 +430,9 @@ $(document).ready(function() {
 						
 						echo '</td>';
 	
-						
-					/* 	if (!empty($row['abstract'])) {
-							echo '<td>' . $row['abstract'] . '</td>';
-						}
-						else {
-							echo '<td>' . $row['blurb'] . '</td>';
-						} */
 						?>
 
-						<td>
+						<td class="button_cell">
 							<form method="POST" action="deleteproposal.php">
 								<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
 								<input type="submit" name="submit" id="submit" value="Edit or Delete" />

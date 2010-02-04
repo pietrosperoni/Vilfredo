@@ -39,7 +39,20 @@ body {
 	font-family:helvetica;	padding:15px;	width:100%;	height:150px;
 }textarea.title {
 	font-family:helvetica;	padding:0px;	width:520px;	height:20px;
-}input#submit {
+}
+input[type=text].title {
+	font-family:helvetica;
+	font-size: .8em;
+}
+
+table.your_proposals  {
+	width: 100%;
+}
+
+td.button_cell {
+	width: 50px;
+}
+input#submit {
 	margin-top:8px;
 }#paretoimg,#athens {
 	border:none;
@@ -139,7 +152,7 @@ outline-radius:4px;	-moz-outline-radius:4px;	-webkit-outline-radius:4px;
 
 /********** RTE Dimensions *************/
 #editor_panel { 
-	width:750px;
+	width:730px;
 }
 
 #abstract_RTE {
@@ -209,7 +222,6 @@ td#content_rte_chars_msg {
 	color: green;
 }
 
-
 h3.ui-accordion-header.ui-state-default span { 
 	background: url(images/spindown-closed.gif) no-repeat left; 
 }
@@ -217,3 +229,10 @@ h3.ui-accordion-header.ui-state-active span {
 	background: url(images/spindown-open.gif) no-repeat left; 
 } 
 
+.register-alert {
+	width: 70%;
+}
+
+div.reg_form {
+	display: none;
+}

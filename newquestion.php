@@ -53,7 +53,8 @@ var roomId = <?php echo "'$randomID'" ?>;
     Please see the <a href="FAQ.php">frequently asked questions.</a></p>
 
     <h3>Title (max 100 ch):
-    <textarea name="title" class="title" rows="1" cols="100"></textarea></h3>
+     <input type="text" size="100" maxlength="100" name="title" class="title"/></h3>
+   
     <h3>Content:
       <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
