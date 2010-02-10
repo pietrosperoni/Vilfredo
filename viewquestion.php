@@ -316,7 +316,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	<!-- Input Proposal start -->
 	<div id="abstract_panel">
 		<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
-		<div id="abstract_RTE">
+		<div id="p_abstract_RTE">
 			<?php require_once("abstract.php"); ?>
 		</div>
 	</div>
@@ -343,7 +343,7 @@ $(document).ready(function() {
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
 
-		if ((content_length  > 0 && content_length <= limit) || (content_length  > 0 && abstract_length > 0))
+		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
 			$("input[value=Create proposal]").removeAttr("disabled");
 		}
@@ -356,14 +356,14 @@ $(document).ready(function() {
 		{
 			title.html("Abstract Required: Enter up to 500 characters below:");
 			title.css("color", "green");
-			title.css("font-style", "bold");
+			title.css("font-weight", "bold");
 			$("#content_rte_chars_msg").html("Abstract Required");
 		}
 		else if ( content_length  <= limit )
 		{
 			title.html("Abstract (Optional)");
 			title.css("color", "black");
-			title.css("font-style", "none");
+			title.css("font-weight", "normal");
 			$("#content_rte_chars_msg").html("");
 		}
 	}
@@ -373,6 +373,7 @@ $(document).ready(function() {
 		$("#content_rte").jqrte_setIcon();
 		$("#content_rte").jqrte_setContent();
 		$("#content_rte").data('content_length', 0);
+		var limit_abs = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
 		var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
 		if (limit) {
 			$("#content_rte").data('maxlength', limit);
