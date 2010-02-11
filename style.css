@@ -455,3 +455,7 @@ div.reg_form {
 #msg {
 	font-weight: bold;
 }
+
+.rte_submit {
+	margin-top: 10px;
+}

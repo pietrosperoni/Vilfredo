@@ -320,7 +320,7 @@ try to write a proposal that represent an acceptable compromise between differen
          include_once("js/jquery/RichTextEditor/editor.php");
       ?>
 	<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-	<input type="submit" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+	<input class="rte_submit" type="submit" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
 	</div><!-- proposal_RTE -->
 	</div><!-- editor_panel -->
 
@@ -382,7 +382,7 @@ $(document).ready(function() {
 	
 <?php echo LoadLoginRegisterLinks($userid); ?>
 	
-	<p id="response"></p>
+	<p id="response" style="display: none;"></p>
 	
 		<?php
 		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation." and usercreatorid = ".$userid." and source = 0 ORDER BY `id` DESC  ";
