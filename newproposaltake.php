@@ -5,7 +5,6 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
-	//print_array($_POST, true);
 	
 	$blurb = $_POST['blurb'];
 	$abstract = $_POST['abstract'];

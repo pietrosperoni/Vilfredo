@@ -2,12 +2,13 @@
 
 $headcommands='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
+
 <script src="js/jquery/jquery.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/jquery.tooltip.js" type="text/javascript"></script>
-
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
+
 <title>VgtA: Questions</title>
 ';
 

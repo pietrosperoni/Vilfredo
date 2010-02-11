@@ -26,6 +26,7 @@ else
 
 	// if they are not logged in
 	?>
+	
 	<p><span class="errorMessage"><?php echo $error_message; ?></span></p>
 	<div class="login_sector">
 	<form action="<?php echo $_SERVER['PHP_SELF']?>" method="post">

@@ -1,0 +1,71 @@
+div#abstract_panel .ui-widget {
+	font-size: 1em;
+	line-height: 18px;
+}
+
+#abstract_panel .ui-state-default {
+	background-image: none; 
+	background: #d4d0c8;
+	font-weight: normal;
+	font-family: helvetica,arial,sans-serif;
+	/*font-size: inherited;*/
+}
+
+#abstract_panel .ui-widget-content {
+	background-image: none; 
+	background: none;
+	border: none;
+	font-family: helvetica,arial,sans-serif;
+}
+
+#abstract_panel h3.ui-state-hover, #abstract_panel h3.ui-state-active {
+	border: none;
+	background: #d4d0c8;
+	font-family: helvetica,arial,sans-serif;
+}
+
+#abstract_panel h3.ui-state-active {
+	border: none;
+	background: white;
+	font-family: helvetica,arial,sans-serif;
+}
+
+#abstract_panel h3.ui-corner-all {
+	-moz-border-radius: 0; 
+	-webkit-border-radius: 0;
+	border: none;
+	font-family: helvetica,arial,sans-serif;
+	font-weight: normal;
+}
+
+#abstract_panel .ui-widget input, #abstract_panel .ui-widget select, 
+#abstract_panel .ui-widget textarea, #abstract_panel .ui-widget button
+{
+	font-family: helvetica,arial,sans-serif;
+}
+
+#abstract_panel .ui-state-hover, 
+#abstract_panel .ui-state-focus {
+	border: none;
+	background: #dadada;
+	font-weight: normal;
+	color: #d4d0c8;
+	outline: none;
+	font-weight: normal;
+	font-family: helvetica,arial,sans-serif;
+}
+
+#abstract_panel .ui-state-hover a, 
+#abstract_panel .ui-state-hover a:hover {
+	text-decoration: none;
+	outline: none;
+	border: none;
+	font-weight: normal;
+	background: #dadada;
+	font-family: helvetica,arial,sans-serif;
+}
+
+div#abstract_panel>h3>a {
+	font-size: 1em;
+	font-weight: normal;
+}

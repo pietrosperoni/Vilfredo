@@ -1,5 +1,5 @@
 <?php
-
+$twitter = false;
 $language="enus";
 include_once("js/jquery/RichTextEditor/locale/".$language.".php");
 function getLabel($key,$language){
@@ -11,36 +11,22 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
-<link type="text/css" href="css/theme/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+<link type="text/css" href="widgets.css" rel="stylesheet" />
 
-<script type="text/javascript" src="js/jquery/retweet.js"></script>
+<!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
+<script type="text/javascript" src="js/vilfredo.js"></script>
+
 	<script type="text/javascript">
-	$(function() {
-		$("#abstract_panel").accordion({
-			collapsible: true,
-			autoHeight: false,
-			active: false
-		});
 
-		$(".expandbtn").click(function () {
-		     var fulltxt = $(this).siblings("div.paretoabstract");
-		      if (fulltxt.is(":hidden")) {
-		        fulltxt.slideDown("slow");
-		        $(this).text("Hide Full Text");
-		      } else {
-		        fulltxt.slideUp("slow");
-		        $(this).text("Show Full Text");
-		      }
-		    });
-
-	});
 	</script>';
 
 
@@ -131,10 +117,13 @@ if ($userid)
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			
-			// Add retweet button
-			$twitter_title = htmlentities($title);
-			$loc = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-			echo "<p><a class=\"retweet\" href=\"$loc\" title=\"RT @Vg2A $twitter_title\"></a></p>";
+			if ($twitter)
+			{
+				// Add retweet button
+				$twitter_title = htmlentities($title);
+				$loc = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+				echo "<p><a class=\"retweet\" href=\"$loc\" title=\"RT @Vg2A $twitter_title\"></a></p>";
+			}
 			
 		}
 
@@ -314,8 +303,9 @@ try to write a proposal that represent an acceptable compromise between differen
 
 	<div id="editor_panel">
 	<!-- Input Proposal start -->
+	
 	<div id="abstract_panel">
-		<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
+		<h3><span></span><a href="#" id="abstract_title">Abstract (Optional)</a></h3>
 		<div id="p_abstract_RTE">
 			<?php require_once("abstract.php"); ?>
 		</div>
@@ -330,9 +320,8 @@ try to write a proposal that represent an acceptable compromise between differen
          include_once("js/jquery/RichTextEditor/editor.php");
       ?>
 	<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-	<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
+	<input type="submit" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
 	</div><!-- proposal_RTE -->
-	
 	</div><!-- editor_panel -->
 
 <!-- </form> -->
@@ -346,10 +335,12 @@ $(document).ready(function() {
 		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
 			$("input[value=Create proposal]").removeAttr("disabled");
+			//$("#submit_p").removeAttr("disabled");
 		}
 		else
 		{
 			$("input[value=Create proposal]").attr("disabled","disabled");
+			//$("#submit_p").attr("disabled","disabled");
 		}
 
 		if (content_length  > limit)
@@ -387,7 +378,12 @@ $(document).ready(function() {
 <!-- Input Proposal end -->
 </form>
 
-<br /><br />
+<br />
+	
+<?php echo LoadLoginRegisterLinks($userid); ?>
+	
+	<p id="response"></p>
+	
 		<?php
 		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation." and usercreatorid = ".$userid." and source = 0 ORDER BY `id` DESC  ";
 		$response = mysql_query($sql);
@@ -427,6 +423,7 @@ $(document).ready(function() {
 							echo '<div class="paretoabstract">';
 							echo '<h3>Full Text</h3>';
 							echo $row['blurb'];
+							echo '</div>';
 						}
 						
 						echo '</td>';
@@ -528,6 +525,7 @@ $(document).ready(function() {
 					echo '<div class="paretoabstract">';
 					echo '<h3>Full Text</h3>';
 					echo $row['blurb'];
+					echo '</div>';
 				}
 				
 				echo '</td><td>';

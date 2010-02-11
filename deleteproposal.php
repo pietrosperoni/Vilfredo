@@ -11,7 +11,7 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
-<link type="text/css" href="css/theme/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+<link type="text/css" href="widgets.css" rel="stylesheet" />
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
@@ -20,7 +20,6 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-
 	<script type="text/javascript">
 	$(function() {
 		$("#abstract_panel").accordion({
@@ -61,44 +60,44 @@ if ($userid)
      				
      				<div id="editor_panel">
 				<!-- Input Proposal start -->
-	<div id="abstract_panel">
-		<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
-		<div id="p_abstract_RTE">
-			      <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
-			      <?php
-				$RTE_TextLimit_abstract = 500;
-				 include_once("js/jquery/RichTextEditor/content_editor_abstract.php");
-				?>
+				<div id="abstract_panel">
+					<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
+					<div id="p_abstract_RTE">
+						      <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
+						      <?php
+							$RTE_TextLimit_abstract = 500;
+							 include_once("js/jquery/RichTextEditor/content_editor_abstract.php");
+							?>
 <script type="text/javascript">
 $(document).ready(function() {
-	 try{
-		    $("#abstract_rte").jqrte();
-		    $("#abstract_rte").jqrte_setIcon();
-		    $("#abstract_rte").jqrte_setContent();
-		    var limit = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
-		    if (limit) {
-			$("#abstract_rte").data('maxlength', limit);
-		    }
-		    var prop_abstract = <?= empty($abstract) ? 'null' : json_encode($abstract); ?>;
-		    
-		    if (prop_abstract) {
-			setTimeout(function() {
-				$("#abstract_rte").contents().find("body").html(prop_abstract);
-			}, 250);
-			setTimeout(function() {
-			    $("#abstract_rte").jqrte_updateContent();
-			}, 250);
-		    }
-		    else
-		    {
-			$("#abstract_rte").data('content_length', 0)
-		    }
-	  }
-	  catch(e){}
+try{
+	    $("#abstract_rte").jqrte();
+	    $("#abstract_rte").jqrte_setIcon();
+	    $("#abstract_rte").jqrte_setContent();
+	    var limit = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
+	    if (limit) {
+		$("#abstract_rte").data('maxlength', limit);
+	    }
+	    var prop_abstract = <?= empty($abstract) ? 'null' : json_encode($abstract); ?>;
+
+	    if (prop_abstract) {
+		setTimeout(function() {
+			$("#abstract_rte").contents().find("body").html(prop_abstract);
+		}, 250);
+		setTimeout(function() {
+		    $("#abstract_rte").jqrte_updateContent();
+		}, 250);
+	    }
+	    else
+	    {
+		$("#abstract_rte").data('content_length', 0)
+	    }
+  }
+  catch(e){}
  });
 </script>
-		</div> <!-- p_abstract_RTE -->
-	</div> <!-- abstract_panel -->
+					</div> <!-- p_abstract_RTE -->
+				</div> <!-- abstract_panel -->
 				
 			     <div id="proposal_RTE">
 			       <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
@@ -159,12 +158,12 @@ $(document).ready(function() {
 						$("#abstract_rte").data('callback', checklength);
 					}
 					var prop_content = <?= empty($blurb) ? 'null' : json_encode($blurb); ?>;
-					
+
 					if (prop_content) {
 						setTimeout(function() {
 							content_box.contents().find("body").html(prop_content);
 						}, 250);
-					
+
 						setTimeout(function() {
 						    content_box.jqrte_updateContent();
 						}, 250);
@@ -172,7 +171,7 @@ $(document).ready(function() {
 				}
 				catch(e){
 					alert("An exception occurred in the script. Error name: " + e.name  + ". Error message: " + e.message);
-  					}
+				}
 			});
 			</script>
 		<!-- Input Proposal end -->
