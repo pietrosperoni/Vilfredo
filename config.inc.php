@@ -4,6 +4,19 @@
 require_once "loc/config.domain.php";
 require_once "priv/dbdata.php";
 require_once "priv/social.php";
+
+require_once 'process_input.php';
+require_once 'graphs.php';
+require_once 'vga_functions.php';
+include_once 'lib/php_lib.php';
+
+// Start session for login and redirects
+session_start();
+
+// ******************************************
+// Connects to the Database
+mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
+mysql_select_db($dbname) or die(mysql_error());
 //******************************************
 //
 // FACEBOOK CONNECT

@@ -1,9 +1,7 @@
 <?php
-$userid=isloggedin();
 // Logged in
 if ($userid)
 {
-	$room_param = GetParamFromQuery(QUERY_KEY_ROOM);
 ?>
 			<div id="header">
 
@@ -22,27 +20,6 @@ if ($userid)
 				</ul>
 			</div> <!-- header -->
 			
-			<form method="GET" action="viewquestions.php">
-				<strong>Room:</strong>
-				<input name="room" id="roomid" type="text" size="22" maxlength="20" value="Vilfredo"/>
-				<input type="submit" id="submit" value="Go!" />
-			</form>
-			<ul class="nav">
-				<li><strong>Rooms:</strong></li>
-				<li><a href="viewquestions.php">Common</a></li>
-				<li><a href="viewquestions.php?room=Vilfredo" tooltip="this room is used to define the future of this website">Vilfredo</a></li>
-				<li><a href="viewquestions.php?room=Politics" tooltip="Questions about politics">Politics</a></li>
-				<li><a href="viewquestions.php?room=Metagovernment"  tooltip="Questions about the Metagovernment community">Metagovernment</a></li>
-				<?php 
-				if  ($room_param and $room_param!="Vilfredo" and $room_param!="Politics" and $room_param!="Metagovernment")
-				{ 
-				QUERY_KEY_ROOM
-				?>
-					<li><a href="viewquestions.php<?php echo CreateNewRoomURL(); ?>"><?php echo $room_param; ?></a></li>
-				<?php
-				} 
-				?>
-				</ul>
 	<?php
 
 }

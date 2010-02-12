@@ -290,13 +290,13 @@ function GetQuestionFilter($userid)
 	return $filter;
 }
 
-function LoadLoginRegisterLinks($userid, $debug=false) 
+function LoadLoginRegisterLinks($userid, $target, $debug=false) 
 {
 $str = <<<_HTML_
 <div id="register_request" class="ui-widget register-alert">
 	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-		<strong>Note:</strong> You must register before submitting your proposal: <a href="#" id="ajax_register">Register</a></p>
+		<strong>Note:</strong> You must register before submitting your proposal: <a href="#" id="ajax_register" btn=$target>Register</a></p>
 	</div>
 </div>
 _HTML_;
@@ -560,11 +560,6 @@ function GetQuestionCreator($question)
 	return $creator;
 }
 
-// ******************************************
-// Connects to the Database
-mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
-mysql_select_db($dbname) or die(mysql_error());
-
 // ****************************
 // AUTHENTICATION
 //
@@ -683,11 +678,6 @@ function DoLogin()
 	}
 }
 
-function IsAuthenticated()
-{            
-	return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
-}
-
 function fb_user_logout()
 {
 	if (IsAuthenticated() && $_SESSION[USER_LOGIN_MODE] == 'FB')
@@ -800,12 +790,18 @@ function isloggedin2()
 	}
 }
 
+function IsAuthenticated()
+{            
+        return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
+}
+
 function isloggedin()
 {
 	global $FACEBOOK_ID;
-	
+
 	// First check if user has a current login session
-	if ($userid = IsAuthenticated())
+        $userid = IsAuthenticated();
+	if ($userid)
 	{
 		// verify facebook session
 		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
@@ -951,7 +947,8 @@ function get_session_username()
 	}
 	else
 	{
-		error('Unable to retrieve username for user $userid');
+		log_error('Unable to retrieve username for user $userid');
+		return false;
 	}
 }
 // ***********************************************

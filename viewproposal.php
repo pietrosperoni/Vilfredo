@@ -11,7 +11,7 @@ if ($userid)
 	
 	$proposal = $_GET[QUERY_KEY_PROPOSAL];
 
-	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
+	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title, proposals.abstract FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
 
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
@@ -24,12 +24,19 @@ if ($userid)
 		$questionid=$row[5];
 		$room=$row[6];
 		$questiontitle=$row[7];
+		$proposalabstract=$row[8];
 		$urlquery = CreateQuestionURL($questionid, $room);
 
 		echo '<h2 id="question">"<a href="viewquestion.php' . $urlquery . '">' . $questiontitle . '</a>"</h2>';
 		echo '<div id="question">' . $questiontext . '</div>';		
 		echo 'now on Generation ' . $questionround . '<br>';
-
+		
+		if (!empty($proposalabstract))
+		{
+			echo '<h3>Abstract:</h3>';
+			echo "<p> $proposalabstract</p>";
+		}
+		
 		echo '<h3>Proposal:</h3>';
 		echo '<p>"' . $proposaltext . '"</p>';
 		echo 'active on Generation ' . $proposalround . '<br>';

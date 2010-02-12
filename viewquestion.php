@@ -13,11 +13,10 @@ $headcommands='
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
 <link type="text/css" href="widgets.css" rel="stylesheet" />
 
-<!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
-
+<!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -32,8 +31,8 @@ $headcommands='
 
 include('header.php');
 
-if ($userid)
-{
+//if ($userid)
+//{
 	// Check if user has room access.
 	if (!HasQuestionAccess())
 	{
@@ -44,6 +43,7 @@ if ($userid)
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
 
+if ($userid) {
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_array($response);
@@ -51,6 +51,7 @@ if ($userid)
 		{$subscribed=1;}
 	else
 		{$subscribed=0;}
+}
 
 	$sql = "SELECT * FROM questions WHERE id = $question";
 	$response = mysql_query($sql);
@@ -97,12 +98,14 @@ if ($userid)
 				<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
 			<?php
 			echo  $title;
+		if ($userid) {
 			if ($subscribed==1)
 			{
 				?> <input type="submit" name="submit" id="submit" value="email Unsubscribe" /> <?php
 			}else{
 				?> <input type="submit" name="submit" id="submit" value="email Subscribe" /> <?php
 			}
+		}
 			?>
 			</form>
 			</h2>
@@ -230,7 +233,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	}
 
 
-	if ( $phase==0 and $userid==$creatorid and $tomoveon==1)
+	if ( $userid and $phase==0 and $userid==$creatorid and $tomoveon==1)
 	{
 		if ($generation==1)
 		{
@@ -270,7 +273,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		if ($minimumminutes){ echo $minimumminutes." minutes ";}
 		echo "must have passed between the first endorsement and the moment when the questioner can move the question on. </p>";
 
-		if ($nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
+		if ($userid and $nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
 		{
 			?>
 			<form method="POST" action="moveontowriting.php">
@@ -331,17 +334,20 @@ $(document).ready(function() {
 		var title = $("#abstract_title");
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
+		var logged_in = <?= $userid ? 'true' : 'false'; ?>;
 
+	if (logged_in) {
 		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
-			$("input[value=Create proposal]").removeAttr("disabled");
-			//$("#submit_p").removeAttr("disabled");
+			//$("input[value=Create proposal]").removeAttr("disabled");
+			$("#submit_p").removeAttr("disabled");
 		}
 		else
 		{
-			$("input[value=Create proposal]").attr("disabled","disabled");
-			//$("#submit_p").attr("disabled","disabled");
+			//$("input[value=Create proposal]").attr("disabled","disabled");
+			$("#submit_p").attr("disabled","disabled");
 		}
+	}
 
 		if (content_length  > limit)
 		{
@@ -364,6 +370,7 @@ $(document).ready(function() {
 		$("#content_rte").jqrte_setIcon();
 		$("#content_rte").jqrte_setContent();
 		$("#content_rte").data('content_length', 0);
+		
 		var limit_abs = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
 		var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
 		if (limit) {
@@ -380,11 +387,10 @@ $(document).ready(function() {
 
 <br />
 	
-<?php echo LoadLoginRegisterLinks($userid); ?>
+<?php echo LoadLoginRegisterLinks($userid, 'submit_p'); ?>
 	
-	<p id="response" style="display: none;"></p>
-	
-		<?php
+<?php
+if ($userid) {
 		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation." and usercreatorid = ".$userid." and source = 0 ORDER BY `id` DESC  ";
 		$response = mysql_query($sql);
 		if ($response)
@@ -447,7 +453,7 @@ $(document).ready(function() {
 			echo "Sorry no proposals yet";
 		}
 	}
-
+}
 
 	if ( $phase==1)
 	{
@@ -470,8 +476,9 @@ $(document).ready(function() {
 			{
 				echo '<tr>';
 				echo '<td class="vote_list">';
-				if ($row['source'] != 0)
+				if ($userid and $row['source'] != 0)
 				{
+					
 					// Display voting history for aesexual parents
 					$proposal = $row['id'];
 					$source = $row['source'];
@@ -530,19 +537,41 @@ $(document).ready(function() {
 				
 				echo '</td><td>';
 				
+			//if ($userid) {
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
+			//} else {
+			//	echo '<Input type = "Checkbox" disabled="disabled" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
+		//	}
 
+			if ($userid) {//open
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
 				if(mysql_fetch_array(mysql_query($sql)))
 				{
 					echo ' checked="checked" ';
 				}
+			}
 
 				echo ' /></p> </td></tr>';
 			}
-			?>
-
-			<tr><td colspan="2">&nbsp;</td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
+		?>
+			
+			
+	<?php 
+	if ($userid) {//open 
+	?>
+	<tr><td colspan="2">&nbsp;</td><td>
+	<?php } else { ?>
+	<tr><td colspan="2"><?php echo LoadLoginRegisterLinks($userid, 'submit_e'); ?></td><td>
+	<?php } ?>
+			
+			
+		<?php if ($userid) {//open 
+		?>
+			<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." VALUE = "Submit!">
+		<?php } else { ?>
+			<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." disabled="disabled" VALUE = "Submit!">
+		<?php } ?>
+			</td>
 			</tr></table>
 			</form>
 			<?php
@@ -563,11 +592,11 @@ $(document).ready(function() {
 	}
 
 	// echo "<a href=logout.php>Logout</a>";
-}
-else
-{
-		DoLogin();
-}
+//}
+//else
+//{
+//		DoLogin();
+//}
 
 include('footer.php');
 

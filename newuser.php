@@ -1,7 +1,8 @@
 <?php
-require_once 'vgta_init.php';
-require_once 'lib/php_lib.php';
-require_once 'vga_functions.php';
+//require_once 'vgta_init.php';
+//require_once 'lib/php_lib.php';
+//require_once 'vga_functions.php';
+require_once 'config.inc.php';
 
 function registeruser()
 {
@@ -75,9 +76,8 @@ function registeruser()
 	$insert = "INSERT INTO users (username, password, email) 
 	VALUES ('$newuser', '$password', '$email')";
 	
-	set_log("SQL: $insert");
-	
 	$add_member = mysql_query($insert);
+	$userid = mysql_insert_id();
 	
 	if (!$add_member)
 	{
@@ -132,8 +132,6 @@ function checkusername()
 }
 
 $action = $_POST['action'];
-
-set_log("newuser() called with action: $action");
 
 switch ($action) {
 	case 'checkname':

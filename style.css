@@ -272,7 +272,6 @@ span.expandbtn {
 }
 
 span.expandbtn:hover {
-	font-weight: bold;
 	color: #993300;
 	cursor: pointer;
 }
