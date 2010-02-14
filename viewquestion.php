@@ -1,5 +1,5 @@
 <?php
-$twitter = false;
+$twitter = true;
 $language="enus";
 include_once("js/jquery/RichTextEditor/locale/".$language.".php");
 function getLabel($key,$language){
@@ -16,17 +16,13 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
-<!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
+<script type="text/javascript" src="js/jquery/retweet.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>
-
-	<script type="text/javascript">
-
-	</script>';
+<script type="text/javascript" src="js/vilfredo.js"></script>';
 
 
 include('header.php');
@@ -565,7 +561,7 @@ if ($userid) {
 	<?php } ?>
 			
 			
-		<?php if ($userid) {//open 
+		<?php if ($userid) {
 		?>
 			<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." VALUE = "Submit!">
 		<?php } else { ?>

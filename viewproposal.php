@@ -1,8 +1,8 @@
 <?php
 include('header.php');
 #$userid=isloggedin();
-if ($userid)
-{
+//if ($userid)
+//{
 	// Check if user has room access.
 	if (!HasProposalAccess())
 	{
@@ -41,25 +41,19 @@ if ($userid)
 		echo '<p>"' . $proposaltext . '"</p>';
 		echo 'active on Generation ' . $proposalround . '<br>';
 
-		if ( $questionphase==1 and $questionround==$proposalround)
+		if ( $userid and $questionphase==1 and $questionround==$proposalround)
 		{
 			$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $proposal . " LIMIT 1";
 			if(mysql_fetch_array(mysql_query($sql)))
 			{
-				?><br/><br/>You are endorsing.<br/><br/>
-		<!--		<form method="POST" action="endorse_or_not.php">
-					<input type="hidden" name="proposal" id="proposal" value="<?php echo $proposal; ?>" />
-					<input type="submit" name="submit" id="submit" value="Ignore it" />
-				</form>--!>
+				?>
+				<br/><br/>You are endorsing.<br/><br/>
 				<?php
 			}
 			else
 			{
-				?><br/><br/>You are Ignoring<br/><br/>
-		<!--		<form method="POST" action="endorse_or_not.php">
-					<input type="hidden" name="proposal" id="proposal" value="<?php echo $proposal; ?>" />
-					<input type="submit" name="submit" id="submit" value="Endorse it" />
-				</form>--!>
+				?>
+				<br/><br/>You are Ignoring<br/><br/>
 				<?php
 			}
 		}
@@ -75,12 +69,12 @@ if ($userid)
 			}
 		}
 	}
-	// echo "<a href=logout.php>Logout</a>";
+/*
 }
 else
 {
 		header("Location: login.php");
-}
+}*/
 
 include('footer.php');
 

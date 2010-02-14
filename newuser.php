@@ -82,7 +82,7 @@ function registeruser()
 	if (!$add_member)
 	{
 		handle_db_error($add_member);
-		set_message("error", "System error");
+		set_log("DB Error in newuser.php");
 		echo "0";
 		exit();
 	}

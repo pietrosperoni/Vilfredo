@@ -22,8 +22,8 @@ $headcommands='
 
 include('header.php');
 
-if ($userid)
-{
+//if ($userid)
+//{
 	// Check if user has room access.
 	if (!HasQuestionAccess())
 	{
@@ -142,11 +142,16 @@ if ($userid)
 			$dominatedby=$row[6];
 			$source=$row[5];
 
-			$sql6 = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . " LIMIT 1";
-			if(mysql_fetch_row(mysql_query($sql6)))
-			{$Endorsed=1;}
-			else
-			{$Endorsed=0;}
+			$Endorsed=0;
+			
+			if ($userid) 
+			{
+				$sql6 = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . " LIMIT 1";
+				if(mysql_fetch_row(mysql_query($sql6)))
+				{$Endorsed=1;}
+				else
+				{$Endorsed=0;}
+			}
 			
 			$urlquery = CreateProposalURL($row[0], $room);
 			
@@ -214,15 +219,25 @@ if ($userid)
 			}
 			echo '</td>';
 			echo '<td>';
-			if($Endorsed)
+			
+			if ($userid)
 			{
-				echo ' <img src="images/thumbsup.jpg" title="You endorsed this proposal"  height="28">';
+				if($Endorsed)
+				{
+					echo ' <img src="images/thumbsup.jpg" title="You endorsed this proposal"  height="28">';
+				}
+				else
+				{
+					echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal" height="25">';
+				}
+				echo '<a title="results are not consistent, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
 			}
 			else
 			{
-				echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal" height="25">';
+				echo '&nbsp;&nbsp;_';
 			}
-			echo '<a title="results are not consistent, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
+			
+			
 			echo '</td>';
 
 			echo '</tr> ';
@@ -232,11 +247,12 @@ if ($userid)
 		echo '</div>';
 	}
 	// echo "<a href=logout.php>Logout</a>";
+/*
 }
 else
 {
 		DoLogin();
-}
+}*/
 
 include('footer.php');
 

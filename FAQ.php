@@ -1,8 +1,8 @@
 <?php
 include('header.php');
 
-if (isloggedin())
-{
+//if (isloggedin())
+//{
 ?> 
 <h2>F.A.Q.</h2>
 <h3><b>How does it work?</b></h3>
@@ -60,75 +60,13 @@ if (isloggedin())
 <p>Essentially you lost the train and you need to wait until is back in the writing phase. But you need to make sure that you catch the next train, i.e. that the question does not go to the writing phase, and then back to the endorsing phase without you having had a chance to write your idea. You can do this by either joining during the endorsing phase, endorsing the proposals you agree with, or by activating the email update (on the top of the question page). In both cases, next time the question moves on to the writing phase you will receive an email. Of course make sure your email is correct. We might eventually permit to users to write new proposals during the endorsing phase. They will still only appear during the next endorsing phase. But it would take away some of the sense of time that comes out of this strong metronome. Also it might disempower the voting process done, as the pareto front becomes less important. So we are reluctant to do it</p>
 
 <?php
-include('footer.php');
-?>
 
-
-<!--<p>As explained before, this system works with a very strong metronome, that makes sure that everybody is writing questions at the same time, and then endorsing the questions at the same time. By making everybody endorse all the questions at the same time, we are making sure that no question is undeservedly punished for appearing late. Each question needs to be evaluated just for its intrinsec value. For the same reason the author of the proposal is not visible at the endorsing phase, so that people are not able to just endorse something because they trust a particular user. On the other hand after the endorsing phase, in the history of a question, it's possible to see who written which question, and who endorsed which question. </p>
-
-
-<h3><a name=""></a></h3>
-<p></p>
-
-
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-
-
-<?php
-
+/*
 }
 else
 {
 		header("Location: login.php");
-}
+}*/
 
 include('footer.php');
 

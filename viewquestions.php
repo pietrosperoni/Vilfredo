@@ -16,8 +16,8 @@ $headcommands='
 
 include('header.php');
 #$userid=isloggedin();
-if ($userid)
-{
+//if ($userid)
+//{
 ?>
 <script type="text/javascript">
 $(function() {
@@ -39,17 +39,12 @@ $room_param = CreateNewQuestionURL();
 			<h3><a href="newquestion.php<?php echo $room_param?>">Ask a New Question</a></h3>
 		</div>
 		<?php
-
-
-	// *****
-	// 
-	// *****
 	
 	// **
 	// Set question filter
 	// **
 	#$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-	$question_filter = GetQuestionFilter($userid);
+	$question_filter = GetQuestionFilterOpen($userid);
 	#echo $question_filter;
 	#exit;
 
@@ -99,11 +94,13 @@ $room_param = CreateNewQuestionURL();
 				echo '<fieldset class="foottip">';
 				echo '<a href="http://www.flickr.com/photos/found_drama/1023671528/"><img src="images/germinating.jpg" title="New Question" height=42 ></a> <a title="This is a new question. Be the first to suggest an answer!" href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a> ';
 
+				
 
-					$UserString=WriteUserVsReader($thatuserid,$userid);
+				$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo RenderQIconInfo($UserString, $room);
-					echo '</td></tr></table>';
+				echo RenderQIconInfo($UserString, $room);
+				echo '</td></tr></table>';
+
 
 
 
@@ -158,14 +155,22 @@ $room_param = CreateNewQuestionURL();
 
 #		echo '<table border=0><tr><td><a href="http://www.flickr.com/photos/johnfahertyphotography/2675723448/"><img src="images/flowers.jpg" title="Chose the ones you like" height=42 ></a></td><td> <a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '"   >' . $row[1] . '</a> <br />';
 		echo '<table border=0><tr><td>';
-		if (HasThisUserEndorsedSomething($questionid,$generation,$userid))
+		
+		if ($userid)
 		{
-			echo '<img src="images/tick.jpg" height=20 title="you have already expressed your endorsements over here"> ';
+			if (HasThisUserEndorsedSomething($questionid,$generation,$userid))
+			{
+				echo '<img src="images/tick.jpg" height=20 title="you have already expressed your endorsements over here"> ';
+			}
+			else
+			{
+				echo '<img src="images/tick_empty.png" height=20 title="you have not expressed any endorsements over here"> ';
+			#echo '0';
+			}
 		}
 		else
 		{
-			echo '<img src="images/tick_empty.png" height=20 title="you have not expressed any endorsements over here"> ';
-		#echo '0';
+			echo '&nbsp;';
 		}
 
 
@@ -300,13 +305,20 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 
 				echo '<table border=0><tr><td>';
-				if (HasThisUserProposedSomething($questionid,$generation,$userid))
+				if ($userid)
 				{
-					echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					if (HasThisUserProposedSomething($questionid,$generation,$userid))
+					{
+						echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					}
+					else
+					{
+						echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					}
 				}
 				else
 				{
-					echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					echo '&nbsp;';
 				}
 
 				echo '</td><td><a href="http://www.flickr.com/photos/jphilipson/2100627902/"><img src="images/tree.jpg" title="Generation '.$generation.'" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '"  tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a><br /> ';
@@ -335,10 +347,6 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 				echo '</div></fieldset>';
 
-
-#				echo '"<a href="viewquestion.php' . $urlquery. '"  title="ajax:external.htm" >' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.';
-
-
 			}
 			else
 			{
@@ -347,13 +355,20 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 
 				echo '<table border=0><tr><td>';
-				if (HasThisUserProposedSomething($questionid,$generation,$userid))
+				if ($userid)
 				{
-					echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					if (HasThisUserProposedSomething($questionid,$generation,$userid))
+					{
+						echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					}
+					else
+					{
+						echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					}
 				}
 				else
 				{
-					echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					echo '&nbsp;';
 				}
 
 				echo '</td><td><a href="http://www.flickr.com/photos/found_drama/1023671528/"><img src="images/germinating.jpg" title="New Question" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '"  >' . $row[1] . '</a> <br />';
@@ -434,7 +449,6 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 			{
 				if ($nrecentendorsers==CountEndorsersToAProposal($row2[0]))
 				{
-#					echo '<p>"<a href="viewquestion.php' . $urlquery . '">' . $row[1] . '</a>" by <a href="user.php?u=' . $thatuserid . '">'.$thatusername.'</a>.  ';
 					echo '<fieldset class="foottip">';
 					$sql3 = "SELECT id, blurb  FROM proposals WHERE experimentid = ".$questionid." and roundid = ".$generation." ";
 					$response3 = mysql_query($sql3);
@@ -504,12 +518,12 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
  echo '</div>';
 
 	// echo "<a href=logout.php>Logout</a>";  tip: 'tooltip',
-
+/*
 }
 else
 {
 		DoLogin();
-}
+}*/
 ?>
 	<div class="clear"></div>
 <?php

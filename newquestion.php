@@ -10,18 +10,23 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
+<link type="text/css" href="widgets.css" rel="stylesheet" />
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+<!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
-<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>';
+<script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
+<script type="text/javascript" src="js/vilfredo.js"></script>';
 
 include('header.php');
 #$userid=isloggedin();
-if ($userid)
-{
+//if ($userid)
+//{
 	$randomID = getUniqueRoomCode();
 	$room_param = GetParamFromQuery(QUERY_KEY_ROOM);
 ?>
@@ -54,7 +59,11 @@ var roomId = <?php echo "'$randomID'" ?>;
     <h3>Title (max 100 ch):
      <input type="text" size="100" maxlength="100" name="title" class="title"/></h3>
    
+   
+<div id="editor_panel">
     <h3>Content:
+
+<div id="proposal_RTE">
       <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
          include_once("js/jquery/RichTextEditor/content_editor.php");
@@ -120,10 +129,26 @@ Maximum Time:
   <option value="2678400">31 days</option>
 </select> <br/>
 If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
-Yes, this is a feature!)<br/>
+Yes, this is a feature!)<br/><br/>
 
-				<input type="submit" name="submit" id="submit" value="Create question" />
-			</form>
+<?php
+if ($userid) {
+?>
+<input type="submit" name="submit_nq" id="submit_nq" value="Create question" />
+<?php
+} else {
+?>
+<input type="submit" name="submit_nq" id="submit_nq" disabled="disabled" value="Create question" />
+<?php
+}
+?>
+
+</div> <!-- proposal_RTE -->
+</div> <!-- editor_panel -->
+</form>
+
+<?php echo LoadLoginRegisterLinks($userid, 'submit_nq'); ?>
+
 <script type="text/javascript">
    window.onload = function(){
       try{
@@ -143,12 +168,12 @@ Yes, this is a feature!)<br/>
 #	echo '</div>';
 	echo '<br/>';
 
-
+/*
 }
 else
 {
 		DoLogin();
-}
+}*/
 
 include('footer.php');
 

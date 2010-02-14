@@ -1,7 +1,8 @@
 syntax: glob
 priv/
-js/
-lib/
+lib/facebook/
+js/work/
+js/jquery/tooltip/
 loc/
 new/
 temp/

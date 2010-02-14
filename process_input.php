@@ -90,18 +90,13 @@ function login_user()
 	global $FACEBOOK_ID;
 	
 	// makes sure they filled it in
-	if(!$_POST['username'] | !$_POST['pass']) 
+	if(empty($_POST['username']) || empty($_POST['pass'])) 
 	{
 		set_message("error", "You did not fill in a required field");
 		return false;
 	}
+	
 	// checks it against the database
-
-	if (!get_magic_quotes_gpc()) 
-	{
-		$_POST['email'] = addslashes($_POST['email']);
-	}
-
 	$check = mysql_query("SELECT * FROM users WHERE username = '".$_POST['username']."'");
 	
 	if (!$check)

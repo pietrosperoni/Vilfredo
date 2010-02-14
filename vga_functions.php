@@ -47,16 +47,17 @@ function error($message, $level=VILFREDO_ERROR)
 	trigger_error($message.' in <strong>'.$caller['function'].'</strong> called from <strong>'.$caller['file'].'</strong> on line <strong>'.$caller['line'].'</strong>'."\n<br />error handler", $level);
 }
 
-function set_error($msg, $log = VERBOSE)
+function set_trace($msg, $log = false)
 {
 	if ($log) {
-		error_log($msg . "\n", 3, ERROR_FILE);
+		set_log($msg);
 	}
 }
 
 function log_error($msg)
 {
-	error_log($msg . "\n", 3, ERROR_FILE);
+	$timestamp = date("D M j G:i:s T Y");
+	error_log("log_error: $msg $timestamp \n", 3, ERROR_FILE);
 }
 
 function set_log($msg)
@@ -65,14 +66,13 @@ function set_log($msg)
 	error_log("set_log: $msg $timestamp \n", 3, ERROR_FILE);
 }
 
-function handle_db_error($result)
+function handle_db_error($result=false)
 {
-	if ($result === FALSE)
+	if (!$result)
 	{
-		$msg = "MySQL Error: " .  mysql_errno(  ) . " : " . mysql_error(  );
+		$msg = "MySQL Error: " .  mysql_errno() . " : " . mysql_error();
 		log_error($msg);
 	}
-	return $result;
 }
 
 function set_message($message_type, $message)
@@ -223,6 +223,72 @@ function SendInvite($userid, $receiver, $question)
   	mysql_query($sql) or die(mysql_error());
 }
 // **************************************
+function GetQuestionFilterOpen($userid)
+{	
+	if ($userid and isset($_GET[QUERY_KEY_TODO]))
+	{
+		$related_ids = db_make_id_list(GetRelatedQuestions($userid));
+
+		if (empty($related_ids))
+			$filter = " AND questions.id IN (0) ";
+		else
+			$filter = " AND questions.id IN ($related_ids) ";
+		
+		return $filter;
+	}
+	
+	// Get room if set
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
+	// Get user if set
+	$uid = GetParamFromQuery(QUERY_KEY_USER);
+	
+	$sameuser = false;
+	if ($userid) {
+		// Check if user IDs match
+		$sameuser = ($uid == $userid);
+	}
+
+	// View All Questions
+	//
+	// USER
+	//
+	// A different user
+	if (CheckQuery(QUERY_KEY_USER) && !$sameuser && !CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '') ";
+	}
+	//
+	// Current user - 'View My Questions' Menu Option
+	elseif (CheckQuery(QUERY_KEY_USER) && $sameuser && !CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$userid') ";
+	}
+	//
+	//USER & ROOM
+	//
+	// Makes no difference whether same or different user. Room is the key.
+	elseif (CheckQuery(QUERY_KEY_USER) && CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.usercreatorid = '$uid' AND questions.room = '$room') ";
+	}
+	//
+	// ROOM
+	// 
+	// Room is the key.
+	elseif  (!CheckQuery(QUERY_KEY_USER) && CheckQuery(QUERY_KEY_ROOM)) 
+	{
+		$filter=" AND (questions.room = '$room') ";
+	}
+	// 
+	// View COMMON ROOM
+	// 
+	else
+	{
+		$filter=" AND questions.room = '' ";
+	}
+	
+	return $filter;
+}
 
 function GetQuestionFilter($userid)
 {	
@@ -244,9 +310,6 @@ function GetQuestionFilter($userid)
 	$uid = GetParamFromQuery(QUERY_KEY_USER);
 	// Check if user IDs match
 	$sameuser = ($uid == $userid);
-	
-	#if (USE_PRIVACY_FILTER === false) return '';
-
 
 	// View All Questions
 	//
@@ -296,7 +359,7 @@ $str = <<<_HTML_
 <div id="register_request" class="ui-widget register-alert">
 	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-		<strong>Note:</strong> You must register before submitting your proposal: <a href="#" id="ajax_register" btn=$target>Register</a></p>
+		<strong>Note:</strong> You must register before submitting a proposal, a question or voting: <a href="#" id="ajax_register" btn=$target>Register</a></p>
 	</div>
 </div>
 _HTML_;
@@ -1073,7 +1136,7 @@ function GetEndorsements($userid, $proposals, $question, $generation)
 			if (!$response)
 			{
 				handle_db_error($response);
-				set_error("GetEndorsements(): MySQL error: " . mysql_error());
+				log_error("GetEndorsements(): MySQL error: " . mysql_error());
 				return false;
 			}
 
@@ -1112,7 +1175,7 @@ function GetAncestors($source)
 		if (!$response)
 		{
 			handle_db_error($response);
-			set_error("GetAncestors(): MySQL error: " . mysql_error());
+			log_error("GetAncestors(): MySQL error: " . mysql_error());
 			return false;
 		}
 		
@@ -1562,6 +1625,7 @@ function WriteUser($user)
 
 	return $answer;
 }
+
 function WriteUserVsReader($user,$reader)
 {
 	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
