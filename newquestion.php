@@ -142,12 +142,13 @@ if ($userid) {
 <?php
 }
 ?>
-
+<br />
+<?php echo LoadLoginRegisterLinks($userid, 'submit_nq'); ?>
 </div> <!-- proposal_RTE -->
 </div> <!-- editor_panel -->
 </form>
 
-<?php echo LoadLoginRegisterLinks($userid, 'submit_nq'); ?>
+
 
 <script type="text/javascript">
    window.onload = function(){
