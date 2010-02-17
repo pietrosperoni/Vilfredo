@@ -18,10 +18,24 @@ $(function() {
 	});
 	    
 	/*
-	*	Register Dialog
+	*	Register & Login Dialog
 	*/
 	var cancelReg = function() {
 		$(this).dialog("close");
+	}
+	
+	var submit_form_handler = function() {
+		$(this).parents("form").submit();
+	}
+	
+	$("input.submit_ok").click( function() 
+	{
+		$(this).parents("form").submit();
+	});
+	
+	var nowSubmit = function() {
+		$(this).dialog("close");
+		submit_form.submit();
 	}
 	
 	var cancelLogin = function() {
@@ -30,6 +44,42 @@ $(function() {
 	
 	var deleteDialog = function() {
 		$(this).empty().remove();
+	}
+	
+	var doLogin = function() {
+		info = $("#login form").serialize();
+		info += "&action=login";
+		$.ajax({
+			type: "POST",
+			url: "loginuser.php",
+			data: info,
+			cache: false,
+			error: ajax_error,
+			dataType: 'html',
+			success: function(response, status){
+				if (status != 'success')
+				{
+					$('#msg').css('color', 'red').html(status);
+				}
+				else
+				{
+					if (response == '0')
+					{
+						$('#msg').css('color', 'blue').html('Sorry, login failed.');
+					}
+					else if (response == '1')
+					{
+						$("#login form").fadeOut(250);
+						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+						user_dialog.dialog('option', welcomeOptions);
+					}
+					else
+					{
+						$('#msg').css('color', 'blue').html(response);
+					}
+				}
+			}
+		});
 	}
 	
 	var registerUser = function() {
@@ -55,30 +105,9 @@ $(function() {
 					}
 					else if (response == '1')
 					{
+						$("#register form").fadeOut(250);
 						$('#msg').css('color', 'blue').html("Success! Welcome to Vilfredo!");
 						user_dialog.dialog('option', welcomeOptions);
-						$("#register_request").fadeOut(1000, function () {
-							$(this).remove();
-						});
-						$.ajax({
-							type: "POST",
-							url: "top_links.php",
-							cache: false,
-							error: ajax_error,
-							dataType: 'html',
-							success: function(response, status){
-								if (status != 'success')
-								{
-									$('#msg').css('color', 'blue').html("Oops!");
-								}
-								else
-								{
-									$('#top_links').html(response);
-									$("#" + target_btn).removeAttr("disabled");
-											
-								}
-							}
-						});
 					}
 					else
 					{
@@ -107,14 +136,7 @@ $(function() {
 			.css('font-weight', 'bold');
 		user_dialog.dialog('option', registerUserOptions);
 		$("#acceptbtn").expire();
-		//$("#acceptbtn").die()
 	});
-	
-	/*
-	$("#acceptbtn.checked").livequery("click", function(e){
-	$("#acceptbtn.checked").live("click", function(e){
-			$(this).removeClass("checked");	
-	});*/
 	
 	var checkIdExists = function() {
 		var info = 'username=';
@@ -162,7 +184,7 @@ $(function() {
 	var welcomeOptions = {
 		buttons:
 		{    
-			"OK": cancelReg
+			"OK": nowSubmit
 		}
 	};
 	
@@ -174,114 +196,67 @@ $(function() {
 		}
 	};
 	
-	var user_dialog = $("<div></div>");
-	var target_btn = '';
-
-	$("#ajax_register").click(function (e) {
-		e.preventDefault();
-		target_btn = $(this).attr("btn");
-		// load form using ajax
-		$.get("register_form.html", function(data){
-			user_dialog.html(data);
-		});
-		user_dialog.dialog({
-			modal: true,
-			position: 'top',
-			title: 'Register with Vilfredo',
-			resizable: false,
-			close: deleteDialog,
-			buttons: 
-			{	"Check ID Exists": checkIdExists,
-				"Cancel": cancelReg
-			}
-		});
-	}); 
-	// Dialog
+	var externalOptions = {
+		buttons: 
+		{   
+			"Register:": loadRegister,
+			"Login": loadLogin,
+			"Cancel": cancelReg
+		}
+	};
 	
-	/*
-	Login form
-	*/
-	$("#ajax_login").click(function (e) {
-		e.preventDefault();
-		target_btn = $(this).attr("btn");
-		// load form using ajax
-		$.get("login_form.html", function(data){
-			user_dialog.html(data);
-		});
-		user_dialog.dialog({
-			modal: true,
-			position: 'top',
-			title: 'Vilfredo Login',
-			resizable: false,
-			close: deleteDialog,
-			buttons: 
-			{   "Login": doLogin,
-				"Cancel": cancelLogin
-			}
-		});
-	}); 
+	var loginUserOptions = {
+		buttons: 
+		{   
+			"Login": doLogin,
+			"Cancel": cancelLogin
+		}
+	};
 	
-	var doLogin = function() {
-		info = $("#login form").serialize();
-		info += "&action=login";
-		$.ajax({
-			type: "POST",
-			url: "loginuser.php",
-			data: info,
-			cache: false,
-			error: ajax_error,
-			dataType: 'html',
-			success: function(response, status){
-				if (status != 'success')
-				{
-					$('#msg').css('color', 'red').html(status);
-				}
-				else
-				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, login failed.');
-					}
-					else if (response == '1')
-					{
-						$("#register_request").fadeOut(1000, function () {
-							$(this).remove();
-						});
-						$.ajax({
-							type: "POST",
-							url: "top_links.php",
-							cache: false,
-							error: ajax_error,
-							dataType: 'html',
-							success: function(response, status){
-								if (status != 'success')
-								{
-									$('#msg').css('color', 'blue').html("Oops!");
-								}
-								else
-								{
-									$('#top_links').html(response);
-									$("#" + target_btn).removeAttr("disabled");
-									user_dialog.dialog("close");
-								}
-							}
-						});
-					}
-					else
-					{
-						$('#msg').css('color', 'blue').html(response);
-					}
-				}
-			}
-		});
+	var nowSubmit = function() {
+		//submit_form.removeClass('reg-only');
+		$(this).dialog("close");
+		//submit_form.submit();
+		submit_form.unbind("click");
 	}
 	
+	var loadRegister = function() {
+		$.get("register_form.html", function(data){
+			dialog_cont.html(data);
+		});
+		user_dialog.dialog('option', checkNameOptions);
+	} 
 	
-	/*
-	"timeout"
-	"error"
-	"notmodified"
-	"success"
-	"parsererror"
-	*/
+	var loadLogin = function() {
+		$.get("login_form.html", function(data){
+			dialog_cont.html(data);
+		});
+		user_dialog.dialog('option', loginUserOptions);
+	} 
+	
+	var user_dialog;
+	var dialog_cont;
+	var submit_form;
+
+	$("input.reg_submit").click(function (e) {
+		submit_form = $(this).parents("form");
+		user_dialog = $('<div id="dialog"><div id="data"></div></div>');
+		user_dialog.dialog({
+				modal: true,
+				position: 'top',
+				title: 'Vilfredo',
+				resizable: false,
+				close: deleteDialog,
+				autoOpen: false,
+				buttons: 
+				{    
+					"Register:": loadRegister,
+					"Login": loadLogin,
+					"Cancel": cancelReg
+				}
+		});
+		dialog_cont = $('#dialog #data');
+		dialog_cont.html('<h2>Please log in or register.</h2>');
+		user_dialog.dialog('open');
+	}); 
 });

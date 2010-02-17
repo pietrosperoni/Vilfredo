@@ -359,7 +359,7 @@ $str = <<<_HTML_
 <div id="register_request" class="ui-widget register-alert">
 	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-		<strong>Note:</strong> You must register before submitting a proposal, a question or voting: <a href="#" id="ajax_register" btn=$target>Register</a></p>
+		<strong>Note:</strong> You must register to activate the submit button: <a href="#" id="ajax_register" btn=$target>Register</a></p>
 	</div>
 </div>
 _HTML_;
@@ -370,7 +370,7 @@ if ($debug) {
 	set_log('LoadLoginRegisterLinks: User logged in? : ' . boolString($loggedin));
 }
 
-return (!$loggedin) ? $str : ''; 
+return (!$loggedin && false) ? $str : ''; 
 }
 
 function LoadGoogleAnalytics($display=true) 

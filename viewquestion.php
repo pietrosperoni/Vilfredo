@@ -298,7 +298,14 @@ try to write a proposal that represent an acceptable compromise between differen
 		echo "must have passed between the first proposal and the moment when the questioner can move the question on.</p>";
 ?>
 
-	<form method="POST" action="newproposaltake.php">
+	
+	<?php 
+		if ($userid) {//open 
+		?>
+		<form method="POST" action="newproposaltake.php">
+		<?php } else { ?>
+		<form method="POST" action="newproposaltake.php" class="reg-only">
+	<?php } ?>
 
 	<div id="editor_panel">
 	<!-- Input Proposal start -->
@@ -319,7 +326,16 @@ try to write a proposal that represent an acceptable compromise between differen
          include_once("js/jquery/RichTextEditor/editor.php");
       ?>
 	<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-	<input class="rte_submit" type="submit" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+	
+	<?php 
+	if ($userid) {
+		$regclass = "";
+	} else {
+		$regclass = "reg_submit";
+	}
+	?>
+	
+	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
 	</div><!-- proposal_RTE -->
 	</div><!-- editor_panel -->
 
@@ -332,7 +348,7 @@ $(document).ready(function() {
 		var content_length =  $("#content_rte").data('content_length');
 		var logged_in = <?= $userid ? 'true' : 'false'; ?>;
 
-	if (logged_in) {
+	//if (logged_in) {
 		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
 			//$("input[value=Create proposal]").removeAttr("disabled");
@@ -343,7 +359,7 @@ $(document).ready(function() {
 			//$("input[value=Create proposal]").attr("disabled","disabled");
 			$("#submit_p").attr("disabled","disabled");
 		}
-	}
+	//}
 
 		if (content_length  > limit)
 		{
@@ -533,44 +549,34 @@ if ($userid) {
 				
 				echo '</td><td>';
 				
-			//if ($userid) {
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
-			//} else {
-			//	echo '<Input type = "Checkbox" disabled="disabled" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
-		//	}
 
-			if ($userid) {//open
+			if ($userid) {
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
 				if(mysql_fetch_array(mysql_query($sql)))
 				{
 					echo ' checked="checked" ';
 				}
 			}
-
 				echo ' /></p> </td></tr>';
 			}
-		?>
-			
-			
-	<?php 
-	if ($userid) {//open 
-	?>
+		?>	
 	<tr><td colspan="2">&nbsp;</td><td>
-	<?php } else { ?>
-	<tr><td colspan="2"><?php echo LoadLoginRegisterLinks($userid, 'submit_e'); ?></td><td>
-	<?php } ?>
-			
-			
-		<?php if ($userid) {
-		?>
-			<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." VALUE = "Submit!">
-		<?php } else { ?>
-			<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." disabled="disabled" VALUE = "Submit!">
-		<?php } ?>
-			</td>
-			</tr></table>
-			</form>
-			<?php
+
+	<?php 
+		if ($userid) {
+			$regclass = "";
+		} else {
+			$regclass = "reg_submit";
+		}
+	?>
+	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="Submit!"/>		
+	<!--<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." VALUE = "Submit!">-->
+	
+	</td>
+	</tr></table>
+	</form>
+	<?php
 
 		}
 		else

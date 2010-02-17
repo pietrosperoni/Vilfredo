@@ -131,19 +131,19 @@ Maximum Time:
 If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
 Yes, this is a feature!)<br/><br/>
 
-<?php
-if ($userid) {
-?>
-<input type="submit" name="submit_nq" id="submit_nq" value="Create question" />
-<?php
-} else {
-?>
-<input type="submit" name="submit_nq" id="submit_nq" disabled="disabled" value="Create question" />
-<?php
-}
-?>
+	<?php 
+	if ($userid) {
+		$regclass = "";
+	} else {
+		$regclass = "reg_submit";
+	}
+	?>
+	
+	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_nq" id="submit_nq" value="Create question"/>
+
+<!--<input type="submit" name="submit_nq" id="submit_nq" value="Create question" />--?
+
 <br />
-<?php echo LoadLoginRegisterLinks($userid, 'submit_nq'); ?>
 </div> <!-- proposal_RTE -->
 </div> <!-- editor_panel -->
 </form>
