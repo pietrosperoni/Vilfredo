@@ -458,3 +458,10 @@ div.reg_form {
 .rte_submit {
 	margin-top: 10px;
 }
+
+#loading {
+	background: url( 'images/ajax-loader.gif' );
+	width: 48px;
+	height: 48px;
+	display: none;
+}
