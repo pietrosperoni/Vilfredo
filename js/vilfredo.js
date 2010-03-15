@@ -4,18 +4,59 @@ $(function() {
 		autoHeight: false,
 		active: false
 	});
-
-	$(".expandbtn").click(function () {
-	    var fulltxt = $(this).siblings("div.paretoabstract");
+	
+	$(".view-all").hover(
+		function() { $(this).addClass('view-all-hover'); },
+		function() { $(this).removeClass('view-all-hover'); }
+	);
+	
+	$(".view-all").click(function (e) {
+	    e.preventDefault();
+	    var fulltxt = $(this).parent().siblings("div.paretoabstract");
+	    var expandbtn = $(this).parent().siblings("a.expandbtn");
+	    var expandbtnlabel = $(this).parent().siblings("a.expandbtn").find('.show-full-label');
+	    var label = $(this).find('.view-all-label');
 	    if (fulltxt.is(":hidden")) {
 			fulltxt.slideDown("slow");
-			$(this).text("Hide Full Text");
+			label.text("show abstract only");
+			// expand button
+			expandbtn.addClass('expandbtn-open');
+			expandbtnlabel.text("Hide Full Text");
+	    } 
+	    else {
+		fulltxt.slideUp("slow");
+		label.text("view full text");
+		// expand button
+		expandbtn.removeClass('expandbtn-open');
+		expandbtnlabel.text("View Full Text");
+	   }
+	});
+
+	$(".expandbtn").click(function (e) {
+	    e.preventDefault();
+	    var fulltxt = $(this).siblings("div.paretoabstract");
+	    var viewallbtn = $(this).siblings("h3").find("span.view-all-label");
+	    var label = $(this).find('.show-full-label');
+	    if (fulltxt.is(":hidden")) {
+	    		$(this).addClass('expandbtn-open');
+			fulltxt.slideDown("slow");
+			label.text("Hide Full Text");
+			//view-all button
+			viewallbtn.text("show abstract only");
 	    } 
 		else {
+			$(this).removeClass('expandbtn-open');
 			fulltxt.slideUp("slow");
-			$(this).text("Show Full Text");
+			label.text("View Full Text");
+			//view-all button
+			viewallbtn.text("view full text");
 	     }
 	});
+	
+	$(".expandbtn").hover(
+		function() { $(this).addClass('expandbtn-hover'); },
+		function() { $(this).removeClass('expandbtn-hover'); }
+	);
 	    
 	/*
 	*	Register & Login Dialog
@@ -82,6 +123,45 @@ $(function() {
 		});
 	}
 	
+	var doFBConnect = function() {
+		info = $("#connect form").serialize();
+		$.ajax({
+			type: "POST",
+			url: "fbconnectuser.php",
+			cache: false,
+			data: info,
+			error: ajax_error,
+			dataType: 'html',
+			success: function(response, status){
+				if (status != 'success')
+				{
+					$('#msg').css('color', 'red').html(status);
+				}
+				else
+				{
+					if (response == '0')
+					{
+						$('#msg').css('color', 'blue').html('Sorry, connect failed.');
+					}
+					else if (response == '1')
+					{
+						$("#connect").fadeOut(250);
+						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+						user_dialog.dialog('option', welcomeOptions);
+					}
+					else if (response == '2')
+					{
+						$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
+					}
+					else
+					{
+						$('#msg').css('color', 'blue').html(response);
+					}
+				}
+			}
+		});
+	}
+	
 	var registerUser = function() {
 		info = $("#register form").serialize();
 		info += "&action=register";
@@ -105,7 +185,7 @@ $(function() {
 					}
 					else if (response == '1')
 					{
-						$("#register form").fadeOut(250);
+						$("#register").fadeOut(250);
 						$('#msg').css('color', 'blue').html("Success! Welcome to Vilfredo!");
 						user_dialog.dialog('option', welcomeOptions);
 					}
@@ -135,7 +215,6 @@ $(function() {
 			.css('color', 'green')
 			.css('font-weight', 'bold');
 		user_dialog.dialog('option', registerUserOptions);
-		$("#acceptbtn").expire();
 	});
 	
 	var checkIdExists = function() {
@@ -181,6 +260,14 @@ $(function() {
 		}
 	};
 	
+	var checkFBNameOptions = {
+		buttons: 
+		{    
+			"Check ID Exists": checkIdExists,
+			"Cancel": cancelReg
+		}
+	};
+	
 	var welcomeOptions = {
 		buttons:
 		{    
@@ -213,12 +300,21 @@ $(function() {
 		}
 	};
 	
-	var nowSubmit = function() {
-		//submit_form.removeClass('reg-only');
-		$(this).dialog("close");
-		//submit_form.submit();
-		submit_form.unbind("click");
-	}
+	var connectUserOptions = {
+			buttons: 
+			{   
+				"Connect": doFBConnect,
+				"Cancel": cancelLogin
+			}
+	};
+	
+	var fbUserOptions = {
+		buttons: 
+		{   
+			"Login": doFBConnect,
+			"Cancel": cancelLogin
+		}
+	};
 	
 	var loadRegister = function() {
 		$.get("register_form.html", function(data){
@@ -227,6 +323,64 @@ $(function() {
 		user_dialog.dialog('option', checkNameOptions);
 	} 
 	
+	var getFBConnectForm = function() {
+		$.get("fb_connect_form.php", function(data){
+			dialog_cont.html(data);
+		});
+		setTimeout(function() {
+			$('#fbregister').click(function(event) {
+				event.preventDefault();
+				doFBLogin();
+			}); 
+		}, 250);
+		user_dialog.dialog('option', connectUserOptions);
+	}
+	
+	var doFBLogin = function() {
+		$.ajax({
+			type: "POST",
+			url: "fb_register_form.php",
+			cache: false,
+			error: ajax_error,
+			dataType: 'html',
+			success: function(response, status){
+				if (status != 'success')
+				{
+					$('#msg').css('color', 'red').html(status);
+				}
+				else
+				{
+					if (response == '0')
+					{
+						$('#msg').css('color', 'blue').html('Sorry, login failed.');
+					}
+					else if (response == '1')
+					{
+						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+						user_dialog.dialog('option', welcomeOptions);
+						dialog_cont.html("");
+					}
+					else if (response == '2')
+					{
+						$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
+					}
+					else
+					{
+						$("#fb_button").fadeOut(250);
+						user_dialog.dialog('option', checkFBNameOptions);
+						dialog_cont.html(response);
+						setTimeout(function() {
+							$('#fbconnect').click(function(event) {
+								event.preventDefault();
+								getFBConnectForm();
+							}); 
+						}, 250);
+					}
+				}
+			}
+		});
+	}
+		
 	var loadLogin = function() {
 		$.get("login_form.html", function(data){
 			dialog_cont.html(data);
@@ -234,21 +388,24 @@ $(function() {
 		user_dialog.dialog('option', loginUserOptions);
 	} 
 	
-	$("#loading").ajaxStart(function(){
-		$(this).show();	
-	});
-
-	$("#loading").ajaxStop(function(){
-		$(this).hide();
-	});
-	
 	var user_dialog;
 	var dialog_cont;
 	var submit_form;
+	var blank = "";
 
 	$("input.reg_submit").click(function (e) {
 		submit_form = $(this).parents("form");
-		user_dialog = $('<div id="dialog"><div id="loading"></div><div id="data"></div></div>');
+		user_dialog = $('<div id="dialog"><div id="loading"></div><p id="msg" class="message"></p><div id="data"></div></div>');
+		setTimeout(function() {
+			$('#loading').show();
+			$("#loading").ajaxStart(function(){
+				$(this).show();	
+			});
+			$("#loading").ajaxStop(function(){
+				$(this).hide();
+			});
+		}, 250);
+		$(user_dialog).bind('fbuserauthorized', doFBLogin);
 		user_dialog.dialog({
 			modal: true,
 			position: 'top',
@@ -258,13 +415,16 @@ $(function() {
 			autoOpen: false,
 			buttons: 
 			{    
-				"Register:": loadRegister,
+				"Register": loadRegister,
 				"Login": loadLogin,
 				"Cancel": cancelReg
 			}
 		});
 		dialog_cont = $('#dialog #data');
-		dialog_cont.html('<h2>Please log in or register.</h2>');
+		$.get("dialog_splash.php", function(data){
+			dialog_cont.html(data);
+		});
+		//dialog_cont.html('<h2>Please log in or register.</h2>');
 		user_dialog.dialog('open');
 	}); 
 });

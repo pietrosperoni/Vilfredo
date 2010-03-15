@@ -1,24 +1,12 @@
 <?php
 
 $headcommands='
-<link type="text/css" href="widgets.css" rel="stylesheet" />
+<!-- <link type="text/css" href="widgets.css" rel="stylesheet" /> -->
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript">
-	$(function() {
-		$(".expandbtn").click(function () {	
-		     var fulltxt = $(this).siblings("div.paretoabstract");
-		      if (fulltxt.is(":hidden")) {
-		        fulltxt.slideDown("slow");
-		        $(this).text("Hide Full Text");
-		      } else {
-		        fulltxt.slideUp("slow");
-		        $(this).text("Show Full Text");
-		      }
-		    });
-	});
-</script>';
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+<script type="text/javascript" src="js/vilfredo.js"></script>';
 
 include('header.php');
 
@@ -161,11 +149,10 @@ include('header.php');
 			$has_abstract = false;
 			if (!empty($row['abstract'])) {
 				$has_abstract = true;
-				echo '<h3>Abstract</h3>';
+				echo display_view_all_link();
 				echo $row['abstract'];
 				if ($has_abstract) {
-					echo '<span class="expandbtn">Show Full Text</span>';
-					echo '<div class="clear"></div>';
+					echo display_show_full_text_link();
 				}
 			}
 			else {
@@ -179,6 +166,7 @@ include('header.php');
 				echo $row['blurb'];
 				echo '</div>';
 			}
+			echo '<br />';
 			echo '</td>';
 			
 

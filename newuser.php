@@ -1,8 +1,83 @@
 <?php
-//require_once 'vgta_init.php';
-//require_once 'lib/php_lib.php';
-//require_once 'vga_functions.php';
 require_once 'config.inc.php';
+
+function registerfbuser()
+{
+	if (!empty($_POST['usernameok']))
+	{
+		$testname = GetEscapedPostParam('usernameok');
+		$check = mysql_query("SELECT username FROM users WHERE username = '$testname'");
+		if (!$check)
+		{
+			handle_db_error($check);
+			echo 'Sorry, request timed out.';
+			exit();
+		}
+
+		$check2 = mysql_num_rows($check);
+		//if the name exists it gives an error
+		if ($check2 != 0) 
+		{
+			echo 'Already registered!';
+			exit();
+		}
+	}
+	
+	//This makes sure they did not leave any fields blank
+	$fields = "";
+	if (empty($_POST['usernameok']))
+	{
+		$fields .= " Username ";
+	}
+	
+	if (!empty($fields))
+	{
+		echo 'Required fields:' . $fields;
+		exit();
+	}
+	
+	if (validEmail($_POST['usernameok']))
+	{
+		echo "Username must not be your email";
+		exit();
+	}
+	
+	if (!empty($_POST['email'])) 
+	{
+		if (!validEmail($_POST['email']))
+		{
+			echo "Email not valid";
+			exit();
+		}
+	}
+	
+	$newuser = GetEscapedPostParam('usernameok');
+	$fbuserid = GetEscapedPostParam('fbuserid');
+	$email = GetEscapedPostParam('email');
+	
+	$insert = "INSERT INTO users (username, password, email, fb_userid) 
+	VALUES ('$newuser', '', '$email', '$fbuserid')";
+	
+	$add_member = mysql_query($insert);
+	$userid = mysql_insert_id();
+	
+	if (!$add_member)
+	{
+		handle_db_error($add_member);
+		echo "0";
+		exit();
+	}
+	
+	// Log user in
+	$userid = mysql_insert_id();
+	// start a user session
+	$_SESSION[USER_LOGIN_ID] = $userid;
+	$_SESSION[USER_LOGIN_MODE] = 'FB';
+	
+	// success
+	echo "1";
+	exit();
+}
 
 function registeruser()
 {
@@ -82,12 +157,9 @@ function registeruser()
 	if (!$add_member)
 	{
 		handle_db_error($add_member);
-		set_log("DB Error in newuser.php");
 		echo "0";
 		exit();
 	}
-	
-	set_log("User $newuser registered");
 	
 	// Log user in
 	$userid = mysql_insert_id();
@@ -140,7 +212,14 @@ switch ($action) {
 		break;
 	case 'register':
 		// Register new user
-		return registeruser();
+		if (isset($_POST['fbuserid'])) 
+		{
+			return registerfbuser();
+		}
+		else 
+		{
+			return registeruser();
+		}
 		break;
 	default:
 		return "Action not recognised.";

@@ -13,8 +13,6 @@ function login()
 	$username = GetEscapedPostParam('username');
 	$password = GetEscapedPostParam('pass');
 	
-	set_log('Logging in ' . $username . ' ' . $password);
-	
 	// checks it against the database
 	$sql = "SELECT * FROM users WHERE username = '$username'";
 	$check = mysql_query($sql);
@@ -44,8 +42,6 @@ function login()
 	}
 	else
 	{
-		// success
-		set_log('Log in successful');
 		// log user in
 		$_SESSION[USER_LOGIN_ID] = $info['id'];
 		$_SESSION[USER_LOGIN_MODE] = 'VGA';
@@ -61,7 +57,7 @@ switch ($action) {
 		echo login();
 		break;
 	case 'logout':
-		echo 'Not yet implememnted';
+		echo 'Not yet implemented';
 		break;
 	default:
 		echo "Unknown action.";

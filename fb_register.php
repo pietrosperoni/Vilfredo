@@ -1,7 +1,6 @@
 <?php
 include('header.php');
 
-#if (isloggedin())
 if ($userid)
 {
 	$redirect = getpostloginredirectlink();

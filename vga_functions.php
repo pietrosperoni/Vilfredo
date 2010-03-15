@@ -75,6 +75,32 @@ function handle_db_error($result=false)
 	}
 }
 
+
+
+function display_view_all_link() 
+{
+	return '<h3>Abstract <a href="#" class="view-all" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="view-all-label">view full text</span></a></h3>';
+}
+
+function display_show_full_text_link()
+{	
+	return '<a class="expandbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a>';
+}
+
+function display_show_full_text_link_2($str='Show Full Text...')
+{
+	$intro = 100;
+	
+	$str = strip_tags($str);
+	
+	if (empty($str)) 
+		$str = 'Show Full Text...';
+		
+	$str = substr($str, 0, $intro) . '...';
+		
+	return '<a class="expandbtn" href="#">' . $str . '</a>';
+}
+
 function set_message($message_type, $message)
 {
     $_SESSION['messages'][$message_type][] = $message;

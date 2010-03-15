@@ -32,6 +32,7 @@ ob_start();
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" />
+		<link rel="stylesheet" type="text/css" href="widgets.css" />
 		<?php 	echo $headcommands; ?>
 		<title>Vilfredo goes to Athens</title>
 	</head>
@@ -42,17 +43,6 @@ ob_start();
 // 	Load System Serttings
 require_once 'config.inc.php';
 // ******************************************
-
-$fb=new Facebook($facebook_key, $facebook_secret);
-
-/*
-	If $FACEBOOK_ID != NULL then current user is Facebook Authroized
-*/
-$FACEBOOK_ID = null;
-if (USE_FACEBOOK_CONNECT)
-{
-	$FACEBOOK_ID = get_current_facebook_userid($fb);
-}
 ?>
 
 
@@ -133,6 +123,19 @@ echo '</div>';
 	} 
 	?>
 	</ul>
+	
+
+<noscript>
+<br />
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; text-size: 1.2em;"></span> 
+		<strong>Alert: This site will not display or work properly without Javascript enabled!</strong></p>
+	</div>
+</div>
+<br />
+</noscript>
+
 
 <?php
 include_once 'update_email_form.php';

@@ -11,7 +11,7 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
-<link type="text/css" href="widgets.css" rel="stylesheet" />
+
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
@@ -146,7 +146,7 @@ You can think of it as the smallest set of proposals such that every participant
 					echo '<div class="paretoproposal">';
 					if (!empty($row3['abstract'])) {
 						$has_abstract = true;
-						echo '<h3>Abstract</h3>';
+						echo display_view_all_link();
 						echo $row3['abstract'] ;
 					}
 					else {
@@ -164,10 +164,8 @@ You can think of it as the smallest set of proposals such that every participant
 
 					if ($has_abstract)
 					{
-						echo '<span class="expandbtn">Show Full Text</span>';
+						echo display_show_full_text_link();
 					}
-
-					echo '<br />';
 
 					if ($has_abstract)
 					{
@@ -329,7 +327,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	
 	<?php 
 	if ($userid) {
-		$regclass = "";
+		$regclass = "submit_ok";
 	} else {
 		$regclass = "reg_submit";
 	}
@@ -422,7 +420,7 @@ if ($userid) {
 						/* echo '<h3>' . $row['id'] . '</h3>'; */
 						if (!empty($row['abstract'])) {
 							$has_abstract = true;
-							echo '<h3>Abstract</h3>';
+							echo display_view_all_link();
 							echo $row['abstract'] ;
 						}
 						else {
@@ -431,10 +429,8 @@ if ($userid) {
 
 						if ($has_abstract)
 						{
-							echo '<span class="expandbtn">Show Full Text</span>';
+							echo display_show_full_text_link();
 						}
-
-						echo '<br />';
 
 						if ($has_abstract)
 						{
@@ -478,9 +474,12 @@ if ($userid) {
 			?>
 			<form method="POST" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
-			<table border="1">
-			<tr><td><h4>Voting</br>History</h4></td>
-			<td><h4>Proposed Solution</h4></td><td><b>Check all the ones you endorse</b></td></tr>
+			<table border="1" class="your_endorsements">
+			<tr>
+			<td class="history_cell"><h4>Voting</br>History</h4></td>
+			<td><h4>Proposed Solution</h4></td>
+			<td class="endorse_cell"><b>Check all the ones you endorse</b></td>
+			</tr>
 
 			<?php
 
@@ -525,7 +524,7 @@ if ($userid) {
 				/* echo '<h3>' . $row['id'] . '</h3>'; */
 				if (!empty($row['abstract'])) {
 					$has_abstract = true;
-					echo '<h3>Abstract</h3>';
+					echo display_view_all_link();
 					echo $row['abstract'] ;
 				}
 				else {
@@ -534,10 +533,10 @@ if ($userid) {
 				
 				if ($has_abstract)
 				{
-					echo '<span class="expandbtn">Show Full Text</span>';
+					echo display_show_full_text_link();
 				}
 
-				echo '<br />';
+
 
 				if ($has_abstract)
 				{
@@ -565,7 +564,7 @@ if ($userid) {
 
 	<?php 
 		if ($userid) {
-			$regclass = "";
+			$regclass = "submit_ok";
 		} else {
 			$regclass = "reg_submit";
 		}

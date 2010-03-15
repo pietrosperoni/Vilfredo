@@ -10,7 +10,7 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
-<link type="text/css" href="widgets.css" rel="stylesheet" />
+<!-- <link type="text/css" href="widgets.css" rel="stylesheet" /> -->
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
@@ -133,7 +133,7 @@ Yes, this is a feature!)<br/><br/>
 
 	<?php 
 	if ($userid) {
-		$regclass = "";
+		$regclass = "submit_ok";
 	} else {
 		$regclass = "reg_submit";
 	}

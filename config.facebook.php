@@ -18,45 +18,20 @@ _HTML_;
 return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
 }
 
-/*
-<script src="fbconnect.js" type="text/javascript"></script>
-     <script type="text/javascript">window.onload = function() { facebook_onload($already_logged_in); };</script>
-     
-      FB.ensureInit(function() { 
-            check_login_status();
-            });
-          </script>
-           <script type="text/javascript">
-           function check_login_status()
-           {
-           	// detect if the user is currently logged in,
-            	session = FB.Facebook.apiClient.get_session();
-            	if (session) {
-               window.location = 'viewquestions.php'; }
-      </script>
-*/
-
-
 // Display Facebook Connect button
-function facebook_connect_button($display=true) {
+function facebook_connect_for_dialog($display=true) {
 $str = <<<_HTML_
-Or <b>login</b> with Facebook:<br/><br/>
+<fb:login-button v="2" size="medium" onlogin="update_dialog();">Or Log in with Facebook</fb:login-button>
 
-<fb:login-button v="2" size="medium">Connect with Facebook</fb:login-button>
+<script type="text/javascript">
+function update_dialog() {
+	$.event.trigger('fbuserauthorized');}
+</script>
 _HTML_;
 
 return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
 
-// Display logout link - redirect to logout page
-function facebook_logout_link($redirect, $text='Logout', $display=true) {
-$str = <<<_HTML_
-<a href="javascript:FB.Connect.logoutAndRedirect('$redirect')">$text</a>
-_HTML_;
-
-return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
-}
-//---------------------------------------------------------------------------//
 function facebook_login_button_refresh($goto, $display=true) {
 $str = <<<_HTML_
 Or <b>login</b> with Facebook:<br/><br/>
@@ -72,6 +47,15 @@ _HTML_;
 return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
 }
 
+// Display logout link - redirect to logout page
+function facebook_logout_link($redirect, $text='Logout', $display=true) {
+$str = <<<_HTML_
+<a href="javascript:FB.Connect.logoutAndRedirect('$redirect')">$text</a>
+_HTML_;
+
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+//---------------------------------------------------------------------------//
 
 function facebook_connect_button_2($display=true) {
 global $facebook_key;
@@ -128,6 +112,24 @@ _HTML_;
 
 return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
+
+/*
+<script src="fbconnect.js" type="text/javascript"></script>
+     <script type="text/javascript">window.onload = function() { facebook_onload($already_logged_in); };</script>
+     
+      FB.ensureInit(function() { 
+            check_login_status();
+            });
+          </script>
+           <script type="text/javascript">
+           function check_login_status()
+           {
+           	// detect if the user is currently logged in,
+            	session = FB.Facebook.apiClient.get_session();
+            	if (session) {
+               window.location = 'viewquestions.php'; }
+      </script>
+*/
 
 function facebook_dummy($display=true) {
 $str = <<<_HTML_
