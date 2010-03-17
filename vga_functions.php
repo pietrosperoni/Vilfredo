@@ -2143,14 +2143,21 @@ function SelectParetoFront($question)
 			if (!get_magic_quotes_gpc())
 			{
 				$blurb = addslashes($row[1]);
+				$abstract = addslashes($row['abstract']);
 			}
 			else
 			{
 				$blurb = $row[1];
+				$abstract = $row['abstract'];
 			}
 
-			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime` ) VALUES (\'' . $blurb . '\', \'' . $row[2] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW());';
-			mysql_query($sql);
+			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) VALUES (\'' . $blurb . '\', \'' . $row[2] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\');';
+			
+			$add_proposal_to_nextgen = mysql_query($sql);
+			if (!$add_proposal_to_nextgen)
+			{
+				handle_db_error($add_proposal_to_nextgen);
+			}
 		}
 	}
 }
