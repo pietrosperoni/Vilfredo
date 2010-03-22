@@ -1,5 +1,4 @@
 <?php
-$twitter = true;
 $language="enus";
 include_once("js/jquery/RichTextEditor/locale/".$language.".php");
 function getLabel($key,$language){
@@ -116,7 +115,7 @@ if ($userid) {
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			
-			if ($twitter)
+			if (!defined('USE_TWIT_THIS') or ( defined('USE_TWIT_THIS') and USE_TWIT_THIS))
 			{
 				// Add retweet button
 				$twitter_title = htmlentities($title);
@@ -142,17 +141,24 @@ You can think of it as the smallest set of proposals such that every participant
 				$response3 = mysql_query($sql3);
 				while ($row3 = mysql_fetch_array($response3))
 				{
-					$has_abstract = false;
 					echo '<div class="paretoproposal">';
 					if (!empty($row3['abstract'])) {
-						$has_abstract = true;
-						echo display_view_all_link();
+						echo '<div class="paretoabstract">';
+						echo display_fulltext_link();
+						echo '<h3>Proposal Abstract</h3>';
 						echo $row3['abstract'] ;
+						echo '</div>';
+						echo '<div class="paretotext">';
+						echo '<h3>Proposal</h3>';
+						echo $row3['blurb'];
+						echo '</div>';
 					}
 					else {
+						echo '<div class="paretofulltext">';
+						echo '<h3>Proposal</h3>';
 						echo $row3['blurb'] ;
+						echo '</div>';
 					}
-
 
 					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
 					$response4 = mysql_query($sql4);
@@ -161,24 +167,7 @@ You can think of it as the smallest set of proposals such that every participant
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
 					}
-
-					if ($has_abstract)
-					{
-						echo display_show_full_text_link();
-					}
-
-					if ($has_abstract)
-					{
-						echo '<div class="paretoabstract">';
-						echo '<h3>Full Text</h3>';
-						echo $row3['blurb'];
-						echo '</div>';
-					}
-
 					echo '</div>';
-
-
-
 				}
 			}
 
@@ -405,56 +394,43 @@ if ($userid) {
 		$response = mysql_query($sql);
 		if ($response)
 		{
+			//****
 			echo "<h3>Proposals You have written:</h3>";
-			echo '<table border="1" class="your_proposals">';
+			echo '<table class="your_proposals userproposal">';
 			while ($row = mysql_fetch_array($response))
 			{
+				echo '<tr><td>';
+				echo '<div class="paretoproposal">';
+				if (!empty($row['abstract'])) {
+					echo '<div class="paretoabstract">';
+					echo display_fulltext_link();
+					echo '<h3>Proposal Abstract</h3>';
+					echo $row['abstract'] ;
+					echo '</div>';
+					echo '<div class="paretotext">';
+					echo '<h3>Proposal</h3>';
+					echo $row['blurb'];
+					echo '</div>';
+				}
+				else {
+					echo '<div class="paretofulltext">';
+					echo '<h3>Proposal</h3>';
+					echo $row['blurb'] ;
+					echo '</div>';
+				}
+				echo '</div>';
+				echo '</td><td class="button_cell">';
 				?>
-						<tr>
-						
-						<?php
-						
-						
-						$has_abstract = false;
-						echo '<td>';
-						/* echo '<h3>' . $row['id'] . '</h3>'; */
-						if (!empty($row['abstract'])) {
-							$has_abstract = true;
-							echo display_view_all_link();
-							echo $row['abstract'] ;
-						}
-						else {
-							echo $row['blurb'] ;
-						}
-
-						if ($has_abstract)
-						{
-							echo display_show_full_text_link();
-						}
-
-						if ($has_abstract)
-						{
-							echo '<div class="paretoabstract">';
-							echo '<h3>Full Text</h3>';
-							echo $row['blurb'];
-							echo '</div>';
-						}
-						
-						echo '</td>';
-	
-						?>
-
-						<td class="button_cell">
-							<form method="POST" action="deleteproposal.php">
-								<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-								<input type="submit" name="submit" id="submit" value="Edit or Delete" />
-							</form>
-						</td>
-						</tr>
+				
+				<form method="POST" action="deleteproposal.php">
+					<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+					<input type="submit" name="submit" id="submit" value="Edit or Delete" title="Click here to edit or delete your proposal"/>
+				</form>
+				
 				<?php
+				echo '</td></tr>';
 			}
 			echo '</table>';
-
 		}
 		else
 		{
@@ -474,7 +450,7 @@ if ($userid) {
 			?>
 			<form method="POST" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
-			<table border="1" class="your_endorsements">
+			<table border="1" class="your_endorsements userproposal">
 			<tr>
 			<td class="history_cell"><h4>Voting</br>History</h4></td>
 			<td><h4>Proposed Solution</h4></td>
@@ -521,31 +497,25 @@ if ($userid) {
 				
 				$has_abstract = false;
 				echo '<td>';
-				/* echo '<h3>' . $row['id'] . '</h3>'; */
+				echo '<div class="paretoproposal">';
 				if (!empty($row['abstract'])) {
-					$has_abstract = true;
-					echo display_view_all_link();
-					echo $row['abstract'] ;
-				}
-				else {
-					echo $row['blurb'] ;
-				}
-				
-				if ($has_abstract)
-				{
-					echo display_show_full_text_link();
-				}
-
-
-
-				if ($has_abstract)
-				{
 					echo '<div class="paretoabstract">';
-					echo '<h3>Full Text</h3>';
+					echo display_fulltext_link();
+					echo '<h3>Proposal Abstract</h3>';
+					echo $row['abstract'] ;
+					echo '</div>';
+					echo '<div class="paretotext">';
+					echo '<h3>Proposal</h3>';
 					echo $row['blurb'];
 					echo '</div>';
 				}
-				
+				else {
+					echo '<div class="paretofulltext">';
+					echo '<h3>Proposal</h3>';
+					echo $row['blurb'] ;
+					echo '</div>';
+				}
+				echo '</div>';
 				echo '</td><td>';
 				
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';

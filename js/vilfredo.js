@@ -10,31 +10,60 @@ $(function() {
 		function() { $(this).removeClass('view-all-hover'); }
 	);
 	
-	$(".view-all").click(function (e) {
-	    e.preventDefault();
-	    var fulltxt = $(this).parent().siblings("div.paretoabstract");
-	    var expandbtn = $(this).parent().siblings("a.expandbtn");
-	    var expandbtnlabel = $(this).parent().siblings("a.expandbtn").find('.show-full-label');
-	    var label = $(this).find('.view-all-label');
+	$(".viewall").hover(
+		function() { $(this).addClass('viewall-hover'); },
+		function() { $(this).removeClass('viewall-hover'); }
+	);
+	
+	
+	$(".expandabstract").hover(
+		function() { $(this).addClass('expandabstract-hover'); },
+		function() { $(this).removeClass('expandabstract-hover'); }
+	);
+	
+	$(".expandabstract").click(function (e) {
+	    var label = $(this).find('.show-full-label');
+	    var fulltxt = $(this).parent().siblings("div.paretotext");
+	    var expandbtn = $(this).parents('.paretoabstract').siblings("a.expandbtn");
+	    var expandbtnlabel = $(this).parents('.paretoabstract').siblings("a.expandbtn").find('.show-full-label');
 	    if (fulltxt.is(":hidden")) {
 			fulltxt.slideDown("slow");
-			label.text("show abstract only");
+			label.text("Hide Full Text");
 			// expand button
 			expandbtn.addClass('expandbtn-open');
 			expandbtnlabel.text("Hide Full Text");
 	    } 
 	    else {
 		fulltxt.slideUp("slow");
-		label.text("view full text");
+		label.text("View Full Text");
 		// expand button
 		expandbtn.removeClass('expandbtn-open');
 		expandbtnlabel.text("View Full Text");
-	   }
+	    }
+	});
+	
+	$(".viewall").click(function (e) {
+		    e.preventDefault();
+		    var fulltxt = $(this).parent().siblings("div.paretotext");
+		    var label = $(this).find('.viewall-label');
+		    var bg = $(this).parents('.paretocell');
+		    if (fulltxt.is(":hidden")) {
+				fulltxt.slideDown("slow");
+				label.text("show abstract only");
+				//bg.css('background-color', '#D0F5A9');
+				bg.addClass('fulltext');
+		    } 
+		    else {
+			fulltxt.slideUp("slow");
+			label.text("view full text");
+			//bg.css('background-color', '#FFFFFF');
+			bg.removeClass('fulltext');
+		   }
 	});
 
 	$(".expandbtn").click(function (e) {
 	    e.preventDefault();
-	    var fulltxt = $(this).siblings("div.paretoabstract");
+	    var fulltxt = $(this).siblings("div.paretotext");
 	    var viewallbtn = $(this).siblings("h3").find("span.view-all-label");
 	    var label = $(this).find('.show-full-label');
 	    if (fulltxt.is(":hidden")) {
@@ -56,6 +85,11 @@ $(function() {
 	$(".expandbtn").hover(
 		function() { $(this).addClass('expandbtn-hover'); },
 		function() { $(this).removeClass('expandbtn-hover'); }
+	);
+	
+	$(".paretoabstractfulltextlink").hover(
+		function() { $(this).addClass('paretoabstractfulltextlink-hover'); },
+		function() { $(this).removeClass('paretoabstractfulltextlink-hover'); }
 	);
 	    
 	/*

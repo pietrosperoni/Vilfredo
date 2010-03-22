@@ -75,16 +75,44 @@ function handle_db_error($result=false)
 	}
 }
 
-
+function display_viewall_link() 
+{
+	return '<h3>Abstract <a href="#" class="viewall" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="viewall-label">view full text</span></a></h3>';
+}
 
 function display_view_all_link() 
 {
-	return '<h3>Abstract <a href="#" class="view-all" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="view-all-label">view full text</span></a></h3>';
+	return '<h3>Abstract</h3>';
+	//return '<h3>Abstract <a href="#" class="view-all" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="view-all-label">view full text</span></a></h3>';
 }
 
 function display_show_full_text_link()
 {	
+	//return '';
 	return '<a class="expandbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a>';
+}
+
+function display_fulltext_link()
+{	
+	return '<span class="expandabstract" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></span>';
+}
+
+function display_editproposal_link2()
+{	
+	return '<span class="editproposal" title="Click here to edit or delete your proposal"><span class="label">Edit or Delete</span></span>';
+}
+
+function display_editproposal_link()
+{	
+	return '<span class="editproposal" title="Click here to edit or delete your proposal"><form method="POST" action="deleteproposal.php">
+	<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+	<input type="submit" name="submit" id="submit" value="Edit or Delete" />
+</form></span>';
+}
+
+function display_fulltext_link2()
+{	
+	return '<span class="paretoabstractfulltextlink"><a class="expandabstractbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a></span>';
 }
 
 function display_show_full_text_link_2($str='Show Full Text...')

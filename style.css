@@ -90,7 +90,7 @@ p.newproposal {
 }
 
 #actionbox,#recentproposal,#recentvoting {
-	background-color:#F6E3CE;
+	background-color:#F9DFC5;
 	padding-bottom:8px;
 }
 
@@ -121,6 +121,19 @@ input[type=text].title {
 
 table.your_proposals  {
 	width: 100%;
+}
+
+table.historytable {
+	width: 100%;
+}
+
+td.paretocell {
+	width: 50%;
+}
+
+.paretocell .paretotext {
+	margin:0;
+	padding: 0;
 }
 
 td.button_cell {
@@ -247,38 +260,224 @@ h1 img {
 }
 
 #paretofrontbox {
-	background-color:#D0F5A9;
+	background-color:#C8F2AD; 
 	border:1px solid #B45F04;
 	padding:3px 15px 3px 15px;
 	margin:3px 3px 15px 3px;
 }
 
+/*
+Green
+C8F2AD
+D0F5A9
+E5F4AB
+
+Sand
+EFDCCE
+F6E3CE
+F7E7D7
+*/
+
+div.userproposal {
+	position: relative;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
 div.paretoproposal {
-	padding-bottom: 10px;
-	border-bottom:1px solid #B45F04;
+	background-color: #D0F5A9;
+	position: relative;
+	border: 1px solid #B45F04; 
+	margin-bottom: 10px;
+	padding: 10px;
 }
 
-div.paretoproposal:last-child {
-	border-bottom: none;
-}
-
-div.paretoabstract {
-	display: none;
-	background-color: #F6E3CE;
-	width: 96%;
-	padding: 1em;
+.paretoproposal h3 {
 	margin-top: 0;
 }
 
-td div.paretoabstract {
+/* div.userproposal div.paretoproposal{
+	width: 85%;
+} */
+
+/*
+	paretoabstract *********************************
+*/
+div.paretoabstract {
+	position: relative;
+	background-color: #E5F4AB; 
+	margin: 5px;
+	padding: 10px;
+	border: 1px solid #BAE38F;
+}
+
+/***
+/*
+	editproposal start **********
+*/
+span.editproposal {
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	margin: 2px;
+	font-size: .9em;
+	font-weight: bold;
+	/* border-left: 1px solid #B45F04;
+	border-bottom: 1px solid #B45F04; */
+	top: 40%;
+	right: 0px;
+}
+
+span.editproposal * {
+	padding: 0;
+	margin: 0;
+}
+
+span.editproposal-hover {
+	color: #993300;
+	background-color: white;
+	cursor: pointer;
+}
+
+.editproposal img {
+	border: none;
+	margin-bottom: -8px;
+}
+/*
+	editproposal end **********
+*/
+/***
+/*
+	expandabstract start **********
+*/
+span.expandabstract {
+	position: absolute;
+	padding: 5px;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 0;
+	border-left: 1px solid #BAE38F;
+	border-bottom: 1px solid #BAE38F;
+	top: 0px;
+	right: 0px;
+}
+
+span.expandabstract-hover, span.expandabstract-open.expandabstract-hover {
+	color: #993300;
+	background-color: white;
+	cursor: pointer;
+}
+
+.expandabstract img {
+	border: none;
+	margin-bottom: -8px;
+}
+/*
+	expandabstract end **********
+*/
+/*
+	paretoabstractfulltextlink start **********
+*/
+span.paretoabstractfulltextlink {
+	position: absolute;
+	background-color: #F6E3CE;
+	padding: 5px;
+	margin: 0;
+	border-left: 1px solid #B45F04;
+	border-bottom: 1px solid #B45F04;
+	top: 0px;
+	right: 0px;
+}
+
+span.paretoabstractfulltextlink-hover, span.paretoabstractfulltextlink-open.paretoabstractfulltextlink-hover {
+	color: #993300;
+	background-color: white;
+	cursor: pointer;
+}
+/*
+	paretoabstractfulltextlink end **********
+*/
+
+/*
+	expandabstractbtn start **********
+*/
+a.expandabstractbtn {
+	text-decoration: none;
+	color: #000000;
+	font-size: 1.1em;
+	font-weight: bold;
+	padding: 0;
+	margin: 0;
+	display: block;
+}
+
+a.expandabstractbtn-hover, a.expandbtn-open.expandabstractbtn-hover {
+	color: #993300;
+	background-color: white;
+	cursor: pointer;
+}
+
+a.expandabstractbtn-open {
+	background-color: #F6E3CE;
+}
+
+a.expandabstractbtn span {
+	font-size: .9em;
+}
+
+a.expandabstractbtn img {
+	border: none;
+	margin-bottom: -8px;
+}
+/*
+	expandabstractbtn end **********
+*/
+
+div.paretotext {
+	display: none;
+	/* width: 96%; */
+	padding: 1em;
+	/* margin-top: 0; */
+}
+
+div.paretofulltext {
+	width: 96%;
+	padding: 1em;
+	padding-top:0;
+	margin-top: 0;
+}
+
+/* td div.paretotext {
 	display: none;
 	background-color: #F6E3CE;
 	width: 100%;
 	padding: 0;
 	margin-top: 0;
+} */
+
+.paretocell.fulltext {
+	background-color: #D0F5A9;
 }
 
-a.view-all {
+a.viewall {
+	font-size: .6em;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 3px;
+	color: #000000;
+}
+
+a.viewall-hover {
+	background-color: #F6E3CE;
+}
+
+a.viewall img {
+	border: none;
+	margin-bottom: -5px;
+}
+
+a.viewall {
 	font-size: .6em;
 	font-weight: bold;
 	text-decoration: none;
@@ -326,13 +525,56 @@ a.expandbtn span {
 	font-size: .9em;
 }
 
+.paretocell .paretoabstract {
+	background-color: #E4E4F9;
+	border: 1px solid #CCCCFF;
+}
+
+.paretocell span.expandabstract {
+	border-left: 1px solid #CCCCFF;
+	border-bottom: 1px solid #CCCCFF;
+}
+
+.paretocell .paretoproposal{
+	background-color: #DFDFF4;
+	margin-bottom: 0;
+	border: none;
+}
+
+/*
+	userproposal class **************
+*/
+.userproposal .paretoabstract {
+	background-color: #F7E7D7;
+	border: 1px solid #EAD7CA;
+}
+
+.userproposal span.expandabstract {
+	border-left: 1px solid #EAD7CA;
+	border-bottom: 1px solid #EAD7CA;
+}
+
+.userproposal .expandabstract {
+	border-left: 1px solid #F6E3CE;
+	border-bottom: 1px solid #F6E3CE;
+}
+
+.userproposal .paretoproposal{
+	background-color: #F6E3CE;
+}
+
+.your_endorsements .paretoproposal {
+	margin-bottom: 0;
+	border: none;
+}
+
 hr.pareto {
 	color: #B45F04;
 }
 
 #historybox {
-	padding:3px 15px 3px 15px;
-	margin:3px 3px 15px 3px;
+	padding:3px;
+	margin:3px;
 	border:1px solid #ffffff;
 }
 

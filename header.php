@@ -32,6 +32,9 @@ ob_start();
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" />
+		<!--[if IE 6]>
+		<link rel="stylesheet" type="text/css" href="css/ie-sucks.css" media="screen, print" />
+		<![endif]-->
 		<link rel="stylesheet" type="text/css" href="widgets.css" />
 		<?php 	echo $headcommands; ?>
 		<title>Vilfredo goes to Athens</title>

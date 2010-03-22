@@ -62,7 +62,7 @@ include('header.php');
 	if ($response)
 	{
 		echo '<div id="historybox">';
-		echo '<table border="1">';
+		echo '<table border="1" class="historytable">';
 		echo '<tr><td>link</td><td><strong>Proposal</strong></td><td><strong>Author</strong></td><td><strong>Endorsers</strong></td><td><strong>Result</strong></td><td><strong>You</strong></td></tr>';
 		$genshowing=$generation;
 		while ($row = mysql_fetch_array($response))
@@ -145,14 +145,37 @@ include('header.php');
 			
 			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
 			
-			echo '<td>';
+			echo '<td class="paretocell">';
+			//***
+			//
+			echo '<div class="paretoproposal">';
+			if (!empty($row['abstract'])) {
+				echo '<div class="paretoabstract">';
+				echo display_fulltext_link();
+				echo '<h3>Proposal Abstract</h3>';
+				echo $row['abstract'] ;
+				echo '</div>';
+				echo '<div class="paretotext">';
+				echo '<h3>Proposal</h3>';
+				echo $row['blurb'];
+				echo '</div>';
+			}
+			else {
+				echo '<div class="paretofulltext">';
+				echo '<h3>Proposal</h3>';
+				echo $row['blurb'] ;
+				echo '</div>';
+			}
+			echo '</div>';
+			//
+			//***
+			/*
 			$has_abstract = false;
 			if (!empty($row['abstract'])) {
 				$has_abstract = true;
-				echo display_view_all_link();
+				echo display_viewall_link();
 				echo $row['abstract'];
 				if ($has_abstract) {
-					echo display_show_full_text_link();
 				}
 			}
 			else {
@@ -161,12 +184,14 @@ include('header.php');
 			
 			if ($has_abstract)
 			{
-				echo '<div class="paretoabstract">';
-				echo '<h3>Full Text</h3>';
+				echo '<div class="paretotext">';
+				echo '<h3>Proposal</h3>';
 				echo $row['blurb'];
 				echo '</div>';
 			}
 			echo '<br />';
+			*/
+			//****
 			echo '</td>';
 			
 
