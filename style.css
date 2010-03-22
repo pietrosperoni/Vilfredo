@@ -545,13 +545,13 @@ a.expandbtn span {
 	userproposal class **************
 */
 .userproposal .paretoabstract {
-	background-color: #F7E7D7;
-	border: 1px solid #EAD7CA;
+	background-color: #F7E8DC;
+	border: 1px solid #EDCAB2;
 }
 
 .userproposal span.expandabstract {
-	border-left: 1px solid #EAD7CA;
-	border-bottom: 1px solid #EAD7CA;
+	border-left: 1px solid #EDCAB2;;
+	border-bottom: 1px solid #EDCAB2;;
 }
 
 .userproposal .expandabstract {
