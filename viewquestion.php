@@ -481,12 +481,12 @@ if ($userid) {
 						elseif ($ancestor['endorsed'] == 1)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsup.jpg" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30">';
+							echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30">';
 						}
 						elseif ($ancestor['endorsed'] == 0)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30">';
+							echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30">';
 						}
 						echo '</br>';
 					}

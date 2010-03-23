@@ -48,7 +48,7 @@ include('header.php');
 		}
 
 #		echo '<div id="actionbox">';
-		echo "<h3>Current Generation: ".$generation." </h3>";
+		echo "Current Generation: ".$generation." ";
 		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >Question Page</a>';
 #		echo '</div>';
 	}
@@ -63,14 +63,15 @@ include('header.php');
 	{
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
-		echo '<tr><td>link</td><td><strong>Proposal</strong></td><td><strong>Author</strong></td><td><strong>Endorsers</strong></td><td><strong>Result</strong></td><td><strong>You</strong></td></tr>';
+		echo '<tr><th>link</th><th><strong>Proposal</strong></th><th><strong>Author</strong></th><th><strong>Endorsers</strong></th><th><strong>Result</strong></th><th><strong>You</strong></th></tr>';
 		$genshowing=$generation;
+		$i = 0;
 		while ($row = mysql_fetch_array($response))
 		{
 			if ($row[3]!=$genshowing)
 			{
 				$genshowing=$row[3];
-				echo '<tr><td colspan="2"><h4> Generation '.$genshowing.' ';
+				echo '<tr><td colspan="2" class="genhist"><h3> Generation '.$genshowing.' ';
 				$proposers=AuthorsOfNewProposals($question,$genshowing);
 #				echo "Proposers:";
 #				foreach ($proposers as $p)
@@ -113,7 +114,7 @@ include('header.php');
 
 				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
 
-				echo '</h4></td> <td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
+				echo '</h3></td> <td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
 #				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
 #				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
@@ -143,6 +144,7 @@ include('header.php');
 			
 			$urlquery = CreateProposalURL($row[0], $room);
 			
+			echo '<tr class="paretorow">';
 			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
 			
 			echo '<td class="paretocell">';
@@ -224,11 +226,11 @@ include('header.php');
 
 			if($row[6])
 			{
-				echo '<img src="images/thumbsdown.jpg" title="The community rejected this proposal" height="45">';
+				echo '<img src="images/thumbsdown.gif" title="The community rejected this proposal" height="45">';
 			}
 			else
 			{
-				echo '<img src="images/thumbsup.jpg" title="The community accepted this proposal"  height="48">';
+				echo '<img src="images/thumbsup.gif" title="The community accepted this proposal"  height="48">';
 			}
 			echo '</td>';
 			echo '<td>';
@@ -237,11 +239,11 @@ include('header.php');
 			{
 				if($Endorsed)
 				{
-					echo ' <img src="images/thumbsup.jpg" title="You endorsed this proposal"  height="28">';
+					echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal"  height="28">';
 				}
 				else
 				{
-					echo ' <img src="images/thumbsdown.jpg" title="You ignored this proposal" height="25">';
+					echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal" height="25">';
 				}
 				echo '<a title="results are not consistent, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
 			}

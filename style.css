@@ -127,6 +127,18 @@ table.historytable {
 	width: 100%;
 }
 
+table.historytable td.genhist {
+	text-align: center;
+	font-size: 1.2em;
+	background-color: #9999FF;
+	color: #FFFFFF;
+}
+
+table.historytable th {
+	background-color: #9999FF;
+	color: #FFFFFF;
+}
+
 td.paretocell {
 	width: 50%;
 }
@@ -539,6 +551,25 @@ a.expandbtn span {
 	background-color: #DFDFF4;
 	margin-bottom: 0;
 	border: none;
+}
+
+tr.even {
+	background-color: #DFDFF4;
+}
+tr.odd {
+	background-color: #D3D3E5;
+}
+
+tr.even .paretocell .paretoproposal{
+	background-color: #DFDFF4;
+}
+
+tr.odd .paretocell .paretoproposal{
+	background-color: #DADAEA;
+}
+
+tr.paretorow {
+	background-color: #DFDFF4;
 }
 
 /*
