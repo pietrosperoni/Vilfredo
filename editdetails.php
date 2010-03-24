@@ -6,11 +6,11 @@ if ($userid)
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
-
 		if ($_POST['email'] ) 
 		{
-		
-			$EmailIsValid=validEmail($_POST['email']);
+			$emailstr = strip_tags($_POST['email']);
+			
+			$EmailIsValid=validEmail($emailstr);
 			if (!$EmailIsValid)
 			{
 				die('The Email address you inserted is not a valid email address.');
@@ -18,9 +18,9 @@ if ($userid)
 		
 			if (!get_magic_quotes_gpc()) 
 			{
-				$_POST['email'] = addslashes($_POST['email']);
+				$emailstr = addslashes($emailstr);
 			}
-			$email=$_POST['email'];
+			$email=$emailstr;
 			$sql = "UPDATE `users` SET `email` = '".$email."'  WHERE `users`.`id` = ".$userid." ";
 			mysql_query($sql);
 		}

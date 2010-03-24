@@ -3,28 +3,32 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
+	$minimumtime=(int)$_POST['minimumtime'];
+	$maximumtime=(int)$_POST['maximumtime'];
 
-$minimumtime=(int)$_POST['minimumtime'];
-$maximumtime=(int)$_POST['maximumtime'];
+	// Equals empty string if field lift blank
+	$room = '';
+	// Alpha-numeric characters and underscores only.
+	$room = FormatRoomId($_POST['room_id']);
 
-// Equals empty string if field lift blank
-$room = '';
-// Alpha-numeric characters and underscores only.
-$room = FormatRoomId($_POST['room_id']);
-    
-
+	$title = strip_tags($_POST['title']);
+	
 	if (!get_magic_quotes_gpc())
 	{
 		$blurb = addslashes($_POST['question']);
-		$title = addslashes($_POST['title']);
+		$title = addslashes($title);
 	}
 	else
 	{
 		$blurb = $_POST['question'];
-		$title = $_POST['title'];
 	}
-#	$blurb=nl2br($blurb);
 
+	//*** Filter user HTML input
+	$htmlpurifierconfig = HTMLPurifier_Config::createDefault();
+	$htmlpurifierconfig->set('HTML', 'Doctype', 'HTML 4.01 Transitional');
+	$htmlpurifier = new HTMLPurifier($htmlpurifierconfig);
+
+	$blurb = $htmlpurifier->purify($blurb);
 
 	if($blurb and $title)
 	{

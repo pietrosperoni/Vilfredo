@@ -5,7 +5,6 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
-	
 	$blurb = $_POST['blurb'];
 	$abstract = $_POST['abstract'];
 	
@@ -17,6 +16,17 @@ if ($userid)
 		$blurb = addslashes($blurb);
 		$abstract = addslashes($abstract);
 	}
+	
+	//*** Filter user input
+	$config = HTMLPurifier_Config::createDefault();
+	$config->set('HTML', 'Doctype', 'HTML 4.01 Transitional');
+	$purifier = new HTMLPurifier($config);
+	
+	$xsstest= '<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT> <p>Hi there from the XSS Test. Is it safe?</p>';
+	
+	$abstract = $purifier->purify($abstract);
+	$blurb = $purifier->purify($blurb);
+	//***
 
 	$question = $_POST['question'];
 

@@ -7,9 +7,9 @@ function getLabel($key,$language){
 }
 
 $headcommands='
-<link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
-<link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
-<link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
+<link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
+<link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
+<link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
 
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
@@ -88,7 +88,7 @@ if ($userid) {
 
 		?>
 			<h2 id="question">
-			<form method="POST" action="changeupdate.php">
+			<form method="post" action="changeupdate.php">
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
 			<?php
@@ -223,7 +223,7 @@ try to write a proposal that represent an acceptable compromise between differen
 			if (CountProposals($question,$generation)>1)
 			{
 				?>
-					<form method="POST" action="moveontoendorse.php">
+					<form method="post" action="moveontoendorse.php">
 					If everybody has written their proposals, you can:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
@@ -236,7 +236,7 @@ try to write a proposal that represent an acceptable compromise between differen
 			if (CountProposals($question,$generation))
 			{
 				?>
-					<form method="POST" action="moveontoendorse.php">
+					<form method="post" action="moveontoendorse.php">
 					If everybody has written their proposals, you can:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
@@ -259,7 +259,7 @@ try to write a proposal that represent an acceptable compromise between differen
 		if ($userid and $nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
 		{
 			?>
-			<form method="POST" action="moveontowriting.php">
+			<form method="post" action="moveontowriting.php">
 			If everybody has endorsed the proposals they wanted to endorse, you can:
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
@@ -289,9 +289,9 @@ try to write a proposal that represent an acceptable compromise between differen
 	<?php 
 		if ($userid) {//open 
 		?>
-		<form method="POST" action="newproposaltake.php">
+		<form method="post" action="newproposaltake.php">
 		<?php } else { ?>
-		<form method="POST" action="newproposaltake.php" class="reg-only">
+		<form method="post" action="newproposaltake.php" class="reg-only">
 	<?php } ?>
 
 	<div id="editor_panel">
@@ -422,7 +422,7 @@ if ($userid) {
 				echo '</td><td class="button_cell">';
 				?>
 				
-				<form method="POST" action="deleteproposal.php">
+				<form method="post" action="deleteproposal.php">
 					<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
 					<input type="submit" name="submit" id="submit" value="Edit or Delete" title="Click here to edit or delete your proposal"/>
 				</form>
@@ -448,7 +448,7 @@ if ($userid) {
 		{
 			echo "<h3>Proposals:</h3>";
 			?>
-			<form method="POST" action="endorse_or_not.php">
+			<form method="post" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1" class="your_endorsements userproposal">
 			<tr>
@@ -476,17 +476,17 @@ if ($userid) {
 						{
 							#echo "<span>" . $ancestor[generation] . "</span>";
 							#echo ' <img src="images/novote.jpg" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
-							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
+							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30" alt="empty tick box">';
 						}
 						elseif ($ancestor['endorsed'] == 1)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30">';
+							echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30" alt="thumbs up">';
 						}
 						elseif ($ancestor['endorsed'] == 0)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30">';
+							echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30" alt="thumbs down">';
 						}
 						echo '</br>';
 					}

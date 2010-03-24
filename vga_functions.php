@@ -500,6 +500,7 @@ function FormatRoomId($room)
 	if (!empty($room))
 	{
 		$room = trim($room);
+		$room = strip_tags($room);
 		$room = ereg_replace("[^A-Za-z0-9_[:space:]]", "", $room );
 		$room = str_replace(" ", "_", $room);
 	}

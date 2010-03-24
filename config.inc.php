@@ -9,6 +9,7 @@ require_once 'process_input.php';
 require_once 'graphs.php';
 require_once 'vga_functions.php';
 include_once 'lib/php_lib.php';
+require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
 
 // Start session for login and redirects
 session_start();

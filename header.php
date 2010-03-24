@@ -27,15 +27,17 @@
 // Start output buffer
 ob_start();
 ?>
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
 
-		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" />
-		<!--[if IE 6]>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" >
+		<!--[if IE]>
 		<link rel="stylesheet" type="text/css" href="css/ie-sucks.css" media="screen, print" />
 		<![endif]-->
-		<link rel="stylesheet" type="text/css" href="widgets.css" />
+		<link rel="stylesheet" type="text/css" href="widgets.css">
 		<?php 	echo $headcommands; ?>
 		<title>Vilfredo goes to Athens</title>
 	</head>
@@ -63,10 +65,10 @@ if ($userid)
 ?>
 	<div id="header">
 
-	<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto"><img src="images/pareto.png" id="paretoimg" /></a>
-	<img src="images/athens.png" id="athens" />
+	<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto"><img src="images/pareto.png" id="paretoimg" alt="Illustration of Pereto"/></a>
+	<img src="images/athens.png" id="athens" alt="Illustration of the Greek forum"/>
 
-		<h1><img src="images/titleimg.png" alt="Vilfredo goes to Athens" /></h1>
+		<h1><img src="images/titleimg.png" alt="Vilfredo goes to Athens" alt="Vilfredo goes to Athens"/></h1>
 
 		<ul class="nav" id="top-nav">
 			<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
@@ -86,8 +88,8 @@ else
 ?>
 	<div id="header">
 
-		<img src="images/pareto.png" id="paretoimg" />
-		<img src="images/athens.png" id="athens" />
+		<img src="images/pareto.png" id="paretoimg" alt="Illustration of Pereto"/>
+		<img src="images/athens.png" id="athens" alt="Illustration of the Greek forum"/>
 
 		<h1><img src="images/titleimg.png" alt="Vilfredo goes to Athens" /></h1>
 
@@ -106,7 +108,7 @@ echo '</div>';
 
 <form method="GET" action="viewquestions.php">
 	<strong>Room:</strong>
-	<input name="room" id="roomid" type="text" size="22" maxlength="20" value="Vilfredo"/>
+	<input name="room" id="room" type="text" size="22" maxlength="20" value="Vilfredo"/>
 	<input type="submit" id="submit" value="Go!" />
 </form>
 <ul class="nav">
