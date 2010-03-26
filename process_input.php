@@ -97,12 +97,15 @@ function login_user()
 	}
 	
 	// checks it against the database
-	$check = mysql_query("SELECT * FROM users WHERE username = '".$_POST['username']."'");
+	$sql = "SELECT * FROM users WHERE username = '".$_POST['username']."'";
+	$check = mysql_query($sql);
+	
+	//set_log($sql);
 	
 	if (!$check)
 	{
 		handle_db_error($check);
-		set_message("error", "System error");
+		set_message("error", "Sorry, could not log you in at the moment");
 		return false;
 	}
 

@@ -123,7 +123,6 @@ $(function() {
 	
 	var doLogin = function() {
 		info = $("#login form").serialize();
-		info += "&action=login";
 		$.ajax({
 			type: "POST",
 			url: "loginuser.php",
@@ -132,26 +131,19 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
-				if (status != 'success')
+				if (response == '0')
 				{
-					$('#msg').css('color', 'red').html(status);
+					$('#msg').css('color', 'blue').html('Sorry, login failed.');
+				}
+				else if (response == '1')
+				{
+					$("#login form").fadeOut(250);
+					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					user_dialog.dialog('option', welcomeOptions);
 				}
 				else
 				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, login failed.');
-					}
-					else if (response == '1')
-					{
-						$("#login form").fadeOut(250);
-						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
-						user_dialog.dialog('option', welcomeOptions);
-					}
-					else
-					{
-						$('#msg').css('color', 'blue').html(response);
-					}
+					$('#msg').css('color', 'blue').html(response);
 				}
 			}
 		});
@@ -167,30 +159,23 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
-				if (status != 'success')
+				if (response == '0')
 				{
-					$('#msg').css('color', 'red').html(status);
+					$('#msg').css('color', 'blue').html('Sorry, connect failed.');
+				}
+				else if (response == '1')
+				{
+					$("#connect").fadeOut(250);
+					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					user_dialog.dialog('option', welcomeOptions);
+				}
+				else if (response == '2')
+				{
+					$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
 				}
 				else
 				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, connect failed.');
-					}
-					else if (response == '1')
-					{
-						$("#connect").fadeOut(250);
-						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
-						user_dialog.dialog('option', welcomeOptions);
-					}
-					else if (response == '2')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
-					}
-					else
-					{
-						$('#msg').css('color', 'blue').html(response);
-					}
+					$('#msg').css('color', 'blue').html(response);
 				}
 			}
 		});
@@ -207,33 +192,26 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
-				if (status != 'success')
+				if (response == '0')
 				{
-					$('#msg').css('color', 'red').html(status);
+					$('#msg').css('color', 'blue').html('Sorry, could not register you at thie time.');
+				}
+				else if (response == '1')
+				{
+					$("#register").fadeOut(250);
+					$('#msg').css('color', 'blue').html("Success! Welcome to Vilfredo!");
+					user_dialog.dialog('option', welcomeOptions);
 				}
 				else
 				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, could not register you at thie time.');
-					}
-					else if (response == '1')
-					{
-						$("#register").fadeOut(250);
-						$('#msg').css('color', 'blue').html("Success! Welcome to Vilfredo!");
-						user_dialog.dialog('option', welcomeOptions);
-					}
-					else
-					{
-						$('#msg').css('color', 'blue').html(response);
-					}
+					$('#msg').css('color', 'blue').html(response);
 				}
 			}
 		});
 	}
 	
 	var ajax_error = function (xhr) {
-		alert('Ajax Error: ' + xhr.statusText);
+		$('#msg').css('color', 'red').html('Sorry, there was a problem with your request.');
 	}
 	
 	$("#acceptbtn").livequery("click", function(e){
@@ -267,20 +245,13 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
-				if (status != 'success')
+				if (response == '0')
 				{
-					$('#msg').css('color', 'red').html(status);
+					$('#msg').css('color', 'blue').html('Username not available.');
 				}
-				else
+				else 
 				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Username not available.');
-					}
-					else 
-					{
-						$('#msg').css('color', 'green').html('Username available: Accept?<span id="acceptbtn" class="btn"></span>');
-					}
+					$('#msg').css('color', 'green').html('Username available: Accept?<span id="acceptbtn" class="btn"></span>');
 				}
 			}
 		});
@@ -378,38 +349,31 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
-				if (status != 'success')
+				if (response == '0')
 				{
-					$('#msg').css('color', 'red').html(status);
+					$('#msg').css('color', 'blue').html('Sorry, login failed.');
+				}
+				else if (response == '1')
+				{
+					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					user_dialog.dialog('option', welcomeOptions);
+					dialog_cont.html("");
+				}
+				else if (response == '2')
+				{
+					$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
 				}
 				else
 				{
-					if (response == '0')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, login failed.');
-					}
-					else if (response == '1')
-					{
-						$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
-						user_dialog.dialog('option', welcomeOptions);
-						dialog_cont.html("");
-					}
-					else if (response == '2')
-					{
-						$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
-					}
-					else
-					{
-						$("#fb_button").fadeOut(250);
-						user_dialog.dialog('option', checkFBNameOptions);
-						dialog_cont.html(response);
-						setTimeout(function() {
-							$('#fbconnect').click(function(event) {
-								event.preventDefault();
-								getFBConnectForm();
-							}); 
-						}, 250);
-					}
+					$("#fb_button").fadeOut(250);
+					user_dialog.dialog('option', checkFBNameOptions);
+					dialog_cont.html(response);
+					setTimeout(function() {
+						$('#fbconnect').click(function(event) {
+							event.preventDefault();
+							getFBConnectForm();
+						}); 
+					}, 250);
 				}
 			}
 		});
