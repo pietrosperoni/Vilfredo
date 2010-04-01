@@ -11,6 +11,16 @@ require_once 'vga_functions.php';
 include_once 'lib/php_lib.php';
 require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
 
+// Set error logs if log directory is defined (in config.domain.php)
+if (defined('LOG_DIRECTORY'))
+{
+	ini_set('log_errors', 'On');
+	ini_set('error_log', LOG_DIRECTORY.'vga_runtime_errors.log');
+
+	define("ERROR_FILE", LOG_DIRECTORY."vga_error.log");
+	define("LOG_FILE", LOG_DIRECTORY."vga.log");
+}
+
 // Start session for login and redirects
 session_start();
 
@@ -38,6 +48,7 @@ if (USE_FACEBOOK_CONNECT)
 //******************************************
 define("COOKIE_USER", "ID_my_site");
 define("COOKIE_PASSWORD", "Key_my_site");
+define("VGA_PL", "vgapl");
 //
 define("SHOW_QICON_ROOMS", TRUE);
 //
@@ -53,7 +64,10 @@ define("USER_LOGIN_ID", 'vilfredo_user_id');
 define("USER_LOGIN_MODE", 'vilfredo_login_mode');
 //
 define('ONE_YEAR', 3600*24*365);
-define('COOKIE_LIFETIME', ONE_YEAR);
+define('TWO_DAYS', 3600*24*2);
+define('ONE_HOUR', 3600);
+define('FIVE_MINUTES', 300);
+define('COOKIE_LIFETIME', TWO_DAYS);
 //
 // Get rid off this
 #define("USE_PRIVACY_FILTER", TRUE);

@@ -63,7 +63,7 @@ function log_error($msg)
 function set_log($msg)
 {
 	$timestamp = date("D M j G:i:s T Y");
-	error_log("set_log: $msg $timestamp \n", 3, ERROR_FILE);
+	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
 }
 
 function handle_db_error($result=false)
@@ -828,29 +828,37 @@ function getCurrentUser()
 	return IsAuthenticated();
 }
 
+// Salt Generator
+function generate_salt()
+{ 
+     // Declare $salt
+     $salt = '';
+
+     // And create it with random chars
+     for ($i = 0; $i < 3; $i++)
+     { 
+          $salt .= chr(rand(35, 126)); 
+     } 
+          return $salt;
+}
+
 function unsetcookies()
 {
-	// Unset cookies
-	$past = time() - 100;
-	if(isset($_COOKIE[COOKIE_USER]))
-	{
-		setcookie(COOKIE_USER, gone, $past);
-	}
-	if(isset($_COOKIE[COOKIE_PASSWORD]))
-	{
-		setcookie(COOKIE_PASSWORD, gone, $past);
-	}
+	// Unset old-style cookies
+	$past = time() - TWO_DAYS;
+	setcookie(COOKIE_USER, 'DELETED', $past);
+	setcookie(COOKIE_PASSWORD, 'DELETED', $past);
 }
 
 function user_logout()
 {
 	if (IsAuthenticated())
-	{
+	{	
 		unset($_SESSION[USER_LOGIN_ID]);
 		unset($_SESSION[USER_LOGIN_MODE]);
 		
 		// Unset any cookies
-		unsetcookies();
+		vga_cookie_logout();
 	}
 }
 
@@ -869,45 +877,6 @@ function isadminonly($userid)
 	}
 }
 
-function isloggedin2()
-{
-	global $FACEBOOK_ID;
-	
-	// First check if user has a current login session
-	if ($userid = IsAuthenticated())
-	{
-		// verify facebook session
-		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
-		{
-		 	if (is_null($FACEBOOK_ID))
-		 	{
-		 		fb_user_logout();
-		 		return false;
-		 	}
-		}
-		return $userid;
-	}
-	// Check of user has opted for permenant login
-	elseif ($userid = vga_cookie_login())
-	{
-		$_SESSION[USER_LOGIN_ID] = $userid;
-		$_SESSION[USER_LOGIN_MODE] = 'VGA';
-		return $userid;
-	}
-	// Finally check if a current Facebook session is available for a connected account
-	elseif ($FACEBOOK_ID != null && ($userid = fb_user_login($FACEBOOK_ID)))
-	{
-		$_SESSION[USER_LOGIN_ID] = $userid;
-		$_SESSION[USER_LOGIN_MODE] = 'FB';
-		return $userid;
-	}
-	// Else return false so the user can be redirected to the login page
-	else
-	{
-		return false;
-	}
-}
-
 function IsAuthenticated()
 {            
         return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
@@ -916,6 +885,8 @@ function IsAuthenticated()
 function isloggedin()
 {
 	global $FACEBOOK_ID;
+	
+	unsetcookies(); // old style ==>temp
 
 	// First check if user has a current login session
         $userid = IsAuthenticated();
@@ -926,7 +897,8 @@ function isloggedin()
 		{
 		 	if (is_null($FACEBOOK_ID))
 		 	{
-		 		fb_user_logout();
+		 		//fb_user_logout();
+		 		user_logout();
 		 		return false;
 		 	}
 		}
@@ -995,8 +967,8 @@ function fb_isconnected($fb_uid)
 		return false;
 }
 
-// returns true if the user is logged in
-function vga_cookie_login()
+//***
+function temp_check_for_oldstyle_cookies()
 {
 	if(isset($_COOKIE[COOKIE_USER]))
 	{
@@ -1009,7 +981,7 @@ function vga_cookie_login()
 		//if the cookie has the wrong password, they are taken to the login page
 			if ($pass != $info['password'])
 			{
-				return 0;
+				return false;
 			}
 
 			//otherwise they are shown the admin area
@@ -1022,6 +994,222 @@ function vga_cookie_login()
 	else	//if the cookie does not exist, they are taken to the login screen
 	{
 		return false;
+	}
+}
+//***
+
+// returns true if the user is logged in
+function vga_cookie_login()
+{	
+	// *** Temporary measure to remove old style persistant cookies
+	/*
+	if(isset($_COOKIE[COOKIE_USER]))
+	{
+		set_log('old style cookie found');
+		
+		if ($old_cookie_id = temp_check_for_oldstyle_cookies())
+		{
+			if ($clean_old_cookie_id = ctype_alnum($old_cookie_id))
+			{
+				// set new style token cookie
+				setpersistantcookie($clean_old_cookie_id);
+				return $clean_old_cookie_id;
+			}
+		}
+		// delete old style cookies
+		unsetcookies();
+	}*/
+	// ***	
+	if(isset($_COOKIE[VGA_PL]))
+	{		
+		$clean = array();
+    		$mysql = array();
+    		$now = time();
+    		$past = time() - TWO_DAYS;
+		
+		list($identifier, $token) = explode(':', $_COOKIE[VGA_PL]);
+		if (ctype_alnum($identifier) && ctype_alnum($token))
+		{
+			$clean['identifier'] = $identifier;
+			$clean['token'] = $token;
+		}
+		else
+		{
+			return false;
+		}
+				
+		$mysql['identifier'] = mysql_real_escape_string($clean['identifier']);
+		$mysql['token'] = mysql_real_escape_string($clean['token']);
+		
+		 $sql = "SELECT userid, token, timeout		
+		            FROM   user_persist_tokens
+            		    WHERE  userid = '{$mysql['identifier']}' AND token = '{$mysql['token']}'";
+	
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result);
+			return false;
+		}
+		
+		if ($row = mysql_fetch_assoc($result))
+		{
+			if ($now > $row['timeout'])
+			{
+				// cookie expired - delete it
+				set_log('Invalid cookie: expired');
+				setcookie(VGA_PL, 'DELETED', $past);
+				return false;
+			}
+			else
+			{
+				// *** valid cookie found ***
+				// update PL cookie with new token and max expiry date
+				//set_log('resetting cookie');
+				resetpersistantcookie($clean['identifier'], $clean['token']);
+				// return userid
+				return $clean['identifier'];
+			}
+		}
+		
+		// invalid token - delete it and return false
+		//set_log('Invalid cookie');
+		setcookie(VGA_PL, 'DELETED', $past);
+		return false;
+	}
+	else	//if the cookie does not exist, they are taken to the login screen
+	{
+		//set_log('No cookie found');
+		return false;
+	}
+	
+	/*
+	if(isset($_COOKIE[COOKIE_USER]))
+	{
+		$username = $_COOKIE[COOKIE_USER];
+		$pass = $_COOKIE[COOKIE_PASSWORD];
+		$check = mysql_query("SELECT * FROM users WHERE username = '$username'")or die(mysql_error());
+		while($info = mysql_fetch_array( $check ))
+		{
+
+		//if the cookie has the wrong password, they are taken to the login page
+			if ($pass != $info['password'])
+			{
+				return false;
+			}
+
+			//otherwise they are shown the admin area
+			else
+			{
+				return $info['id'];
+			}
+		}
+	}
+	else	//if the cookie does not exist, they are taken to the login screen
+	{
+		return false;
+	}
+	*/
+}
+
+function vga_cookie_logout()
+{
+	if(isset($_COOKIE[VGA_PL]))
+	{
+		$clean = array();
+    		$mysql = array();
+    		$now = time();
+    		$past = time() - TWO_DAYS;
+		
+		list($identifier, $token) = explode(':', $_COOKIE[VGA_PL]);
+		if (ctype_alnum($identifier) && ctype_alnum($token))
+		{
+			$clean['identifier'] = $identifier;
+			$clean['token'] = $token;
+		}
+		else
+		{
+			return false;
+		}
+		
+		set_log('log out: deleting cookie: user ' . $clean['identifier']);
+		
+		// delete cookie
+		setcookie(VGA_PL, 'DELETED', $past);
+		
+		$mysql['identifier'] = mysql_real_escape_string($clean['identifier']);
+		$mysql['token'] = mysql_real_escape_string($clean['token']);
+		
+		 $sql = "DELETE FROM user_persist_tokens	
+            		    WHERE  userid = {$mysql['identifier']} AND token = '{$mysql['token']}'";
+	
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result);
+			return false;
+		}
+		
+		//set_log('deleted PL token: user ' . $clean['identifier']);
+		
+		return true;
+	}
+	
+	else 
+	{
+		// no cookie found
+		//set_log("vga_cookie_logout(): no cookie found");
+		return true;
+	}
+}
+
+function setpersistantcookie($userid)
+{	
+	$token = md5(uniqid(rand(), TRUE));
+	$expire = time() + COOKIE_LIFETIME;
+	
+	//set_log("setpersistantcookie(): $userid:$token");
+
+	$sql = "INSERT INTO user_persist_tokens (userid, token, timeout)
+		VALUES ($userid, '$token', $expire)";
+
+	$add_ptoken = mysql_query($sql);
+
+	if ($add_ptoken)
+	{
+		//set_log("setting cookie:  $userid:$token");
+		setcookie(VGA_PL, "$userid:$token", $expire);
+	}
+	else
+	{
+		handle_db_error($add_ptoken);
+	}
+}
+
+function resetpersistantcookie($userid, $old_token)
+{	
+	$new_token = md5(uniqid(rand(), TRUE));
+	$expire = time() + COOKIE_LIFETIME;
+
+	//set_log("resetpersistantcookie(): $userid:$old_token => $new_token");
+
+	$sql = "UPDATE user_persist_tokens SET 
+		token = '$new_token',
+		timeout = '$expire' 
+		WHERE userid = $userid AND token = '$old_token'";
+
+	$update_ptoken = mysql_query($sql);
+
+	if ($update_ptoken)
+	{
+		//set_log("updating cookie:  $userid:$new_token");
+		setcookie(VGA_PL, "$userid:$new_token", $expire);
+	}
+	else
+	{
+		handle_db_error($update_ptoken);
 	}
 }
 
