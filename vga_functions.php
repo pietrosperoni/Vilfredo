@@ -517,12 +517,6 @@ function GetRoomList()#this room is a threat to security. It just shouldn't be t
 	return $rooms;
 }
 
-function getUniqueRoomCode()
-{
-	$code = md5(uniqid(rand(), true));
-	return '_' . substr($code, 0, RANDOM_ROOM_CODE_LENGTH);
-}
-
 function CreateVFURL($url, $question="", $room="")
 {
 	if (!isset($url) or empty($url))
@@ -676,27 +670,6 @@ function GetQuestionCreator($question)
 	$creator=$row[0];
 
 	return $creator;
-}
-
-// ****************************
-// AUTHENTICATION
-//
-// ****************************
-// Returns true if ping comes from Facebook
-function fb_verify_ping($secret)
-{
-	$sig = ''; 
-	ksort($_POST); 
-	foreach ($_POST as $key => $val) 
-	{ 
-		if (substr($key, 0, 7) == 'fb_sig_') 
-		{ 
-			$sig .= substr($key, 7) . '=' . $val; 
-		} 
-	} 
-	$sig .= $secret; 
-	$verify = md5($sig); 
-	return $verify == $_POST['fb_sig'];
 }
 
 function display_logout_link()
@@ -1167,7 +1140,7 @@ function vga_cookie_logout()
 
 function setpersistantcookie($userid)
 {	
-	$token = md5(uniqid(rand(), TRUE));
+	$token = generateTOKEN();
 	$expire = time() + COOKIE_LIFETIME;
 	
 	//set_log("setpersistantcookie(): $userid:$token");
@@ -1190,7 +1163,7 @@ function setpersistantcookie($userid)
 
 function resetpersistantcookie($userid, $old_token)
 {	
-	$new_token = md5(uniqid(rand(), TRUE));
+	$new_token = generateTOKEN();
 	$expire = time() + COOKIE_LIFETIME;
 
 	//set_log("resetpersistantcookie(): $userid:$old_token => $new_token");
