@@ -29,7 +29,7 @@ if (mysql_num_rows($check) == 0)
 }
 
 $info = mysql_fetch_array( $check );
-$password = md5($password);
+$password = encryptPWD($password);
 
 //gives error if the password is wrong
 if ($password != $info['password']) 

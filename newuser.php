@@ -142,7 +142,7 @@ function registeruser()
 	}
 	
 	// encrypt the password and add slashes if needed
-	$_POST['pass'] = md5($_POST['pass']);
+	$_POST['pass'] = encryptPWD($_POST['pass']);
 	
 	$newuser = GetEscapedPostParam('usernameok');
 	$password = GetEscapedPostParam('pass');

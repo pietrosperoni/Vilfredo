@@ -62,7 +62,7 @@ function register_user()
 	}
 
 	// here we encrypt the password and add slashes if needed
-	$_POST['pass'] = md5($_POST['pass']);
+	$_POST['pass'] = encryptPWD($_POST['pass']);
 	if (!get_magic_quotes_gpc()) 
 	{
 		$_POST['pass'] = addslashes($_POST['pass']);
@@ -121,7 +121,7 @@ function login_user()
 	{
 		$_POST['pass'] = stripslashes($_POST['pass']);
 		$info['password'] = stripslashes($info['password']);
-		$_POST['pass'] = md5($_POST['pass']);
+		$_POST['pass'] = encryptPWD($_POST['pass']);
 
 		//gives error if the password is wrong
 		if ($_POST['pass'] != $info['password']) 
@@ -271,7 +271,7 @@ function fb_connect_user()
 
 	$_POST['pass'] = stripslashes($_POST['pass']);
 	$info['password'] = stripslashes($info['password']);
-	$_POST['pass'] = md5($_POST['pass']);
+	$_POST['pass'] = encryptPWD($_POST['pass']);
 
 	//gives error if the password is wrong
 	if ($_POST['pass'] != $info['password']) 

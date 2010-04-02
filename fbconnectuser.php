@@ -39,7 +39,7 @@ $info = mysql_fetch_assoc($check);
 
 $userid = $info['id'];
 
-$password = md5($password);
+$password = encryptPWD($password);
 
 //gives error if the password is wrong
 if ($password != $info['password']) 
