@@ -1,10 +1,17 @@
 DirectoryIndex viewquestions.php
 
-# Redirecting www version to non-www version
+# Close site
+#<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteCond %{REMOTE_ADDR} !^92\.41\.6\.113$
+#RewriteCond %{REQUEST_URI} !^/maintenance\.php$
+#RewriteRule ^(.*)$ /maintenance.php [L]
+#</IfModule>
 
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /
-RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
-</IfModule>
+# Redirecting www version to non-www version
+#<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteBase /
+#RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+#RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+#</IfModule>
