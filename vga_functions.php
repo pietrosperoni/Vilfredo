@@ -66,11 +66,16 @@ function set_log($msg)
 	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
 }
 
-function handle_db_error($result=false)
+function handle_db_error($result=false, $sql="")
 {
 	if (!$result)
 	{
-		$msg = "MySQL Error: " .  mysql_errno() . " : " . mysql_error();
+		$msg = "";
+		if (!empty($sql))
+		{
+			$msg .= 'SQL=[' . $sql . ']  ';
+		}
+		$msg .= "MySQL Error=[" .  mysql_errno() . " : " . mysql_error() . ']';
 		log_error($msg);
 	}
 }
@@ -896,7 +901,7 @@ function isloggedin()
 		if ($userid)
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
-			$_SESSION[USER_LOGIN_MODE] = 'VGA';
+			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
 		}
 		return $userid;
 	}
@@ -1022,7 +1027,7 @@ function vga_cookie_login()
 		
 		if (!$result)
 		{
-			handle_db_error($result);
+			handle_db_error($result, $sql);
 			return false;
 		}
 		
@@ -1031,7 +1036,7 @@ function vga_cookie_login()
 			if ($now > $row['timeout'])
 			{
 				// cookie expired - delete it
-				set_log('Invalid cookie: expired');
+				//set_log('Invalid cookie: expired');
 				setcookie(VGA_PL, 'DELETED', $past);
 				return false;
 			}
@@ -1096,7 +1101,7 @@ function vga_cookie_logout()
     		$past = time() - TWO_DAYS;
 		
 		list($identifier, $token) = explode(':', $_COOKIE[VGA_PL]);
-		if (ctype_alnum($identifier) && ctype_alnum($token))
+		if (ctype_digit($identifier) && ctype_alnum($token))
 		{
 			$clean['identifier'] = $identifier;
 			$clean['token'] = $token;
@@ -1106,7 +1111,7 @@ function vga_cookie_logout()
 			return false;
 		}
 		
-		set_log('log out: deleting cookie: user ' . $clean['identifier']);
+		//set_log('log out: deleting cookie: user ' . $clean['identifier']);
 		
 		// delete cookie
 		setcookie(VGA_PL, 'DELETED', $past);
@@ -1121,7 +1126,7 @@ function vga_cookie_logout()
 		
 		if (!$result)
 		{
-			handle_db_error($result);
+			handle_db_error($result, $sql);
 			return false;
 		}
 		
@@ -1157,7 +1162,7 @@ function setpersistantcookie($userid)
 	}
 	else
 	{
-		handle_db_error($add_ptoken);
+		handle_db_error($add_ptoken, $sql);
 	}
 }
 
@@ -1170,7 +1175,7 @@ function resetpersistantcookie($userid, $old_token)
 
 	$sql = "UPDATE user_persist_tokens SET 
 		token = '$new_token',
-		timeout = '$expire' 
+		timeout = $expire 
 		WHERE userid = $userid AND token = '$old_token'";
 
 	$update_ptoken = mysql_query($sql);
@@ -1182,7 +1187,7 @@ function resetpersistantcookie($userid, $old_token)
 	}
 	else
 	{
-		handle_db_error($update_ptoken);
+		handle_db_error($update_ptoken, $sql);
 	}
 }
 
