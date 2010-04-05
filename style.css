@@ -127,6 +127,14 @@ table.historytable {
 	width: 100%;
 }
 
+table.unanimity{
+	text-align: left;
+}
+
+td.unanimity_info {
+	padding-left: 5px;
+}
+
 table.historytable td.genhist {
 	text-align: center;
 	font-size: 1.2em;

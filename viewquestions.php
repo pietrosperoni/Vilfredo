@@ -455,19 +455,19 @@ $sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase
 
 					if (mysql_num_rows($response3)>1)
 					{
-					echo '<table border=0><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="Everybody Agreed on More than One Answer" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a>';
+					echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="Everybody Agreed on More than One Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo RenderQIconInfo($UserString, $room) . '</br>';
+					echo RenderQIconInfo($UserString, $room) . '<br />';
 
 					}
 					else
 					{
-					echo '<table border=0><tr><td><a href="http://www.flickr.com/photos/don-piefcone/395175227/"><img src="images/apple.jpg" title="Generated Answer" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
+					echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/don-piefcone/395175227/"><img src="images/apple.jpg" title="Generated Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
-					echo RenderQIconInfo($UserString, $room) . '</br>';
+					echo RenderQIconInfo($UserString, $room) . '<br />';
 
 
 					}
