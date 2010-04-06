@@ -16,7 +16,7 @@ $check = mysql_query($sql);
 
 if (!$check)
 {
-	handle_db_error($check);
+	handle_db_error($check, $sql);
 	echo "0";
 	exit();
 }
@@ -42,6 +42,13 @@ else
 	// log user in
 	$_SESSION[USER_LOGIN_ID] = $info['id'];
 	$_SESSION[USER_LOGIN_MODE] = 'VGA';
+	
+	// Set persistant cookie if requested
+	if (isset($_POST['remember']) && $_POST['remember'] == 'on')
+	{
+		setpersistantcookie($info['id']);			
+	}
+	
 	echo '1';
 	exit();
 }
