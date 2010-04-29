@@ -35,8 +35,9 @@ mysql_select_db($dbname) or die(mysql_error());
 //******************************************
 require_once 'config.facebook.php';
 require_once 'lib/facebook/php/facebook.php';
+//require_once 'lib/facebook_v2/php/facebook.php';
 
-$fb=new Facebook($facebook_key, $facebook_secret);
+$fb = new Facebook($facebook_key, $facebook_secret);
 
 /*
 	If $FACEBOOK_ID != NULL then current user is Facebook Authroized

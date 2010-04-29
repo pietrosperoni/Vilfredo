@@ -499,6 +499,41 @@ function GetRoomAccessFilter($userid, $room='')
 	return $filter;
 }
 
+function inputIsSafe($input)
+{
+	if ( preg_match("/[<>;]/", $input) )
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function stripBad($input)
+{
+	if (!empty($input))
+	{
+		$input = trim($input);
+		$input = strip_tags($input);
+		$input = ereg_replace("<|;.*", "", $input );
+	}
+	return $input;
+}
+
+function FormatInputString($input)
+{
+	// Alpha-numeric characters and underscores only.
+	if (!empty($input))
+	{
+		$input = trim($input);
+		$input = strip_tags($input);
+		$input = ereg_replace("[^A-Za-z0-9_[:space:]]", "", $input );
+	}
+	return $input;
+}
+
 function FormatRoomId($room)
 {
 	// Alpha-numeric characters and underscores only.
@@ -863,8 +898,6 @@ function IsAuthenticated()
 function isloggedin()
 {
 	global $FACEBOOK_ID;
-	
-	unsetcookies(); // old style ==>temp
 
 	// First check if user has a current login session
         $userid = IsAuthenticated();
@@ -923,82 +956,34 @@ function isloggedin()
 	}
 }
 
-// returns true if the user is logged in
-function fb_user_login($fb_uid)
-{
-	// Return the local user ID conected to the Facebook account
-	return fb_isconnected($fb_uid);
-}
-
-// Return user ID of connected account
-function fb_isconnected($fb_uid)
-{
-	$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
-	$response = mysql_query($sql) or die(mysql_error());
-	
-	if (mysql_num_rows($response) > 0)
-	{
-		$user = mysql_fetch_assoc($response);
-		return $user['id'];
-	}
-	else 
-		return false;
-}
-
-//***
-function temp_check_for_oldstyle_cookies()
-{
-	if(isset($_COOKIE[COOKIE_USER]))
-	{
-		$username = $_COOKIE[COOKIE_USER];
-		$pass = $_COOKIE[COOKIE_PASSWORD];
-		$check = mysql_query("SELECT * FROM users WHERE username = '$username'")or die(mysql_error());
-		while($info = mysql_fetch_array( $check ))
-		{
-
-		//if the cookie has the wrong password, they are taken to the login page
-			if ($pass != $info['password'])
-			{
-				return false;
-			}
-
-			//otherwise they are shown the admin area
-			else
-			{
-				return $info['id'];
-			}
-		}
-	}
-	else	//if the cookie does not exist, they are taken to the login screen
-	{
-		return false;
-	}
-}
-//***
-
+//******************************************************************
+//			START: Persistant Cookies
+//
+//******************************************************************
 // returns true if the user is logged in
 function vga_cookie_login()
 {	
-	// *** Temporary measure to remove old style persistant cookies
-	/*
-	if(isset($_COOKIE[COOKIE_USER]))
+	unsetcookies();
+	// change old-style persistant login to new-style
+	if(isset($_COOKIE[COOKIE_USER]) && false)
 	{
-		set_log('old style cookie found');
-		
+		$username = $_COOKIE[COOKIE_USER];
+		$pass = $_COOKIE[COOKIE_PASSWORD];
+		set_log("vga_cookie_login(): Cookies found: $username:$pass");
+
 		if ($old_cookie_id = temp_check_for_oldstyle_cookies())
 		{
-			if ($clean_old_cookie_id = ctype_alnum($old_cookie_id))
-			{
-				// set new style token cookie
-				setpersistantcookie($clean_old_cookie_id);
-				return $clean_old_cookie_id;
-			}
+			set_log("User $old_cookie_id logged in");
+			// set new style token cookie
+			set_log("Replacing with new style cookie");
+			setpersistantcookie($old_cookie_id);
+			// delete old style cookies
+			set_log("Deleting old style cookies");
+			unsetcookies();
+			return $old_cookie_id;
 		}
-		// delete old style cookies
-		unsetcookies();
-	}*/
-	// ***	
-	if(isset($_COOKIE[VGA_PL]))
+	}	
+	elseif (isset($_COOKIE[VGA_PL]))
 	{		
 		$clean = array();
     		$mysql = array();
@@ -1051,9 +1036,7 @@ function vga_cookie_login()
 			}
 		}
 		
-		// invalid token - delete it and return false
-		//set_log('Invalid cookie');
-		setcookie(VGA_PL, 'DELETED', $past);
+		// invalid token - ignore it and return false
 		return false;
 	}
 	else	//if the cookie does not exist, they are taken to the login screen
@@ -1061,17 +1044,44 @@ function vga_cookie_login()
 		//set_log('No cookie found');
 		return false;
 	}
-	
-	/*
+}
+
+//*** Temp function to deal with old-style persistant cookies
+function temp_check_for_oldstyle_cookies()
+{
 	if(isset($_COOKIE[COOKIE_USER]))
 	{
 		$username = $_COOKIE[COOKIE_USER];
 		$pass = $_COOKIE[COOKIE_PASSWORD];
-		$check = mysql_query("SELECT * FROM users WHERE username = '$username'")or die(mysql_error());
-		while($info = mysql_fetch_array( $check ))
+		
+		$clean = array();
+    		$mysql = array();
+		
+		if (ctype_alnum($pass) && inputIsSafe($username))// scan username for <, >, and ;
 		{
-
-		//if the cookie has the wrong password, they are taken to the login page
+			$clean['username'] = $username;
+			$clean['pass'] = $pass;
+		}
+		else
+		{
+			return false;
+		}
+		
+		$mysql['username'] = mysql_real_escape_string($clean['username']);		
+		
+		$sql = "SELECT * FROM users WHERE username = '{$mysql['username']}'";
+		
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		while($info = mysql_fetch_array( $result ))
+		{
+			//if the cookie has the wrong password, they are taken to the login page
 			if ($pass != $info['password'])
 			{
 				return false;
@@ -1088,7 +1098,6 @@ function vga_cookie_login()
 	{
 		return false;
 	}
-	*/
 }
 
 function vga_cookie_logout()
@@ -1189,6 +1198,32 @@ function resetpersistantcookie($userid, $old_token)
 	{
 		handle_db_error($update_ptoken, $sql);
 	}
+}
+//******************************************************************
+//
+//			END: Persistant Cookies
+//******************************************************************
+
+// returns true if the user is logged in
+function fb_user_login($fb_uid)
+{
+	// Return the local user ID conected to the Facebook account
+	return fb_isconnected($fb_uid);
+}
+
+// Return user ID of connected account
+function fb_isconnected($fb_uid)
+{
+	$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
+	$response = mysql_query($sql) or die(mysql_error());
+	
+	if (mysql_num_rows($response) > 0)
+	{
+		$user = mysql_fetch_assoc($response);
+		return $user['id'];
+	}
+	else 
+		return false;
 }
 
 // Return user details of connected account

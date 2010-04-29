@@ -141,6 +141,7 @@ function login_user()
 				//***
 				setpersistantcookie($info['id']);
 				//***
+				//set_log('Setting old style cookies');
 				//$_POST['username'] = stripslashes($_POST['username']);
 				//$expire = time() + COOKIE_LIFETIME;
 				//setcookie(COOKIE_USER, $_POST['username'], $expire);

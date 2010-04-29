@@ -18,9 +18,19 @@ else
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
-		$registered = fb_register_user();
-		$m = get_messages();
-		$error_message = $m['error'][0];
+		if ($_POST['submit'] == "Cancel")
+		{
+			$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
+			$FACEBOOK_ID = null;
+			header("Location: login.php");
+			exit;
+		}
+		else
+		{
+			$registered = fb_register_user();
+			$m = get_messages();
+			$error_message = $m['error'][0];
+		}
 	}
 	
 	if ($registered)
@@ -53,10 +63,12 @@ else
 		
 		<?php
 		$firstName = "";
+		$email = "";
 		if ($FACEBOOK_ID)
 		{
-			$user_details=$fb->api_client->users_getInfo($FACEBOOK_ID, array('first_name'));  
+			$user_details=$fb->api_client->users_getInfo($FACEBOOK_ID, array('first_name', 'email'));  
 			$firstName=$user_details[0]['first_name'];
+			$email=$user_details[0]['email'];
 		}
 
 		?>
@@ -73,11 +85,12 @@ else
 		<tr>
 			<td>Email: (optional)</td>
 			<td>
-				<input type="text" name="email" maxlength="60">
+				<input type="text" name="email" value="<?php echo $email; ?>" maxlength="60">
 			</td>
 		</tr>
 		<tr>
 			<th colspan=2>
+				<input type="submit" name="submit" value="Cancel">
 				<input type="submit" name="submit" value="Register">
 			</th>
 		</tr>

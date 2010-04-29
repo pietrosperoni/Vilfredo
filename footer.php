@@ -5,7 +5,7 @@
 			</div>
 			
 			<!--FB Start*****-->
-			<?php echo facebook_fbconnect_init_js(); ?>	
+			<?php echo facebook_fbconnect_init_js(); ?>
 			<!-- //*****FB End-->
 			
 		</body>
