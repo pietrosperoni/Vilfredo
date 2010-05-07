@@ -3,7 +3,7 @@
 // DOMAIN SPECIFIC SETTINGS
 require_once "loc/config.domain.php";
 require_once "priv/dbdata.php";
-require_once "priv/sys.php";
+require_once "sys.php";
 require_once "priv/social.php";
 
 require_once 'process_input.php';
