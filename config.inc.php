@@ -1,5 +1,5 @@
 <?php
-//******************************************
+//******************************************/
 // DOMAIN SPECIFIC SETTINGS
 require_once "loc/config.domain.php";
 require_once "priv/dbdata.php";
@@ -47,7 +47,7 @@ if (USE_FACEBOOK_CONNECT)
 {
 	$FACEBOOK_ID = get_current_facebook_userid($fb);
 }
-//******************************************
+//******************************************/
 define("COOKIE_USER", "ID_my_site");
 define("COOKIE_PASSWORD", "Key_my_site");
 define("VGA_PL", "vgapl");
@@ -73,7 +73,7 @@ define('COOKIE_LIFETIME', TWO_DAYS);
 //
 // Get rid off this
 #define("USE_PRIVACY_FILTER", TRUE);
-//******************************************
+//******************************************/
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()
 // --  This function not available on Windows platforms
@@ -84,7 +84,7 @@ define('COOKIE_LIFETIME', TWO_DAYS);
 //	For compatibility with Windows before this was implemented, 
 //	then try the » PEAR class » Net_DNS. 
 //	
-//******************************************
+//******************************************/
 /*
 function checkdnsrr($host, $type)
 {

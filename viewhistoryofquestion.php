@@ -92,14 +92,42 @@ include('header.php');
 #					echo " ".$row5[0]." ";
 #				}
 				
+				echo '</h3>';
+
+				$ProposalsCouldDominate=CalculateKeyPlayers($question,$genshowing);
+				
+				if (count($ProposalsCouldDominate) > 0)
+				{
+					echo '<br/><p>Key Players (proposals they should work on):<br/>';
+
+					$KeyPlayers=array_keys($ProposalsCouldDominate);
+					foreach ($KeyPlayers as $KP)
+					{
+						echo " ".WriteUserVsReader($KP,$userid)." ( ";
+						foreach ($ProposalsCouldDominate[$KP] as $PCD)
+						{
+							$urlquery = CreateProposalURL($PCD, $room);
+							echo '<a href="viewproposal.php'.$urlquery.'">'.$PCD.'</a> ';
+						}
+						echo ")<br/>";
+					}
+					echo '</p>';
+				}
+				else
+				{
+					echo '<br/><p>No Key Players</p>';
+				}
+				
+				echo '</td>';
+				
 				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
 
-				$NVoters=count($endorsers); #B
-				$NOldAuthors=count($PreviousAuthors);
+				$NVoters=count($endorsers); #P
+				$NOldAuthors=count($PreviousAuthors);#O
 				$NAuthors=count($proposers); #A
 
 				$IntersectionAP=array_intersect($endorsers,$proposers);
-				$IntersectionPO=array_intersect($proposers,$PreviousAuthors);
+				$IntersectionPO=array_intersect($endorsers,$PreviousAuthors);
 				$IntersectionAO=array_intersect($proposers,$PreviousAuthors);
 				
 				$SizeIntersectionAP=count($IntersectionAP);
@@ -109,16 +137,17 @@ include('header.php');
 				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
 				$SizeIntersectionAPO=count($IntersectionAPO);
 
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
+#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
+				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,00FF00&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
 #				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
 
 				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
 
-				echo '</h3></td> <td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
+				echo '<td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
 #				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
 #				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
 #				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
-								
+#								
 #				echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
 #				echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
 #				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
@@ -148,7 +177,7 @@ include('header.php');
 			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
 			
 			echo '<td class="paretocell">';
-			//***
+			// ***
 			//
 			echo '<div class="paretoproposal">';
 			if (!empty($row['abstract'])) {
@@ -170,7 +199,7 @@ include('header.php');
 			}
 			echo '</div>';
 			//
-			//***
+			// ***
 			/*
 			$has_abstract = false;
 			if (!empty($row['abstract'])) {
@@ -193,7 +222,7 @@ include('header.php');
 			}
 			echo '<br />';
 			*/
-			//****
+			// ****
 			echo '</td>';
 			
 

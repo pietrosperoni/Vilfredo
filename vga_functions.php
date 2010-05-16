@@ -1,7 +1,7 @@
 <?php
 // Vilfredo Fuctions - previously in header.php
 //**************************************
-// ******************************************
+// ******************************************/
 //
 // TEMP WIN/PHP FIX
 // Use a dummy function to return true if no checkdnsrr()
@@ -20,12 +20,12 @@ function check_dnsrr($host, $type)
 	else
 		return true;
 }
-//  ******************************************
+//  ******************************************/
 // ADMIN
 //	Users with id listed in admin table can delete 
 //	questions and proposals.
 //
-// ******************************************
+// ******************************************/
 function isAdmin($userid)
 {
 	$admin = false;
@@ -956,10 +956,10 @@ function isloggedin()
 	}
 }
 
-//******************************************************************
+//******************************************************************/
 //			START: Persistant Cookies
 //
-//******************************************************************
+//******************************************************************/
 // returns true if the user is logged in
 function vga_cookie_login()
 {	
@@ -1046,7 +1046,7 @@ function vga_cookie_login()
 	}
 }
 
-//*** Temp function to deal with old-style persistant cookies
+//*** Temp function to deal with old-style persistant cookies */
 function temp_check_for_oldstyle_cookies()
 {
 	if(isset($_COOKIE[COOKIE_USER]))
@@ -1199,10 +1199,10 @@ function resetpersistantcookie($userid, $old_token)
 		handle_db_error($update_ptoken, $sql);
 	}
 }
-//******************************************************************
+//******************************************************************/
 //
 //			END: Persistant Cookies
-//******************************************************************
+//******************************************************************/
 
 // returns true if the user is logged in
 function fb_user_login($fb_uid)
@@ -1270,7 +1270,7 @@ function get_session_username()
 		return false;
 	}
 }
-// ***********************************************
+// ***********************************************/
 function longestproposal()
 {
 	$sql = "SELECT username as user, proposals.id, blurb, LENGTH(blurb) as length  
@@ -1594,7 +1594,10 @@ function WhereHaveWeMet($RoomsUser1,$RoomsUser2)
 	return $Intersect;
 }
 
-
+//*****************************/
+//  People who have endorsed something 
+// in that generation of that question
+//*****************************/
 
 function Endorsers($question,$generation)
 {
@@ -2305,7 +2308,10 @@ function MoveOnToEndorse($question)
 	}
 }
 
-
+//  ********************************************/
+//  This function recovers the ParetoFront of a question for a particular generation
+//   This is defined as the proposals that are undominated
+//  ********************************************/
 
 function ParetoFront($question,$generation)
 {
@@ -2318,19 +2324,18 @@ function ParetoFront($question,$generation)
 	}
 	return $paretofront;
 }
+//  ********************************************/
+//A useless function, that let you recalculate what the pareto front for a particular generation
+//it is useleess since we store that information
+//so it is only useful to check if the pareto front is the same
+//   ********************************************/
 
-function SelectParetoFront($question)
+function CalculateParetoFront($question,$generation)
 {
-	$sql = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1";
-	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
-	{
-		$generation=$row[0];
-		$pastgeneration=$generation-1;
-	}
 	$proposals=array();
 	$dominated=array();
-	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$pastgeneration."";
+	$done=array(); //the list of the proposals already considered
+	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation."";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -2338,12 +2343,10 @@ function SelectParetoFront($question)
 	}
 	foreach ($proposals as $p1)
 	{
+		array_push($done,$p1);
 		foreach ($proposals as $p2)
 		{
-			if (in_array($p2,$dominated))
-			{
-				continue;
-			}
+			if (in_array($p2,$done)) {continue;}
 			$dominating=WhoDominatesWho($p1,$p2);
 			if ($dominating==$p1)
 			{
@@ -2362,6 +2365,21 @@ function SelectParetoFront($question)
 		}
 	}
 	$paretofront=array_diff($proposals,$dominated);
+	return $paretofront;
+}
+
+
+
+//  ********************************************/
+//  This function stores the calculated pareto front in the database
+//  it is meant to be used only once, just after the pareto front is calculated
+//  ********************************************/
+
+
+
+
+function StoreParetoFront($question,$generation,$paretofront)
+{
 	foreach ($paretofront as $p)
 	{
 		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
@@ -2391,6 +2409,111 @@ function SelectParetoFront($question)
 		}
 	}
 }
+
+
+//  ********************************************/
+//  This function calculates what is the Pareto Front for the previous generation
+// and then stores it in the database. It is meant to be used immediately after 
+// a question has passed phase.
+//  ********************************************/
+
+
+function SelectParetoFront($question)
+{
+	$sql = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$generation=$row[0];
+	}
+	$paretofront=CalculateParetoFront($question,$generation);
+	StoreParetoFront($question,$generation,$paretofront);
+}
+
+
+
+
+//  ********************************************/
+//  This function calculates what is the Pareto Front for the previous generation
+// and then stores it in the database. It is meant to be used immediately after 
+// a question has passed phase.
+//  ********************************************/
+//
+//
+//function SelectParetoFront($question)
+//{
+//	$sql = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1";
+//	$response = mysql_query($sql);
+//	while ($row = mysql_fetch_array($response))
+//	{
+//		$generation=$row[0];
+//		$pastgeneration=$generation-1;
+//	}
+//	$proposals=array();
+//	$dominated=array();
+//	$done=array(); //the list of the proposals already considered
+//	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$pastgeneration."";
+//	$response = mysql_query($sql);
+//	while ($row = mysql_fetch_array($response))
+//	{
+//		array_push($proposals,$row[0]);
+//	}
+//	foreach ($proposals as $p1)
+//	{
+//		array_push($done,$p1);
+//		foreach ($proposals as $p2)
+//		{
+//			if (in_array($p2,$done))
+//			{
+//				continue;
+//			}
+//			$dominating=WhoDominatesWho($p1,$p2);
+//			if ($dominating==$p1)
+//			{
+//				array_push($dominated,$p2);
+//				$sql = "UPDATE proposals SET dominatedby = ".$p1." WHERE id = ".$p2." ";
+//				mysql_query($sql);
+//				continue;
+//			}
+//			elseif ($dominating==$p2)
+//			{
+//				array_push($dominated,$p1);
+//				$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1." ";
+//				mysql_query($sql);
+//				break;
+//			}
+//		}
+//	}
+//	$paretofront=array_diff($proposals,$dominated);
+//	foreach ($paretofront as $p)
+//	{
+//		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
+//		$response = mysql_query($sql);
+//
+//		while ($row = mysql_fetch_array($response))
+//		{
+//
+//			if (!get_magic_quotes_gpc())
+//			{
+//				$blurb = addslashes($row[1]);
+//				$abstract = addslashes($row['abstract']);
+//			}
+//			else
+//			{
+//				$blurb = $row[1];
+//				$abstract = $row['abstract'];
+//			}
+//
+//			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) VALUES (\'' . $blurb . '\', \'' . $row[2] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\');';
+//			
+//			$add_proposal_to_nextgen = mysql_query($sql);
+//			if (!$add_proposal_to_nextgen)
+//			{
+//				handle_db_error($add_proposal_to_nextgen);
+//			}
+//		}
+//	}
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////This function takes two proposals, and returns 0 if neither dominates the other because they have different users
@@ -2456,4 +2579,170 @@ function WhoDominatesWho($proposal1,$proposal2)
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////FUNCTIONS TO FIND THE KEY PLAYERS AND THEIR POSSIBLE EFFECTS/////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+
+//****************************************************/
+//   This function finds the key players and returns the list of them 
+//****************************************************/
+function CalculateKeyPlayers($question,$generation)
+{	//$keyPlayers=array();
+	$paretofront=ParetoFront($question,$generation);
+	$users=Endorsers($question,$generation);//	$LightProposals=array();
+	$CouldDominate=array();
+	foreach ($users as $user)
+	{
+		$paretofrontexcluding=CalculateParetoFrontExcluding($paretofront,$user);
+		if ($paretofrontexcluding!=$paretofront)
+		{	//			array_push($keyPlayers,$user);
+			$Diff1=array_diff($paretofront,$paretofrontexcluding); //proposals that are in the pareto front because of X //			$LightProposals[$user]=$Diff1;
+			$CouldDominate[$user]=array();
+			foreach ($Diff1 as $p)
+			{
+				$CouldDominate[$user]=array_merge($CouldDominate[$user],WhoDominatesThisExcluding($p,$paretofront,$user));
+			}
+			$CouldDominate[$user]=array_unique($CouldDominate[$user]);
+		}
+	}
+	return $CouldDominate;//now we need to visualise the information and 
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////This function takes two proposals, and returns 0 if neither dominates the other because they have different users
+/////////////////returns -1 if neither dominates the other because they have the same users
+/////////////////returns the id of the dominating proposal if one dominates the other
+
+function WhoDominatesWhoExcluding($proposal1,$proposal2,$userExcluded)
+{
+	$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$proposal1." ";
+	$response1 = mysql_query($sql1);
+	$users1=array();
+	while ($row1 = mysql_fetch_array($response1))
+	{
+		if($row1[0]==$userExcluded)
+			{continue;}
+		else
+			{array_push($users1,$row1[0]);}
+	}
+	$sql2 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$proposal2." ";
+	$response2 = mysql_query($sql2);
+	$users2=array();
+	while ($row2 = mysql_fetch_array($response2))
+	{
+		if($row2[0]==$userExcluded)
+			{continue;}
+		else
+			{array_push($users2,$row2[0]);}
+	}
+	if (count($users1))
+	{
+		if (count($users2))
+		{
+			if (count(array_diff($users1,$users2)))
+			{//there are elements in 1 that are not in 2, so 2 does not dominate 1
+				if (count(array_diff($users2,$users1)))
+				{//there are elements in 2 that are not in 1, so 1 does not dominate 2
+					return 0;//neither dominates the other, they each have extra endorsers
+				}
+				else
+				{//there are NO elements in 2 that are not in 1, so 1 DOES dominate 2
+					return $proposal1; //1 dominates 2
+				}
+			}
+			else
+			{//there are NO elements in 1 that are not in 2, so 2 DOES dominate 1
+				if (count(array_diff($users2,$users1)))
+				{//there are elements in 2 that are not in 1, so 1 does not dominate 2
+					return $proposal2; //2 dominates 1
+				}
+				else
+				{//there are NO elements in 2 that are not in 1, so 1 DOES dominate 2
+					return -1; //neither dominates the other, they have exactly the same endorsers
+				}
+			}
+		}
+		else
+		{//the second proposal has no endorsers
+			return $proposal1;
+		}
+	}
+	else
+	{//the first proposal has no endorsers
+		if (count($users2))
+		{
+			return $proposal2;
+		}
+		else
+		{//neither endorsers has any proposal
+			return -1;
+		}
+	}
+}
+
+
+// ****************************************************/
+// How would shrink a Pareto Front if a particular User did not participate?
+// This function is useful to find the key playes
+// People whos absence would change the Pareto Front are KeyPeople
+// ****************************************************/
+
+function CalculateParetoFrontExcluding($paretofront,$userExcluded)
+{
+	$dominated=array();
+	$done=array();
+	foreach ($paretofront as $p1)
+	{
+		array_push($done,$p1);
+		foreach ($paretofront as $p2)
+		{
+			if (in_array($p2,$done)) {continue;}
+			$dominating=WhoDominatesWhoExcluding($p1,$p2,$userExcluded);
+			if ($dominating==$p1)
+			{
+				array_push($dominated,$p2);
+				continue;
+			}
+			elseif ($dominating==$p2)
+			{
+				array_push($dominated,$p1);
+				break;
+			}
+		}
+	}
+	return array_diff($paretofront,$dominated);
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////Given a first proposal stored in $proposalToBeDominate, and a user to be ignored, this function 
+//////look for all the proposals in the Pareto Front and finds which could have dominated that proposal
+/// returns the list of those proposals
+
+function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExcluded)
+{
+	$couldDominate=array();
+	foreach ($paretofront as $p1)
+	{
+		if($p1==$proposalToBeDominate)
+		{
+			continue;
+		}
+		$dominating=WhoDominatesWhoExcluding($p1,$proposalToBeDominate,$userExcluded);
+		if ($dominating==$p1)
+		{
+			array_push($couldDominate,$dominating);
+		}
+	}
+	return $couldDominate;
+}
+
 ?>
