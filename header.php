@@ -26,6 +26,13 @@
 */
 // Start output buffer
 ob_start();
+// ******************************************	
+// 	Load System Serttings
+require_once 'config.inc.php';
+// ******************************************
+// Create RSS link
+$rss_link = CreateRSSLink();
+// ******************************************
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -43,16 +50,12 @@ ob_start();
 		<link rel="stylesheet" type="text/css" href="css/ie6-sucks.css" media="screen, print" />
 		<![endif]-->
 		<link rel="stylesheet" type="text/css" href="widgets.css">
-		<?php 	echo $headcommands; ?>
+		<link rel="alternate" type="application/rss+xml" href="<?php echo $rss_link; ?>" />
+		<?php echo $headcommands; ?>
 		<title>Vilfredo goes to Athens</title>
 	</head>
 	<?php
 #	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-
-// ******************************************	
-// 	Load System Serttings
-require_once 'config.inc.php';
-// ******************************************
 ?>
 
 
@@ -109,16 +112,13 @@ else
  <?php
 }
 echo '</div>';
-$current_room = GetParamFromQuery(QUERY_KEY_ROOM);
-if  (!$current_room)
+$query_room = GetParamFromQuery(QUERY_KEY_ROOM);
+if  (!$query_room)
+{
 	$current_room = 'Common';
-	
+}	
 echo '<div id="room_title">Room: &nbsp;' . $current_room;
 echo "</div>";
-
-$rss_link = SITE_DOMAIN . '/rss.php';
-if(strcasecmp($current_room, 'Common') != 0)
-	$rss_link .= "?room=$current_room";
 ?>
 
 <p><a class="rss-link" href="<?php echo $rss_link?>"> Subscribe to room feed (RSS)</a></p>

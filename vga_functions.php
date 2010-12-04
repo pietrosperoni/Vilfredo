@@ -2112,6 +2112,18 @@ function limitWordCount($string, $count)
 	}
 }
 
+function CreateRSSLink()
+{
+	$rss_link = SITE_DOMAIN . '/rss.php';
+	$room = GetParamFromQuery(QUERY_KEY_ROOM);
+	if($room)
+	{
+		$rss_link .= "?room=$room";
+	}
+	
+	return $rss_link;
+}
+
 function UpdateFeed($room='')
 {	
 	$domain = SITE_DOMAIN;
