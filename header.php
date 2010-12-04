@@ -116,7 +116,11 @@ $query_room = GetParamFromQuery(QUERY_KEY_ROOM);
 if  (!$query_room)
 {
 	$current_room = 'Common';
-}	
+}
+else
+{
+	$current_room = $query_room;
+}
 echo '<div id="room_title">Room: &nbsp;' . $current_room;
 echo "</div>";
 ?>
