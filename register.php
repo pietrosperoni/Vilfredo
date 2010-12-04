@@ -65,13 +65,13 @@ else
 				<tr>
 					<td>Password:</td>
 					<td>
-						<input type="password" name="pass" maxlength="10">
+						<input type="password" name="pass">
 					</td>
 				</tr>
 				<tr>
 					<td>Confirm Password:</td>
 					<td>
-						<input type="password" name="pass2" maxlength="10">
+						<input type="password" name="pass2">
 					</td>
 				</tr>
 				<tr>

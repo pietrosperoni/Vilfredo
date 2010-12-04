@@ -11,7 +11,6 @@ $headcommands='
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
 
-
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
@@ -37,6 +36,7 @@ include('header.php');
 	$question = $_GET[QUERY_KEY_QUESTION];
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+	//$room = ucfirst($room);
 
 if ($userid) {
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
@@ -85,6 +85,10 @@ if ($userid) {
 		$minimumhours=(int)($minimumtime/(60*60));
 		$minimumtime=$minimumtime-$minimumhours*60*60;
 		$minimumminutes=(int)($minimumtime/60);
+		
+		echo '<div class="questionbox">';
+		
+		echo "<h2>Question</h2>";
 
 		?>
 			<h2 id="question">
@@ -106,14 +110,23 @@ if ($userid) {
 			</h2>
 		<?php
 
-
+		echo "<br />";
+		
 		echo '<div id="question">' . $content . '</div>';
+		
+		echo "<br />";
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
 		$response2 = mysql_query($sql2);
 		while ($row2 = mysql_fetch_array($response2))
 		{
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+			
+			 echo '</div>';
+			 
+			 //echo '<div class="social-buttons">';
+			 
+			 echo '<table id="social-buttons"><tr><td>';
 			
 			if (!defined('USE_TWIT_THIS') or ( defined('USE_TWIT_THIS') and USE_TWIT_THIS))
 			{
@@ -123,6 +136,10 @@ if ($userid) {
 				echo "<p><a class=\"retweet\" href=\"$loc\" title=\"RT @Vg2A $twitter_title\"></a></p>";
 			}
 			
+			echo '</td><td>';
+			
+			echo '</td></tr></table>';
+			
 		}
 
 		if (($phase==0) && ($generation>1))
@@ -131,9 +148,10 @@ if ($userid) {
 			echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
 			echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
 Strictly speaking they are the pareto front of the set of proposals.
-You can think of it as the smallest set of proposals such that every participant is represented.</i></p>
+You can think of it as the smallest set of proposals such that every participant is represented.</i></p>";
 
-";
+			// Adding table 19/11
+			//echo '<table>';
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
 			{
@@ -141,6 +159,7 @@ You can think of it as the smallest set of proposals such that every participant
 				$response3 = mysql_query($sql3);
 				while ($row3 = mysql_fetch_array($response3))
 				{
+//					echo '<tr><td>';//19/11
 					echo '<div class="paretoproposal">';
 					if (!empty($row3['abstract'])) {
 						echo '<div class="paretoabstract">';
@@ -167,13 +186,33 @@ You can think of it as the smallest set of proposals such that every participant
 					{
 						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
 					}
+					/*?>
+					<form method="post" action="newproposalversion.php">
+					<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+					<input type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
+					</form>
+					<?php
+					*/					
 					echo '</div>';
+					
+					/*
+					echo '</td><td class="button_cell">';
+					?>
+					<form method="post" action="newproposalversion.php">
+					<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+					<input type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
+					</form>
+					*/
+					
+					
+//					echo '</td></tr>';
 				}
 			}
 
-			echo '</div>';
+			echo '</div>';						
 		}
-
+//		echo '</table>'; //19/11
+		
 		echo '<div id="actionbox">';
 		echo "<h3>Generation ".$generation.": ";
 		if ( $phase==0)
@@ -418,7 +457,18 @@ if ($userid) {
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
+				
+				?>
+				<form method="post" action="deleteproposal.php">
+				<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+				<input type="submit" name="submit" id="submit" value="Edit or Delete" title="Click here to edit or delete your proposal"/>
+				</form>
+				
+				<?php
+				
 				echo '</div>';
+				
+				/*
 				echo '</td><td class="button_cell">';
 				?>
 				
@@ -428,6 +478,7 @@ if ($userid) {
 				</form>
 				
 				<?php
+				*/
 				echo '</td></tr>';
 			}
 			echo '</table>';

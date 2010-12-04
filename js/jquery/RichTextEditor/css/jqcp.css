@@ -1,0 +1,38 @@
+.jqcp{
+   background:url('../images/c_picker.png') no-repeat;
+   cursor:crosshair;
+   width:244px;
+   height:240px;
+}
+
+.jqcpmarker{
+   background:url('../images/marker.gif') no-repeat;
+   width:8px;
+   height:8px;
+}
+
+.jqbr{
+   background:url('../images/c_tuner.png') no-repeat;
+   cursor:crosshair;
+   width:14px;
+   height:240px;
+}
+
+.jqbrp{
+   background:url('../images/c_pbar.gif') no-repeat;
+   cursor:crosshair;
+   width:14px;
+   height:240px;
+}
+
+.jqbrpointer{
+   background:url('../images/c_pointer.gif') no-repeat;
+   width:5px;
+   height:9px;
+}
+
+.jqcp_table{
+   width:280px;
+   padding:0;
+   margin:0;
+}

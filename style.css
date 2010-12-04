@@ -1,6 +1,7 @@
 body {
-	margin:10px 50px 0 50px;
-	font-family:helvetica,arial,sans-serif;
+	margin: 10px 50px 0px 50px;
+	font-family: helvetica,arial,sans-serif;
+	padding: 0;
 }
 
 .nav {
@@ -200,22 +201,11 @@ h1 img {
 	margin-left:15px;
 }
 
-.rightfloatbox {
-	float:right;
-	width:48.5%;
-	position:relative;
-}
-
-.leftfloatbox {
-	float:left;
-	width:48.5%;
-	position:relative;
-}
-
 .centerbox {
 	float:left;
 	width:100%;
 	position:relative;
+	display: inline;
 	padding:3px 0px 3px 0px;
 }
 
@@ -226,12 +216,39 @@ h1 img {
 	padding:3px 15px 3px 15px;
 	text-align: center;
 }
+
+.floatingboxcontainer {
+	position:relative;
+	margin:0;
+	padding:0;
+}
+
+.floatcontainer {
+	margin:0;
+	padding:0;
+	width: 100%;
+}
+
+.leftfloatbox {
+	float:left;
+	width:48%;
+	height:100%;
+	margin:0;
+	padding:0;
+}
+
+.rightfloatbox {
+	float: right;
+	width: 48%;
+	margin: 0;
+}
 
 .endorsingbox {
-	width:100%;
-	background-color:#C5E0FB;
-	border:1px solid #B45F04;
-	padding:3px 15px 3px 15px;
+	width: 100%;
+	background-color: #C5E0FB;
+	border: 1px solid #B45F04;
+	padding: 3px 15px 3px 15px;
+	margin: 0;
 }
 
 .proposingbox {
@@ -245,9 +262,10 @@ h1 img {
 	width:100%;
 }
 
+/*
 #endorsingbox {
 	width:46%;
-}
+}*/
 
 #endorsingbox2 {
 	width:100%;
@@ -272,6 +290,23 @@ h1 img {
 	padding:3px 15px 3px 15px;
 }
 
+#room_title {
+	font-size: 1.5em;
+	font-weight: bold;
+	//text-align: center;
+}
+
+.rss-link {
+	background-color: transparent;
+	background-image: url(images/rss.jpg);
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-position: 0pt 0pt;
+	padding-left: 25px;
+	padding-bottom: 2px;
+	font-size: 1em;
+}
+
 .solvedbox {
 	background-color:#FFFFCB;
 	width:100%;
@@ -279,12 +314,32 @@ h1 img {
 	padding:15px;
 	text-align: center;
 }
+
+/*
+.solvedbox h2,p {
+	text-align: center;
+}*/
 
 #writingbox,#endorsingbox, blockquote {
 	background-color:#F6E3CE;
 	border:1px solid #B45F04;
 	padding:3px 15px 3px 15px;
 	margin:3px 3px 15px 3px;
+}
+
+table#social-buttons {
+	margin-bottom: 20px;
+}
+
+#social-buttons td {
+	padding: 0 10px 0 0;
+}
+
+.questionbox {
+	background-color:#ffffcb; 
+	border:2px solid #B45F04;
+	padding:10px 15px 10px 15px;
+	margin:30px 3px 10px 3px;
 }
 
 #paretofrontbox {

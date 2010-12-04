@@ -21,18 +21,21 @@ include('header.php');
 	$question = GetParamFromQuery(QUERY_KEY_QUESTION);
 	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 
-	echo "<h2>Question:</h2>";
 	$graph=StudyQuestion($question);
 	
 	echo "<img src='".$graph."'>";
 
-
+	echo '<div class="questionbox">';
+	
+	echo "<h2>Question:</h2>";
+	
 	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_row($response))
+	while ($row = mysql_fetch_array($response))
 	{
 		$content=$row[1];
 		$generation=$row[2];
+		$phase=$row[3];
 		$creatorid=$row[4];
 		$title=$row[5];
 		$room=$row[9];
@@ -48,7 +51,10 @@ include('header.php');
 		}
 
 #		echo '<div id="actionbox">';
-		echo "Current Generation: ".$generation." ";
+		echo "Current Generation: <strong>".$generation."</strong>";
+		
+		echo '</div>';
+		
 		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >Question Page</a>';
 #		echo '</div>';
 	}
@@ -197,6 +203,24 @@ include('header.php');
 				echo $row['blurb'] ;
 				echo '</div>';
 			}
+			
+			
+			/*
+			if ($phase == 1)
+			{
+				$mod_btn = "disabled=\"disabled\"";
+			}
+			else {
+				$mod_btn = "";
+			}
+			
+			?>
+			<form method="post" action="newproposalversion.php">
+			<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+			<input <?php echo $mod_btn; ?> type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
+			</form>
+			<?php*/
+			
 			echo '</div>';
 			//
 			// ***

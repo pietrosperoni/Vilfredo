@@ -131,6 +131,7 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
+				response = jQuery.trim(response);
 				if (response == '0')
 				{
 					$('#msg').css('color', 'blue').html('Sorry, login failed.');
@@ -159,6 +160,7 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
+				response = jQuery.trim(response);
 				if (response == '0')
 				{
 					$('#msg').css('color', 'blue').html('Sorry, connect failed.');
@@ -192,6 +194,7 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
+				response = jQuery.trim(response);
 				if (response == '0')
 				{
 					$('#msg').css('color', 'blue').html('Sorry, could not register you at thie time.');
@@ -245,6 +248,7 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
+				response = jQuery.trim(response);
 				if (response == '0')
 				{
 					$('#msg').css('color', 'blue').html('Username not available.');
@@ -349,6 +353,7 @@ $(function() {
 			error: ajax_error,
 			dataType: 'html',
 			success: function(response, status){
+				response = jQuery.trim(response);
 				if (response == '0')
 				{
 					$('#msg').css('color', 'blue').html('Sorry, login failed.');

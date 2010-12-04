@@ -1,0 +1,54 @@
+.jqpopup {
+   background:#FFFFFF;
+   position:absolute;
+   z-index:1;border-left:1px solid #CCCCCC;border-top:1px solid #CCCCCC;border-right:2px solid #CCCCCC;border-bottom:2px solid #CCCCCC;
+   display:none;
+}
+
+
+.jqpopup_header{
+   margin:0;padding:0;top:0;left:0;padding-left:10px;padding-right:5px;padding-bottom:2px;font-size:15px;font-weight:bold;
+   background: url("../images/jqbar.jpg") repeat-y #A4C7EE;
+}
+
+.jqpopup_footer{
+   padding-left:10px;padding-right:10px;padding-bottom:5px;text-align:right;font-size:10px;
+}
+
+.jqpopup_content{
+   padding-left:10px;padding-right:10px;padding-bottom:5px;
+}
+
+.jqpopup_message{
+   padding-top:10px;padding-left:10px;padding-right:10px;color:red;font-size:12px;font-weight:bold;
+}
+
+.jqpopup_resize{
+   background: url("../images/jqresize.gif") no-repeat #FFFFFF;
+   height:14px;
+   width: 16px;
+   position: absolute;
+   bottom: 0;
+   right: 0;
+   cursor: se-resize;
+}
+
+.jqpopup_cross{
+   background: url("../images/jqcross.jpg") no-repeat #A4C7EE;
+   height:14px;
+   width: 16px;
+   position: absolute;
+   top: 0;
+   right: 0;
+   cursor: pointer;
+}
+
+.jqpopup_center{
+   background: url("../images/jqcenter.jpg") no-repeat #FFFFFF;
+   height:14px;
+   width: 16px;
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   cursor: pointer;
+}

@@ -32,10 +32,15 @@ ob_start();
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="expires" value="Thu, 16 Mar 2000 11:00:00 GMT" />
+	<meta http-equiv="pragma" content="no-cache" />
 
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" >
 		<!--[if IE]>
 		<link rel="stylesheet" type="text/css" href="css/ie-sucks.css" media="screen, print" />
+		<![endif]-->
+		<!--[if IE6]>
+		<link rel="stylesheet" type="text/css" href="css/ie6-sucks.css" media="screen, print" />
 		<![endif]-->
 		<link rel="stylesheet" type="text/css" href="widgets.css">
 		<?php 	echo $headcommands; ?>
@@ -104,11 +109,23 @@ else
  <?php
 }
 echo '</div>';
+$current_room = GetParamFromQuery(QUERY_KEY_ROOM);
+if  (!$current_room)
+	$current_room = 'Common';
+	
+echo '<div id="room_title">Room: &nbsp;' . $current_room;
+echo "</div>";
+
+$rss_link = SITE_DOMAIN . '/rss.php';
+if(strcasecmp($current_room, 'Common') != 0)
+	$rss_link .= "?room=$current_room";
 ?>
+
+<p><a class="rss-link" href="<?php echo $rss_link?>"> Subscribe to room feed (RSS)</a></p>
 
 <form method="GET" action="viewquestions.php">
 	<strong>Room:</strong>
-	<input name="room" id="room" type="text" size="22" maxlength="20" value="Vilfredo"/>
+	<input name="room" id="room" type="text" size="22" maxlength="20"/>
 	<input type="submit" id="submit" value="Go!" />
 </form>
 <ul class="nav">
@@ -118,12 +135,11 @@ echo '</div>';
 	<li><a href="viewquestions.php?room=Politics" tooltip="Questions about politics">Politics</a></li>
 	<li><a href="viewquestions.php?room=Metagovernment"  tooltip="Questions about the Metagovernment community">Metagovernment</a></li>
 	<?php 
-	$room_param = GetParamFromQuery(QUERY_KEY_ROOM);
-	if  ($room_param and $room_param!="Vilfredo" and $room_param!="Politics" and $room_param!="Metagovernment")
+	if  ($current_room!="Common" and $current_room!="Vilfredo" and $current_room!="Politics" and $current_room!="Metagovernment")
 	{ 
 	QUERY_KEY_ROOM
 	?>
-		<li><a href="viewquestions.php<?php echo CreateNewRoomURL(); ?>"><?php echo $room_param; ?></a></li>
+		<li><a href="viewquestions.php<?php echo CreateNewRoomURL(); ?>"><?php echo $current_room; ?></a></li>
 	<?php
 	} 
 	?>

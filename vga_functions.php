@@ -242,6 +242,23 @@ function db_make_id_list($id_array)
 	return $id_sql;
 }
 
+function GetQuestioner($question)
+{
+	$sql = "SELECT `usercreatorid` FROM questions WHERE `id` = '$question'";
+	
+	$result = mysql_query($sql);
+			
+	if (!$result)
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
+	else {
+		$row = mysql_fetch_assoc($result);
+		return $row["usercreatorid"];
+	}
+}
+
 function GetRelatedQuestions($userid)
 {
 	$related=array();
@@ -636,10 +653,13 @@ function HasQuestionAccess()
 	else
 		$room_param = "";
 	
+	// rooms are case sensitive
 	if ($room_param == $room_id)
-            return true;
+	// make roome id comparison case insensitive
+	//if(strcasecmp($room_param, $room_id) == 0)
+		return true;
 	else
-            return false;
+        	return false;
 }
 
 function GetProposalRoom($proposal)
@@ -960,30 +980,27 @@ function isloggedin()
 //			START: Persistant Cookies
 //
 //******************************************************************/
+function delete_vga_cookie_entry($userid, $token)
+{
+	set_log("delete_vga_cookie_entry: Deleting entry $userid $token");
+	
+	$sql = "DELETE FROM user_persist_tokens	
+	            WHERE  userid = $userid AND token = '$token'";
+		
+	$result = mysql_query($sql);
+
+	if (!$result)
+	{
+		handle_db_error($result, $sql);
+	}
+}
+
 // returns true if the user is logged in
 function vga_cookie_login()
 {	
+	// unset old-style cookies
 	unsetcookies();
-	// change old-style persistant login to new-style
-	if(isset($_COOKIE[COOKIE_USER]) && false)
-	{
-		$username = $_COOKIE[COOKIE_USER];
-		$pass = $_COOKIE[COOKIE_PASSWORD];
-		set_log("vga_cookie_login(): Cookies found: $username:$pass");
-
-		if ($old_cookie_id = temp_check_for_oldstyle_cookies())
-		{
-			set_log("User $old_cookie_id logged in");
-			// set new style token cookie
-			set_log("Replacing with new style cookie");
-			setpersistantcookie($old_cookie_id);
-			// delete old style cookies
-			set_log("Deleting old style cookies");
-			unsetcookies();
-			return $old_cookie_id;
-		}
-	}	
-	elseif (isset($_COOKIE[VGA_PL]))
+	if (isset($_COOKIE[VGA_PL]))
 	{		
 		$clean = array();
     		$mysql = array();
@@ -1023,6 +1040,7 @@ function vga_cookie_login()
 				// cookie expired - delete it
 				//set_log('Invalid cookie: expired');
 				setcookie(VGA_PL, 'DELETED', $past);
+				delete_vga_cookie_entry($mysql['identifier'] , $mysql['token']);
 				return false;
 			}
 			else
@@ -1128,16 +1146,7 @@ function vga_cookie_logout()
 		$mysql['identifier'] = mysql_real_escape_string($clean['identifier']);
 		$mysql['token'] = mysql_real_escape_string($clean['token']);
 		
-		 $sql = "DELETE FROM user_persist_tokens	
-            		    WHERE  userid = {$mysql['identifier']} AND token = '{$mysql['token']}'";
-	
-		$result = mysql_query($sql);
-		
-		if (!$result)
-		{
-			handle_db_error($result, $sql);
-			return false;
-		}
+		delete_vga_cookie_entry($mysql['identifier'] , $mysql['token']);
 		
 		//set_log('deleted PL token: user ' . $clean['identifier']);
 		
@@ -1443,6 +1452,14 @@ function GetAncestors($source)
 	return $ancestors;
 }
 
+function CountAllProposals($question)
+{
+	$sql = "SELECT COUNT(id) as proposals FROM proposals WHERE experimentid = $question";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_assoc($response);
+	return $row['proposals'];
+}
+
 function CountProposals($question,$generation)
 {
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation."";
@@ -1538,7 +1555,8 @@ function AuthorsOfInheritedProposals($question,$generation)
 function AuthorsOfNewProposals($question,$generation)
 {
 	$authors=array();
-	$sql = "SELECT usercreatorid FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation." and source = 0";
+	$sql = "SELECT usercreatorid FROM proposals 
+	WHERE experimentid = $question AND roundid = $generation AND source = 0";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -1943,23 +1961,41 @@ function TimeLastProposalOrEndorsement($question, $phase, $generation)
 function HasConsensusBeenFound($question,$phase,$generation)
 {
 	if ($phase==1)
-		{return 0;}
+	{
+		return false;
+	}
+	
 	if ($generation==1)
-		{return 0;}
-	$nAuthorsNewProposals=count(AuthorsOfNewProposals($question,$generation));
-	if ($nAuthorsNewProposals)
-		{return 0;}
-	$pastgeneration=$generation -1;
-	$nrecentendorsers=CountEndorsers($question,$pastgeneration);
-	$nrecentparetofront=count(ParetoFront($question,$pastgeneration));
+	{
+		return false;
+	}
+	
+	$nAuthorsNewProposals = count(AuthorsOfNewProposals($question,$generation));
+	
+	if ($nAuthorsNewProposals > 0)
+	{
+		return false;
+	}
+	
+	$pastgeneration = $generation - 1;
+	$nrecentendorsers = CountEndorsers($question,$pastgeneration);
+	$nrecentparetofront = count(ParetoFront($question,$pastgeneration));
 
-	$sql2 = "SELECT id,source  FROM proposals WHERE experimentid = ".$question." and roundid = ".$pastgeneration." and dominatedby = 0 ";
+	$sql2 = "SELECT id,source  FROM proposals 
+	WHERE experimentid = $question AND roundid = $pastgeneration AND dominatedby = 0 ";
 	$row2= mysql_fetch_array(mysql_query($sql2));
+	
 	if(!$row2)
-		{return 0;}
+	{
+		return false;
+	}
+	
 	if ($nrecentendorsers==CountEndorsersToAProposal($row2[0]))
-		{return 1;}
-	return 0;
+	{
+		return true;
+	}
+	
+	return false;
 }
 
 function IsQuestionReadyToBeMovedOn($question,$phase,$generation)
@@ -2035,21 +2071,165 @@ function IsQuestionReadyToAutoMoveOn($question,$phase,$generation)
 }
 
 
+ //Find position of Nth occurance of search string
+function strposOffset($string, $search, $count)
+{
+    $arr = explode($search, $string);
+    switch( $count )
+    {
+        case $count == 0:
+        return false;
+        break;
+    
+        case $count > max(array_keys($arr)):
+        return false;
+        break;
+
+        default:
+        return strlen(implode($search, array_slice($arr, 0, $count)));
+    }
+}
+
+ //Limit word count in a string
+function limitWordCount($string, $count)
+{
+	//$str = strip_tags($string);
+	$arr = explode(' ', trim($string));
+	
+	if ($arr === false or count($arr) == 0)
+	{
+		return false;
+	}
+
+	if (count($arr) < $count)
+	{
+		return $string;
+	}
+	else
+	{
+		$limited_length = implode(' ', array_slice($arr, 0, $count));
+		return $limited_length . ' .....';
+	}
+}
+
+function UpdateFeed($room='')
+{	
+	$domain = SITE_DOMAIN;
+	$feed_format = "RSS2.0";
+	$rss_dir = "rss";
+	$room_param;
+	$timeout = 60;// seconds
+	
+	if (empty($room))
+	{
+		$room_param = '';
+		$room_title = 'Common';
+		$room_link = SITE_DOMAIN . "/viewquestions.php";
+		$question_link = SITE_DOMAIN . "/viewquestion.php?q=";
+	}
+	else
+	{
+		$room_param = "room=$room";
+		$room_title = $room;
+		$room_link = SITE_DOMAIN . "/viewquestions.php?" . $room_param;
+		$question_link = SITE_DOMAIN . "/viewquestion.php?$room_param&q=";
+	}
+	
+	$limit_30day_sql = "SELECT questions.*, users.id AS userid, users.username AS author
+		FROM questions, users
+		WHERE room = '$room' AND date_sub(now(),interval 30 day) < lastmoveon
+		AND questions.usercreatorid = users.id
+		ORDER BY lastmoveon DESC";
+		
+	$sql = "SELECT questions.*, users.id AS userid, users.username AS author
+		FROM questions, users
+		WHERE room = '$room' AND questions.usercreatorid = users.id
+		ORDER BY lastmoveon DESC";
+	
+	if ($response = mysql_query($sql))
+	{
+		$rss = new UniversalFeedCreator();
+		$filename=$rss_dir ."/" . $room_title . ".xml";
+		
+		// Use cached file?
+		$rss->useCached($feed_format, $filename, $timeout);
+		
+		
+		$rss->title = "Vilfredo goes to Athens - Room: " . $room_title;
+		$rss->description = "List of questions currently being addressed in Vilfredo";
+		$rss->link = $room_link;
+		$rss->cssStyleSheet = "";
+		$rss->category = $room_title;
+
+		while ($info = mysql_fetch_assoc($response))
+		{
+			// Set question status
+			if ($info['phase'] == 0)
+			{
+				$consensus = HasConsensusBeenFound($info['id'], $info['phase'], $info['roundid']);
+				$newquestion = (CountProposals($info['id'], $info['roundid']) == 0);
+				
+				if ($consensus)
+				{
+					$question_status = "Status: Agreement Found!";
+				}
+				elseif ($newquestion)
+				{
+					$question_status = "Status: New Question";
+				}
+				else
+				{
+					$question_status = "Status: Now in Generation " . $info['roundid'];
+				}
+			}
+			else
+			{
+				$question_status = "Status: Now Voting!";
+			}
+			
+			// Set content
+			$content = '<h3>' . $question_status . '</h3>';
+			$content .= trim($info['question']);
+			
+			$item = new FeedItem();
+			$item->title = $info['title'];
+			$item->link = $question_link . $info['id'];
+			$rss->guid = $question_link . $info['id'];
+			$item->description = $content;
+			$item->source = $domain;
+			$item->date = convertDateMySQLToRSS($info['lastmoveon']);
+			$rss->addItem($item);
+		}
+		
+		$rss->saveFeed($feed_format, $filename); 
+		//echo $rss->outputFeed("RSS2.0");
+	}
+	else
+	{
+		handle_db_error($response);
+	}
+}
+
+function convertDateMySQLToRSS($date)
+{
+	return date('r', strtotime($date));
+}
 
 function SendMails($question)
 {
 	$EmailsSent=array();
 
-	$sql2 = "SELECT * FROM questions WHERE id = ".$question." ";
+	$sql2 = "SELECT * FROM questions WHERE id = $question";
 	$response2 = mysql_query($sql2);
 	$row2 = mysql_fetch_array($response2);
 	$content=wordwrap($row2[1], 70,"\n",true);
 	$round=$row2[2];
 	$phase=$row2[3];
+	$questioner = $row2['usercreatorid'];
 	$title=wordwrap($row2[5], 70,"\n",true);
 	$room = $row2[9];
 	$urlquery = CreateQuestionURL($question, $room);
-	if (!$phase)
+	if ($phase == 0)
 	{
 		$consensus=HasConsensusBeenFound($question,$phase,$round);
 		if ($consensus)
@@ -2062,11 +2242,15 @@ function SendMails($question)
 			$subject="VgtA: ".$title."";
 			$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\nYou can now see the minimum set of proposal on which everybody agrees.\nIf you think you can propose something better,\nthat would satisfy more people,\nplease do so. Here:\n".SITE_DOMAIN."/viewquestion.php".$urlquery."";
 		}
-	}else{
+	}
+	else
+	{
 		$subject="VgtA: ".$title."";
 		$message="Hello, \n The question: ".$title."\n\n has just been updated.\nWe are now in Generation=".$round.".\n\n You can now see proposals that has been suggested. Please vote on ALL the ones you agree on here:\n".SITE_DOMAIN."/viewquestion.php".$urlquery."";
 	}
 
+	
+	
 	$sql = "SELECT user FROM updates WHERE question = ".$question." and how = 'asap' ";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
@@ -2075,7 +2259,7 @@ function SendMails($question)
 		sendmail($user,$question,$subject,$message);
 		array_push($EmailsSent,$user);
 	}
-	if (!$phase)
+	if ($phase == 0)
 	{
 		$proposers=AuthorsOfNewProposals($question,$round-1);
 		foreach ($proposers as $user)
@@ -2097,7 +2281,9 @@ function SendMails($question)
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
 		}
-	}else{
+	}
+	else
+	{
 		$proposers=AuthorsOfNewProposals($question,$round);
 		foreach ($proposers as $user)
 		{
@@ -2118,8 +2304,13 @@ function SendMails($question)
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
 		}
+		// Also send email to questioner, if not already sent
+		if (!in_array($questioner,$EmailsSent))
+		{
+			sendmail($questioner,$question,$subject,$message);
+			array_push($EmailsSent,$questioner);
+		}
 	}
-
 }
 
 
@@ -2270,7 +2461,7 @@ function SendMail($user,$question,$subject,$message)
 
 function MoveOnToWriting($question)
 {
-	$sql2 = "SELECT phase FROM questions WHERE id = ".$question." LIMIT 1 ";
+	$sql2 = "SELECT phase FROM questions WHERE id = $question";
 	$response2 = mysql_query($sql2);
 	while ($row2 = mysql_fetch_array($response2))
 	{
@@ -2278,11 +2469,9 @@ function MoveOnToWriting($question)
 	}
 	if($phase==1)
 	{
-		$sql = "UPDATE questions SET phase = '0'  WHERE id = ".$question." ";
-		mysql_query($sql);
-		$sql = "UPDATE questions SET roundid = roundid+1 WHERE id = ".$question." ";
-		mysql_query($sql);
-		$sql = "UPDATE questions SET lastmoveon = NOW() WHERE id = ".$question." ";
+		$sql = "UPDATE questions 
+		SET phase = 0, roundid = roundid + 1, lastmoveon = NOW()
+		WHERE id = $question";
 		mysql_query($sql);
 		SelectParetoFront($question);
 		SendMails($question);
@@ -2300,9 +2489,8 @@ function MoveOnToEndorse($question)
 
 	if($phase==0)
 	{
-		$sql = "UPDATE questions SET phase = '1' WHERE id = ".$question." ";
-		mysql_query($sql);
-		$sql = "UPDATE questions SET lastmoveon = NOW() WHERE id = ".$question." ";
+		$sql = "UPDATE questions 
+		SET phase = 1, lastmoveon = NOW() WHERE id = ".$question." ";
 		mysql_query($sql);
 		SendMails($question);
 	}
@@ -2312,7 +2500,6 @@ function MoveOnToEndorse($question)
 //  This function recovers the ParetoFront of a question for a particular generation
 //   This is defined as the proposals that are undominated
 //  ********************************************/
-
 function ParetoFront($question,$generation)
 {
 	$paretofront=array();
@@ -2324,18 +2511,19 @@ function ParetoFront($question,$generation)
 	}
 	return $paretofront;
 }
+
 //  ********************************************/
 //A useless function, that let you recalculate what the pareto front for a particular generation
 //it is useleess since we store that information
 //so it is only useful to check if the pareto front is the same
 //   ********************************************/
-
 function CalculateParetoFront($question,$generation)
 {
 	$proposals=array();
 	$dominated=array();
 	$done=array(); //the list of the proposals already considered
-	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation."";
+	$sql = "SELECT id FROM proposals 
+		WHERE experimentid = $question AND roundid = $generation";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -2346,19 +2534,22 @@ function CalculateParetoFront($question,$generation)
 		array_push($done,$p1);
 		foreach ($proposals as $p2)
 		{
-			if (in_array($p2,$done)) {continue;}
+			if (in_array($p2,$done)) 
+			{
+				continue;
+			}
 			$dominating=WhoDominatesWho($p1,$p2);
 			if ($dominating==$p1)
 			{
 				array_push($dominated,$p2);
-				$sql = "UPDATE proposals SET dominatedby = ".$p1." WHERE id = ".$p2." ";
+				$sql = "UPDATE proposals SET dominatedby = ".$p1." WHERE id = ".$p2;
 				mysql_query($sql);
 				continue;
 			}
 			elseif ($dominating==$p2)
 			{
 				array_push($dominated,$p1);
-				$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1." ";
+				$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1;
 				mysql_query($sql);
 				break;
 			}
@@ -2371,13 +2562,9 @@ function CalculateParetoFront($question,$generation)
 
 
 //  ********************************************/
-//  This function stores the calculated pareto front in the database
+//  This function stores the calculated pareto front in the database as a new generation
 //  it is meant to be used only once, just after the pareto front is calculated
 //  ********************************************/
-
-
-
-
 function StoreParetoFront($question,$generation,$paretofront)
 {
 	foreach ($paretofront as $p)
@@ -2390,21 +2577,21 @@ function StoreParetoFront($question,$generation,$paretofront)
 
 			if (!get_magic_quotes_gpc())
 			{
-				$blurb = addslashes($row[1]);
+				$blurb = addslashes($row['blurb']);
 				$abstract = addslashes($row['abstract']);
 			}
 			else
 			{
-				$blurb = $row[1];
+				$blurb = $row['blurb'];
 				$abstract = $row['abstract'];
 			}
 
-			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) VALUES (\'' . $blurb . '\', \'' . $row[2] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\');';
+			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) VALUES (\'' . $blurb . '\', \'' . $row['usercreatorid'] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\');';
 			
-			$add_proposal_to_nextgen = mysql_query($sql);
-			if (!$add_proposal_to_nextgen)
+			$add_pareto_to_nextgen = mysql_query($sql);
+			if (!$add_pareto_to_nextgen)
 			{
-				handle_db_error($add_proposal_to_nextgen);
+				handle_db_error($add_pareto_to_nextgen);
 			}
 		}
 	}
@@ -2416,11 +2603,9 @@ function StoreParetoFront($question,$generation,$paretofront)
 // and then stores it in the database. It is meant to be used immediately after 
 // a question has passed phase.
 //  ********************************************/
-
-
 function SelectParetoFront($question)
 {
-	$sql = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1";
+	$sql = "SELECT roundid FROM questions WHERE id = $question LIMIT 1";
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{

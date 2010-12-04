@@ -11,6 +11,7 @@ require_once 'graphs.php';
 require_once 'vga_functions.php';
 include_once 'lib/php_lib.php';
 require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
+require_once "lib/feedcreator-1.7.2-ppt/include/feedcreator.class.php";
 
 // Set error logs if log directory is defined (in config.domain.php)
 if (defined('LOG_DIRECTORY'))
@@ -69,7 +70,11 @@ define('ONE_YEAR', 3600*24*365);
 define('TWO_DAYS', 3600*24*2);
 define('ONE_HOUR', 3600);
 define('FIVE_MINUTES', 300);
-define('COOKIE_LIFETIME', TWO_DAYS);
+
+if (!defined('COOKIE_LIFETIME'))
+{
+	define('COOKIE_LIFETIME', TWO_DAYS);
+}
 //
 // Get rid off this
 #define("USE_PRIVACY_FILTER", TRUE);

@@ -6,8 +6,21 @@ js/jquery/tooltip/
 loc/
 new/
 temp/
+rss/
+*.orig
+vga current/
 images/
+*.bak
+*.txt
+*.old
+*_old
 work/
+current/
+old/
+feeds/
+news/
+lib2/
+z_useful files/my stuff/
 nbproject/
 *.jpg
 test*

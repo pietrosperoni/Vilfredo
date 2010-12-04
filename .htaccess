@@ -15,3 +15,17 @@ DirectoryIndex viewquestions.php
 #RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
 #RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
 #</IfModule>
+
+#RewriteEngine on
+#RewriteRule   ^/$  /e/www/  [R]
+
+#RewriteEngine on
+#RewriteCond %{HTTP_HOST} ^localhost$
+#RewriteCond %{REQUEST_URI} !^/vilfredoUI/
+#RewriteRule ^(.*)$ /vilfredoUI/$1
+#RewriteCond %{HTTP_HOST} ^localhost$
+#RewriteRule ^(/)?$ vilfredoUI/index.php [L]
+
+
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
