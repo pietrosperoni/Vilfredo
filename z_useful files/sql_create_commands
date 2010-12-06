@@ -27,3 +27,5 @@ ALTER TABLE `updates` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT
  
  ALTER TABLE `questions` ADD `minimumtime` INT UNSIGNED NULL DEFAULT '86400' COMMENT 'in minutes, default 1 day',
 ADD `maximumtime` INT UNSIGNED NULL DEFAULT '604800' COMMENT 'in minutes, default 1 week';
+
+ ALTER TABLE  `questions` CHANGE  `room`  `room` VARCHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
