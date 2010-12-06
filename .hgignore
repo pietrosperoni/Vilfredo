@@ -1,6 +1,5 @@
 syntax: glob
 priv/
-lib/facebook/
 js/work/
 js/jquery/tooltip/
 loc/

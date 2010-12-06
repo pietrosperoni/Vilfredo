@@ -50,7 +50,7 @@ $rss_link = CreateRSSLink();
 		<link rel="stylesheet" type="text/css" href="css/ie6-sucks.css" media="screen, print" />
 		<![endif]-->
 		<link rel="stylesheet" type="text/css" href="widgets.css">
-		<link rel="alternate" type="application/rss+xml" href="<?php echo $rss_link; ?>" />
+		<link rel="alternate" type="application/rss+xml" href="<?php echo $rss_link; ?>">
 		<?php echo $headcommands; ?>
 		<title>Vilfredo goes to Athens</title>
 	</head>
