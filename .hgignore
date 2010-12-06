@@ -1,29 +1,28 @@
 syntax: glob
-priv/
-js/work/
-new/
+priv
+js/work
+new
 js/jquery/tooltip/demo
-temp/
-rss/
+temp
+rss
 *.orig
-vga current/
+vga current
 *.bak
 *.txt
 *.old
 *_old
 work
-current/
-old/
-feeds/
-news/
-lib2/
-z_useful files/my stuff/
-nbproject/
+current
+old
+demo*.php
+feeds
+news
+lib2
+z_useful files/my stuff
+nbproject
 test*
-*[0-9].php
 Thumbs.db
-temp_files/
+temp_files
 
-# switch to regexp syntax.
 syntax: regexp
 ^images
