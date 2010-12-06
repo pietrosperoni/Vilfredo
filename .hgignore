@@ -1,19 +1,17 @@
 syntax: glob
 priv/
 js/work/
-js/jquery/tooltip/
-loc/
 new/
+js/jquery/tooltip/demo
 temp/
 rss/
 *.orig
 vga current/
-images/
 *.bak
 *.txt
 *.old
 *_old
-work/
+work
 current/
 old/
 feeds/
@@ -21,8 +19,11 @@ news/
 lib2/
 z_useful files/my stuff/
 nbproject/
-*.jpg
 test*
 *[0-9].php
 Thumbs.db
 temp_files/
+
+# switch to regexp syntax.
+syntax: regexp
+^images
