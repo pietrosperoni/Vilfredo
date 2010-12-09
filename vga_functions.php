@@ -2130,8 +2130,8 @@ function UpdateFeed($room='')
 	$feed_format = "RSS2.0";
 	$rss_dir = "rss";
 	$room_param;
-	$timeout = 60;// seconds
-	
+	$timeout = 600;// seconds
+		
 	if (empty($room))
 	{
 		$room_param = '';
@@ -2147,6 +2147,12 @@ function UpdateFeed($room='')
 		$question_link = SITE_DOMAIN . "/viewquestion.php?$room_param&q=";
 	}
 	
+	$rss = new UniversalFeedCreator();
+	$filename=$rss_dir ."/" . $room_title . ".xml";
+				
+	// Use cached file?
+	$rss->useCached($feed_format, $filename, $timeout);
+	
 	$limit_30day_sql = "SELECT questions.*, users.id AS userid, users.username AS author
 		FROM questions, users
 		WHERE room = '$room' AND date_sub(now(),interval 30 day) < lastmoveon
@@ -2160,13 +2166,6 @@ function UpdateFeed($room='')
 	
 	if ($response = mysql_query($sql))
 	{
-		$rss = new UniversalFeedCreator();
-		$filename=$rss_dir ."/" . $room_title . ".xml";
-		
-		// Use cached file?
-		$rss->useCached($feed_format, $filename, $timeout);
-		
-		
 		$rss->title = "Vilfredo goes to Athens - Room: " . $room_title;
 		$rss->description = "List of questions currently being addressed in Vilfredo";
 		$rss->link = $room_link;
