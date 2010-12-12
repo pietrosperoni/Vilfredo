@@ -2460,9 +2460,13 @@ function InviteKeyPlayersToRewriteProposals($question,$generation,$room)
 {
 	$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
 	
+	log_error("Preparing to send invitations".$generation."");
+	
 	
 	if (count($ProposalsCouldDominate) > 0)
 	{
+		log_error("There are invitations to send");
+		
 		$KeyPlayers=array_keys($ProposalsCouldDominate);
 		foreach ($KeyPlayers as $KeyPlayer)
 		{
@@ -2583,7 +2587,7 @@ function MoveOnToWriting($question)
 	while ($row2 = mysql_fetch_array($response2))
 	{
 		$phase =	$row2[0];
-#		$generation= $row2[1];
+		$generation= $row2[1];
 	}
 	if($phase==1)
 	{
@@ -2591,13 +2595,10 @@ function MoveOnToWriting($question)
 		SET phase = 0, roundid = roundid + 1, lastmoveon = NOW()
 		WHERE id = $question";
 		mysql_query($sql);
-#		log_error("Selecting the Pareto Front");
 		
 		SelectParetoFront($question);
-		log_error("Sending the Mail");
 		
 		SendMails($question);
-		log_error("Sending the InviteKeyPlayersToRewriteProposals".$generation." ");
 		
 		InviteKeyPlayersToRewriteProposals($question,$generation,GetRoom($question));
 		
@@ -2681,24 +2682,8 @@ function CalculateParetoFront($question,$generation)
 			}
 		}
 	}
-#	log_error("proposals ".$proposals." ");
-#	foreach ($proposals as $p1)
-#	{
-#		log_error("proposal ".$p1." ");		
-#	}
-	
-#	log_error("dominated ".$dominated." ");
-#	foreach ($dominated as $p1)
-#	{
-#		log_error("proposal ".$p1." ");		
-#	}
 	
 	$paretofront=array_diff($proposals,$dominated);
-#	log_error("paretofront ".$paretofront." ");
-#	foreach ($paretofront as $p1)
-#	{
-#		log_error("proposal ".$p1." ");		
-#	}
 	
 	return $paretofront;
 }
@@ -2712,18 +2697,11 @@ function CalculateParetoFront($question,$generation)
 function StoreParetoFront($question,$generation,$paretofront)
 {
 	
-	log_error("The Pareto Front is=".$paretofront." ");
-	foreach ($paretofront as $p1)
-	{
-		log_error("proposal ".$p1." ");		
-	}
-	log_error("end");
 	
 	
 	foreach ($paretofront as $p)
 	{
 		
-		log_error("copying proposal ".$p." ");
 		
 		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
 		$response = mysql_query($sql);
@@ -2749,7 +2727,6 @@ function StoreParetoFront($question,$generation,$paretofront)
 			{
 				handle_db_error($add_pareto_to_nextgen);
 			}
-			log_error("Result ".$add_pareto_to_nextgen." ");
 			
 		}
 	}
@@ -2769,7 +2746,6 @@ function SelectParetoFront($question)
 	{
 		$generation=$row[0];
 	}
-	log_error("CalculateParetoFront(".$question.",".$generation.")");
 	
 	
 	$paretofront=CalculateParetoFront($question,$generation-1);
