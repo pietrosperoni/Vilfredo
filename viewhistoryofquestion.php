@@ -105,6 +105,7 @@ include('header.php');
 				if (count($ProposalsCouldDominate) > 0)
 				{
 					echo '<br/><p>Key Players (proposals they should work on):<br/>';
+					
 
 					$KeyPlayers=array_keys($ProposalsCouldDominate);
 					foreach ($KeyPlayers as $KP)

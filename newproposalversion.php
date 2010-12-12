@@ -38,7 +38,12 @@ include('header.php');
 if ($userid)
 {	
 	
-	$proposal = $_POST['p'];
+	$proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
+	if (!HasProposalAccess())
+	{
+			header("Location: index.php");
+	}
+	
 	
 	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract FROM proposals WHERE proposals.id = ".$proposal;
 

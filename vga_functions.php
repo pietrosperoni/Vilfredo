@@ -2423,9 +2423,9 @@ and click on the "moveon" button.
 
 function InviteUserToQuestion($user,$question,$room,$userid)
 {
-        $question_url = CreateQuestionURL($question,$room);
+    $question_url = CreateQuestionURL($question,$room);
 
-        $sql = "SELECT users.username FROM users WHERE id = ".$userid." ";
+    $sql = "SELECT users.username FROM users WHERE id = ".$userid." ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_array($response);
 	$authorusername=$row[0];
@@ -2456,6 +2456,112 @@ If you would like not to receive any more invitations from '.$authorusername.' y
 		mail($to,$subject, $message );
 }
 
+function InviteKeyPlayersToRewriteProposals($question,$generation,$room)
+{
+	$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
+	
+	
+	if (count($ProposalsCouldDominate) > 0)
+	{
+		$KeyPlayers=array_keys($ProposalsCouldDominate);
+		foreach ($KeyPlayers as $KeyPlayer)
+		{
+			InviteKeyPlayerToRewriteProposals($KeyPlayer,$ProposalsCouldDominate[$KeyPlayer],$question,$room);
+		}
+	}
+	
+}
+
+function InviteKeyPlayerToRewriteProposals($KeyPlayer,$proposals,$question,$room)
+{	
+	
+	$question_url = CreateQuestionURL($question,$room);
+
+	$sql = "SELECT questions.title FROM questions WHERE questions.id = ".$question." ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	$title=$row[0];
+
+	$sql = "SELECT users.username, users.email FROM users WHERE id = ".$KeyPlayer." ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	$to=$row[1];
+	$username=$row[0];
+
+	$subject="VgtA: You are a Key Player on ".$title."";
+	$message='	Dear '.$username.'
+	After the last voting session, on the question
+	
+	'.$title.'
+	
+	it came out that you are a key player for this round in the game.
+	(For an explanation of what a Key Player is, please look at the end of the email)
+	
+	As such we invite you to look at the following proposals. Those are proposals you did NOT support. 
+	Instead we would like you to try to rewrite each of those proposals
+	in a way that does not betray too much the aim of the original author,
+	but also in a way that you feel you can (and will) support them.
+	
+	What follows is the list of question(s) that you should work on:
+	';
+
+	foreach ($proposals as $proposal)
+	{
+		$message.=InviteKeyPlayerToRewriteProposal($proposal,$room);
+	}
+	
+	$message.='
+	
+	Thank you very much. 
+
+	
+	Vilfredo goes to Athens is not just a website that invites people to propose solution to open questions, 
+	but also proactively tries to help participants look for where they can act for the maximum probability of 
+	finding a workable compromise between all the participants.
+	
+	The search for the Key Players is part of this quest.
+	
+	For each generation, sometimes, there can be some people which happen to hold the key that can help 
+	the whole community in their process of integrating their knowledge. 
+	While everybody is invited to generally look for workable compromises, 
+	key players are also invited to rewrite specific proposals.
+	If the key players are able to produce a new version of a proposal that can satisfy the original supporters
+	and satisfy themselves then the new proposal will win over the pervious 
+	one and ultimately it will cause the Pareto Front to decrease of one unit. 
+
+
+	';
+	
+	$message=wordwrap  ( $message, 70,"\n",true);
+	mail($to,$subject, $message );
+	
+	
+	
+	
+}
+
+function InviteKeyPlayerToRewriteProposal($proposal,$room)
+{	
+	$urlquery = CreateProposalURL($proposal, $room);
+	#Proposal Number <a href="viewproposal.php'.$urlquery.'">'.$proposal.'</a>;
+	#If the above link does not work you can access this question at:
+	
+	$message='
+	
+	'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'
+
+	You can also try our experimental new link (do not  hold your breath that it will work) which should send you directly to a page with 
+	an edit box and the proposal inside, so you can just change it, and submit it
+	'.SITE_DOMAIN.'/newproposalversion.php'.$urlquery.'
+	
+	';
+	return $message;
+}
+
+
+
+
+
 function SendMail($user,$question,$subject,$message)
 {
 	$sql = "SELECT email FROM users WHERE id = ".$user." ";
@@ -2472,11 +2578,12 @@ function SendMail($user,$question,$subject,$message)
 
 function MoveOnToWriting($question)
 {
-	$sql2 = "SELECT phase FROM questions WHERE id = $question";
+	$sql2 = "SELECT phase, roundid FROM questions WHERE id = $question";
 	$response2 = mysql_query($sql2);
 	while ($row2 = mysql_fetch_array($response2))
 	{
 		$phase =	$row2[0];
+#		$generation= $row2[1];
 	}
 	if($phase==1)
 	{
@@ -2484,8 +2591,16 @@ function MoveOnToWriting($question)
 		SET phase = 0, roundid = roundid + 1, lastmoveon = NOW()
 		WHERE id = $question";
 		mysql_query($sql);
+#		log_error("Selecting the Pareto Front");
+		
 		SelectParetoFront($question);
+		log_error("Sending the Mail");
+		
 		SendMails($question);
+		log_error("Sending the InviteKeyPlayersToRewriteProposals".$generation." ");
+		
+		InviteKeyPlayersToRewriteProposals($question,$generation,GetRoom($question));
+		
 	}
 }
 
@@ -2566,7 +2681,25 @@ function CalculateParetoFront($question,$generation)
 			}
 		}
 	}
+#	log_error("proposals ".$proposals." ");
+#	foreach ($proposals as $p1)
+#	{
+#		log_error("proposal ".$p1." ");		
+#	}
+	
+#	log_error("dominated ".$dominated." ");
+#	foreach ($dominated as $p1)
+#	{
+#		log_error("proposal ".$p1." ");		
+#	}
+	
 	$paretofront=array_diff($proposals,$dominated);
+#	log_error("paretofront ".$paretofront." ");
+#	foreach ($paretofront as $p1)
+#	{
+#		log_error("proposal ".$p1." ");		
+#	}
+	
 	return $paretofront;
 }
 
@@ -2578,8 +2711,20 @@ function CalculateParetoFront($question,$generation)
 //  ********************************************/
 function StoreParetoFront($question,$generation,$paretofront)
 {
+	
+	log_error("The Pareto Front is=".$paretofront." ");
+	foreach ($paretofront as $p1)
+	{
+		log_error("proposal ".$p1." ");		
+	}
+	log_error("end");
+	
+	
 	foreach ($paretofront as $p)
 	{
+		
+		log_error("copying proposal ".$p." ");
+		
 		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
 		$response = mysql_query($sql);
 
@@ -2604,6 +2749,8 @@ function StoreParetoFront($question,$generation,$paretofront)
 			{
 				handle_db_error($add_pareto_to_nextgen);
 			}
+			log_error("Result ".$add_pareto_to_nextgen." ");
+			
 		}
 	}
 }
@@ -2622,7 +2769,10 @@ function SelectParetoFront($question)
 	{
 		$generation=$row[0];
 	}
-	$paretofront=CalculateParetoFront($question,$generation);
+	log_error("CalculateParetoFront(".$question.",".$generation.")");
+	
+	
+	$paretofront=CalculateParetoFront($question,$generation-1);
 	StoreParetoFront($question,$generation,$paretofront);
 }
 
