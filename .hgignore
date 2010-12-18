@@ -13,6 +13,7 @@ vga current
 *_old
 work
 current
+.htaccess
 old
 demo*.php
 feeds
