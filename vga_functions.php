@@ -292,7 +292,7 @@ function GetRelatedQuestions($userid)
 }
 
 function SendInvite($userid, $receiver, $question)
- {  	     
+{  	     
   	$sql = "INSERT INTO `invites` (sender, receiver, question, creationtime) 
   	VALUES ('$userid', '$receiver', '$question', NOW())";
   
@@ -451,7 +451,7 @@ return (!$loggedin && false) ? $str : '';
 
 function LoadGoogleAnalytics($display=true) 
 {
-$str = <<<_HTML_
+	$str = <<<_HTML_
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -463,7 +463,7 @@ pageTracker._trackPageview();
 } catch(err) {}</script>
 _HTML_;
 
-return (USE_GOOGLE_ANALYTICS && $display) ? $str : ''; 
+	return (USE_GOOGLE_ANALYTICS && $display) ? $str : ''; 
 }
 
 function GetUserAccessFilter($uid)
@@ -660,6 +660,14 @@ function HasQuestionAccess()
 		return true;
 	else
         	return false;
+}
+
+function GetProposalQuestion($proposal)
+{
+	 $sql="SELECT experimentid FROM proposals WHERE proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	return $row['experimentid'];
 }
 
 function GetProposalRoom($proposal)
@@ -1569,7 +1577,7 @@ function RoomsUsed($userid)
 {
 	$rooms=array();
 	$sql = "SELECT questions.room  FROM questions WHERE questions.usercreatorid = ".$userid." ";
-#	echo $sql;
+	#	echo $sql;
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -1598,7 +1606,8 @@ function RoomsUsed($userid)
 	}
 	
 	return array_unique($rooms);
- }
+}
+
 
 function WhereHaveWeMet($RoomsUser1,$RoomsUser2)
 {
