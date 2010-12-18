@@ -662,6 +662,39 @@ function HasQuestionAccess()
         	return false;
 }
 
+
+function GetOriginalProposal($proposal)
+{
+	$sql="SELECT source, roundid FROM proposals WHERE proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	if ($row['source']==0)
+	{
+		$result=array();
+		$result['proposalid']=$proposal;
+		$result['generation']=$row['roundid'];
+		return $result;
+	}
+	else
+	{
+		return GetOriginalProposal($row['source']);
+	}
+}
+
+function GetProposalDaughter($proposal)
+{
+	$daughter=0;
+	$sql="SELECT id FROM proposals WHERE proposals.source = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	while ($row = mysql_fetch_array($result))
+	{
+		$daughter=$row[0];
+	}
+
+	return $daughter;
+}
+
+
 function GetProposalQuestion($proposal)
 {
 	 $sql="SELECT experimentid FROM proposals WHERE proposals.id = '$proposal'";
@@ -2649,9 +2682,9 @@ function ParetoFront($question,$generation)
 }
 
 //  ********************************************/
-//A useless function, that let you recalculate what the pareto front for a particular generation
-//it is useleess since we store that information
-//so it is only useful to check if the pareto front is the same
+//A function, that let you recalculate what the pareto front for a particular generation
+//it is not that useful since we store that information
+//so it is only useful the first time or to check if the pareto front is the same
 //   ********************************************/
 function CalculateParetoFront($question,$generation)
 {
@@ -2695,6 +2728,44 @@ function CalculateParetoFront($question,$generation)
 	$paretofront=array_diff($proposals,$dominated);
 	
 	return $paretofront;
+}
+
+//  ********************************************/
+//Given a proposal this function finds all the proposal that dominates it or that are dominated by it
+//   ********************************************/
+function CalculateProposalsRelationTo($proposal,$question,$generation)
+{
+	$proposals=array();
+	$dominated=array();
+	$dominating=array();
+	$RelatedProposals=array();
+	$sql = "SELECT id FROM proposals 
+		WHERE experimentid = $question AND roundid = $generation";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row[0]);
+	}
+	
+	foreach ($proposals as $p)
+	{
+		if ($proposal==$p) 
+			{
+				continue;
+			}
+		$WhichIsDominating=WhoDominatesWho($proposal,$p);
+		if ($WhichIsDominating==$proposal)
+		{
+			array_push($dominated,$p);
+		}
+		elseif ($WhichIsDominating==$p)
+		{
+			array_push($dominating,$p);
+		}
+	}
+	$RelatedProposals["dominated"]=$dominated;
+	$RelatedProposals["dominating"]=$dominating;
+	return $RelatedProposals;
 }
 
 
