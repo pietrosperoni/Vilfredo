@@ -14,6 +14,8 @@ vga current
 work
 current
 .htaccess
+copy*
+Copy*
 old
 demo*.php
 feeds
