@@ -216,7 +216,7 @@ h1 img {
 	padding:3px 15px 3px 15px;
 	text-align: center;
 }
-
+
 .floatingboxcontainer {
 	position:relative;
 	margin:0;
@@ -314,7 +314,7 @@ h1 img {
 	padding:15px;
 	text-align: center;
 }
-
+
 /*
 .solvedbox h2,p {
 	text-align: center;
@@ -326,7 +326,7 @@ h1 img {
 	padding:3px 15px 3px 15px;
 	margin:3px 3px 15px 3px;
 }
-
+
 table#social-buttons {
 	margin-bottom: 20px;
 }
@@ -862,4 +862,47 @@ div.reg_form {
 	width: 48px;
 	height: 48px;
 	display: none;
+}
+
+a.tweet { 
+	font: 12px Helvetica,Arial; 
+	color: #000; 
+	text-decoration: none; 
+	border: 0px; 
+}
+		
+a.tweet span { 
+	color: #000; 
+	background: #D0F5A9; 
+	margin-left: 2px; 
+	border: 1px solid #43A52A; 
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px; 
+	border-radius: 3px; 
+	padding: 3px; 
+}
+
+a.vert { 
+	display: block; 
+	text-align: center; 
+	font-size: 16px; 
+	float: left; 
+	margin: 4px; 
+}
+
+a.tweet strong.vert {
+	display: block; 
+	margin-bottom: 4px; 
+	background: #F5F5F5; 
+	border: 1px solid #EEE; 
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px; 
+	border-radius: 3px; 
+	padding: 3px; 
+}
+
+a.tweet span.vert { 
+	display: block; 
+	font-size: 12px; 
+	margin-left: 0px; 
 }

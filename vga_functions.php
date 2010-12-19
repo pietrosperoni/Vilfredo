@@ -66,6 +66,17 @@ function set_log($msg)
 	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
 }
 
+function db_error($sql="")
+{
+	$msg = "MySQL Error=[" .  mysql_errno() . " : " . mysql_error() . ']';
+	if (!empty($sql))
+	{
+		$msg .= '   SQL=[' . $sql . ']  ';
+	}
+	
+	log_error($msg);
+}
+
 function handle_db_error($result=false, $sql="")
 {
 	if (!$result)
@@ -974,7 +985,7 @@ function isloggedin()
 		 		return false;
 		 	}
 		}
-		$userid = isadminonly($userid);
+		//$userid = isadminonly($userid);
 		return $userid;
 	}
 	// Check if logging in
@@ -991,7 +1002,7 @@ function isloggedin()
 	// Check of user has opted for permenant login
 	elseif ($userid = vga_cookie_login())
 	{
-		$userid = isadminonly($userid);
+		//$userid = isadminonly($userid);
 		if ($userid)
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
@@ -1002,7 +1013,7 @@ function isloggedin()
 	// Finally check if a current Facebook session is available for a connected account
 	elseif ($FACEBOOK_ID != null && ($userid = fb_user_login($FACEBOOK_ID)))
 	{
-		$userid = isadminonly($userid);
+		//$userid = isadminonly($userid);
 		if ($userid)
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
@@ -2166,13 +2177,97 @@ function CreateRSSLink()
 	return $rss_link;
 }
 
+function GetShortURL($question)
+{
+	$hash = GetBitlyHash($question);
+	
+	if (!hash or empty($hash))
+	{
+		return false;
+	}
+	else
+	{
+		$shorturl = BITLY_URL;
+		$shorturl .= $hash;
+		return $shorturl;
+	}
+}
+
+function GetBitlyHash($question)
+{	
+	
+	$sql = "SELECT bitlyhash FROM questions 
+		WHERE id = $question";
+	
+	$result = mysql_query($sql);
+	
+	if (!result)
+	{
+		db_error($sql);
+		return false;
+	}
+	
+	else 
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['bitlyhash'];
+	}
+}
+
+function SetBitlyHash($question, $bitlyhash)
+{	
+	$sql = "UPDATE questions 
+		SET bitlyhash = '$bitlyhash'
+		WHERE id = $question";
+	
+	$result = mysql_query($sql);
+	
+	if (!$result)
+	{
+		db_error($sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function CreateVGADir($dirname)
+{
+	if (!is_dir($dirname)) 
+	{
+		return mkdir($dirname);
+	}
+	else
+	{
+		return true;
+	}
+}
+
+/*
+link 21
+140 
+
+title 90
+
+New Question
+How should we handle the wall of text? Propose at <bit.ly link
+
+Now Voting!
+[3] How should we handle the wall of text? 8 Proposals; Vote at <bit.ly link>
+
+Now in Generation 4
+[4] How should we handle the wall of text? 3 Hints; propose at <bit.ly link>
+
+Agreement Found!
+[5] How should we handle the wall of text? 1 Solution found in 5 steps <bit.ly link>
+*/
 function UpdateFeed($room='')
 {	
 	$domain = SITE_DOMAIN;
-	$feed_format = "RSS2.0";
-	$rss_dir = "rss";
 	$room_param;
-	$timeout = 600;// seconds
+	global $bitly_user, $bitly_key;
 		
 	if (empty($room))
 	{
@@ -2190,10 +2285,10 @@ function UpdateFeed($room='')
 	}
 	
 	$rss = new UniversalFeedCreator();
-	$filename=$rss_dir ."/" . $room_title . ".xml";
+	$filename=RSS_DIR ."/" . $room_title . ".xml";
 				
 	// Use cached file?
-	$rss->useCached($feed_format, $filename, $timeout);
+	$rss->useCached(RSS_FEED_FORMAT, $filename, RSS_TIMEOUT);
 	
 	$limit_30day_sql = "SELECT questions.*, users.id AS userid, users.username AS author
 		FROM questions, users
@@ -2209,57 +2304,193 @@ function UpdateFeed($room='')
 	if ($response = mysql_query($sql))
 	{
 		$rss->title = "Vilfredo goes to Athens - Room: " . $room_title;
-		$rss->description = "List of questions currently being addressed in Vilfredo";
+		$rss->description = "List of questions currently being addressed in Vilfredo in Room ".$room_title;
 		$rss->link = $room_link;
 		$rss->cssStyleSheet = "";
-		$rss->category = $room_title;
+		$rss->category = 'eDemocracy';
+		$rss->room = $room_title;
+		
+		$question_status;
+		question_status_code;
+		/*
+		New Question = 0
+		Writing = 1
+		Voting = 2
+		Concensus = 3
+		*/
 
 		while ($info = mysql_fetch_assoc($response))
 		{
+			$num_proposals = CountProposals($info['id'], $info['roundid']);
+			
 			// Set question status
 			if ($info['phase'] == 0)
 			{
 				$consensus = HasConsensusBeenFound($info['id'], $info['phase'], $info['roundid']);
-				$newquestion = (CountProposals($info['id'], $info['roundid']) == 0);
+				$newquestion = ($num_proposals == 0);
 				
 				if ($consensus)
 				{
-					$question_status = "Status: Agreement Found!";
+					$question_status = "Agreement Found!";
+					$question_status_code = 3;
 				}
 				elseif ($newquestion)
 				{
-					$question_status = "Status: New Question";
+					$question_status = "New Question";
+					$question_status_code = 0;
 				}
 				else
 				{
-					$question_status = "Status: Now in Generation " . $info['roundid'];
+					$question_status = "Now in Generation " . $info['roundid'];
+					$question_status_code = 1;
 				}
 			}
 			else
 			{
-				$question_status = "Status: Now Voting!";
+				$question_status = "Now Voting!";
+				$question_status_code = 2;
 			}
 			
 			// Set content
-			$content = '<h3>' . $question_status . '</h3>';
+			$content = '<h3>' . 'Status: ' . $question_status . '</h3>';
 			$content .= trim($info['question']);
 			
 			$item = new FeedItem();
 			$item->title = $info['title'];
 			$item->link = $question_link . $info['id'];
-			$rss->guid = $question_link . $info['id'];
+			$item->guid = $question_link . $info['id'];
 			$item->description = $content;
 			$item->source = $domain;
 			$item->date = convertDateMySQLToRSS($info['lastmoveon']);
+			
+			//vga specific elemets
+			$item->additionalElements["vga:generation"] = $info['roundid'];
+			$item->additionalElements["vga:numberProposals"] = $num_proposals;
+			$item->additionalElements["vga:status"] = $question_status;
+			$item->additionalElements["vga:room"] = $room_title;
+			
+			// twitter post
+			if (ADD_TWITTER_TO_RSS)
+			{
+				// Only add if shorturl exists
+				if ($short_url = GetShortURL($info['id']))
+				{					
+					// Also add shorturl as an element
+					$item->additionalElements["vga:shorturl"] = $short_url;
+					
+					$twitter_post = make_twitter_post($info['title'], $question_status_code, $info['roundid'], $num_proposals, $short_url);
+					
+					if ($twitter_post)
+					{
+						$item->additionalElements["vga:twitter"] = $twitter_post;
+					}
+				}
+				
+				// Try bitly
+				else
+				{
+					$long_url = $question_link . $info['id'];
+					
+					if ($hash = make_bitly_hash($long_url, $bitly_user, $bitly_key))
+					{
+						// Add hash to DB
+						set_log("Adding $hash to " . $info['id']);
+						SetBitlyHash($info['id'], $hash);
+						$short_url = BITLY_URL;
+						$short_url .= $hash;
+						// Also add shorturl as an element
+						$item->additionalElements["vga:shorturl"] = $short_url;
+
+						$twitter_post = make_twitter_post($info['title'], $question_status_code, $info['roundid'], $num_proposals, $short_url);
+
+						if ($twitter_post)
+						{
+							$item->additionalElements["vga:twitter"] = $twitter_post;
+						}
+					}
+				}
+			}
+			
 			$rss->addItem($item);
 		}
 		
-		$rss->saveFeed($feed_format, $filename); 
-		//echo $rss->outputFeed("RSS2.0");
+		$rss->saveFeed(RSS_FEED_FORMAT, $filename); 
 	}
 	else
 	{
-		handle_db_error($response);
+		db_error($sql);
+	}
+}
+
+function make_twitter_post($title, $status, $generation, $proposals, $link)
+{
+	/*
+	New Question = 0
+	Writing = 1
+	Voting = 2
+	Concensus = 3
+	*/
+	
+	if (strlen($title) > 90)
+	{
+		$title = substr($title, 0, 90);
+	}
+	
+	switch($status)
+	{
+		case 0:
+	        	return "$title Propose at $link";
+        		break;
+        	case 1:
+			return "[$generation] $title $proposals Hints; Propose at $link";
+        		break;
+        	case 2:
+			return "[$generation] $title $proposals Proposals; Vote at $link";
+        		break;
+        	case 3:
+			return "[$generation] $title $proposals Solutions found in $generation steps $link";
+        		break;
+        	default:
+        		return false;
+	}
+}
+
+function make_bitly_hash($url, $login, $appkey, $format='xml', $history=1, $version='2.0.1')
+{	
+	//create the URL
+	$bitly = 'http://api.bit.ly/v3/shorten';
+	$param = 'version='.$version.'&longUrl='.urlencode($url).'&login='
+	.$login.'&apiKey='.$appkey.'&format='.$format.'&history='.$history;
+
+	//get the url
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $bitly . "?" . $param);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	$response = curl_exec($ch);
+	curl_close($ch);
+
+	//parse depending on desired format
+	if(strtolower($format) == 'json') 
+	{
+		// JSON NOT TESTED!!!
+		$json = @json_decode($response,true);
+		print_r($json);
+		exit;
+		return $json['data'][$url]['hash'];
+	} 
+	else 
+	{
+		$xml = simplexml_load_string($response);
+		
+		if ($xml->status_code == 200)
+		{
+			return $xml->data->hash;
+		}
+		else
+		{
+			log_error("make_bitly_hash: " . $xml->status_txt);
+			return false;
+		}
 	}
 }
 

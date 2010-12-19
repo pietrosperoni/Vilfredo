@@ -1049,7 +1049,11 @@ class RSSCreator091 extends FeedCreator {
 		$feed = "<?xml version=\"1.0\" encoding=\"".$this->encoding."\"?>\n";
 		$feed.= $this->_createGeneratorComment();
 		$feed.= $this->_createStylesheetReferences();
-		$feed.= "<rss version=\"".$this->RSSVersion."\">\n"; 
+		$feed.= "<rss version=\"".$this->RSSVersion."\"\n"; 
+		//
+		$feed.= "    xmlns:atom=\"http://www.w3.org/2005/Atom\"\n";
+		$feed.= "    xmlns:vga=\"http://vilfredo.org/ns/vga\">\n";
+		//
 		$feed.= "    <channel>\n";
 		$feed.= "        <title>".FeedCreator::iTrunc(htmlspecialchars($this->title),100)."</title>\n";
 		$this->descriptionTruncSize = 500;
@@ -1058,6 +1062,7 @@ class RSSCreator091 extends FeedCreator {
 		$now = new FeedDate();
 		$feed.= "        <lastBuildDate>".htmlspecialchars($now->rfc822())."</lastBuildDate>\n";
 		$feed.= "        <generator>".FEEDCREATOR_VERSION."</generator>\n";
+		$feed.= "        <atom:link href=\"http://".$_SERVER['HTTP_HOST']."/rss/". $this->room.".xml\" rel=\"self\" type=\"application/rss+xml\" />\n";
 
 		if ($this->image!=null) {
 			$feed.= "        <image>\n";
@@ -1139,7 +1144,7 @@ class RSSCreator091 extends FeedCreator {
 			if ($this->items[$i]->guid!="") {
 				$feed.= "            <guid>".htmlspecialchars($this->items[$i]->guid)."</guid>\n";
 			}
-			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
+			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "            ");
 			
 			if ($this->RSSVersion == "2.0" && $this->items[$i]->enclosure != NULL)
 				{

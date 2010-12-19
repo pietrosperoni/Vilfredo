@@ -10,11 +10,9 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
-
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
-<script type="text/javascript" src="js/jquery/retweet.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -50,6 +48,11 @@ if ($userid) {
 
 	$sql = "SELECT * FROM questions WHERE id = $question";
 	$response = mysql_query($sql);
+	if (!$response)
+	{
+		db_error($sql);
+	}
+	
 	while ($row = mysql_fetch_array($response))
 	{
 		$content=$row['question'];
@@ -57,6 +60,23 @@ if ($userid) {
 		$generation=$row['roundid'];
 		$creatorid=$row['usercreatorid'];
 		$title=$row['title'];
+		$bitlyhash = $row['bitlyhash'];
+		$shorturl = '';
+		
+		if (!empty($bitlyhash))
+		{
+			$shorturl = BITLY_URL.$bitlyhash;
+		}
+		else
+		{
+			$longurl = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+			if ($hash = make_bitly_hash($longurl, $bitly_user, $bitly_key))
+			{
+				SetBitlyHash($question, $hash);
+				$shorturl = BITLY_URL.$hash;
+			}
+		}
+		
 		$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 		if (!$lastmoveonTime)
 		{
@@ -128,15 +148,15 @@ if ($userid) {
 			 
 			 echo '<table id="social-buttons"><tr><td>';
 			
-			if (!defined('USE_TWIT_THIS') or ( defined('USE_TWIT_THIS') and USE_TWIT_THIS))
+			// Only display twit button if shorturl found in DB or generated from bitly
+			if (!empty($shorturl))
 			{
-				// Add retweet button
-				$twitter_title = htmlentities($title);
-				$loc = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-				echo "<p><a class=\"retweet\" href=\"$loc\" title=\"RT @Vg2A $twitter_title\"></a></p>";
+				$retweetprefix = "RT @Vg2A";
+				$urlshortservice = BITLY_URL;
+				$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
+				$tweetaddress = "http://twitter.com/home?status=$tweet";
+				echo "<p><a class=\"tweet\" href=\"$tweetaddress\"><span>Tweet This Question</span></a></p>";
 			}
-			
-			echo '</td><td>';
 			
 			echo '</td></tr></table>';
 			
