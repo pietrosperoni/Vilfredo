@@ -29,3 +29,5 @@ ALTER TABLE `updates` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT
 ADD `maximumtime` INT UNSIGNED NULL DEFAULT '604800' COMMENT 'in minutes, default 1 week';
 
  ALTER TABLE  `questions` CHANGE  `room`  `room` VARCHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+
+ALTER TABLE `questions` ADD `bitlyhash` VARCHAR( 6 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'bitly URL hash';
