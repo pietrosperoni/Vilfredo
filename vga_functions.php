@@ -270,6 +270,19 @@ function GetQuestioner($question)
 	}
 }
 
+
+function GetProposalsInGeneration($question,$generation)
+{
+	$proposals=array();
+	$sql = "SELECT id FROM proposals WHERE experimentid = $question AND roundid = $generation";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row[0]);
+	}
+	return $proposals;
+}
+
 function GetRelatedQuestions($userid)
 {
 	$related=array();
@@ -1544,6 +1557,7 @@ function EndorsersToAProposal($proposal)
 
 }
 
+
 function HasThisUserEndorsedSomething($question,$generation,$user)
 {
 	$proposals=ProposalsInGeneration($question,$generation);
@@ -1603,6 +1617,20 @@ function AuthorsOfInheritedProposals($question,$generation)
 	}
 	return array_unique($authors);
 }
+
+function AuthorOfProposal($proposal)
+{
+	$authors=array();
+	$sql = "SELECT usercreatorid FROM proposals WHERE id = ".$proposal." ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$author=$row[0];
+	}
+	return $author;
+}
+
+
 
 function AuthorsOfNewProposals($question,$generation)
 {
@@ -1936,6 +1964,18 @@ function WriteTime($timetotranslate)
 	if ($dayselapsed>0)	{ $answer=$answer." ".$dayselapsed." days";}
 	if ($hourseselapsed>0)	{ $answer=$answer." ".$hourseselapsed." hours";}
 	if ($minuteselapsed>0)	{ $answer=$answer." ".$minuteselapsed." minutes";}
+	return $answer;
+}
+
+function WriteUserName($user)
+{
+	$sql = "SELECT  users.username FROM users WHERE  users.id = " .$user. " ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$answer= $row[0];
+	}
+
 	return $answer;
 }
 
@@ -2970,8 +3010,8 @@ function CalculateProposalsRelationTo($proposal,$question,$generation)
 	$dominated=array();
 	$dominating=array();
 	$RelatedProposals=array();
-	$sql = "SELECT id FROM proposals 
-		WHERE experimentid = $question AND roundid = $generation";
+	$sql = "SELECT id FROM proposals WHERE experimentid = $question AND roundid = $generation";
+#	echo $sql;
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -3377,5 +3417,240 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 	}
 	return $couldDominate;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////FUNCTIONS TO DRAW THE GRAPHVIZ MAP///////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+function WriteGraphVizMap($question,$generation)
+{
+	$buf=MakeGraphVizMap($question,$generation);
+	$MapFile = fopen("map/mapq".$question."g".$generation.".dot", "w+");
+	if ($MapFile) {
+		fputs($MapFile,$buf);
+		fclose($MapFile);
+	} else {
+		echo "<br /><b>Error creating map file, please check write permissions.</b><br />";
+	}	
+}
+
+
+function FindLevels($proposals_covered,$proposals)
+{
+	$proposalsToTest=$proposals;
+	$Levels=array();
+	$Level=0;
+	$proposalsAdded=array();
+	
+	while(sizeof($proposalsAdded)<sizeof($proposals))
+	{
+		if ($Level==0)
+		{
+			$Levels["Pareto Front"]=array();
+		}
+		else
+		{
+			$Levels[$Level]=array();
+		}
+				
+		foreach($proposalsToTest as $p)
+		{
+			$nextP=false;
+			foreach($proposalsToTest as $q)
+			{
+				if(in_array($p, $proposals_covered[$q]))
+				{
+					#the proposal p is covered by Q thus P is not in this Level
+					$nextP=true;
+					break;	
+				}	
+			}
+			if ($nextP)
+			{
+				continue;
+			}
+			if ($Level==0)
+			{
+				array_push($Levels["Pareto Front"],$p);				
+			}
+			else
+			{
+				array_push($Levels[$Level],$p);							
+			}			
+			array_push($proposalsAdded,$p);
+		}
+		
+		$proposalsToTest= array_diff ($proposals, $proposalsAdded);
+		$Level+=1;
+	}
+	return $Levels;
+}
+
+
+
+function GetCovered($proposals_below,$proposals)
+{
+	$Covered=array();
+	foreach ($proposals as $p)
+	{
+		$cov1=array();
+		$below=$proposals_below[$p];
+		foreach ($below as $b)
+		{
+			foreach ($below as $q)
+			{
+				$nextB=false;
+				$underq=$proposals_below[$q];
+				if (in_array($b, $underq))
+				{
+					$nextB=true;
+					break;
+				}				
+			}
+			if ($nextB)
+			{
+				continue;
+			}			
+			array_push($cov1,$b);
+		}
+		$Covered[$p]=$cov1;		
+	}
+	return $Covered;
+}
+
+function NewEndorsersToAProposal($proposal,$proposals_covered)
+{
+	$below=$proposals_covered[$proposal];
+	$VotersKnown=array();
+	foreach ($below as $b)
+	{
+		$VotersKnown=array_merge($VotersKnown,EndorsersToAProposal($b));
+	}
+	return array_diff(EndorsersToAProposal($proposal), 	array_unique($VotersKnown));
+}
+
+
+
+function MakeGraphVizMap($question,$generation)
+{
+	$proposals_below=array();
+	$proposals_covered=array();
+	$buf="digraph G {\n\n";
+	$proposals=GetProposalsInGeneration($question,$generation);
+	$endorsers=Endorsers($question,$generation);
+	$authors=array_merge(AuthorsOfInheritedProposals($question,$generation),AuthorsOfNewProposals($question,$generation));
+	$pure_authors=array_diff($authors,$endorsers);
+	$pf=ParetoFront($question,$generation);
+	
+	foreach ($proposals as $p)
+	{
+		$RelatedProposals=CalculateProposalsRelationTo($p,$question,$generation);
+		$proposals_below[$p]=$RelatedProposals["dominated"];
+	}
+	
+	$proposals_covered=GetCovered($proposals_below,$proposals);
+	$Levels=FindLevels($proposals_covered,$proposals);
+	$LevelsKeys=array_keys($Levels);
+	foreach ($LevelsKeys as $l)
+	{	
+		if($l=="Pareto Front")
+		{
+			$buf.='"'.$l.'" [shape=plaintext color=lightblue style=filled fontsize=21]';			
+			$buf.="\n";			
+		}
+		else
+		{			
+			$buf.=$l." [fontcolor=white color=white] \n";
+		}		
+	}
+	$buf.='"Voters" [shape=egg color=lightpink3 style=filled fontsize=21]';			
+	$buf.="\n";			
+					
+	foreach ($LevelsKeys as $l)
+	{	
+		$buf.='"'.$l.'" -> ';
+	}
+	$buf.='"Voters" ';			
+#	$buf.='->"Authors who did not vote" ';			
+	$buf.="[color=white] \n";			
+					
+					
+	foreach ($LevelsKeys as $l)
+	{
+		$buf.='{rank=same; "'.$l.'" ';			
+		foreach ($Levels[$l] as $p)
+		{
+			$buf.=" ".$p." ";			
+		}		
+		$buf.="}\n";					
+	}
+
+	$buf.="{rank=same; Voters ";		
+	foreach ($endorsers as $e)
+	{
+		$buf.='"'.WriteUserName($e).'" ';					
+	}
+	$buf.="}\n";					
+	
+	foreach ($endorsers as $e)
+	{
+		$buf.='"'.WriteUserName($e).'" [shape=egg color=lightpink3 style=filled]';					
+		$buf.="\n";					
+		
+	}
+	
+	#$buf.='{rank=same; "Authors who did not vote" ';		
+	#foreach ($pure_authors as $pa)
+	#{
+#		$buf.='"'.WriteUserName($pa).'" ';					
+#	}
+#	$buf.="}\n";					
+	
+	foreach ($proposals as $p)
+	{
+		if(in_array ( $p, $pf ))
+		{
+			$buf.=$p." [shape=box color=lightblue style=filled] \n";			
+		}
+		else
+		{			
+			$buf.=$p." [shape=box] \n";
+		}
+	}
+	
+	foreach ($proposals as $p)
+	{
+		$pcs=$proposals_covered[$p];
+		foreach ($pcs as $pc)
+		{
+			$buf.=" ".$pc." -> ".$p."\n";			
+		}		
+	}
+	
+	foreach ($proposals as $p)
+	{
+		$endorserstothis=NewEndorsersToAProposal($p,$proposals_covered);
+		foreach ($endorserstothis as $e)
+		{
+			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [color=blue]';
+			$buf.=" \n";
+		}
+	}
+	
+	#foreach ($proposals as $p)
+	#{
+	#	$buf.=' "'.WriteUserName(AuthorOfProposal($p)).'" -> '.$p.' [color=red]';
+	#	$buf.=" \n";
+	#}
+	
+	$buf.="\n}";
+	return $buf;
+}
+
+
 
 ?>

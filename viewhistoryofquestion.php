@@ -77,6 +77,7 @@ include('header.php');
 			if ($row[3]!=$genshowing)
 			{
 				$genshowing=$row[3];
+				WriteGraphVizMap($question,$genshowing);
 				echo '<tr><td colspan="2" class="genhist"><h3> Generation '.$genshowing.' ';
 				$proposers=AuthorsOfNewProposals($question,$genshowing);
 #				echo "Proposers:";
