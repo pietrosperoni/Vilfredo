@@ -100,6 +100,19 @@ function registeruser()
 			exit();
 		}
 	}
+	global $recaptcha_private_key;
+	require_once('lib/recaptcha-php-1.11/recaptchalib.php');
+	// Validate recaptcha
+	$resp = recaptcha_check_answer ($recaptcha_private_key,
+					$_SERVER["REMOTE_ADDR"],
+					$_POST["recaptcha_challenge_field"],
+				$_POST["recaptcha_response_field"]);
+	
+	if (!$resp->is_valid) 
+	{
+		echo 'Sorry, you did not enter the recaptcha words correctly';
+		exit();
+	}
 	
 	//This makes sure they did not leave any fields blank
 	$fields = "";

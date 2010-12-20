@@ -1,4 +1,6 @@
 $(function() {
+	$.ajaxSetup({cache: false});
+
 	$("#abstract_panel").accordion({
 		collapsible: true,
 		autoHeight: false,
@@ -413,6 +415,7 @@ $(function() {
 			modal: true,
 			position: 'top',
 			title: 'Vilfredo',
+			width: 500,
 			resizable: false,
 			close: deleteDialog,
 			autoOpen: false,

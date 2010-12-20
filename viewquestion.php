@@ -23,6 +23,13 @@ $headcommands='
 
 include('header.php');
 
+?>
+<script type="text/javascript">
+//Assumes id is passed in the URL
+var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+</script>
+<?php
+
 //if ($userid)
 //{
 	// Check if user has room access.
