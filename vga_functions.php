@@ -751,6 +751,35 @@ function GetQuestionRoom($question)
 	return $row['room'];
 }
 
+function IsQuestionWriting($question)
+{
+
+	 
+	 $sql="SELECT phase
+	     FROM questions
+	     WHERE id='$question'";
+		
+	$result = mysql_query($sql);
+				
+	if (!$result)
+	{
+		db_error($sql);
+		return false;
+	}
+	else 
+	{
+		$row = mysql_fetch_assoc($result);
+		if ($row["phase"] == 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
 function GetQuestion($question)
 {
 	 $sql="SELECT *

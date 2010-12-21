@@ -35,15 +35,26 @@ include('header.php');
 
 #$userid=isloggedin();
 #if (isAdmin($userid))
-if ($userid)
-{	
+//if ($userid)
+//{	
 	
-	$proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
-	if (!HasProposalAccess())
-	{
-			header("Location: index.php");
-	}
-	
+$proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
+if (!HasProposalAccess())
+{
+		header("Location: viewquestions.php");
+}
+
+$question_id = GetProposalQuestion($proposal);
+$is_writing = IsQuestionWriting($question_id);
+
+// Check if question is in the writing state before allowing new proposal version
+if ($is_writing)
+{
+	printbr('Sorry, This question is now in the writing phase. Please wait until the question moves on to the next generation before creating any new proposals.');
+}
+
+else
+{
 	
 	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract FROM proposals WHERE proposals.id = ".$proposal;
 
@@ -189,9 +200,9 @@ try{
 	}
 	
 }
-else
-{
-		header("Location: login.php");
-}
+//else
+//{
+//		DoLogin();
+//}
 include('footer.php');
 ?> 
