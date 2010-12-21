@@ -6,32 +6,28 @@ function getLabel($key,$language){
    global $label;
    return $label[$language][$key];
 }
-
 $headcommands='
-<link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css" />
-<link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet"/>
-<link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css"/>
-<!-- <link type="text/css" href="widgets.css" rel="stylesheet" /> -->
-
+<link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
+<link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
+<link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-	<script type="text/javascript">
-	$(function() {
-		$("#abstract_panel").accordion({
-			collapsible: true,
-			autoHeight: false,
-			active: false
-		});
-	});
-	</script>';
+<script type="text/javascript" src="js/vilfredo.js"></script>';
 
 include('header.php');
 
+?>
+<script type="text/javascript">
+//Assumes id is passed in the URL
+var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+</script>
+<?php
 
 #$userid=isloggedin();
 #if (isAdmin($userid))
@@ -71,7 +67,13 @@ else
 			<h2>Propose an answer</h2>
 			<p>You have chosen to create a new proposal based on proposal <?= $proposal ?></p>
 		
-			<form method="POST" action="newproposaltake.php">			
+			<?php 
+			if ($userid) {//open 
+			?>
+			<form method="post" action="newproposaltake.php">
+			<?php } else { ?>
+			<form method="post" action="newproposaltake.php" class="reg-only">
+			<?php } ?>		
      				
      				<div id="editor_panel">
 				<!-- Input Proposal start -->
@@ -122,7 +124,18 @@ try{
 			         include_once("js/jquery/RichTextEditor/editor.php");
 			      ?>
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-				<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
+				
+				
+				<?php 
+				if ($userid) {
+					$regclass = "submit_ok";
+				} else {
+					$regclass = "reg_submit";
+				}
+				?>
+
+				<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+			
 				</div> <!-- proposal_RTE -->
 				</div> <!-- editor_panel -->
 				
