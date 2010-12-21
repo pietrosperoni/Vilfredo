@@ -50,7 +50,7 @@ $is_writing = IsQuestionWriting($question_id);
 // Check if question is in the writing state before allowing new proposal version
 if ($is_writing)
 {
-	printbr('Sorry, This question is now in the writing phase. Please wait until the question moves on to the next generation before creating any new proposals.');
+	printbr('Sorry, This question is now in the voting phase. Please wait until the question moves on to the next generation before creating any new proposals.');
 }
 
 else
