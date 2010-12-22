@@ -3,7 +3,6 @@ include('header.php');
 
 require_once('lib/recaptcha-php-1.11/recaptchalib.php');
 
-#if (isloggedin())
 if ($userid)
 {
 	//echo "You have already registered, and are logged in. Would you like to <a href=logout.php>Logout</a>?<p>";
@@ -13,12 +12,13 @@ if ($userid)
 else
 {
 	$registered = false;
-	$recaptcha_error = null;
+	//$recaptcha_error = null;
 	$error_message = "";
 	
 	//This code runs if the form has been submitted
 	if (isset($_POST['submit'])) 
 	{
+		/*
 		$resp = recaptcha_check_answer ($recaptcha_private_key,
 				$_SERVER["REMOTE_ADDR"],
 				$_POST["recaptcha_challenge_field"],
@@ -31,11 +31,13 @@ else
 			$error_message = "Sorry, you did not enter the captcha words correctly.";
 		} 
 		else
-		{
+		{*/
 			$registered = register_user();
 			$m = get_messages();
-			$error_message = $m['error'][0];
-		}
+			$error_message = get_message_string();
+			clear_messages();
+			//$error_message = $m['error'][0];
+		//}
 	}
 	
 	if ($registered)
@@ -55,11 +57,6 @@ else
 		else {
 			header("Location: viewquestions.php");
 		}
-		
-		?>
-		<!-- <h1>Registered</h1>
-		<p>Thank you, you have registered - you may now <a href="login.php">login</a></p> -->
-		<?php
 	}
 	else
 	{
@@ -79,7 +76,7 @@ else
 					</td>
 				</tr>
 				<tr>
-					<td>Email: (Optional)</td>
+					<td>Email:</td>
 					<td>
 						<input type="text" name="email" maxlength="60" value="<?php echo $_POST['email']?>">
 					</td>

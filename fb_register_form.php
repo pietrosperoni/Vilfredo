@@ -7,6 +7,8 @@ if ($userid)
 {
 	$_SESSION[USER_LOGIN_ID] = $userid;
 	$_SESSION[USER_LOGIN_MODE] = 'FB';
+	// log time
+	setlogintime($userid);
 	echo '1';
 	exit();
 }
@@ -41,7 +43,7 @@ else
 			<label for="username">Choose a User Name</label>
 			<input class="text ui-widget-content ui-corner-all" type="text" name="username" id="username" value="$firstName" maxlength="60">
 		<div class="reg_form">
-			<label for="email">Email (Optional)</label>
+			<label for="email">Email</label>
 			<input class="text ui-widget-content ui-corner-all" type="text" name="email" id="email" maxlength="60">
 			<input type="hidden" name="usernameok" id="usernameok" value="">
 			<input type="hidden" name="fbuserid" id="fbuserid" value="$FACEBOOK_ID">

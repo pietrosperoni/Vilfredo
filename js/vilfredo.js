@@ -210,6 +210,8 @@ $(function() {
 				else
 				{
 					$('#msg').css('color', 'blue').html(response);
+					// reload recaptcha
+					Recaptcha.reload();
 				}
 			}
 		});

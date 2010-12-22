@@ -2,21 +2,35 @@
 
 function register_user()
 {
-	global $FACEBOOK_ID;
+	require_once('lib/recaptcha-php-1.11/recaptchalib.php');
+	global $FACEBOOK_ID, $recaptcha_private_key;
+	$errors = false;
 	
+	$resp = recaptcha_check_answer ($recaptcha_private_key,
+			$_SERVER["REMOTE_ADDR"],
+			$_POST["recaptcha_challenge_field"],
+			$_POST["recaptcha_response_field"]);
+
+	if (!$resp->is_valid) {
+		set_message("error", "Sorry, you did not enter the captcha words correctly.");
+		$errors = true;
+	}
+
 	//This makes sure they did not leave any fields blank
-	if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] ) 
+	if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] | !$_POST['email']) 
 	{
 		set_message("error", "You did not fill in all the required fields");
+		$errors = true;
 		return false;
 	}
 
 	$UsernameIsEmail=validEmail($_POST['username']);
 	if ($UsernameIsEmail)
 	{
-		$msg = "Your username will be public and as such it cannot be an email address (for security reasons)";
+		$msg = "Your username will be public and as such it should not be an email address";
 		set_message("error", $msg);
-		return false;
+		$errors = true;
+		//return false;
 	}
 
 	if ($_POST['email'] ) 
@@ -25,7 +39,8 @@ function register_user()
 		if (!$EmailIsValid)
 		{
 			set_message("error", 'The Email address you inserted is not a valid email address.');
-			return false;
+			$errors = true;
+			//return false;
 		}
 	}
 
@@ -41,7 +56,8 @@ function register_user()
 	{
 		handle_db_error($check);
 		set_message("error", "System error");
-		return false;
+		$errors = true;
+		//return false;
 	}
 	
 	$check2 = mysql_num_rows($check);
@@ -51,14 +67,22 @@ function register_user()
 	{
 		$msg = 'Sorry, the username '.$_POST['username'].' is already in use.';
 		set_message("error", $msg);
-		return false;
+		$errors = true;
+		//return false;
 	}
 
 	// this makes sure both passwords entered match
 	if ($_POST['pass'] != $_POST['pass2']) 
 	{
 		set_message("error", "Your passwords did not match");
+		$errors = true;
+		//return false;
+	}
+	
+	if ($errors)
+	{
 		return false;
+		exit;
 	}
 
 	// here we encrypt the password and add slashes if needed
@@ -71,12 +95,12 @@ function register_user()
 	}
 
 	// now we insert it into the database
-	$insert = "INSERT INTO users (username, password, email) VALUES ('".$_POST['username']."', '".$_POST['pass']."', '".$_POST['email']."')";//'
+	$insert = "INSERT INTO users (username, password, email, registered, lastlogin) VALUES ('".$_POST['username']."', '".$_POST['pass']."', '".$_POST['email']."', NOW(), NOW())";
 	$add_member = mysql_query($insert);
 	
 	if (!$add_member)
 	{
-		handle_db_error($add_member);
+		handle_db_error($add_member, $insert);
 		set_message("error", "System error");
 		return false;
 	}
@@ -134,6 +158,9 @@ function login_user()
 			// if login is ok then we start a user session
 			$_SESSION[USER_LOGIN_ID] = $info['id'];
 			$_SESSION[USER_LOGIN_MODE] = 'VGA';
+			
+			// Log time
+			setlogintime($info['id']);
 
 			// if Keep Logged In is checked then we add a cookie
 			if (isset($_POST['remember']) && $_POST['remember'] == 'on')
@@ -224,12 +251,12 @@ function fb_register_user()
 	}
 
 	// now we insert it into the database
-	$insert = "INSERT INTO users (username, password, email, fb_userid) VALUES ('".$_POST['username']."', '', '".$_POST['email']."', '".$FACEBOOK_ID."')";
+	$insert = "INSERT INTO users (username, password, email, fb_userid, registered, lastlogin) VALUES ('".$_POST['username']."', '', '".$_POST['email']."', '".$FACEBOOK_ID."', NOW(), NOW())";
 	$add_member = mysql_query($insert);
 	
 	if (!$add_member)
 	{
-		handle_db_error($add_member);
+		handle_db_error($add_member, $insert);
 		set_message("error", "System error");
 		return false;
 	}
