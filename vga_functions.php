@@ -157,11 +157,21 @@ function set_message($message_type, $message)
     $_SESSION['messages'][$message_type][] = $message;
 }
 
-function get_messages()
+function get_messages($message_type='error')
 {
-    $messages_array = $_SESSION['messages'];
-    unset($_SESSION['messages']);
+    $messages_array = $_SESSION['messages'][$message_type];
     return $messages_array;
+}
+
+function clear_messages()
+{
+	unset($_SESSION['messages']);
+}
+
+function get_message_string($message_type='error')
+{
+	$msg = get_messages($message_type);
+	return implode("<br/>", $msg);
 }
 // ******************************************
 // VILFREDO ROOMS
@@ -1083,6 +1093,23 @@ function isadminonly($userid)
 	}
 }
 
+function setlogintime($user)
+{
+	$sql = "UPDATE users 
+	SET lastlogin = NOW()
+	WHERE id = $user";
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 function IsAuthenticated()
 {            
         return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
@@ -1128,6 +1155,8 @@ function isloggedin()
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
+			// log time
+			setlogintime($userid);
 		}
 		return $userid;
 	}
@@ -1139,6 +1168,8 @@ function isloggedin()
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'FB';
+			// log time
+			setlogintime($userid);
 		}
 		return $userid;
 	}

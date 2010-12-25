@@ -43,6 +43,9 @@ else
 	$_SESSION[USER_LOGIN_ID] = $info['id'];
 	$_SESSION[USER_LOGIN_MODE] = 'VGA';
 	
+	// log time
+	setlogintime($info['id']);
+	
 	// Set persistant cookie if requested
 	if (isset($_POST['remember']) && $_POST['remember'] == 'on')
 	{

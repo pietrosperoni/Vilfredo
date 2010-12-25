@@ -65,6 +65,8 @@ else
 	// log user in
 	$_SESSION[USER_LOGIN_ID] = $info['id'];
 	$_SESSION[USER_LOGIN_MODE] = 'FB';
+	// log time
+	setlogintime($info['id']);
 	echo '1';
 	exit();
 }

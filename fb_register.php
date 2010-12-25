@@ -83,7 +83,7 @@ else
 			</td>
 		</tr>
 		<tr>
-			<td>Email: (optional)</td>
+			<td>Email:</td>
 			<td>
 				<input type="text" name="email" value="<?php echo $email; ?>" maxlength="60">
 			</td>

@@ -30,4 +30,9 @@ ADD `maximumtime` INT UNSIGNED NULL DEFAULT '604800' COMMENT 'in minutes, defaul
 
  ALTER TABLE  `questions` CHANGE  `room`  `room` VARCHAR( 20 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
 
-ALTER TABLE `questions` ADD `bitlyhash` VARCHAR( 6 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'bitly URL hash';
+ALTER TABLE `questions` ADD `bitlyhash` VARCHAR( 6 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'bitly URL hash'
+
+ALTER TABLE `users` 
+ADD `registered` DATETIME NULL COMMENT 'date registered',
+ADD `lastlogin` DATETIME NULL COMMENT 'time last logged in'
+

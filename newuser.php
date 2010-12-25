@@ -55,8 +55,8 @@ function registerfbuser()
 	$fbuserid = GetEscapedPostParam('fbuserid');
 	$email = GetEscapedPostParam('email');
 	
-	$insert = "INSERT INTO users (username, password, email, fb_userid) 
-	VALUES ('$newuser', '', '$email', '$fbuserid')";
+	$insert = "INSERT INTO users (username, password, email, fb_userid, registered, lastlogin) 
+	VALUES ('$newuser', '', '$email', '$fbuserid', NOW(), NOW())";
 	
 	$add_member = mysql_query($insert);
 	$userid = mysql_insert_id();
@@ -121,6 +121,11 @@ function registeruser()
 		$fields .= " Username ";
 	}
 	
+	if (empty($_POST['email']))
+		{
+			$fields .= " Email ";
+	}
+	
 	if (empty($_POST['pass']) || empty($_POST['pass2'] ))
 	{
 		$fields .= " Password ";
@@ -161,8 +166,8 @@ function registeruser()
 	$password = GetEscapedPostParam('pass');
 	$email = GetEscapedPostParam('email');
 	
-	$insert = "INSERT INTO users (username, password, email) 
-	VALUES ('$newuser', '$password', '$email')";
+	$insert = "INSERT INTO users (username, password, email, registered, lastlogin) 
+	VALUES ('$newuser', '$password', '$email', NOW(), NOW())";
 	
 	$add_member = mysql_query($insert);
 	$userid = mysql_insert_id();
