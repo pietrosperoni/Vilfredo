@@ -60,6 +60,13 @@ function log_error($msg)
 	error_log("log_error: $msg $timestamp \n", 3, ERROR_FILE);
 }
 
+function HaveSameElements($a,$b) #considering two arrays as sets, do they have the same content?
+{
+	if (count(array_diff(array_merge($a, $b), array_intersect($a, $b))) === 0)
+	{ return true;}
+	return false;
+}
+
 function set_log($msg)
 {
 	$timestamp = date("D M j G:i:s T Y");
@@ -223,6 +230,22 @@ function CreateProposalURL($proposal, $room="")
 	return $proposal_url;
 }
 
+function CreateGenerationURL($question,$generation)
+{
+	$room=GetQuestionRoom($question);
+	if (!isset($question) or empty($question))
+             error("Question parameter not set!!!");
+	if (!isset($question) or empty($question))
+	         error("Generation parameter not set!!!");
+	$generation_url= "?" . QUERY_KEY_QUESTION . "=".$question;
+	$generation_url.= "&" . QUERY_KEY_GENERATION . "=".$generation;
+	// Add room id if not empty
+	if (!empty($room))
+            $generation_url .= "&" . QUERY_KEY_ROOM . "=".$room;
+	return $generation_url;
+}
+
+
 function RenderQIconInfo($username, $room)
 {	
 	if (!empty($room) && SHOW_QICON_ROOMS)
@@ -270,6 +293,37 @@ function GetQuestioner($question)
 	}
 }
 
+
+
+
+function PreviousAgreementsStillVisible($question,$generation=0)
+{
+	if ($generation==0)
+	{
+		$generation=GetQuestionGeneration($question);		
+	}
+	$BiggestAgreement=0;
+	$generation-=1;
+	$AgreementsVisisble=array();
+	while($generation)
+	{
+		$participants=Endorsers($question,$generation);		
+		$sp=sizeof($participants);
+		if ($sp<=$BiggestAgreement)
+		{
+			$generation-=1;
+			continue;
+		}
+		$pf=ParetoFront($question,$generation);
+		if(sizeof(EndorsersToAProposal($pf[0]))==$sp)
+		{
+			$BiggestAgreement==$sp;
+			array_push($AgreementsVisisble,$generation);			
+		}
+		$generation-=1;
+	}
+	return $AgreementsVisisble;
+}
 
 function GetProposalsInGeneration($question,$generation)
 {
@@ -751,6 +805,31 @@ function GetQuestionRoom($question)
 	return $row['room'];
 }
 
+function GetQuestionGeneration($question)
+{
+	 $sql="SELECT roundid
+	     FROM questions
+	     WHERE id='$question'";
+
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+
+	return $row['roundid'];
+}
+
+
+function GetQuestionTitle($question)
+{
+	 $sql="SELECT title
+	     FROM questions
+	     WHERE id='$question'";
+
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+
+	return $row['title'];
+}
+
 function IsQuestionWriting($question)
 {
 
@@ -1069,6 +1148,41 @@ function isloggedin()
 		return false;
 	}
 }
+
+
+function StringSafe($stringOriginal)
+{
+	$newstring=strip_tags($stringOriginal);
+	$newstring=str_replace ( '"' , "'" , $newstring );
+	$newstring=str_replace ( "&nbsp;" , " " , $newstring );
+	$newstring=str_replace ( "\r\n" , " " , $newstring );
+	$newstring=str_replace ( "\n" , " " , $newstring );
+	$newstring=str_replace ( "\r" , " " , $newstring );
+	$newstring=str_replace ( "  " , " " , $newstring );
+	$newstring=str_replace ( "  " , " " , $newstring );
+	$newstring=str_replace ( "  " , " " , $newstring );
+	$newstring=str_replace ( "  " , " " , $newstring );
+	$newstring = preg_replace('/[^(\x20-\x7F)]*/','', $newstring);#Thanks http://www.stemkoski.com/php-remove-non-ascii-characters-from-a-string/
+	return $newstring;
+}
+
+function SafeStringProposal($proposal)
+{
+	 $sql="SELECT blurb, abstract FROM proposals, questions WHERE proposals.experimentid = questions.id AND proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	$abstract=$row['abstract'];
+	$blurb=$row['blurb'];
+	if ($abstract)
+	{
+		return StringSafe($abstract);	
+	}
+	else
+	{
+		return StringSafe($blurb);
+	}
+}
+
 
 //******************************************************************/
 //			START: Persistant Cookies
@@ -1570,7 +1684,8 @@ function CountProposals($question,$generation)
 function CountEndorsersToAProposal($proposal)
 {
 	$sql = "SELECT DISTINCT userid FROM endorse WHERE proposalid = ".$proposal." ";
-	return mysql_num_rows(mysql_query($sql));
+	$m=mysql_query($sql); #echo "P=".$proposal."M=".$m;	
+	return mysql_num_rows($m);
 }
 
 function EndorsersToAProposal($proposal)
@@ -1583,6 +1698,21 @@ function EndorsersToAProposal($proposal)
 		array_push($endorsers,$row[0]);
 	}
 	return array_unique($endorsers);
+
+}
+function ProposalsToAnEndorser($user,$question,$generation)
+{
+	$proposals=array();	
+	$sql = "SELECT DISTINCT endorse.proposalid 
+	FROM proposals, endorse 
+	WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.id = endorse.proposalid and endorse.userid= ".$user." ";
+	
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row[0]);
+	}
+	return $proposals;
 
 }
 
@@ -1608,7 +1738,6 @@ function HasThisUserProposedSomething($question,$generation,$user)
 	}
 	return 0;
 }
-
 
 
 function CountEndorsers($question,$generation)
@@ -2049,6 +2178,178 @@ function WriteUserVsReader($user,$reader)
 	}
 	return $answer;
 }
+function WriteProposalOnlyText($p,$question,$generation,$room,$userid)
+{
+	$OriginalProposal=GetOriginalProposal($p);
+	$OPropID=$OriginalProposal["proposalid"];
+	$OPropGen=$OriginalProposal["generation"];
+	
+	$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
+	$response3 = mysql_query($sql3);
+	while ($row3 = mysql_fetch_array($response3))
+	{
+		if (!empty($row3['abstract'])) {
+			echo '<div class="paretoabstract">';
+			echo display_fulltext_link();
+			echo '<h3>Proposal Abstract</h3>';
+			echo $row3['abstract'] ;
+			echo '</div>';
+			echo '<div class="paretotext">';
+			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
+			echo $row3['blurb'];
+			echo '</div>';
+		}
+		else {
+			echo '<div class="paretofulltext">';
+			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
+			echo $row3['blurb'] ;
+			echo '</div>';
+		}
+	}
+}
+
+function WriteEndorsersToAProposal($p,$userid)
+{
+	$endorsers=EndorsersToAProposal($p);
+	echo '<br />Endorsed by: ';
+	foreach($endorsers as $e)
+	{
+		echo WriteUserVsReader($e,$userid);
+	}
+}
+
+function WriteProposalText($p,$question,$generation,$room,$userid)
+{
+	$OriginalProposal=GetOriginalProposal($p);
+	$OPropID=$OriginalProposal["proposalid"];
+	$OPropGen=$OriginalProposal["generation"];
+	
+	WriteProposalOnlyText($p,$question,$generation,$room,$userid);
+	
+#	$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
+#	$response3 = mysql_query($sql3);
+#	while ($row3 = mysql_fetch_array($response3))
+#	{
+#		if (!empty($row3['abstract'])) {
+##			echo '<div class="paretoabstract">';
+#			echo display_fulltext_link();
+#			echo '<h3>Proposal Abstract</h3>';
+###			echo $row3['abstract'] ;
+#			echo '</div>';
+#			echo '<div class="paretotext">';
+##			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
+#			echo $row3['blurb'];
+#			echo '</div>';
+#		}
+#		else {
+#			echo '<div class="paretofulltext">';
+#			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
+#			echo $row3['blurb'] ;
+#			echo '</div>';
+#		}
+
+		
+		echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+		if ($OPropGen!=$generation)
+		{
+			echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";						
+		}
+		
+		$endorsers=EndorsersToAProposal($p);
+		echo '<br />Endorsed by: ';
+		foreach($endorsers as $e)
+		{
+			echo WriteUserVsReader($e,$userid);
+		}
+}
+
+
+
+function WriteProposalRelation($proposal,$question,$generation,$userid,$room)
+{
+	$answer="";
+	$RelatedProposals=CalculateProposalsRelationTo($proposal,$question,$generation);
+	$DominatedProposals=$RelatedProposals["dominated"];
+	$DominatingProposals=$RelatedProposals["dominating"];
+
+	$sizeof_Below = sizeof($DominatedProposals);
+	if ($sizeof_Below>0)
+	{
+		$answer.="The proposal dominated ";
+		foreach ($DominatedProposals as $p)
+		{
+			$answer.=WriteProposalNumber($p,$room);
+			#echo WriteWhyDomination($proposal,$p,$room,$userid);
+		}
+	}
+	else
+	{
+		$answer.="The proposal did not dominate any other proposal, ";
+	}
+			
+	$sizeof_Above = sizeof($DominatingProposals);
+	if ($sizeof_Above>0)
+	{
+		$answer.="<br />and was dominated by ";
+		foreach ($DominatingProposals as $p)
+		{
+			$answer.=WriteProposalNumber($p,$room);
+			#echo WriteWhyDomination($p,$proposal,$room,$userid);
+		}
+		$answer.="<br>";			
+	}
+	else
+	{
+		$answer.="<br />and was not dominated by any other proposal,";
+		if(CountEndorsersToAProposal($proposal)==CountEndorsers($question,$generation))
+		{
+			$answer.="<br />also since everybody who participated in that generation voted for it, it represented the reached agreement for the community";
+			$answer.="<br />it was, nevertheless copied to the next generation, ".WriteGenerationPage($question,$generation+1).", in case someone wanted to challenge it.";						
+		}
+		else
+		{
+			$answer.="<br />thus it was copied to the next generation (".WriteGenerationPage($question,$generation+1).").";			
+		}
+	}
+	return $answer;
+}
+
+function WriteProposalNumber($proposal,$room)
+{
+	$answer="";
+	$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
+	$answer.='<a href="viewproposal.php'.$urlquery.'" title="'.SafeStringProposal($proposal).'">'.$proposal.'</a>';
+	$answer.=" ";
+	return $answer;
+}
+
+
+
+function WriteProposalPage($proposal,$room)
+{
+	return '<a href="viewproposal.php'.CreateProposalURL($proposal,$room).'">Proposal '.$proposal. '</a> ';
+}
+
+function WriteWhyDomination($proposalAbove,$proposalBelow,$room,$userid)
+{
+	$answer="";
+	$EAbove=EndorsersToAProposal($proposalAbove);
+	$EBelow=EndorsersToAProposal($proposalBelow);
+	foreach($EBelow as $e)	{$answer.=WriteUserVsReader($e,$userid).", ";}
+	$answer.=" support both ".WriteProposalNumber($proposalAbove,$room)."and".WriteProposalNumber($proposalBelow,$room).", but";
+	foreach($EAbove as $e)  {$answer.=WriteUserVsReader($e,$userid).", ";}
+	$answer.=" support ".WriteProposalNumber($proposalAbove,$room)." and do not support ".WriteProposalNumber($proposalBelow,$room).". ";
+	$answer.="Since the supporters of ".WriteProposalNumber($proposalBelow,$room)." are a subset of the supporters of ".WriteProposalNumber($proposalAbove,$room).", ";
+	$answer.=WriteProposalNumber($proposalAbove,$room)." dominates ".WriteProposalNumber($proposalBelow,$room).". Q.E.D.";
+	return $answer;
+}
+
+
+function WriteGenerationPage($question,$generation)
+{
+	return '<a href="viewgeneration.php'.CreateGenerationURL($question,$generation).'">Generation '.$generation. '</a> ';
+}
+
 
 
 function TimeLastProposalOrEndorsement($question, $phase, $generation)
@@ -3412,13 +3713,44 @@ function CalculateParetoFrontExcluding($paretofront,$userExcluded)
 				continue;
 			}
 			elseif ($dominating==$p2)
-			{
+			{	#echo "$p2 dominates $p1; P2=".$p2."P1=".$p1."<br />";
 				array_push($dominated,$p1);
 				break;
 			}
 		}
 	}
 	return array_diff($paretofront,$dominated);
+}
+// ****************************************************/
+// How would shrink a Pareto Front if a particular User did not participate?
+// This function is useful to find the key playes
+// People whos absence would change the Pareto Front are KeyPeople
+// ****************************************************/
+
+function CalculateFullParetoFrontExcluding($proposals,$userExcluded)
+{
+	$dominated=array();
+	$done=array();
+	foreach ($proposals as $p1)
+	{
+		array_push($done,$p1);
+		foreach ($proposals as $p2)
+		{
+			if (in_array($p2,$done)) {continue;}
+			$dominating=WhoDominatesWhoExcluding($p1,$p2,$userExcluded);
+			if ($dominating==$p1)
+			{
+				array_push($dominated,$p2);
+				continue;
+			}
+			elseif ($dominating==$p2)
+			{
+				array_push($dominated,$p1);
+				break;
+			}
+		}
+	}
+	return array_diff($proposals,$dominated);
 }
 
 
@@ -3455,18 +3787,74 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-function WriteGraphVizMap($question,$generation)
+
+#$size="L"/Middle/Small = "11,5.5"=1100 550 
+function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 {
-	$buf=MakeGraphVizMap($question,$generation);
-	$MapFile = fopen("map/mapq".$question."g".$generation.".dot", "w+");
+#	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
+	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	if ($svgfile)
+	{
+		$buf='<center><embed src="'.$svgfile.'" ';
+		if($size=="L")      {	$buf.='width="1100" height="550" ';	}
+		elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
+		elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
+		elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
+		$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
+		echo $buf;
+	}
+	return;
+}
+
+#$ShowNSupporters=true,$ShowAllEndorsments=false,$size="7.5,10",$bundles=true,$highlightuser1=0)
+
+
+function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+#	echo "highlightproposal1 in MapName=".$highlightproposal1;
+	
+	$room=GetQuestionRoom($question);
+	return "map/".$size."map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
+}
+
+function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+#	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
+	
+	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	if($size=="L")     { $sz="11,5.5";	}
+	elseif($size=="M") { $sz= "8,4";	}
+	elseif($size=="S") { $sz= "6,3";    }
+	elseif($size=="XS"){ $sz= "4,2";    }
+	
+	if (file_exists ( $filename.".svg"))
+	{
+		return $filename.".svg";
+	}
+	if (file_exists ( $filename.".dot"))
+	{
+		system("../local/bin/dot -Tsvg ".$filename.".dot >".$filename.".svg");
+		if (file_exists ( $filename.".svg"))
+		{
+			return $filename.".svg";
+		}
+	}
+	$MapFile = fopen($filename.".dot", "w+");
+	$buf=MakeGraphVizMap($question,$generation,$highlightuser1,$highlightproposal1,$sz);
 	if ($MapFile) {
 		fputs($MapFile,$buf);
 		fclose($MapFile);
+		system("../local/bin/dot -Tsvg ".$filename.".dot >".$filename.".svg");
+		if (file_exists ( $filename.".svg"))
+		{
+			return $filename.".svg";
+		}
+		return;
 	} else {
 		echo "<br /><b>Error creating map file, please check write permissions.</b><br />";
+		return;
 	}	
 }
-
 
 function FindLevels($proposals_covered,$proposals)
 {
@@ -3479,7 +3867,7 @@ function FindLevels($proposals_covered,$proposals)
 	{
 		if ($Level==0)
 		{
-			$Levels["Pareto Front"]=array();
+			$Levels["Pareto Fronts"]=array();
 		}
 		else
 		{
@@ -3493,7 +3881,6 @@ function FindLevels($proposals_covered,$proposals)
 			{
 				if(in_array($p, $proposals_covered[$q]))
 				{
-					#the proposal p is covered by Q thus P is not in this Level
 					$nextP=true;
 					break;	
 				}	
@@ -3511,11 +3898,26 @@ function FindLevels($proposals_covered,$proposals)
 				array_push($Levels[$Level],$p);							
 			}			
 			array_push($proposalsAdded,$p);
-		}
-		
+		}		
 		$proposalsToTest= array_diff ($proposals, $proposalsAdded);
 		$Level+=1;
 	}
+	return $Levels;
+}
+
+function FindLevelsBasedOnSize($proposals)
+{
+	$Levels=array();
+	foreach($proposals as $p)
+	{
+		$l=CountEndorsersToAProposal($p);
+		if (in_array($l, array_keys($Levels))==false)
+		{
+			$Levels[$l]=array();
+		}
+		array_push($Levels[$l],$p);							
+	}
+	krsort($Levels);
 	return $Levels;
 }
 
@@ -3564,39 +3966,134 @@ function NewEndorsersToAProposal($proposal,$proposals_covered)
 
 
 
-function MakeGraphVizMap($question,$generation)
+function CombineProposals($proposals)
+{
+	$Combined2Proposals=array();
+	$Proposals2Combined=array();
+	sort($proposals);
+	foreach ($proposals as $p)	{$Proposals2Combined[$p]=$p;}
+		
+	foreach ($proposals as $p)
+	{
+		if ($Proposals2Combined[$p]!=$p){continue;}#we have already done this bundle
+		foreach ($proposals as $q)
+		{
+			if ($p>=$q OR $Proposals2Combined[$q]!=$q){continue;}	#we have already done this bundle
+			if(HaveSameElements(EndorsersToAProposal($p),EndorsersToAProposal($q)))			
+			{
+				$Proposals2Combined[$q]=$Proposals2Combined[$p];#if P is already part of a bundle it will point to its lowest member, if not we point q to p (which is lower)
+				$Combined2Proposals[$Proposals2Combined[$p]]=array();
+			}
+		}
+	}
+	foreach ($proposals as $p)
+	{	
+		if($Proposals2Combined[$p]!=$p)		
+			{array_push($Combined2Proposals[$Proposals2Combined[$p]],$p);}
+	}
+	return $Combined2Proposals;
+}
+
+
+function WriteBundle($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightproposal1=0)
+{
+	$answer="";
+	$color="black";
+	$peripheries=0;
+	$BundleSize=sizeof($BundleContent);	
+	$answer.=$BundleName.' [shape=plaintext '.$details.' fontsize=11 label=<<TABLE BORDER="0" '.$detailsTable.' CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR><TR>';
+	foreach ($BundleContent as $p)
+	{
+		$urlquery = CreateProposalURL($p, $room);
+		$urlquery=str_replace ( "&" , "&amp;" , $urlquery );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+
+		$tooltip=substr(SafeStringProposal($p), 0, 800);
+		$tooltip=str_replace ( "&" , "&amp;" , $tooltip );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+		$ToAdd='';
+		if($highlightproposal1==$p)
+		{
+			$ToAdd=' BGCOLOR="red" ';
+		}
+		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
+	}
+	$answer.='</TR><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR></TABLE>>]';
+	$answer.="\n";
+	return $answer;
+}
+
+
+
+#Possible Values for $ShowNSupporters=true /false
+#$size="7.5,10
+#10,16.18
+function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true)
 {
 	$proposals_below=array();
+	$proposals_above=array();
 	$proposals_covered=array();
-	$buf="digraph G {\n\n";
+	$title=StringSafe(GetQuestionTitle($question));
+	#echo $title;
+
+	$buf='digraph "';
+	$buf.=$title;
+	$buf.='" {';
+	$buf.="\n";
+	$buf.='size="'.$size.'"';
+	$buf.="\n";
 	$proposals=GetProposalsInGeneration($question,$generation);
 	$endorsers=Endorsers($question,$generation);
 	$authors=array_merge(AuthorsOfInheritedProposals($question,$generation),AuthorsOfNewProposals($question,$generation));
 	$pure_authors=array_diff($authors,$endorsers);
 	$pf=ParetoFront($question,$generation);
+	$room=GetQuestionRoom($question);
+	$Bundled=array();
 	
 	foreach ($proposals as $p)
 	{
 		$RelatedProposals=CalculateProposalsRelationTo($p,$question,$generation);
 		$proposals_below[$p]=$RelatedProposals["dominated"];
+		$proposals_above[$p]=$RelatedProposals["dominating"];
 	}
 	
 	$proposals_covered=GetCovered($proposals_below,$proposals);
-	$Levels=FindLevels($proposals_covered,$proposals);
-	$LevelsKeys=array_keys($Levels);
+	if ($ShowNSupporters)
+	{
+		$Levels=FindLevelsBasedOnSize($proposals);		
+	}
+	else
+	{
+		$Levels=FindLevels($proposals_covered,$proposals);
+	}
+	if($bundles)	
+	{
+		$Combined2Proposals=CombineProposals($proposals);
+		$keys=array_keys($Combined2Proposals);
+		foreach($keys as $kc2p)
+		{
+			$Bundled=array_merge($Bundled,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
+			array_push($Combined2Proposals[$kc2p],$kc2p);
+		}
+	}
+	else  	
+	{
+		$Combined2Proposals=array();
+	}
+	$LevelsKeys=array_keys($Levels);#print_r($LevelsKeys);
 	foreach ($LevelsKeys as $l)
 	{	
-		if($l=="Pareto Front")
+		if($l==="Pareto Front")
 		{
-			$buf.='"'.$l.'" [shape=plaintext color=lightblue style=filled fontsize=21]';			
+#			$buf.='"'.$l.'" [shape=box color=lightblue style=filled fontsize=14]';			
+			$buf.='"Pareto\nFront" [shape=box color=lightblue style=filled fontsize=14]';			#$buf.='"'.$l.'" [shape=box color=white style=filled fontsize=14]';			
 			$buf.="\n";			
 		}
 		else
 		{			
-			$buf.=$l." [fontcolor=white color=white] \n";
+			$buf.=$l." [shape=point fontcolor=white color=white fontsize=1] \n";
 		}		
 	}
-	$buf.='"Voters" [shape=egg color=lightpink3 style=filled fontsize=21]';			
+#	$buf.='"Voters" [shape=egg color=lightpink3 style=filled fontsize=14]';			
+	$buf.='"Voters" [shape=point color=white fontcolor=white style=filled fontsize=1]';			
 	$buf.="\n";			
 					
 	foreach ($LevelsKeys as $l)
@@ -3606,19 +4103,19 @@ function MakeGraphVizMap($question,$generation)
 	$buf.='"Voters" ';			
 #	$buf.='->"Authors who did not vote" ';			
 	$buf.="[color=white] \n";			
-					
-					
+
 	foreach ($LevelsKeys as $l)
 	{
 		$buf.='{rank=same; "'.$l.'" ';			
 		foreach ($Levels[$l] as $p)
 		{
+			if(in_array($p,$Bundled)){	continue;}
 			$buf.=" ".$p." ";			
 		}		
 		$buf.="}\n";					
 	}
 
-	$buf.="{rank=same; Voters ";		
+	$buf.="{rank=same; Voters ";
 	foreach ($endorsers as $e)
 	{
 		$buf.='"'.WriteUserName($e).'" ';					
@@ -3627,9 +4124,25 @@ function MakeGraphVizMap($question,$generation)
 	
 	foreach ($endorsers as $e)
 	{
-		$buf.='"'.WriteUserName($e).'" [shape=egg color=lightpink3 style=filled]';					
+		$color="lightpink3";		
+		$fillcolor="lightpink3";
+		$peripheries=1;
+
+		if($highlightproposal1)
+		{		
+			if(in_array($e,EndorsersToAProposal($highlightproposal1)))		
+			{
+				$color="red";
+				$peripheries=2;						
+			}
+		}
+		if($highlightuser1===$e)
+		{
+			$color="red";
+			$peripheries=2;			
+		}
+		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
 		$buf.="\n";					
-		
 	}
 	
 	#$buf.='{rank=same; "Authors who did not vote" ';		
@@ -3638,34 +4151,152 @@ function MakeGraphVizMap($question,$generation)
 #		$buf.='"'.WriteUserName($pa).'" ';					
 #	}
 #	$buf.="}\n";					
+	$keys=array_keys($Combined2Proposals);
+	foreach($keys as $kc2p)	
+	{  
+		$detailsTable='  ';				
+		
+		if(in_array ( $kc2p, $pf ))
+		{
+			$color="black";
+			$peripheries=0;
+			if(in_array($highlightuser1,EndorsersToAProposal($kc2p)))
+			{
+				$color="red";
+				$peripheries=1;
+			}
+			if ($highlightproposal1>0)	
+			{
+				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1])){
+					$color="red";
+					$peripheries=1;
+				}			
+			}
+			$detailsTable=' BGCOLOR="lightblue" ';				
+			$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';			
+		}
+		else
+		{
+			$color="black";
+			$peripheries=0;
+			if(in_array($highlightuser1,EndorsersToAProposal($kc2p)))
+			{
+				$color="red";
+				$peripheries=1;
+			}
+			if ($highlightproposal1>0)	
+			{
+				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1])){
+					$color="red";
+					$peripheries=1;
+				}			
+			}
+			
+			$details=' fillcolor=white color='.$color.' peripheries='.$peripheries.' ';						
+		}
+		
+		$buf.=WriteBundle($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1);
+	}
 	
 	foreach ($proposals as $p)
 	{
+		if(in_array($p,$Bundled)){	continue;}
+		if(in_array($p,array_keys($Combined2Proposals))){	continue;}
+		$color="black";
+		$peripheries=1;
+		if ($highlightuser1>0)
+		{	
+			#echo "EndorsersToAProposal($p)=".EndorsersToAProposal($p);
+			#echo "highlightuser1=".$highlightuser1;
+			
+			if(in_array($highlightuser1,EndorsersToAProposal($p)))
+			{
+				$color="red";
+				$peripheries=2;
+			}
+		}
+		if ($highlightproposal1>0)
+		{
+			if($highlightproposal1===$p )
+			{
+				$color="red";
+				$peripheries=3;
+			}			
+			if(in_array($p,$proposals_below[$highlightproposal1]) 
+				OR in_array($p,$proposals_above[$highlightproposal1]))
+			{
+				$color="red";
+				$peripheries=2;
+			}			
+		}
+		
 		if(in_array ( $p, $pf ))
 		{
-			$buf.=$p." [shape=box color=lightblue style=filled] \n";			
+			$urlquery = CreateProposalURL($p, $room);
+			
+			$buf.=$p.' [shape=box fillcolor=lightblue style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			
+			$buf.="\n";			
 		}
 		else
-		{			
-			$buf.=$p." [shape=box] \n";
+		{	
+			$urlquery = CreateProposalURL($p, $room);
+			
+			$buf.=$p.' [shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+
+			$buf.="\n";
 		}
 	}
 	
 	foreach ($proposals as $p)
 	{
+		$pcolor="black";
+		if(in_array($p,$Bundled)){continue;}
 		$pcs=$proposals_covered[$p];
+		
+		#if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1])) 			{$pcolor="red";}		
+#		print_r($proposals_below[$highlightproposal1]);
+#		echo "highlightproposal1=",$highlightproposal1;
+		if($highlightproposal1)
+		{
+			if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
+			 			{$pcolor="red";}					
+		}
 		foreach ($pcs as $pc)
 		{
-			$buf.=" ".$pc." -> ".$p."\n";			
+			$color=$pcolor;
+			if(in_array($pc,$Bundled)){	continue;}
+			if(in_array($highlightuser1,EndorsersToAProposal($pc)))
+			{
+				$color="red";
+			}
+			
+			if($highlightproposal1)
+			{			
+				if($highlightproposal1===$pc OR in_array($pc,$proposals_above[$highlightproposal1]))	{$color="red";}
+			}
+			$buf.=' '.$pc.' -> '.$p.' [color="'.$color.'"]';	
+			$buf.=" \n";					
 		}		
 	}
 	
 	foreach ($proposals as $p)
 	{
-		$endorserstothis=NewEndorsersToAProposal($p,$proposals_covered);
+		if(in_array($p,$Bundled)){continue;}
+		
+		if($ShowAllEndorsments)	{$endorserstothis=EndorsersToAProposal($p);			}
+		else{$endorserstothis=NewEndorsersToAProposal($p,$proposals_covered);}
+
 		foreach ($endorserstothis as $e)
 		{
-			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [color=blue]';
+			$color="blue";
+			if($highlightuser1==$e){$color="red";	}
+			if ($highlightproposal1>0)
+			{
+				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
+					{$color="red";}
+			}
+			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [color="'.$color.'"]';
 			$buf.=" \n";
 		}
 	}

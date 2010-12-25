@@ -61,6 +61,7 @@ define("QUERY_KEY_USER", "u");
 define("QUERY_KEY_QUESTION", "q");
 define("QUERY_KEY_ROOM", "room");
 define("QUERY_KEY_PROPOSAL", "p");
+define("QUERY_KEY_GENERATION", "g");
 define("RANDOM_ROOM_CODE_LENGTH", 16);
 //
 define("USER_LOGIN_ID", 'vilfredo_user_id');

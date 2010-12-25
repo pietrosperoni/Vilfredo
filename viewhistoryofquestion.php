@@ -60,7 +60,7 @@ include('header.php');
 	}
 
 	echo "<h1>History of past Proposals:</h1>";
-#	echo '<quote>"History, teach us nothing": Sting</quote><br /><br />';
+	#	echo '<quote>"History, teach us nothing": Sting</quote><br /><br />';
 
 
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid < ".$generation." ORDER BY `roundid` DESC, `dominatedby` ASC  ";
@@ -69,7 +69,7 @@ include('header.php');
 	{
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
-		echo '<tr><th>link</th><th><strong>Proposal</strong></th><th><strong>Author</strong></th><th><strong>Endorsers</strong></th><th><strong>Result</strong></th><th><strong>You</strong></th></tr>';
+		echo '<tr><th><strong>Proposal</strong></th><th><strong>Author</strong></th><th><strong>Endorsers</strong></th><th><strong>Result</strong></th><th><strong>You</strong></th></tr>';
 		$genshowing=$generation;
 		$i = 0;
 		while ($row = mysql_fetch_array($response))
@@ -78,7 +78,8 @@ include('header.php');
 			{
 				$genshowing=$row[3];
 				WriteGraphVizMap($question,$genshowing);
-				echo '<tr><td colspan="2" class="genhist"><h3> Generation '.$genshowing.' ';
+				
+				echo '<tr><td colspan="5" class="genhist"><h3>'.WriteGenerationPage($question,$genshowing).' ';
 				$proposers=AuthorsOfNewProposals($question,$genshowing);
 #				echo "Proposers:";
 #				foreach ($proposers as $p)
@@ -101,31 +102,35 @@ include('header.php');
 				
 				echo '</h3>';
 
-				$ProposalsCouldDominate=CalculateKeyPlayers($question,$genshowing);
+				#$ProposalsCouldDominate=CalculateKeyPlayers($question,$genshowing);
 				
-				if (count($ProposalsCouldDominate) > 0)
-				{
-					echo '<br/><p>Key Players (proposals they should work on):<br/>';
+				#if (count($ProposalsCouldDominate) > 0)
+				#{
+				#	echo '<br/><p>Key Players (proposals they should work on):<br/>';
 					
 
-					$KeyPlayers=array_keys($ProposalsCouldDominate);
-					foreach ($KeyPlayers as $KP)
-					{
-						echo " ".WriteUserVsReader($KP,$userid)." ( ";
-						foreach ($ProposalsCouldDominate[$KP] as $PCD)
-						{
-							$urlquery = CreateProposalURL($PCD, $room);
-							echo '<a href="viewproposal.php'.$urlquery.'">'.$PCD.'</a> ';
-						}
-						echo ")<br/>";
-					}
-					echo '</p>';
-				}
-				else
-				{
-					echo '<br/><p>No Key Players</p>';
-				}
+				#	$KeyPlayers=array_keys($ProposalsCouldDominate);
+				#	foreach ($KeyPlayers as $KP)
+				#	{
+				#		echo " ".WriteUserVsReader($KP,$userid)." ( ";
+				#		foreach ($ProposalsCouldDominate[$KP] as $PCD)
+				#		{
+				#			$urlquery = CreateProposalURL($PCD, $room);
+				#			echo '<a href="viewproposal.php'.$urlquery.'" title="'.SafeStringProposal($PCD).'">'.$PCD.'</a> ';
+				#		}
+				#		echo ")<br/>";
+				#	}
+				#	echo '</p>';
+				#}
+				#else
+				#{
+			#		echo '<br/><p>No Key Players</p>';
+			#	}
 				
+				echo '</td></tr>';
+				
+				echo '<tr><td colspan="1" class="genhist">';
+				InsertMap($question,$genshowing,$userid,"M");
 				echo '</td>';
 				
 				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
@@ -182,29 +187,32 @@ include('header.php');
 			$urlquery = CreateProposalURL($row[0], $room);
 			
 			echo '<tr class="paretorow">';
-			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
+#			echo '<td><a href="viewproposal.php'.$urlquery.'">link</a></td>';
 			
 			echo '<td class="paretocell">';
+			
 			// ***
 			//
 			echo '<div class="paretoproposal">';
-			if (!empty($row['abstract'])) {
-				echo '<div class="paretoabstract">';
-				echo display_fulltext_link();
-				echo '<h3>Proposal Abstract</h3>';
-				echo $row['abstract'] ;
-				echo '</div>';
-				echo '<div class="paretotext">';
-				echo '<h3>Proposal</h3>';
-				echo $row['blurb'];
-				echo '</div>';
-			}
-			else {
-				echo '<div class="paretofulltext">';
-				echo '<h3>Proposal</h3>';
-				echo $row['blurb'] ;
-				echo '</div>';
-			}
+			WriteProposalOnlyText($row[0],$question,$generation,$room,$userid);
+			
+			#if (!empty($row['abstract'])) {
+			#	echo '<div class="paretoabstract">';
+			#	echo display_fulltext_link();
+			##	echo '<h3>Proposal Abstract</h3>';
+			#	echo $row['abstract'] ;
+			#	echo '</div>';
+			#	echo '<div class="paretotext">';
+			#	echo '<h3>Proposal</h3>';
+			#	echo $row['blurb'];
+			#	echo '</div>';
+			#}
+			#else {
+			#	echo '<div class="paretofulltext">';
+			#	echo '<h3>Proposal</h3>';
+			#	echo $row['blurb'] ;
+			#	echo '</div>';
+			#}
 			
 			
 			/*

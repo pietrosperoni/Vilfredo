@@ -57,73 +57,26 @@ include('header.php');
 		
 		echo "The proposal was written by ";
 		echo WriteUserVsReader($author,$userid);
-		echo "in generation ".$OPropGen.".<br>";
+		echo "in ".WriteGenerationPage($questionid,$OPropGen).".<br>";
 
-		
 		$ProposalToStudy=$OPropID;
 		$GenerationToStudy=$OPropGen;
 		while($ProposalToStudy)
 		{
-			echo '<h4>Generation '.$GenerationToStudy.'</h4>';
+			if ($questionround<=$GenerationToStudy){break;}			
+			echo '<h4>'.WriteGenerationPage($questionid,$GenerationToStudy).'</h4>';
+			echo '<table border="1" class="historytable">';
+			echo '<tr><td>';
+			WriteEndorsersToAProposal($ProposalToStudy,$userid);
+			echo '<br />';
 			
-			$endorsers=EndorsersToAProposal($ProposalToStudy);
-			$sizeof_Endorsers = sizeof($endorsers);
-			if ($sizeof_Endorsers>0)
-			{
-				echo "In <strong>generation ".$GenerationToStudy."</strong> it was endorsed by ";
-				foreach ($endorsers as $u)
-				{
-					echo WriteUserVsReader($u,$userid);
-				}
-				echo ".";
-			}
-			else
-			{
-				echo "In generation ".$GenerationToStudy." it was not endorsed by any user. <br>";			
-			}
-
-			$RelatedProposals=CalculateProposalsRelationTo($ProposalToStudy,$questionid,$GenerationToStudy);#print_r($RelatedProposals);
-			$DominatedProposals=$RelatedProposals["dominated"];
-			$DominatingProposals=$RelatedProposals["dominating"];
-			echo "<br>";
-
-			$sizeof_Below = sizeof($DominatedProposals);
-			if ($sizeof_Below>0)
-			{
-				echo "The proposal dominated ";
-				foreach ($DominatedProposals as $p)
-				{
-					$urlquery = CreateProposalURL($p, $room);
-					echo '<a href="viewproposal.php'.$urlquery.'">'.$p.'</a>';
-					echo " ";
-				}
-			}
-			else
-			{
-				echo "The proposal did not dominate any other proposal, ";
-			}
-					
-			$sizeof_Above = sizeof($DominatingProposals);
-			if ($sizeof_Above>0)
-			{
-				echo "and was dominated by ";
-				foreach ($DominatingProposals as $p)
-				{
-					$urlquery = CreateProposalURL($p, $room);
-					echo '<a href="viewproposal.php'.$urlquery.'">'.$p.'</a>';
-					echo " ";
-				}
-				echo "<br>";			
-			}
-			else
-			{
-				echo "and was not dominated by any other proposal, thus it was copied to the next generation";
-			}
+			echo WriteProposalRelation($ProposalToStudy,$questionid,$GenerationToStudy,$userid,$room);
+			$ProposalToMap=$ProposalToStudy;
 			$ProposalToStudy=GetProposalDaughter($ProposalToStudy);			
-			$GenerationToStudy+=1;		
-			echo "<br>";			
-			echo "<br>";			
-			
+			$GenerationToStudy+=1;					
+			echo '</td><td>';
+			InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
+			echo '</td></tr></table>';
 		}
 		
 	}

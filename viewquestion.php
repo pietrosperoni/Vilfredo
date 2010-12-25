@@ -70,7 +70,7 @@ if ($userid) {
 		$bitlyhash = $row['bitlyhash'];
 		$shorturl = '';
 		
-		if (!empty($bitlyhash))
+		if (!empty($bitlyhash)) 
 		{
 			$shorturl = BITLY_URL.$bitlyhash;
 		}
@@ -171,6 +171,7 @@ if ($userid) {
 
 		if (($phase==0) && ($generation>1))
 		{
+			InsertMap($question,$generation-1);
 			echo '<div id="paretofrontbox">';
 			echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
 			echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
@@ -206,13 +207,33 @@ You can think of it as the smallest set of proposals such that every participant
 						echo '</div>';
 					}
 
-					$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
-					$response4 = mysql_query($sql4);
-					echo '<br />Endorsed by: ';
-					while ($row4 = mysql_fetch_array($response4))
+
+
+					$OriginalProposal=GetOriginalProposal($p);
+					#$OPropID=$OriginalProposal["proposalid"];
+					$OPropGen=$OriginalProposal["generation"];
+					
+					echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+					if ($OPropGen!=$generation)
 					{
-						echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
+						echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";						
 					}
+					
+					$endorsers=EndorsersToAProposal($p);
+					echo '<br />Endorsed by: ';
+					
+					foreach($endorsers as $e)
+					{
+						echo WriteUserVsReader($e,$userid);
+					}
+					
+					#$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
+					#$response4 = mysql_query($sql4);
+					#echo '<br />Endorsed by: ';
+					#while ($row4 = mysql_fetch_array($response4))
+					#{
+					#	echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
+					#}
 					/*?>
 					<form method="post" action="newproposalversion.php">
 					<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
