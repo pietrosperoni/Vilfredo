@@ -1,4 +1,6 @@
 <?php
+header("Location: viewquestions.php");
+
 include('header.php');
 
 #$userid=isloggedin();
