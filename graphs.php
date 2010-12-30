@@ -53,7 +53,32 @@ function StudyQuestion($question)
 #	$graph="http://chart.apis.google.com/chart?cht=lc&chd=t:".implode(",",$IntersectionArray)."|".implode(",",$AuthorsArray)."|".implode(",",$VotersArray)."|".implode(",",$ParticipantsArray)."|".implode(",",$ParticipantsSoFarArray)."&chs=700x300&chds=0,".$NParticipantsSoFar."&chco=000000,FF0000,0000FF,FF00FF,00FF00&chdl=Authors ∩ Voters|Authors|Voters|Authors ∪ Voters|Total N. Participants";
 
 #line graph
-	$graph="http://chart.apis.google.com/chart?cht=lxy&chd=t:"."1"."|".implode(",",$ParticipantsSoFarArray)."|"."1"."|".implode(",",$ParticipantsArray)."|"."1"."|".implode(",",$AuthorsArray)."|"."1"."|".implode(",",$VotersArray)."|"."1"."|".implode(",",$IntersectionArray)."&chs=692x433&chds=0,".($NParticipantsSoFar+0)."&chco=00FF00,FF00FF,FF0000,0000FF,222222&chdl=All Particip.|Auth. ∪ Vot.|Authors|Voters|Auth. ∩ Vot.&chm=o,00DD00,0,-1,5|o,DD00DD,1,-1,5|o,DD0000,2,-1,5|o,0000DD,3,-1,5|o,000000,4,-1,5&chxt=x,y,x,y&chxr=0,1,".($generations-1).",1|1,0,".$NParticipantsSoFar.",1&chxl=2:||Generations||3:|e|l|p|o|e|P||f|o||r|e|b|m|u|N&chtt=Participation+at+the+Question";
+
+	$agreements=GetAgreements($question,$generations);
+	$VisibleAgreements=PreviousAgreementsStillVisible($question,$generations);
+
+	$graph="http://chart.apis.google.com/chart?cht=lxy&chd=t:"."1"."|".implode(",",$ParticipantsSoFarArray)."|"."1"."|".implode(",",$ParticipantsArray)."|"."1"."|".implode(",",$AuthorsArray)."|"."1"."|".implode(",",$VotersArray)."|"."1"."|".implode(",",$IntersectionArray)."&chs=692x433&chds=0,".($NParticipantsSoFar+0)."&chco=00FF00,FF00FF,FF0000,0000FF,222222&chdl=All Particip.|Auth. ∪ Vot.|Authors|Voters|Auth. ∩ Vot.&chm=o,00DD00,0,-1,5|o,DD00DD,1,-1,5|o,DD0000,2,-1,5|o,0000DD,3,-1,5|o,000000,4,-1,5";
+	
+	foreach($agreements as $a)
+	{
+		$b=$a-1;
+		$graph.="|o,FF9900,3,".$b.",12";		
+	}
+	
+	foreach($VisibleAgreements as $a)
+	{
+		$b=$a-1;
+		$graph.="|o,FFFF00,3,".$b.",9";		
+	}
+	
+	
+	$graph.="&chxt=x,y,x,y&chxr=0,1,".($generations-1).",1|1,0,".$NParticipantsSoFar.",1&chxl=2:||Generations||3:|e|l|p|o|e|P||f|o||r|e|b|m|u|N&chtt=Participation+at+the+Question";
+
+
+#	$graph="http://chart.apis.google.com/chart?cht=lxy&chd=t:"."1"."|".implode(",",$ParticipantsSoFarArray)."|"."1"."|".implode(",",$ParticipantsArray)."|"."1"."|".implode(",",$AuthorsArray)."|"."1"."|".implode(",",$VotersArray)."|"."1"."|".implode(",",$IntersectionArray)."&chs=692x433&chds=0,".($NParticipantsSoFar+0)."&chco=00FF00,FF00FF,FF0000,0000FF,222222&chdl=All Particip.|Auth. ∪ Vot.|Authors|Voters|Auth. ∩ Vot.&chm=o,00DD00,0,-1,5|o,DD00DD,1,-1,5|o,DD0000,2,-1,5|o,0000DD,3,-1,5|o,000000,4,-1,5&chxt=x,y,x,y&chxr=0,1,".($generations-1).",1|1,0,".$NParticipantsSoFar.",1&chxl=2:||Generations||3:|e|l|p|o|e|P||f|o||r|e|b|m|u|N&chtt=Participation+at+the+Question";
+
+
+
 
 # Bar Graph with two colors voters and authors, side by side
 #	$graph="http://chart.apis.google.com/chart?cht=bvg&chd=t:".implode(",",$AuthorsArray)."|".implode(",",$VotersArray)."&chs=700x300&chds=0,".$NParticipantsSoFar."&chco=FF0000,0000FF&chdl=Authors|Voters";

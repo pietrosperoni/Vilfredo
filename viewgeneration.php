@@ -70,6 +70,8 @@ if ($userid)
 	{
 		$content=$row['question'];
 		$phase=$row['phase'];
+		$generationnow=$row['roundid'];
+		
 		$creatorid=$row['usercreatorid'];
 		$title=$row['title'];
 		$bitlyhash = $row['bitlyhash'];
@@ -77,6 +79,9 @@ if ($userid)
 		
 		
 		echo '<div class="questionbox">';
+		
+		
+		#$generation
 		
 		echo "<h2>Question</h2>";
 
@@ -105,6 +110,10 @@ if ($userid)
 		echo '<div id="question">' . $content . '</div>';
 		
 		echo "<br />";
+		
+		
+
+		
 
 		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
 		$response2 = mysql_query($sql2);
@@ -114,6 +123,15 @@ if ($userid)
 			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			 echo '</div>';
 		}
+
+
+		echo '<table border="1" class="historytable"><tr>';
+		if ($generation>=2){ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation-1,$room).'</strong></td>';	}
+		else {	echo '<td width="30%"><strong></strong></td>';	}
+		echo '<td><h2><a href="viewhistoryofquestion.php' .CreateQuestionURL($question, $room). '">History</a></h2><h1>Generation '.$generation.'</h1></td>';
+		if ($generation+1<$generationnow)	{ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation+1,$room).'</strong></td>';}
+		else		{echo '<td width="30%"><strong></strong></td>';	}		
+		echo '</tr></table>';
 
 		if ($generation>0)
 		{
@@ -127,7 +145,16 @@ if ($userid)
 			foreach ($ParetoFront as $p)
 			{
 				echo '<div class="paretoproposal">';
-				echo WriteProposalText($p,$question,$generation,$room,$userid);
+			?>	
+					<form method="get" action="newproposalversion.php" target="_blank">
+				<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
+						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+						<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+						<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+						<?php	echo '</h3>';
+				WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);				
+				WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
+				WriteEndorsersToAProposal($p,$userid);
 				echo "<br>";			
 				echo "<br>";			
 				
@@ -242,6 +269,9 @@ if ($userid)
 					echo "By voting ".WriteUserVsReader($e,$userid)." did not change the resulting Pareto Front.<br />But we love ".WriteUserVsReader($e,$userid)." anyway :-). Maybe, even more so ;-)!<br /><br />";
 				}
 			}
+			echo "<br />NOTE: The combined effect of more people not voting is NOT the sum of the combined effect of each person not voting.<br /> But it would be too long and ultimately irrelevant to study all those possibilities. <br />In this case really it is the case of saying that history is not made with the \"if\".<br /> Thus this analysis terminates here.";
+			
+			
 		}
 	}
 	echo '</div>';

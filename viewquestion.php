@@ -173,93 +173,73 @@ if ($userid) {
 		{
 			InsertMap($question,$generation-1);
 			echo '<div id="paretofrontbox">';
-			echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
-			echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
-Strictly speaking they are the pareto front of the set of proposals.
-You can think of it as the smallest set of proposals such that every participant is represented.</i></p>";
 
-			// Adding table 19/11
-			//echo '<table>';
-			$ParetoFront=ParetoFront($question,$generation-1);
-			foreach ($ParetoFront as $p)
+			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
+
+			echo '<h3>Previous agreements, Still Visible (<a href="viewhistoryofquestion.php?' . $_SERVER['QUERY_STRING'] . '">History</a>)</h3>';
+			sort($VisibleProposalsGenerations);
+			
+			if(empty($VisibleProposalsGenerations)) echo "None<br />";
+			
+			foreach($VisibleProposalsGenerations as $vpg)
 			{
-				$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
-				$response3 = mysql_query($sql3);
-				while ($row3 = mysql_fetch_array($response3))
-				{
-//					echo '<tr><td>';//19/11
-					echo '<div class="paretoproposal">';
-					if (!empty($row3['abstract'])) {
-						echo '<div class="paretoabstract">';
-						echo display_fulltext_link();
-						echo '<h3>Proposal Abstract</h3>';
-						echo $row3['abstract'] ;
-						echo '</div>';
-						echo '<div class="paretotext">';
-						echo '<h3>Proposal</h3>';
-						echo $row3['blurb'];
-						echo '</div>';
-					}
-					else {
-						echo '<div class="paretofulltext">';
-						echo '<h3>Proposal</h3>';
-						echo $row3['blurb'] ;
-						echo '</div>';
-					}
-
-
-
-					$OriginalProposal=GetOriginalProposal($p);
-					#$OPropID=$OriginalProposal["proposalid"];
-					$OPropGen=$OriginalProposal["generation"];
-					
-					echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
-					if ($OPropGen!=$generation)
+				$endorsersAgreement=Endorsers($question,$vpg);
+				if($generation==$vpg+1){echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">Last Generation</a> ';}
+				else		{	echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
+				
+				echo " an Agreement was found between ".Count($endorsersAgreement)." people ";
+				foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
+				echo "</h4>";
+				
+				$ProposalsToSee=ParetoFront($question,$vpg);
+					foreach($ProposalsToSee as $p)
 					{
-						echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";						
+						?><form method="get" action="newproposalversion.php" target="_blank">
+							<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
+								<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+								<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+								<input type="submit" name="submit" title="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal." id="submit" value="Repropose or Mutate" /></form>
+								<?php	echo '</h3>';
+						WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
 					}
 					
+			}
+			$lastgeneration=$generation-1;
+			if (! in_array($lastgeneration,$VisibleProposalsGenerations))
+			{
+				echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
+				echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
+				Strictly speaking they are the Pareto Front of the set of proposals.
+				You can think of it as the smallest set of proposals such that every participant is represented.</i></p>";
+
+				$ParetoFront=ParetoFront($question,$generation-1);
+				foreach ($ParetoFront as $p)
+				{
+						echo '<div class="paretoproposal">';
+					
+					?><form method="get" action="newproposalversion.php" target="_blank">
+						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
+							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+							<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+							<?php	echo '</h3>';
+					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);
+					
+					$OriginalProposal=GetOriginalProposal($p);					#$OPropID=$OriginalProposal["proposalid"];
+					$OPropGen=$OriginalProposal["generation"];
+
+					echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+					if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";	}
 					$endorsers=EndorsersToAProposal($p);
 					echo '<br />Endorsed by: ';
-					
-					foreach($endorsers as $e)
-					{
-						echo WriteUserVsReader($e,$userid);
-					}
-					
-					#$sql4 = "SELECT  users.username, users.id FROM endorse, users WHERE  endorse.userid = users.id and endorse.proposalid = " .$p. " ";
-					#$response4 = mysql_query($sql4);
-					#echo '<br />Endorsed by: ';
-					#while ($row4 = mysql_fetch_array($response4))
-					#{
-					#	echo '<a href="user.php?u='.$row4[1].'">' . $row4[0] . '</a> ';
-					#}
-					/*?>
-					<form method="post" action="newproposalversion.php">
-					<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
-					<input type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
-					</form>
-					<?php
-					*/					
+					foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
 					echo '</div>';
-					
-					/*
-					echo '</td><td class="button_cell">';
-					?>
-					<form method="post" action="newproposalversion.php">
-					<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
-					<input type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
-					</form>
-					*/
-					
-					
-//					echo '</td></tr>';
+					#}
 				}
+				echo '</div>';
 			}
-
-			echo '</div>';						
+			
 		}
-//		echo '</table>'; //19/11
 		
 		echo '<div id="actionbox">';
 		echo "<h3>Generation ".$generation.": ";
@@ -277,6 +257,7 @@ You should now answer the question. Giving your best shot. Later, after everybod
 					echo "<p><i>What should you do now? Write new proposals. How?
 You can insert brand new ideas;
 rewrite previous ideas (maybe trying to explain them better);
+Write proposals you did not like, in a format acceptable to you (this is a biggie);
 recover old ideas from the history of the question;
 try to write a proposal that represent an acceptable compromise between different winning proposals. If you do this well, the new proposal will be endorsed by both the proponent of the first and of the second proposal, and you will have effectively joined those proposals.</i></p>
 ";

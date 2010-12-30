@@ -21,16 +21,20 @@ include('header.php');
 	$question = GetParamFromQuery(QUERY_KEY_QUESTION);
 	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 
-	$graph=StudyQuestion($question);
-	
-	echo "<img src='".$graph."'>";
+
+
 
 	echo '<div class="questionbox">';
+
+	$Disabled="DISABLED";
+	$Tootip="It is only permitted to propose during the writing phase. Please wait until the next writing phase to propose something";
 	
-	echo "<h2>Question:</h2>";
 	
 	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response = mysql_query($sql);
+	
+	
+	
 	while ($row = mysql_fetch_array($response))
 	{
 		$content=$row[1];
@@ -40,6 +44,18 @@ include('header.php');
 		$title=$row[5];
 		$room=$row[9];
 		$urlquery = CreateQuestionURL($question, $room);
+		
+		
+		if($generation>2)
+		{
+			$graph=StudyQuestion($question);
+			echo "<img src='".$graph."'>";
+		}
+		
+		
+		
+		echo "<h2>Question:</h2>";
+		
 		echo '<h4 id="question">' . $title . '</h2>';
 		echo '<div id="question">' . $content . '</div>';
 
@@ -57,12 +73,18 @@ include('header.php');
 		
 		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >Question Page</a>';
 #		echo '</div>';
+		
+		if($phase==0)	
+		{
+			$Disabled="";
+			$Tootip="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal.";
+		}
 	}
 
 	echo "<h1>History of past Proposals:</h1>";
 	#	echo '<quote>"History, teach us nothing": Sting</quote><br /><br />';
 
-
+	#WriteIntergenerationalGVMap($question);
 	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid < ".$generation." ORDER BY `roundid` DESC, `dominatedby` ASC  ";
 	$response = mysql_query($sql);
 	if ($response)
@@ -79,7 +101,7 @@ include('header.php');
 				$genshowing=$row[3];
 				WriteGraphVizMap($question,$genshowing);
 				
-				echo '<tr><td colspan="5" class="genhist"><h3>'.WriteGenerationPage($question,$genshowing).' ';
+				echo '<tr><td colspan="5" class="genhist"><h3>'.WriteGenerationPage($question,$genshowing,$room).' ';
 				$proposers=AuthorsOfNewProposals($question,$genshowing);
 #				echo "Proposers:";
 #				foreach ($proposers as $p)
@@ -194,7 +216,39 @@ include('header.php');
 			// ***
 			//
 			echo '<div class="paretoproposal">';
-			WriteProposalOnlyText($row[0],$question,$generation,$room,$userid);
+			
+			
+			
+			#echo '<div class="paretoproposal">';
+				
+				?>
+				<form method="get" action="newproposalversion.php" target="_blank"><?php	echo '<h3>'.WriteProposalPage($row[0],$room)." ";?>	
+						<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+						<?php	
+			if($room) 
+						{ 
+							?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	
+						}
+						
+					?>
+					<input type="submit" name="submit" title="<?php echo $Tootip; ?>" id="submit" value="Repropose or Mutate" <?php echo $Disabled; ?>/></form>
+						<?php	echo '</h3>';
+				WriteProposalOnlyContent($row[0],$question,$generation,$room,$userid);
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			#WriteProposalOnlyText($row[0],$question,$generation,$room,$userid);
 			
 			#if (!empty($row['abstract'])) {
 			#	echo '<div class="paretoabstract">';

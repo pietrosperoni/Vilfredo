@@ -157,21 +157,11 @@ function set_message($message_type, $message)
     $_SESSION['messages'][$message_type][] = $message;
 }
 
-function get_messages($message_type='error')
+function get_messages()
 {
-    $messages_array = $_SESSION['messages'][$message_type];
+    $messages_array = $_SESSION['messages'];
+    unset($_SESSION['messages']);
     return $messages_array;
-}
-
-function clear_messages()
-{
-	unset($_SESSION['messages']);
-}
-
-function get_message_string($message_type='error')
-{
-	$msg = get_messages($message_type);
-	return implode("<br/>", $msg);
 }
 // ******************************************
 // VILFREDO ROOMS
@@ -240,7 +230,7 @@ function CreateProposalURL($proposal, $room="")
 	return $proposal_url;
 }
 
-function CreateGenerationURL($question,$generation)
+function CreateGenerationURL($question,$generation,$room)
 {
 	$room=GetQuestionRoom($question);
 	if (!isset($question) or empty($question))
@@ -303,6 +293,22 @@ function GetQuestioner($question)
 	}
 }
 
+function GetAgreements($question,$generation=0)
+{
+	if ($generation==0)	{	$generation=GetQuestionGeneration($question);	}
+	$generation-=1;
+	$Agreements=array();
+	while($generation)
+	{
+		$participants=Endorsers($question,$generation);		
+		$sp=Count($participants);
+		$pf=ParetoFront($question,$generation);		
+		if(Count(EndorsersToAProposal($pf[0]))==$sp)
+		{	array_push($Agreements,$generation);	}
+		$generation-=1;
+	}
+	return $Agreements;
+}
 
 
 
@@ -318,16 +324,17 @@ function PreviousAgreementsStillVisible($question,$generation=0)
 	while($generation)
 	{
 		$participants=Endorsers($question,$generation);		
-		$sp=sizeof($participants);
+		$sp=Count($participants);
+		
 		if ($sp<=$BiggestAgreement)
 		{
 			$generation-=1;
 			continue;
 		}
-		$pf=ParetoFront($question,$generation);
-		if(sizeof(EndorsersToAProposal($pf[0]))==$sp)
+		$pf=ParetoFront($question,$generation);		
+		if(Count(EndorsersToAProposal($pf[0]))==$sp)
 		{
-			$BiggestAgreement==$sp;
+			$BiggestAgreement=$sp;
 			array_push($AgreementsVisisble,$generation);			
 		}
 		$generation-=1;
@@ -378,6 +385,31 @@ function GetRelatedQuestions($userid)
 	#print_array($related);
 	return ($related);
 }
+
+
+
+
+
+function HasProposalBeenSuggested($question,$blurb,$abstract,$generation=0)
+{
+	if ($generation==0)	{	$generation=GetQuestionGeneration($question);}
+	$proposals=GetProposalsInGeneration($question,$generation);
+	foreach($proposals as $p)
+	{
+		$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
+		$response3 = mysql_query($sql3);
+		while ($row3 = mysql_fetch_array($response3))
+		{
+			if($row3['blurb']===$blurb AND $row3['abstract']===$abstract)	{return $p;}
+		}
+	}
+	return 0;
+}
+
+
+
+
+
 
 function SendInvite($userid, $receiver, $question)
 {  	     
@@ -696,6 +728,7 @@ function HasProposalAccess()
 	else
 		$room = "";
 
+
 	if (empty($room_id) or ($room == $room_id))
             return true;
 	else
@@ -769,6 +802,29 @@ function GetOriginalProposal($proposal)
 	}
 }
 
+
+function GetProposalGeneration($proposal)
+{
+	$sql="SELECT roundid FROM proposals WHERE proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	return $row['roundid'];
+}
+
+function GetProposalAuthor($proposal)
+{
+	$sql="SELECT usercreatorid FROM proposals WHERE proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	return $row['usercreatorid'];
+}
+
+
+
+
+
+
+
 function GetProposalDaughter($proposal)
 {
 	$daughter=0;
@@ -790,6 +846,10 @@ function GetProposalQuestion($proposal)
 	$row = mysql_fetch_assoc($result);
 	return $row['experimentid'];
 }
+
+
+
+
 
 function GetProposalRoom($proposal)
 {
@@ -1093,23 +1153,6 @@ function isadminonly($userid)
 	}
 }
 
-function setlogintime($user)
-{
-	$sql = "UPDATE users 
-	SET lastlogin = NOW()
-	WHERE id = $user";
-	
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
 function IsAuthenticated()
 {            
         return (isset($_SESSION[USER_LOGIN_ID])) ? $_SESSION[USER_LOGIN_ID] : false;
@@ -1155,8 +1198,6 @@ function isloggedin()
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
-			// log time
-			setlogintime($userid);
 		}
 		return $userid;
 	}
@@ -1168,8 +1209,6 @@ function isloggedin()
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'FB';
-			// log time
-			setlogintime($userid);
 		}
 		return $userid;
 	}
@@ -2209,6 +2248,35 @@ function WriteUserVsReader($user,$reader)
 	}
 	return $answer;
 }
+
+function WriteProposalOnlyContent($p,$question)#,$generation,$room,$userid)
+{
+#	$OriginalProposal=GetOriginalProposal($p);
+#	$OPropID=$OriginalProposal["proposalid"];
+#	$OPropGen=$OriginalProposal["generation"];
+	
+	$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
+	$response3 = mysql_query($sql3);
+	while ($row3 = mysql_fetch_array($response3))
+	{
+		if (!empty($row3['abstract'])) {
+			echo '<div class="paretoabstract">';
+			echo display_fulltext_link();
+			echo '<h3>Proposal Abstract</h3>';
+			echo $row3['abstract'] ;
+			echo '</div>';
+			echo '<div class="paretotext">';
+			echo $row3['blurb'];
+			echo '</div>';
+		}
+		else {
+			echo '<div class="paretofulltext">';
+			echo $row3['blurb'] ;
+			echo '</div>';
+		}
+	}
+}
+
 function WriteProposalOnlyText($p,$question,$generation,$room,$userid)
 {
 	$OriginalProposal=GetOriginalProposal($p);
@@ -2249,49 +2317,26 @@ function WriteEndorsersToAProposal($p,$userid)
 	}
 }
 
-function WriteProposalText($p,$question,$generation,$room,$userid)
+function WriteAuthorOfAProposal($p,$userid,$generation,$question,$room)
 {
 	$OriginalProposal=GetOriginalProposal($p);
 	$OPropID=$OriginalProposal["proposalid"];
 	$OPropGen=$OriginalProposal["generation"];
-	
-	WriteProposalOnlyText($p,$question,$generation,$room,$userid);
-	
-#	$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
-#	$response3 = mysql_query($sql3);
-#	while ($row3 = mysql_fetch_array($response3))
-#	{
-#		if (!empty($row3['abstract'])) {
-##			echo '<div class="paretoabstract">';
-#			echo display_fulltext_link();
-#			echo '<h3>Proposal Abstract</h3>';
-###			echo $row3['abstract'] ;
-#			echo '</div>';
-#			echo '<div class="paretotext">';
-##			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
-#			echo $row3['blurb'];
-#			echo '</div>';
-#		}
-#		else {
-#			echo '<div class="paretofulltext">';
-#			echo '<h3>'.WriteProposalPage($p,$room).'</h3>';
-#			echo $row3['blurb'] ;
-#			echo '</div>';
-#		}
+	echo 	$OPropID;
+	echo 	$OPropGen;
+		
+	echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+	if ($OPropGen!=$generation)
+	{
+		echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";						
+	}
+}
 
-		
-		echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
-		if ($OPropGen!=$generation)
-		{
-			echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";						
-		}
-		
-		$endorsers=EndorsersToAProposal($p);
-		echo '<br />Endorsed by: ';
-		foreach($endorsers as $e)
-		{
-			echo WriteUserVsReader($e,$userid);
-		}
+function WriteProposalText($p,$question,$generation,$room,$userid)
+{	
+	WriteProposalOnlyText($p,$question,$generation,$room,$userid);
+	WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
+	WriteEndorsersToAProposal($p,$userid);
 }
 
 
@@ -2335,11 +2380,11 @@ function WriteProposalRelation($proposal,$question,$generation,$userid,$room)
 		if(CountEndorsersToAProposal($proposal)==CountEndorsers($question,$generation))
 		{
 			$answer.="<br />also since everybody who participated in that generation voted for it, it represented the reached agreement for the community";
-			$answer.="<br />it was, nevertheless copied to the next generation, ".WriteGenerationPage($question,$generation+1).", in case someone wanted to challenge it.";						
+			$answer.="<br />it was, nevertheless copied to the next generation, ".WriteGenerationPage($question,$generation+1,$room).", in case someone wanted to challenge it.";						
 		}
 		else
 		{
-			$answer.="<br />thus it was copied to the next generation (".WriteGenerationPage($question,$generation+1).").";			
+			$answer.="<br />thus it was copied to the next generation (".WriteGenerationPage($question,$generation+1,$room).").";			
 		}
 	}
 	return $answer;
@@ -2376,12 +2421,10 @@ function WriteWhyDomination($proposalAbove,$proposalBelow,$room,$userid)
 }
 
 
-function WriteGenerationPage($question,$generation)
+function WriteGenerationPage($question,$generation,$room)
 {
-	return '<a href="viewgeneration.php'.CreateGenerationURL($question,$generation).'">Generation '.$generation. '</a> ';
+	return '<a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">Generation '.$generation. '</a> ';
 }
-
-
 
 function TimeLastProposalOrEndorsement($question, $phase, $generation)
 {
@@ -2943,6 +2986,8 @@ function SendMails($question)
 		$user=$row[0];
 		sendmail($user,$question,$subject,$message);
 		array_push($EmailsSent,$user);
+		set_log("Mail to ".$user." as for update in question ".$question." because he asked for them");
+		
 	}
 	if ($phase == 0)
 	{
@@ -2955,6 +3000,8 @@ function SendMails($question)
 			}
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
+			set_log("Mail to ".$user." as for update in question ".$question." because he proposed");
+			
 		}
 		$endorsers=Endorsers($question,$round-1);
 		foreach ($endorsers as $user)
@@ -2965,6 +3012,8 @@ function SendMails($question)
 			}
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
+			set_log("Mail to ".$user." as for update in question ".$question." because he endorsed");
+			
 		}
 	}
 	else
@@ -2978,6 +3027,8 @@ function SendMails($question)
 			}
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
+			set_log("Mail to ".$user." as for update in question ".$question." because he proposed");
+			
 		}
 		$endorsers=Endorsers($question,$round-1);
 		foreach ($endorsers as $user)
@@ -2988,12 +3039,14 @@ function SendMails($question)
 			}
 			sendmail($user,$question,$subject,$message);
 			array_push($EmailsSent,$user);
+			set_log("Mail to ".$user." as for update in question ".$question." because he was endorsed");			
 		}
 		// Also send email to questioner, if not already sent
 		if (!in_array($questioner,$EmailsSent))
 		{
 			sendmail($questioner,$question,$subject,$message);
 			array_push($EmailsSent,$questioner);
+			set_log("Mail to ".$user." as for update in question ".$question." because he was the question author");
 		}
 	}
 }
@@ -3044,6 +3097,8 @@ function AwareAuthorOfNewProposal($question)
 		It is thus very important that after the question has waited enough you move it on.';
 		$message=wordwrap  ( $message, 70,"\n",true);
 		$result=mail($to,$subject, $message );
+		set_log("Mail from AwareAuthorOfNewProposal to ".$username." on new proposal for question ".$question." ");
+		
 	}
 }
 
@@ -3092,6 +3147,8 @@ and click on the "moveon" button.
 	Please consider that until you do so, no one is allowed to post new solutions to this question, and the question will just wait there. It is thus very important that after the question has waited enough you move it on.';
 		$message=wordwrap  ( $message, 70,"\n",true);
 		$result=mail($to,$subject, $message );
+		set_log("Mail from AwareAuthorOfNewEndorsement to ".$username." on new proposal for question ".$question." ");
+		
 	}
 }
 
@@ -3128,6 +3185,7 @@ If you would like not to receive any more invitations from '.$authorusername.' y
 
 		$message=wordwrap  ( $message, 70,"\n",true);
 		mail($to,$subject, $message );
+		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
 }
 
 function InviteKeyPlayersToRewriteProposals($question,$generation,$room)
@@ -3213,6 +3271,7 @@ function InviteKeyPlayerToRewriteProposals($KeyPlayer,$proposals,$question,$room
 	$message=wordwrap  ( $message, 70,"\n",true);
 	mail($to,$subject, $message );
 	
+	set_log("Mail from InviteKeyPlayerToRewriteProposals to ".$username." as keyplayer for proposal ".$proposal." in question ".$question." ");
 	
 	
 	
@@ -3248,8 +3307,10 @@ function SendMail($user,$question,$subject,$message)
 	{
 		$to=$row[0];
 		if (!$to) continue;
-		$message=wordwrap  ( $message, 70,"\n",true);
+#		$message=wordwrap  ( $message, 70,"\n",true);
+		$message=wordwrap  ( $message, 70,"\n",false);
 		mail($to,$subject, $message );
+		
 	}
 }
 
@@ -3823,16 +3884,19 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
-	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
-	if ($svgfile)
+	if (USE_GRAPHVIZ_MAPS)
 	{
-		$buf='<center><embed src="'.$svgfile.'" ';
-		if($size=="L")      {	$buf.='width="1100" height="550" ';	}
-		elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
-		elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
-		elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
-		$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
-		echo $buf;
+		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+		if ($svgfile)
+		{
+			$buf='<center><embed src="'.$svgfile.'" ';
+			if($size=="L")      {	$buf.='width="1100" height="550" ';	}
+			elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
+			elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
+			elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
+			$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
+			echo $buf;
+		}		
 	}
 	return;
 }
@@ -3864,7 +3928,7 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	}
 	if (file_exists ( $filename.".dot"))
 	{
-		system("../local/bin/dot -Tsvg ".$filename.".dot >".$filename.".svg");
+		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
 		if (file_exists ( $filename.".svg"))
 		{
 			return $filename.".svg";
@@ -3875,7 +3939,7 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	if ($MapFile) {
 		fputs($MapFile,$buf);
 		fclose($MapFile);
-		system("../local/bin/dot -Tsvg ".$filename.".dot >".$filename.".svg");
+		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
 		if (file_exists ( $filename.".svg"))
 		{
 			return $filename.".svg";
@@ -4191,7 +4255,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		{
 			$color="black";
 			$peripheries=0;
-			if(in_array($highlightuser1,EndorsersToAProposal($kc2p)))
+			$endo=EndorsersToAProposal($kc2p);
+			if(in_array($highlightuser1,$endo))
 			{
 				$color="red";
 				$peripheries=1;
@@ -4203,7 +4268,14 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 					$peripheries=1;
 				}			
 			}
-			$detailsTable=' BGCOLOR="lightblue" ';				
+			if(Count($endo)===Count($endorsers))
+			{
+				$detailsTable=' BGCOLOR="gold" ';								
+			}
+			else
+			{
+				$detailsTable=' BGCOLOR="lightblue" ';								
+			}
 			$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';			
 		}
 		else
@@ -4265,7 +4337,19 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		{
 			$urlquery = CreateProposalURL($p, $room);
 			
-			$buf.=$p.' [shape=box fillcolor=lightblue style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			$endo=EndorsersToAProposal($p);
+			
+			if(Count($endo)===Count($endorsers))
+			{
+				$fillcolor='"gold"';								
+			}
+			else
+			{
+				$fillcolor='"lightblue" ';								
+			}
+			
+			
+			$buf.=$p.' [shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
 			
 			$buf.="\n";			
 		}
@@ -4341,6 +4425,94 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$buf.="\n}";
 	return $buf;
 }
+
+function WriteIntergenerationalGVMap($question)
+{
+#	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
+	$MapFile = fopen("map/IGMap".$question.".dot", "w+");
+	
+	$buf=MakeIntergenerationalGVMap($question);
+	if ($MapFile) {
+		fputs($MapFile,$buf);
+		fclose($MapFile);
+		#system("../local/bin/dot -Tsvg ".$filename.".dot >".$filename.".svg");
+	} else {
+		echo "<br /><b>Error creating map file, please check write permissions.</b><br />";
+		return;
+	}	
+	
+}
+
+function MakeIntergenerationalGVMap($question,$size="11,5.5")  #,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true)
+{
+	$title=StringSafe(GetQuestionTitle($question));
+	$buf='digraph "';
+	$buf.=$title;
+	$buf.='" {';
+	$buf.="\n";
+	$buf.='size="'.$size.'"';
+	$buf.="\n";
+	$room=GetQuestionRoom($question);
+	$proposals=array();												#	
+	$AllProposals=array();#ProposalsInQuestion($question);
+	$generationNow=GetQuestionGeneration($question);
+	$gen=1;
+	while($gen<$generationNow)
+	{
+		$buf.="G".$gen." [shape=point fontcolor=white color=white fontsize=1] \n";		
+		$gen+=1;
+	}
+	
+	$gen=1;
+	while($gen<$generationNow-1)
+	{
+		$buf.="G".$gen." -> ";		
+		$gen+=1;
+	}
+	$buf.="G".$gen.";\n";		
+
+	$gen=1;
+	while($gen<$generationNow)
+	{
+		$proposals[$gen]=GetProposalsInGeneration($question,$gen);
+		$AllProposals=array_merge($AllProposals,$proposals[$gen]);
+		$buf.='{rank=same; "G'.$gen.'" ';
+		foreach ($proposals[$gen] as $p) { $buf.=" ".$p." ";	}
+		$buf.="}\n";
+		$pf[$gen]=ParetoFront($question,$generation);
+		foreach($proposals[$gen] as $p)
+		{
+			if(in_array ( $p, $pf[$gen] ))
+			{
+				$color="black";
+				$peripheries=1;
+				$urlquery = CreateProposalURL($p, $room);
+				$buf.=$p.' [shape=box fillcolor=lightblue style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+				$buf.="\n";			
+			}
+			else
+			{	
+				$urlquery = CreateProposalURL($p, $room);
+				$buf.=$p.' [shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+				$buf.="\n";
+			}
+		}
+		$gen+=1;
+	}
+	foreach($AllProposals as $p)	
+	{
+		$pd=GetProposalDaughter($p);
+		if($pd)
+		{
+			$buf.=$p.' -> '.$pd.' ';	
+			$buf.="\n";
+		}		
+	}
+	$buf.="\n}";
+	return $buf;
+}
+
+
 
 
 

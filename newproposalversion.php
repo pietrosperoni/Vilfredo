@@ -37,18 +37,25 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 $proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
 if (!HasProposalAccess())
 {
-		header("Location: viewquestions.php");
+	#	header("Location: viewquestions.php");
+	echo "no access";
 }
 
 $question_id = GetProposalQuestion($proposal);
 $is_writing = IsQuestionWriting($question_id);
+$whenfrom=GetProposalGeneration($proposal);
+$whofrom=GetProposalAuthor($proposal);
+$generationNow=GetQuestionGeneration($question_id);
 
 // Check if question is in the writing state before allowing new proposal version
 if ($is_writing)
 {
 	printbr('Sorry, This question is now in the voting phase. Please wait until the question moves on to the next generation before creating any new proposals.');
 }
-
+elseif ($whenfrom==$generationNow AND $userid!=$whofrom)
+{
+	printbr('It looks like you tried to mutate a proposal presented in this generation by someone else. This is not allowed. If you have written this proposal, please log in as the author of it.');
+}
 else
 {
 	

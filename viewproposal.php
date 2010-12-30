@@ -36,17 +36,23 @@ include('header.php');
 		echo '<div id="question">' . $questiontext . '</div>';		
 		echo 'now on Generation ' . $questionround . '<br>';
 		
-		if (!empty($proposalabstract))
+		$Disabled="DISABLED";
+		$Tootip="It is only permitted to propose during the writing phase. Please wait until the next writing phase to propose something";
+		if($questionphase==0)	
 		{
-			echo '<h3>Abstract:</h3>';
-			echo "<p> $proposalabstract</p>";
+			$Disabled="";
+			$Tootip="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal.";
 		}
 		
-		echo '<h2>Proposed Answer</h2>';
-		echo '<p>' . $proposaltext . '</p>';
-		
+		?>
+			<form method="get" action="newproposalversion.php" target="_blank">
+		<?php	echo '<h3>'.WriteProposalPage($proposal,$room)." ";?>	
+				<input type="hidden" name="p" id="p" value="<?php echo $proposal; ?>" />
+				<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+				<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+				<?php	echo '</h3>';
+		WriteProposalOnlyContent($proposal,$question);#,$generation,$room,$userid);
 		echo '<h2>History of the Proposal</h2>';
-		
 		$OriginalProposal=GetOriginalProposal($proposal);
 		$OPropID=$OriginalProposal["proposalid"];
 		$OPropGen=$OriginalProposal["generation"];
@@ -57,14 +63,14 @@ include('header.php');
 		
 		echo "The proposal was written by ";
 		echo WriteUserVsReader($author,$userid);
-		echo "in ".WriteGenerationPage($questionid,$OPropGen).".<br>";
+		echo "in ".WriteGenerationPage($questionid,$OPropGen,$room).".<br>";
 
 		$ProposalToStudy=$OPropID;
 		$GenerationToStudy=$OPropGen;
 		while($ProposalToStudy)
 		{
 			if ($questionround<=$GenerationToStudy){break;}			
-			echo '<h4>'.WriteGenerationPage($questionid,$GenerationToStudy).'</h4>';
+			echo '<h4>'.WriteGenerationPage($questionid,$GenerationToStudy,$room).'</h4>';
 			echo '<table border="1" class="historytable">';
 			echo '<tr><td>';
 			WriteEndorsersToAProposal($ProposalToStudy,$userid);
