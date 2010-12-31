@@ -2353,8 +2353,6 @@ function WriteAuthorOfAProposal($p,$userid,$generation,$question,$room)
 	$OriginalProposal=GetOriginalProposal($p);
 	$OPropID=$OriginalProposal["proposalid"];
 	$OPropGen=$OriginalProposal["generation"];
-	echo 	$OPropID;
-	echo 	$OPropGen;
 		
 	echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
 	if ($OPropGen!=$generation)

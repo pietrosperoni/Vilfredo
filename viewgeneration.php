@@ -150,7 +150,7 @@ if ($userid)
 				<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 						<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-						<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+						<input type="submit" name="submit" title="Click here to repropose or modify an alternative to this" id="submit" value="Repropose or Mutate" /></form>
 						<?php	echo '</h3>';
 				WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);				
 				WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
@@ -171,10 +171,25 @@ if ($userid)
 			{
 				#echo '<div class="paretoproposal">';
 				echo '<div class="nonparetoproposal">';
-				echo WriteProposalText($p,$question,$generation,$room,$userid);
-				echo "<br>";	
-				echo "<br>";			
-				echo WriteProposalRelation($p,$question,$generation,$userid,$room);
+				?>	
+						<form method="get" action="newproposalversion.php" target="_blank">
+					<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
+							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+							<input type="submit" name="submit" title="Click here to repropose or modify an alternative to this" id="submit" value="Repropose or Mutate" /></form>
+							<?php	echo '</h3>';
+					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);				
+					WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
+					WriteEndorsersToAProposal($p,$userid);
+					echo "<br>";			
+					echo "<br>";			
+
+					echo WriteProposalRelation($p,$question,$generation,$userid,$room);
+				
+				#echo WriteProposalText($p,$question,$generation,$room,$userid);
+				#echo "<br>";	
+				#echo "<br>";			
+				#echo WriteProposalRelation($p,$question,$generation,$userid,$room);
 				
 				echo '</div>';
 			}

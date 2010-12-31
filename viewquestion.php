@@ -184,8 +184,8 @@ if ($userid) {
 			foreach($VisibleProposalsGenerations as $vpg)
 			{
 				$endorsersAgreement=Endorsers($question,$vpg);
-				if($generation==$vpg+1){echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">Last Generation</a> ';}
-				else		{	echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
+				if($generation==$vpg+1){echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
+				else		{	echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
 				
 				echo " an Agreement was found between ".Count($endorsersAgreement)." people ";
 				foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
