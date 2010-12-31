@@ -229,7 +229,7 @@ if ($userid) {
 					$OPropGen=$OriginalProposal["generation"];
 
 					echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
-					if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen).".<br>";	}
+					if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
 					$endorsers=EndorsersToAProposal($p);
 					echo '<br />Endorsed by: ';
 					foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
