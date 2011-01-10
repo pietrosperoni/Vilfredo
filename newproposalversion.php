@@ -104,6 +104,11 @@ try{
 	    }
 	    var prop_abstract = <?= empty($abstract) ? 'null' : json_encode($abstract); ?>;
 
+	    if (prop_abstract)
+	    {
+	    	$("#abstract_panel").accordion("activate", 0);
+	    }
+	    
 	    if (prop_abstract) {
 		setTimeout(function() {
 			$("#abstract_rte").contents().find("body").html(prop_abstract);
