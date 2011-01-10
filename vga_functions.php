@@ -3906,8 +3906,21 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 ////////////////FUNCTIONS TO DRAW THE GRAPHVIZ MAP///////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-
-
+function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+#	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
+	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	set_log($filename);
+	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	if ($svgfile)
+	{
+		return $filename;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 #$size="L"/Middle/Small = "11,5.5"=1100 550 
 function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)

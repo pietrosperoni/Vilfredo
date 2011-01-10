@@ -433,7 +433,7 @@ echo "</h1>";
 	$printed = false;
 	if (!$printed) 
 	{
-		set_log('$sql = ' . $sql);
+		//set_log('$sql = ' . $sql);
 		$printed = true;
 	}
 	while ($row = mysql_fetch_array($response))

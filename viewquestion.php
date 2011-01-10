@@ -11,6 +11,7 @@ $headcommands='
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
@@ -172,6 +173,23 @@ if ($userid) {
 		if (($phase==0) && ($generation>1))
 		{
 			InsertMap($question,$generation-1);
+			/*
+			//InsertMap($question,$generation-1,$userid,"L",0);
+			$graphsize = 'mediumgraph';
+			if ($filename = InsertMap2($question,$generation-1))
+			{
+				$filename .= '.svg';
+				?>
+				<script type="text/javascript">
+				$(document).ready(function() {
+					var svgfile = '<?= $filename; ?>';
+					$('#svggraph1').svg({loadURL: svgfile});
+				});
+				</script>
+				<?php
+			}
+			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
+			*/
 			echo '<div id="paretofrontbox">';
 
 			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);

@@ -1,3 +1,5 @@
+@import "js/svg/jquery.svg.css";
+
 body {
 	margin: 10px 50px 0px 50px;
 	font-family: helvetica,arial,sans-serif;
@@ -905,4 +907,31 @@ a.tweet span.vert {
 	display: block; 
 	font-size: 12px; 
 	margin-left: 0px; 
+}
+
+.largegraph {
+	width: 1100; 
+	height: 550px; 
+	//border: 1px solid;
+	//margin-left: 3px;
+	margin:0 auto;
+	padding-bottom: 3px;
+}
+
+.mediumgraph {
+	width: 600; 
+	height: 400px; 
+	//border: 1px solid;
+	//margin-left: 3px;
+	margin:0 auto;
+	padding-bottom: 3px;
+}
+
+.smallgraph {
+	width: 600; 
+	height: 300px; 
+	//border: 1px solid;
+	//margin-left: 3px;
+	margin:0 auto;
+	padding-bottom: 3px;
 }
