@@ -24,16 +24,21 @@ if ($userid)
 	}
 
 	//*** Filter user HTML input
-	$htmlpurifierconfig = HTMLPurifier_Config::createDefault();
-	$htmlpurifierconfig->set('HTML', 'Doctype', 'HTML 4.01 Transitional');
-	$htmlpurifier = new HTMLPurifier($htmlpurifierconfig);
+	//$htmlpurifierconfig = HTMLPurifier_Config::createDefault();
+	//$htmlpurifierconfig->set('HTML.Doctype', 'HTML 4.01 Transitional');
+	//$htmlpurifier = new HTMLPurifier($htmlpurifierconfig);
 
-	$blurb = $htmlpurifier->purify($blurb);
+	//set_log($blurb);
+
+	//$blurb = $htmlpurifier->purify($blurb);
+	
+	//set_log($blurb);
 
 	if($blurb and $title)
 	{
 		$sql = 'INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`   ) VALUES (\'' . $blurb . '\', \'1\', \'0\', \''.$userid.'\',\'' . $title . '\', NOW(),\''.$minimumtime.'\',\''.$maximumtime.'\',\''.$room.'\' );';
                 mysql_query($sql);
+                set_log($sql);
 
 		$sql = "SELECT id FROM questions WHERE usercreatorid = ".$userid." ORDER BY questions.id DESC LIMIT 1 ";
 		$response = mysql_query($sql);
