@@ -919,7 +919,7 @@ a.tweet span.vert {
 }
 
 .mediumgraph {
-	width: 600; 
+	width: 800; 
 	height: 400px; 
 	//border: 1px solid;
 	//margin-left: 3px;
@@ -930,6 +930,15 @@ a.tweet span.vert {
 .smallgraph {
 	width: 600; 
 	height: 300px; 
+	//border: 1px solid;
+	//margin-left: 3px;
+	margin:0 auto;
+	padding-bottom: 3px;
+}
+
+.xsmallgraph {
+	width: 400; 
+	height: 200px; 
 	//border: 1px solid;
 	//margin-left: 3px;
 	margin:0 auto;
