@@ -416,7 +416,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	//set_log('permit_anon: ' . $permit_anon);
 	if (!$userid && $permit_anon) :
 	?>	
-	Click this checkbox to vote anonymously
+	Click this checkbox to submit your proposal anonymously
 	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />
 	<?php 
 	endif ?>
