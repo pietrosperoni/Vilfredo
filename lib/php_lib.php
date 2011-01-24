@@ -57,7 +57,13 @@ function simplexml_merge (SimpleXMLElement &$xml1, SimpleXMLElement $xml2)
             $dom1->importNode($xpathQuery->item($i), true));
     }
     $xml1 = simplexml_import_dom($dom1);
-} 
+}
+
+function printbrx($str='', $lines=2, $quit=FALSE)
+{
+	printbr($str, $lines, $quit);
+	exit;
+}
 
 function printbr($str='', $lines=2, $quit=FALSE)
 {
@@ -72,7 +78,7 @@ function printbr($str='', $lines=2, $quit=FALSE)
 			echo 'False';
 		}
 	}
-	if (is_array($str))
+	elseif (is_array($str))
 	{
 		print_r($str);
 	}

@@ -400,39 +400,48 @@ $(function() {
 	var submit_form;
 	var blank = "";
 
-	$("input.reg_submit").click(function (e) {
+	$("input.reg_submit").click(function (e) 
+	{
 		submit_form = $(this).parents("form");
-		user_dialog = $('<div id="dialog"><div id="loading"></div><p id="msg" class="message"></p><div id="data"></div></div>');
-		setTimeout(function() {
-			$('#loading').show();
-			$("#loading").ajaxStart(function(){
-				$(this).show();	
+		
+		if ($('#anon:checked').val() !== undefined) 
+		{
+			submit_form.submit();
+		}
+		else
+		{
+			user_dialog = $('<div id="dialog"><div id="loading"></div><p id="msg" class="message"></p><div id="data"></div></div>');
+			setTimeout(function() {
+				$('#loading').show();
+				$("#loading").ajaxStart(function(){
+					$(this).show();	
+				});
+				$("#loading").ajaxStop(function(){
+					$(this).hide();
+				});
+			}, 250);
+			$(user_dialog).bind('fbuserauthorized', doFBLogin);
+			user_dialog.dialog({
+				modal: true,
+				position: 'top',
+				title: 'Vilfredo',
+				width: 500,
+				resizable: false,
+				close: deleteDialog,
+				autoOpen: false,
+				buttons: 
+				{    
+					"Register": loadRegister,
+					"Login": loadLogin,
+					"Cancel": cancelReg
+				}
 			});
-			$("#loading").ajaxStop(function(){
-				$(this).hide();
+			dialog_cont = $('#dialog #data');
+			$.get("dialog_splash.php", function(data){
+				dialog_cont.html(data);
 			});
-		}, 250);
-		$(user_dialog).bind('fbuserauthorized', doFBLogin);
-		user_dialog.dialog({
-			modal: true,
-			position: 'top',
-			title: 'Vilfredo',
-			width: 500,
-			resizable: false,
-			close: deleteDialog,
-			autoOpen: false,
-			buttons: 
-			{    
-				"Register": loadRegister,
-				"Login": loadLogin,
-				"Cancel": cancelReg
-			}
-		});
-		dialog_cont = $('#dialog #data');
-		$.get("dialog_splash.php", function(data){
-			dialog_cont.html(data);
-		});
-		//dialog_cont.html('<h2>Please log in or register.</h2>');
-		user_dialog.dialog('open');
+			//dialog_cont.html('<h2>Please log in or register.</h2>');
+			user_dialog.dialog('open');
+		}
 	}); 
 });

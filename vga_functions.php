@@ -37,6 +37,124 @@ function isAdmin($userid)
 	
 	return $admin;
 }
+//  ******************************************/
+// ANONYMOUS USERS
+//	Reusable user records used by external anonymous users
+//
+// ******************************************/
+function createAnonymousUser()
+{	
+	// Create new anonymous user
+	$sql = "INSERT INTO users 
+			(username, password, email, anon) 
+			VALUES ('anon', '', '', 1)";
+
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		return false;
+	}			
+	$userid = mysql_insert_id();
+	$sql = "UPDATE users 
+		SET username = '$userid' 
+		WHERE id = $userid";
+	if (!$result = mysql_query($sql))
+	{
+		set_log("Incomplete creation of anonymous user $userid");
+		db_error($sql);
+		return false;
+	}
+	return $userid;
+}
+
+function getAnonymousUserForVoting($proposals)
+{
+	$pids = implode(",", $proposals);
+
+	$sql = "SELECT  DISTINCT `userid` FROM `endorse` 
+	WHERE `proposalid` IN ($pids)";
+
+	$voters = array();
+	if ($result = mysql_query($sql))
+	{
+		while($row = mysql_fetch_row($result))
+		{
+			array_push($voters,$row[0]);
+		}
+		
+		$uids = implode(",", $voters);
+		$sql = "SELECT id FROM users WHERE anon = 1
+		AND id NOT IN ($uids)";
+
+		if ($result = mysql_query($sql))
+		{
+			if (mysql_num_rows($result) == 0)
+			{
+				// create new anonymous user
+				return createAnonymousUser();
+			}
+			else
+			{
+				// assign first available anonymous user
+				$row = mysql_fetch_assoc($result);
+				return $row['id'];
+			}
+		}
+		else
+		{
+			db_error($sql);
+			return false;
+		}
+	}
+	else
+	{
+		db_error($sql);
+		return false;
+	}	
+}
+
+/*
+// Unused method to craete anon users named Anonymous42 etc
+function createAnonymousUser2()
+{
+	$newanonuser = "Anonymous";
+	$sql = "SELECT username FROM users WHERE anon = 1
+	ORDER BY username DESC";
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		return false;
+	}
+	else
+	{
+		if (mysql_num_rows($result) == 0)
+		{
+			$newanonuser = "1";
+		}
+		else
+		{
+			$row = mysql_fetch_assoc($result);
+			$lastanon = $row['username'];
+			$lastanon = ereg_replace("[^0-9]", "", $lastanon);
+			$lastanon++;
+			$newanonuser = $lastanon + 1;
+		}
+	}
+	
+	// Create new anonymous user
+	$sql = "INSERT INTO users 
+			(username, password, email, anon) 
+			VALUES 
+			('$newanonuser', '', '', 1)";
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		return false;
+	}			
+	$userid = mysql_insert_id();
+	
+	return array('id' => $userid, 'username' => $newanonuser);
+}*/
 // ******************************************
 // ERRORS
 //
@@ -745,7 +863,6 @@ function HasProposalAccess()
             return false;
 }
 
-
 function add_querystring_var($url, $key, $value) 
 {
 	$url = preg_replace('/(.*)(\?|&)' . $key . '=[^&]+?(&)(.*)/i', '$1$2$4', $url . '&');
@@ -1308,7 +1425,7 @@ function delete_vga_cookie_entry($userid, $token)
 function vga_cookie_login()
 {	
 	// unset old-style cookies
-	unsetcookies();
+	//unsetcookies();
 	if (isset($_COOKIE[VGA_PL]))
 	{		
 		$clean = array();

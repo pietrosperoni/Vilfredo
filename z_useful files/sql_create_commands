@@ -36,3 +36,6 @@ ALTER TABLE `users`
 ADD `registered` DATETIME NULL COMMENT 'date registered',
 ADD `lastlogin` DATETIME NULL COMMENT 'time last logged in'
 
+ALTER TABLE `questions` ADD `permit_anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous users';
+
+ALTER TABLE `users` ADD `anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Anonymous user';

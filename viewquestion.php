@@ -70,6 +70,7 @@ if ($userid) {
 		$title=$row['title'];
 		$bitlyhash = $row['bitlyhash'];
 		$shorturl = '';
+		$permit_anon = $row['permit_anon'];
 		
 		if (!empty($bitlyhash)) 
 		{
@@ -409,6 +410,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	?>
 	
 	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+	
 	</div><!-- proposal_RTE -->
 	</div><!-- editor_panel -->
 
@@ -626,22 +628,30 @@ if ($userid) {
 				}
 			}
 				echo ' /></p> </td></tr>';
-			}
-		?>	
-	<tr><td colspan="2">&nbsp;</td><td>
-
+		}
+		
+	// Anonymous Submit
+	set_log('permit_anon: ' . $permit_anon);
+	if (!$userid && $permit_anon) :
+	?>	
+	<tr><td colspan="2"><p><strong>Click this checkbox to vote anonymously</strong></p></td><td>
+	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />		
+	</td></tr>
 	<?php 
+	endif ?>
+	
+	<tr><td colspan="2">&nbsp;</td><td>
+	<?php
+	// Submit button
 		if ($userid) {
 			$regclass = "submit_ok";
 		} else {
 			$regclass = "reg_submit";
 		}
 	?>
-	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="Submit!"/>		
-	<!--<input type = "Submit" name="submit_e" id="submit_e" title="Votes are not counted unless submitted." VALUE = "Submit!">-->
-	
-	</td>
-	</tr></table>
+	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="Submit!"/>			
+	</td></tr>
+	</table>
 	</form>
 	<?php
 
