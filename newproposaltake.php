@@ -28,15 +28,15 @@ if (!get_magic_quotes_gpc())
 }
 
 //*** Filter user input
-$config = HTMLPurifier_Config::createDefault();
+//$config = HTMLPurifier_Config::createDefault();
 #	$config->set('HTML', 'Doctype', 'HTML 4.01 Transitional');
-$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
-$purifier = new HTMLPurifier($config);
+//$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
+//$purifier = new HTMLPurifier($config);
 
-$xsstest= '<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT> <p>Hi there from the XSS Test. Is it safe?</p>';
+//$xsstest= '<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT> <p>Hi there from the XSS Test. Is it safe?</p>';
 
-$abstract = $purifier->purify($abstract);
-$blurb = $purifier->purify($blurb);
+//$abstract = $purifier->purify($abstract);
+//$blurb = $purifier->purify($blurb);
 
 $question = $_POST['question'];
 
