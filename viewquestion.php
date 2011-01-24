@@ -411,6 +411,16 @@ try to write a proposal that represent an acceptable compromise between differen
 	
 	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
 	
+	<?php
+	// Anonymous Submit
+	//set_log('permit_anon: ' . $permit_anon);
+	if (!$userid && $permit_anon) :
+	?>	
+	Click this checkbox to vote anonymously
+	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />
+	<?php 
+	endif ?>
+	
 	</div><!-- proposal_RTE -->
 	</div><!-- editor_panel -->
 

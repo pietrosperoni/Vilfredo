@@ -67,6 +67,33 @@ function createAnonymousUser()
 	return $userid;
 }
 
+function getAnonymousUserForNewProposal($authors)
+{
+	$uids = implode(",", $authors);
+	$sql = "SELECT id FROM users WHERE anon = 1
+		AND id NOT IN ($uids)";
+
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) == 0)
+		{
+			// create new anonymous user
+			return createAnonymousUser();
+		}
+		else
+		{
+			// assign first available anonymous user
+			$row = mysql_fetch_assoc($result);
+			return $row['id'];
+		}
+	}
+	else
+	{
+		db_error($sql);
+		return false;
+	}
+}
+
 function getAnonymousUserForVoting($proposals)
 {
 	$pids = implode(",", $proposals);
