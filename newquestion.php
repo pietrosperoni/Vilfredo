@@ -24,6 +24,14 @@ $headcommands='
 <script type="text/javascript" src="js/vilfredo.js"></script>';
 
 include('header.php');
+
+?>
+<script type="text/javascript">
+//Assumes id is passed in the URL
+var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+</script>
+<?php
+
 #$userid=isloggedin();
 //if ($userid)
 //{
