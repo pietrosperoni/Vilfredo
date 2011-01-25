@@ -131,6 +131,9 @@ Maximum Time:
 If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
 Yes, this is a feature!)<br/><br/>
 
+<h4>Anonymous Users</h4>
+<p><Input type = "Checkbox" Name ="permit_anon" id="permit_anon" title="Check this box if you wish to permit anonymous users to vote and create proposals for this question" value="" /> Check this box if you wish to allow anonymous users to vote and create proposals for this question.</p>
+
 	<?php 
 	if ($userid) {
 		$regclass = "submit_ok";
