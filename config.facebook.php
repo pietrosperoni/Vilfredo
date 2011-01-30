@@ -41,6 +41,35 @@ _HTML_;
 return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
 
+function facebook_login_button_refresh_2($display=true) 
+{
+
+global $FACEBOOK_ID;
+
+if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+{
+	$goto = 'fb_login.php';
+	$button_txt = 'Login with Facebook';
+}
+else
+{
+	$goto = 'fb_register.php';
+	$button_txt = 'Connect with Facebook';
+}
+
+$str = <<<_HTML_
+Or <b>login</b> with Facebook: <br/><br/>
+
+<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+
+<script type="text/javascript">
+function refresh_page() {
+	  window.location = "$goto";}
+</script>
+_HTML_;
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+
 function facebook_login_button_refresh($goto, $display=true) {
 $str = <<<_HTML_
 Or <b>login</b> with Facebook:<br/><br/>

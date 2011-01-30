@@ -72,7 +72,8 @@ else
 		echo "<strong>Sorry: Vilfredo is currently closed for maintenance.</strong></p>";
 	}
 	?>
-	<?php echo facebook_login_button_refresh("fb_register.php", DISPLAY_FACEBOOK_LOGIN); ?>
+	<!-- <?php echo facebook_login_button_refresh("fb_register.php", DISPLAY_FACEBOOK_LOGIN); ?> -->
+	<?php echo facebook_login_button_refresh_2(DISPLAY_FACEBOOK_LOGIN); ?>
 	</div>
 	<div class="clear"></div>
 	<?php

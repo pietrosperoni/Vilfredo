@@ -26,57 +26,6 @@ function check_dnsrr($host, $type)
 //	questions and proposals.
 //
 // ******************************************/
-function getDelayForUser($userid)
-{	
-	$delay = USER_REQUEST_DELAY;
-	$wait = 0;
-	
-	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
-	FROM `user_log` 
-	WHERE userid = '$userid' AND
-	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
-	ORDER BY age ASC LIMIT 1";
-	
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		printdberror($sql);
-		return $delay;
-	}
-	if (mysql_num_rows($result) > 0)
-	{
-		$row = mysql_fetch_assoc($result);
-		$wait = $delay - $row['age'];
-	}
-	return $wait;
-}
-
-function getDelayForSession()
-{	
-	$session_id = session_id();
-	$delay = REQUEST_DELAY;
-	$wait = 0;
-	
-	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
-	FROM `user_log` 
-	WHERE session_id = '$session_id' AND
-	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
-	ORDER BY age ASC LIMIT 1";
-	
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		printdberror($sql);
-		return $delay;
-	}
-	if (mysql_num_rows($result) > 0)
-	{
-		$row = mysql_fetch_assoc($result);
-		$wait = $delay - $row['age'];
-	}
-	return $wait;
-}
-
 function formatSeconds($seconds)
 {
 	if ($seconds > 0)
@@ -89,52 +38,6 @@ function formatSeconds($seconds)
 	{
 		return sprintf("%d:%d (m:s)", 0, 0);
 	}
-}
-
-function getDelayForRemoteIP()
-{	
-	$remote_ip = $_SERVER['REMOTE_ADDR'];
-	$delay = REQUEST_DELAY;
-	$wait = 0;
-	
-	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
-	FROM `user_log` 
-	WHERE remote_ip = '$remote_ip' AND
-	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
-	ORDER BY age ASC LIMIT 1";
-	
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		printdberror($sql);
-		return $delay;
-	}
-	
-	elseif (mysql_num_rows($result) > 0)
-	{
-		$row = mysql_fetch_assoc($result);
-		$wait = $delay - $row['age'];
-	}
-	return $wait;
-}
-
-function logUser($userid=null)
-{
-	$session_id = session_id();
-	$remote_ip = $_SERVER['REMOTE_ADDR'];
-	$request_uri = $_SERVER['REQUEST_URI'];
-	
-	$sql = "INSERT INTO `user_log` 
-	(`userid`, `remote_ip`, `request_uri`, `request_time`, `session_id`)
-	VALUES ($userid, '$remote_ip', '$request_uri', NOW(), '$session_id')";
-	
-	if (!mysql_query($sql))
-	{
-		db_error($sql);
-		printdberror($sql);
-		return false;
-	}
-	return true;
 }
 
 function isAdmin($userid)
@@ -162,7 +65,6 @@ function isAnonymous($userid)
 		{
 			if (mysql_num_rows($result) == 0)
 			{
-				set_log(__FUNCTION__ . ": user id $userid does not exist");
 				return false;
 			}
 			else
@@ -225,8 +127,6 @@ function GetAnonymousEndorsers($proposals)
 	AND endorse.proposalid IN ( $pids )
 	AND users.anon = 1";
 	
-	set_log(__FUNCTION__ . " SQL:" . $sql);
-	
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: $sql");
@@ -257,8 +157,6 @@ function GetAnonymousProposers($proposals)
 	AND proposals.id IN ( $pids )
 	AND users.anon =1";
 	
-	set_log(__FUNCTION__ . " SQL:" . $sql);
-	
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . ": $sql");
@@ -279,7 +177,7 @@ function GetAllQuestionProposals($question)
 	$proposals = array();
 	$sql = "SELECT `id` as pid FROM `proposals` 
 	WHERE `experimentid` = $question AND `source` = 0";
-	set_log(__FUNCTION__ . " SQL:" . $sql);
+
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . ": $sql");
@@ -311,8 +209,8 @@ function getAllAnonymousUsersForQuestion($question)
 	{
 		if (count($proposals) > 0)
 		{
-			$pros = implode(",", $proposals);//DEBUG
-			set_log("Proposals: " . $pros);//DEBUG
+			//$pros = implode(",", $proposals);//DEBUG
+			//set_log("Proposals: " . $pros);//DEBUG
 			// Fetch authors of all proposals
 			$proposers = GetAnonymousProposers($proposals);
 			if ($proposers === false)
@@ -327,10 +225,10 @@ function getAllAnonymousUsersForQuestion($question)
 				log_error("GetAnonymousEndorsers failed");
 				return false;		
 			}
-			$props = implode(",", $proposers);//DEBUG
-			set_log("Proposers: " . $props);//DEBUG
-			$ends = implode(",", $endorsers);//DEBUG
-			set_log("Endorsers: " . $ends);//DEBUG
+			//$props = implode(",", $proposers);//DEBUG
+			//set_log("Proposers: " . $props);//DEBUG
+			//$ends = implode(",", $endorsers);//DEBUG
+			//set_log("Endorsers: " . $ends);//DEBUG
 			$users = array_unique(array_merge($proposers, $endorsers));
 		}
 		return $users;
@@ -365,8 +263,6 @@ function getAnonymousUser($question)
 		$sql = "SELECT id FROM users WHERE anon = 1 
 		ORDER BY id ASC LIMIT 1";
 	}
-	
-	set_log(__FUNCTION__ . " SQL:" . $sql);
 
 	if ($result = mysql_query($sql))
 	{
@@ -461,8 +357,6 @@ function getAnonymousUserForVoting($proposals)
 
 	$sql = "SELECT  DISTINCT `userid` FROM `endorse` 
 	WHERE `proposalid` IN ($pids)";
-	
-	set_log(__FUNCTION__ . ":" . $sql);
 	
 	$voters = array();
 	if ($result = mysql_query($sql))
@@ -1499,6 +1393,7 @@ function GetQuestionCreator($question)
 
 function display_logout_link()
 {
+	/*
 	if ($_SESSION[USER_LOGIN_MODE] == 'FB') 
 	{
 		return facebook_logout_link('fb_logout.php', 'Logout of Facebook'); 
@@ -1506,7 +1401,8 @@ function display_logout_link()
 	else
 	{
 		return '<a href="logout.php">Logout</a>';
-	}
+	}*/
+	return '<a href="logout.php">Logout</a>';
 }
 
 function getpostloginredirectlink()
@@ -1743,7 +1639,8 @@ function isloggedin()
 		return $userid;
 	}
 	// Finally check if a current Facebook session is available for a connected account
-	elseif ($FACEBOOK_ID != null && ($userid = fb_user_login($FACEBOOK_ID)))
+	/*
+	elseif ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 	{
 		//$userid = isadminonly($userid);
 		if ($userid)
@@ -1754,7 +1651,7 @@ function isloggedin()
 			setlogintime($userid);
 		}
 		return $userid;
-	}
+	}*/
 	// Else return false so the user can be redirected to the login page
 	else
 	{
@@ -2044,16 +1941,25 @@ function fb_user_login($fb_uid)
 // Return user ID of connected account
 function fb_isconnected($fb_uid)
 {
-	$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
-	$response = mysql_query($sql) or die(mysql_error());
-	
-	if (mysql_num_rows($response) > 0)
+	if ($fb_uid)
 	{
-		$user = mysql_fetch_assoc($response);
-		return $user['id'];
+		$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
+		$response = mysql_query($sql) or die(mysql_error());
+
+		if (mysql_num_rows($response) > 0)
+		{
+			$user = mysql_fetch_assoc($response);
+			return $user['id'];
+		}
+		else 
+		{
+			return false;
+		}
 	}
-	else 
+	else
+	{
 		return false;
+	}
 }
 
 // Return user details of connected account

@@ -1,9 +1,9 @@
 <?php
 require_once 'config.inc.php';
 
-// Either log the user in
-$userid=isloggedin();
-if ($userid) 
+$userid = false;
+
+if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 {
 	$_SESSION[USER_LOGIN_ID] = $userid;
 	$_SESSION[USER_LOGIN_MODE] = 'FB';
