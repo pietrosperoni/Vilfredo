@@ -139,8 +139,10 @@ Maximum Time:
 If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
 Yes, this is a feature!)<br/><br/>
 
-<h4>Anonymous Users</h4>
-<p><Input type = "Checkbox" Name ="permit_anon" id="permit_anon" title="Check this box if you wish to permit anonymous users to vote and create proposals for this question" value="" /> Check this box if you wish to allow anonymous users to vote and create proposals for this question.</p>
+<h4>Permit Anonymous Users</h4>
+<p>By default only members of Vilfredo can vote and create proposals to questions. Select the options below to permit anonymous voting and/or proposing for your question.</p>
+<p><Input type = "Checkbox" Name ="permit_anon_votes" id="permit_anon_votes" title="Check this box if you wish to permit anonymous users to vote" value="" /> Anonymous users can <strong>vote</strong>.</p>
+<p><Input type = "Checkbox" Name ="permit_anon_proposals" id="permit_anon_proposals" title="Check this box if you wish to permit anonymous users to create proposals" value="" /> Anonymous users can <strong>create proposals</strong>.</p>
 
 	<?php 
 	if ($userid) {

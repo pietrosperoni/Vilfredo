@@ -1,13 +1,23 @@
 <?php
 include('header.php');
 
+$question = $_POST['question'];
+
+if (IsQuestionWriting($question))
+{
+	//set_message("user", "Sorry, question $question now in writing stage.");
+	//header("Location: messagepage.php?q=$question");
+	header("Location: viewquestion.php?q=$question");
+	exit;
+}
+
 // User is anonymous if anon checkbox has been clicked (is defined)
 $is_anon = isset($_POST['anon']);
 $userid=isloggedin();
 
 if ($is_anon)
 {
-	set_log("Form submitted anonymously");
+	//set_log("Form submitted anonymously");
 	// userid should be false
 	if ($userid)
 	{
@@ -17,7 +27,6 @@ if ($is_anon)
 
 $endorsedproposals = $_POST['proposal'];
 if(!$endorsedproposals){$endorsedproposals=array();}
-$question = $_POST['question'];
 
 $sql2 = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1 ";
 $response2 = mysql_query($sql2);
@@ -37,7 +46,17 @@ while ($row = mysql_fetch_array($response))
 
 if ($is_anon)
 {
-	$userid = getAnonymousUserForVoting($allproposals);
+	//$userid = getAnonymousUserForVoting($allproposals);
+	$userid = getAnonymousUser($question);
+	
+	//$wait = getDelayForRemoteIP();
+	//set_log("Delay for this user should be $wait seconds");
+	//logUser($userid);
+}
+
+if (!$userid)
+{
+	printbrx("Error: Could not create anonymous user!");
 }
 
 foreach ($allproposals as $p)

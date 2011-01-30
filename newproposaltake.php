@@ -1,25 +1,39 @@
 <?php
 include('header.php');
 
+$question = $_POST['question'];
+
 // User is anonymous if anon checkbox has been clicked (is defined)
 $is_anon = isset($_POST['anon']);
+
 $userid=isloggedin();
 
-if ($is_anon)
+if ($is_anon and $userid)//DEBUG START
 {
-	set_log("Form submitted anonymously");
 	// userid should be false
-	if ($userid)
-	{
-		set_log(" User $userid submitted anonymously whilst logged in!");
-	}
-}
+	set_log(" User $userid submitted anonymously whilst logged in!");
+}// DEBUG END
 
 $blurb = $_POST['blurb'];
 $abstract = $_POST['abstract'];
 
 if ($abstract == '<br>') $abstract = '';
 if ($blurb == '<br>') $blurb = '';
+
+if (!IsQuestionWriting($question))
+{
+	/*
+	set_message("user", "Sorry, question $question now in voting stage.");
+	$proposal_str = '<h3>Abstract</h3>' .
+					"<p>$abstract</p>" .
+					'<h3>Proposal</h3>' .
+					"<p>$proposal</p>";
+	set_message("user", $proposal_str);
+	header("Location: messagepage.php?q=$question");*/
+	header("Location: viewquestion.php?q=$question");
+	exit;
+}
+
 
 if (!get_magic_quotes_gpc())
 {
@@ -38,7 +52,6 @@ if (!get_magic_quotes_gpc())
 //$abstract = $purifier->purify($abstract);
 //$blurb = $purifier->purify($blurb);
 
-$question = $_POST['question'];
 
 $previousProposal=HasProposalBeenSuggested($question,$blurb,$abstract);
 if($previousProposal)
@@ -61,11 +74,35 @@ else
 	
 	if ($is_anon)
 	{
-		$userid = getAnonymousUserForNewProposal($authors);
+		
+		//$wait = getDelayForRemoteIP();
+		//$wait_str = formatSeconds($wait);
+		//set_log("Time remaining before next request for this IP is $wait_str");
+		$userid = getAnonymousUser($question);
+		logUser($userid);
+		/*
+		if ($wait > 0)
+		{
+			set_message("user", "Posting quota is in place. You are limited from posting again for a short while: $wait_str");
+			$urlquery = "?query=viewquestion.php".$urlquery;
+			header("Location: messagepage.php".$urlquery);
+			exit;
+		}
+		else
+		{
+			$userid = getAnonymousUser($question);
+			logUser($userid);
+		}*/
+	}
+	
+	if (!$userid)
+	{
+		printbrx("Error: Could not creat anonymous user!");
 	}
 
 	$sql = "INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) 
 	VALUES ('$blurb', $userid, $roundid, $question, 0, 0, NOW(), '$abstract')";
+	
 	$add_proposal = mysql_query($sql);
 
 	if (!$add_proposal)
@@ -73,6 +110,8 @@ else
 		handle_db_error($add_proposal);
 		set_message("error", "System error");
 	}
+	
+	$newpropid = mysql_insert_id();
 
 	$NEWnAuthorsNewProposals=count(AuthorsOfNewProposals($question,$roundid));
 	if(	$nAuthorsNewProposals< $NEWnAuthorsNewProposals)
@@ -80,10 +119,9 @@ else
 		AwareAuthorOfNewProposal($question);
 	}
 
-	
 	if ($is_anon)
-	{
-		$urlquery = "?anon=$userid&query=viewquestion.php".$urlquery;
+	{		
+		$urlquery = "?anon=$userid&prop=$newpropid&query=viewquestion.php".$urlquery;
 		header("Location: anonnewpropfeedback.php".$urlquery);
 	}
 	else

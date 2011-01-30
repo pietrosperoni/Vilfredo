@@ -25,7 +25,6 @@ if (defined('LOG_DIRECTORY'))
 
 // Start session for login and redirects
 session_start();
-
 // ******************************************
 // Connects to the Database
 mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());

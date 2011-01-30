@@ -70,7 +70,8 @@ if ($userid) {
 		$title=$row['title'];
 		$bitlyhash = $row['bitlyhash'];
 		$shorturl = '';
-		$permit_anon = $row['permit_anon'];
+		$permit_anon_votes = $row['permit_anon_votes'];
+		$permit_anon_proposals = $row['permit_anon_proposals'];
 		
 		if (!empty($bitlyhash)) 
 		{
@@ -175,7 +176,6 @@ if ($userid) {
 		{
 			InsertMap($question,$generation-1);
 			/*
-			//InsertMap($question,$generation-1,$userid,"L",0);
 			$graphsize = 'mediumgraph';
 			if ($filename = InsertMap2($question,$generation-1))
 			{
@@ -414,7 +414,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	<?php
 	// Anonymous Submit
 	//set_log('permit_anon: ' . $permit_anon);
-	if (!$userid && $permit_anon) :
+	if (!$userid && $permit_anon_proposals) :
 	?>	
 	Click this checkbox to submit your proposal anonymously
 	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />
@@ -433,18 +433,14 @@ $(document).ready(function() {
 		var content_length =  $("#content_rte").data('content_length');
 		var logged_in = <?= $userid ? 'true' : 'false'; ?>;
 
-	//if (logged_in) {
 		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
-			//$("input[value=Create proposal]").removeAttr("disabled");
 			$("#submit_p").removeAttr("disabled");
 		}
 		else
 		{
-			//$("input[value=Create proposal]").attr("disabled","disabled");
 			$("#submit_p").attr("disabled","disabled");
 		}
-	//}
 
 		if (content_length  > limit)
 		{
@@ -641,8 +637,8 @@ if ($userid) {
 		}
 		
 	// Anonymous Submit
-	set_log('permit_anon: ' . $permit_anon);
-	if (!$userid && $permit_anon) :
+	//set_log('permit_anon: ' . $permit_anon);
+	if (!$userid && $permit_anon_votes) :
 	?>	
 	<tr><td colspan="2"><p><strong>Click this checkbox to vote anonymously</strong></p></td><td>
 	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />		

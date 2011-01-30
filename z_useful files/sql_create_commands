@@ -36,6 +36,10 @@ ALTER TABLE `users`
 ADD `registered` DATETIME NULL COMMENT 'date registered',
 ADD `lastlogin` DATETIME NULL COMMENT 'time last logged in'
 
-ALTER TABLE `questions` ADD `permit_anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous users';
+ALTER TABLE `questions` 
+ADD `permit_anon_votes` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous voters',
+ADD `permit_anon_proposals` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous proposers'
 
-ALTER TABLE `users` ADD `anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Anonymous user';
+ALTER TABLE `users` 
+ADD `active` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Set active to 0 to restrict user',
+ADD `anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Anonymous user'

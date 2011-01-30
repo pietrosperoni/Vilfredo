@@ -1,12 +1,13 @@
 <?php
 include('header.php');
-#$userid=isloggedin();
+
 if ($userid)
 {
 	$minimumtime=(int)$_POST['minimumtime'];
 	$maximumtime=(int)$_POST['maximumtime'];
 	
-	$permit_anon = isset($_POST['permit_anon']) ? 1 : 0;
+	$permit_anon_votes = isset($_POST['permit_anon_votes']) ? 1 : 0;
+	$permit_anon_proposals = isset($_POST['permit_anon_proposals']) ? 1 : 0;
 
 	// Equals empty string if field lift blank
 	$room = '';
@@ -38,18 +39,20 @@ if ($userid)
 
 	if($blurb and $title)
 	{
-		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon`) 
-		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '$room', $permit_anon)";
+		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
+		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '$room', $permit_anon_votes, $permit_anon_proposals)";
 		
-                mysql_query($sql);
-
-		$sql = "SELECT id FROM questions WHERE usercreatorid = ".$userid." ORDER BY questions.id DESC LIMIT 1 ";
-		$response = mysql_query($sql);
-		$row = mysql_fetch_array($response);
-
-                $urlquery = CreateQuestionURL($row[0], $room);
-
-                header("Location: invitetoquestion.php".$urlquery);
+                if (!mysql_query($sql))
+		{
+			db_error($sql);
+			set_log("Failed to create new question titled $title");
+		}
+		else
+		{
+			$newquestionid = mysql_insert_id();
+			$urlquery = CreateQuestionURL($newquestionid, $room);
+			header("Location: invitetoquestion.php".$urlquery);
+		}
 	}
 	else
 	{

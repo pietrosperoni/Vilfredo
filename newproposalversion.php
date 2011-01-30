@@ -48,7 +48,7 @@ $whofrom=GetProposalAuthor($proposal);
 $generationNow=GetQuestionGeneration($question_id);
 
 // Check if question is in the writing state before allowing new proposal version
-if ($is_writing)
+if (!$is_writing)
 {
 	printbr('Sorry, This question is now in the voting phase. Please wait until the question moves on to the next generation before creating any new proposals.');
 }

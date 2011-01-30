@@ -1,12 +1,14 @@
 <?php
 include 'header.php';
 $userid = $_GET['anon'];
+$propid = $_GET['prop'];
 $urlquery = $_GET['query'];
 
 if (isset($userid))
 {
-	echo "<h3>Your proposal was created successfully!</h3>";
+	echo "<h3>Your proposal was successfully created!</h3>";
 	echo "<p>Your userid in the results for this round is <strong>$userid</strong></p>";
+	echo "<p>Your proposal ID is <strong>$propid</strong></p>";
 }
 else
 {

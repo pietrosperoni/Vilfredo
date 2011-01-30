@@ -26,6 +26,117 @@ function check_dnsrr($host, $type)
 //	questions and proposals.
 //
 // ******************************************/
+function getDelayForUser($userid)
+{	
+	$delay = USER_REQUEST_DELAY;
+	$wait = 0;
+	
+	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
+	FROM `user_log` 
+	WHERE userid = '$userid' AND
+	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
+	ORDER BY age ASC LIMIT 1";
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		printdberror($sql);
+		return $delay;
+	}
+	if (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		$wait = $delay - $row['age'];
+	}
+	return $wait;
+}
+
+function getDelayForSession()
+{	
+	$session_id = session_id();
+	$delay = REQUEST_DELAY;
+	$wait = 0;
+	
+	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
+	FROM `user_log` 
+	WHERE session_id = '$session_id' AND
+	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
+	ORDER BY age ASC LIMIT 1";
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		printdberror($sql);
+		return $delay;
+	}
+	if (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		$wait = $delay - $row['age'];
+	}
+	return $wait;
+}
+
+function formatSeconds($seconds)
+{
+	if ($seconds > 0)
+	{
+		$mins = floor ($seconds / 60);
+		$secs = $seconds % 60;
+		return sprintf("%d:%d (m:s)", $mins, $secs);
+	}
+	else
+	{
+		return sprintf("%d:%d (m:s)", 0, 0);
+	}
+}
+
+function getDelayForRemoteIP()
+{	
+	$remote_ip = $_SERVER['REMOTE_ADDR'];
+	$delay = REQUEST_DELAY;
+	$wait = 0;
+	
+	$sql = "SELECT TIMESTAMPDIFF(SECOND, request_time, NOW()) AS age
+	FROM `user_log` 
+	WHERE remote_ip = '$remote_ip' AND
+	TIMESTAMPDIFF(SECOND, request_time, NOW()) < $delay
+	ORDER BY age ASC LIMIT 1";
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		printdberror($sql);
+		return $delay;
+	}
+	
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		$wait = $delay - $row['age'];
+	}
+	return $wait;
+}
+
+function logUser($userid=null)
+{
+	$session_id = session_id();
+	$remote_ip = $_SERVER['REMOTE_ADDR'];
+	$request_uri = $_SERVER['REQUEST_URI'];
+	
+	$sql = "INSERT INTO `user_log` 
+	(`userid`, `remote_ip`, `request_uri`, `request_time`, `session_id`)
+	VALUES ($userid, '$remote_ip', '$request_uri', NOW(), '$session_id')";
+	
+	if (!mysql_query($sql))
+	{
+		db_error($sql);
+		printdberror($sql);
+		return false;
+	}
+	return true;
+}
+
 function isAdmin($userid)
 {
 	$admin = false;
@@ -42,6 +153,37 @@ function isAdmin($userid)
 //	Reusable user records used by external anonymous users
 //
 // ******************************************/
+function isAnonymous($userid)
+{
+	if (is_int($userid))
+	{
+		$sql = "SELECT `anon` FROM `users` WHERE id = $userid";
+		if ($result = mysql_query($sql))
+		{
+			if (mysql_num_rows($result) == 0)
+			{
+				set_log(__FUNCTION__ . ": user id $userid does not exist");
+				return false;
+			}
+			else
+			{
+				$row = mysql_fetch_assoc($result);
+				return (bool)$row['anon'];
+			}
+		}
+		else
+		{
+			db_error($sql);
+			return false;
+		}
+	}
+	else
+	{
+		log_error(__FUNCTION__ . "called with userid \'$userid\'");
+		return false;
+	}
+}
+
 function createAnonymousUser()
 {	
 	// Create new anonymous user
@@ -67,11 +209,224 @@ function createAnonymousUser()
 	return $userid;
 }
 
+// Fetch all endorsers of proposals
+function GetAnonymousEndorsers($proposals)
+{
+	if (!is_array($proposals) or empty($proposals))
+	{
+		return false;
+	}
+	
+	$endorsers = array();
+	$pids = implode(",", $proposals);
+	
+	$sql = "SELECT DISTINCT endorse.userid AS userid FROM `endorse`, `users` 
+	WHERE endorse.userid = users.id
+	AND endorse.proposalid IN ( $pids )
+	AND users.anon = 1";
+	
+	set_log(__FUNCTION__ . " SQL:" . $sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($endorsers, $row['userid']);
+		}
+	}
+	return $endorsers;
+}
+
+function GetAnonymousProposers($proposals)
+{
+	if (!is_array($proposals) or empty($proposals))
+	{
+		return false;
+	}
+	$proposers = array();
+	$pids = implode(",", $proposals);
+	
+	$sql = " SELECT DISTINCT proposals.usercreatorid AS userid
+	FROM `proposals` , `users`
+	WHERE proposals.usercreatorid = users.id
+	AND proposals.id IN ( $pids )
+	AND users.anon =1";
+	
+	set_log(__FUNCTION__ . " SQL:" . $sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . ": $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($proposers, $row['userid']);
+		}
+	}
+	return $proposers;
+}
+
+function GetAllQuestionProposals($question)
+{
+	$proposals = array();
+	$sql = "SELECT `id` as pid FROM `proposals` 
+	WHERE `experimentid` = $question AND `source` = 0";
+	set_log(__FUNCTION__ . " SQL:" . $sql);
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . ": $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($proposals, $row['pid']);
+		}
+	}
+	return $proposals;
+}
+
+function getAllAnonymousUsersForQuestion($question)
+{
+	$proposals = array();
+	$proposers = array();
+	$endorsers = array();
+	$users = array();
+	
+	$proposals = GetAllQuestionProposals($question);
+	if ($proposals === false)
+	{
+		return false;
+	}
+	else
+	{
+		if (count($proposals) > 0)
+		{
+			$pros = implode(",", $proposals);//DEBUG
+			set_log("Proposals: " . $pros);//DEBUG
+			// Fetch authors of all proposals
+			$proposers = GetAnonymousProposers($proposals);
+			if ($proposers === false)
+			{
+				log_error("GetAnonymousProposers failed");
+				return false;
+			}
+			// Fetch endorsers of all proposals
+			$endorsers = GetAnonymousEndorsers($proposals);
+			if ($endorsers === false)
+			{
+				log_error("GetAnonymousEndorsers failed");
+				return false;		
+			}
+			$props = implode(",", $proposers);//DEBUG
+			set_log("Proposers: " . $props);//DEBUG
+			$ends = implode(",", $endorsers);//DEBUG
+			set_log("Endorsers: " . $ends);//DEBUG
+			$users = array_unique(array_merge($proposers, $endorsers));
+		}
+		return $users;
+	}
+}
+
+function getAnonymousUser($question)
+{
+	if (!isset($question))
+	{
+		return false;
+	}
+	
+	$current_anon_users = getAllAnonymousUsersForQuestion($question);
+	
+	if ($current_anon_users === false)
+	{
+		return false;
+	}
+	
+	$sql;
+	
+	if (count($current_anon_users) > 0)
+	{
+		$uids = implode(",", $current_anon_users);
+		$sql = "SELECT id FROM users WHERE anon = 1
+		AND id NOT IN ($uids)
+		ORDER BY id ASC LIMIT 1";
+	}
+	else
+	{
+		$sql = "SELECT id FROM users WHERE anon = 1 
+		ORDER BY id ASC LIMIT 1";
+	}
+	
+	set_log(__FUNCTION__ . " SQL:" . $sql);
+
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) == 0)
+		{
+			// create new anonymous user
+			return createAnonymousUser();
+		}
+		else
+		{
+			// assign first available anonymous user
+			$row = mysql_fetch_assoc($result);
+			return $row['id'];
+		}
+	}
+	else
+	{
+		db_error($sql);
+		return false;
+	}
+}
+//****************************************
+function GetEndorsers($proposals)
+{
+	$endorsers = array();
+	$pids = implode(",", $proposals);
+	$sql = "SELECT DISTINCT userid FROM `endorse 
+	WHERE id IN ($pids)";
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . ": $sql");
+		return $endorsers;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($endorsers, $row['userid']);
+		}
+		return $endorsers;
+	}
+	else
+	{
+		// No endorsers found - return empty array
+		return endorsers;
+	}
+}
+
 function getAnonymousUserForNewProposal($authors)
 {
-	$uids = implode(",", $authors);
-	$sql = "SELECT id FROM users WHERE anon = 1
+	if (count($authors) > 0)
+	{
+		$uids = implode(",", $authors);
+		$sql = "SELECT id FROM users WHERE anon = 1
 		AND id NOT IN ($uids)";
+	}
+	else
+	{
+		$sql = "SELECT id FROM users WHERE anon = 1";
+	}
 
 	if ($result = mysql_query($sql))
 	{
@@ -96,92 +451,66 @@ function getAnonymousUserForNewProposal($authors)
 
 function getAnonymousUserForVoting($proposals)
 {
+	if (count($proposals) == 0)
+	{
+		log_error(__FUNCTION__ . " called with zero proposal list");
+		return false;
+	}
+	
 	$pids = implode(",", $proposals);
 
 	$sql = "SELECT  DISTINCT `userid` FROM `endorse` 
 	WHERE `proposalid` IN ($pids)";
-
+	
+	set_log(__FUNCTION__ . ":" . $sql);
+	
 	$voters = array();
 	if ($result = mysql_query($sql))
 	{
-		while($row = mysql_fetch_row($result))
+		if (mysql_num_rows($result) > 0)
 		{
-			array_push($voters,$row[0]);
-		}
-		
-		$uids = implode(",", $voters);
-		$sql = "SELECT id FROM users WHERE anon = 1
-		AND id NOT IN ($uids)";
-
-		if ($result = mysql_query($sql))
-		{
-			if (mysql_num_rows($result) == 0)
+			while($row = mysql_fetch_row($result))
 			{
-				// create new anonymous user
-				return createAnonymousUser();
+				array_push($voters,$row[0]);
+			}
+			
+			$uids = implode(",", $voters);
+			$sql = "SELECT id FROM users WHERE anon = 1
+			AND id NOT IN ($uids)";
+
+			if ($result = mysql_query($sql))
+			{
+				if (mysql_num_rows($result) == 0)
+				{
+					// create new anonymous user
+					return createAnonymousUser();
+				}
+				else
+				{
+					// assign first available anonymous user
+					$row = mysql_fetch_assoc($result);
+					return $row['id'];
+				}
 			}
 			else
 			{
-				// assign first available anonymous user
-				$row = mysql_fetch_assoc($result);
-				return $row['id'];
+				db_error($sql);
+				return false;
 			}
 		}
 		else
 		{
-			db_error($sql);
-			return false;
+			// create new anonymous user
+			return createAnonymousUser();
 		}
 	}
 	else
 	{
 		db_error($sql);
 		return false;
-	}	
+	}
 }
 
-/*
-// Unused method to craete anon users named Anonymous42 etc
-function createAnonymousUser2()
-{
-	$newanonuser = "Anonymous";
-	$sql = "SELECT username FROM users WHERE anon = 1
-	ORDER BY username DESC";
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		return false;
-	}
-	else
-	{
-		if (mysql_num_rows($result) == 0)
-		{
-			$newanonuser = "1";
-		}
-		else
-		{
-			$row = mysql_fetch_assoc($result);
-			$lastanon = $row['username'];
-			$lastanon = ereg_replace("[^0-9]", "", $lastanon);
-			$lastanon++;
-			$newanonuser = $lastanon + 1;
-		}
-	}
-	
-	// Create new anonymous user
-	$sql = "INSERT INTO users 
-			(username, password, email, anon) 
-			VALUES 
-			('$newanonuser', '', '', 1)";
-	if (!$result = mysql_query($sql))
-	{
-		db_error($sql);
-		return false;
-	}			
-	$userid = mysql_insert_id();
-	
-	return array('id' => $userid, 'username' => $newanonuser);
-}*/
 // ******************************************
 // ERRORS
 //
@@ -216,6 +545,16 @@ function set_log($msg)
 {
 	$timestamp = date("D M j G:i:s T Y");
 	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
+}
+
+function printdberror($sql="")
+{
+	$msg = "MySQL Error=[" .  mysql_errno() . " : " . mysql_error() . ']';
+	if (!empty($sql))
+	{
+		$msg .= '   SQL=[' . $sql . ']  ';
+	}
+	printbr($msg);
 }
 
 function db_error($sql="")
@@ -297,6 +636,18 @@ function display_show_full_text_link_2($str='Show Full Text...')
 	return '<a class="expandbtn" href="#">' . $str . '</a>';
 }
 
+function messages_set($message_type=false)
+{
+	if (!$message_type)
+	{
+		return isset($_SESSION['messages']);
+	}
+	else
+	{
+		return isset($_SESSION['messages'][$message_type]);
+	}
+}
+
 function set_message($message_type, $message)
 {
     $_SESSION['messages'][$message_type][] = $message;
@@ -308,6 +659,18 @@ function get_messages($message_type='error')
     return $messages_array;
 }
 
+function get_messages_clr($message_type='error')
+{
+    $messages_array = $_SESSION['messages'][$message_type];
+    unset($_SESSION['messages']);
+    return $messages_array;
+}
+
+function countMessages($message_type='error')
+{
+	return count($_SESSION['messages'][$message_type]);
+}
+
 function clear_messages()
 {
 	unset($_SESSION['messages']);
@@ -316,6 +679,13 @@ function clear_messages()
 function get_message_string($message_type='error')
 {
 	$msg = get_messages($message_type);
+	return implode("<br/>", $msg);
+}
+
+function get_message_string_clr($message_type='error')
+{
+	$msg = get_messages($message_type);
+	unset($_SESSION['messages']);
 	return implode("<br/>", $msg);
 }
 // ******************************************
@@ -1056,11 +1426,9 @@ function GetQuestionTitle($question)
 
 function IsQuestionWriting($question)
 {
-
-	 
 	 $sql="SELECT phase
 	     FROM questions
-	     WHERE id='$question'";
+	     WHERE id=$question";
 		
 	$result = mysql_query($sql);
 				
@@ -1072,7 +1440,7 @@ function IsQuestionWriting($question)
 	else 
 	{
 		$row = mysql_fetch_assoc($result);
-		if ($row["phase"] == 1)
+		if ($row["phase"] == 0)
 		{
 			return true;
 		}
@@ -4112,7 +4480,7 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	{
 		return $filename.".svg";
 	}
-	if (file_exists ( $filename.".dot"))
+	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
 	{
 		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
 		if (file_exists ( $filename.".svg"))
