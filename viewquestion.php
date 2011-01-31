@@ -195,7 +195,7 @@ if ($userid) {
 
 			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
 
-			echo '<h3>Previous agreements, Still Visible (<a href="viewhistoryofquestion.php?' . $_SERVER['QUERY_STRING'] . '">History</a>)</h3>';
+			echo '<h3>Previous agreements, Still Visible (<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">History</a>)</h3>';
 			sort($VisibleProposalsGenerations);
 			
 			if(empty($VisibleProposalsGenerations)) echo "None<br />";
@@ -203,8 +203,8 @@ if ($userid) {
 			foreach($VisibleProposalsGenerations as $vpg)
 			{
 				$endorsersAgreement=Endorsers($question,$vpg);
-				if($generation==$vpg+1){echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
-				else		{	echo '<h4><a href="viewgeneration.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
+				if($generation==$vpg+1){echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
+				else		{	echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
 				
 				echo " an Agreement was found between ".Count($endorsersAgreement)." people ";
 				foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
@@ -213,7 +213,7 @@ if ($userid) {
 				$ProposalsToSee=ParetoFront($question,$vpg);
 					foreach($ProposalsToSee as $p)
 					{
-						?><form method="get" action="newproposalversion.php" target="_blank">
+						?><form method="get" action="npv.php" target="_blank">
 							<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 								<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 								<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
@@ -236,7 +236,7 @@ if ($userid) {
 				{
 						echo '<div class="paretoproposal">';
 					
-					?><form method="get" action="newproposalversion.php" target="_blank">
+					?><form method="get" action="npv.php" target="_blank">
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
@@ -672,7 +672,7 @@ if ($userid) {
 	if ($generation>1)
 	{
 		echo '<div>';
-		echo '<a href="viewhistoryofquestion.php?' . $_SERVER['QUERY_STRING'] . '">View History of The Question</a>. Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.';
+		echo '<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">View History of The Question</a>. Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.';
 		echo '</div>';
 	}
 

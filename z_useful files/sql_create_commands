@@ -38,8 +38,17 @@ ADD `lastlogin` DATETIME NULL COMMENT 'time last logged in'
 
 ALTER TABLE `questions` 
 ADD `permit_anon_votes` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous voters',
-ADD `permit_anon_proposals` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous proposers'
+ADD `permit_anon_proposals` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Permit anonymous proposers';
 
 ALTER TABLE `users` 
 ADD `active` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Set active to 0 to restrict user',
 ADD `anon` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Anonymous user'
+
+CREATE TABLE IF NOT EXISTS `proposal_relations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `frompid` int(11) NOT NULL,
+  `topid` int(11) NOT NULL,
+  `userid` int(11) NOT NULL DEFAULT '0',
+  `relation` enum('derivedfrom','implies','equivalent') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8

@@ -129,7 +129,7 @@ if ($userid)
 		echo '<table border="1" class="historytable"><tr>';
 		if ($generation>=2){ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation-1,$room).'</strong></td>';	}
 		else {	echo '<td width="30%"><strong></strong></td>';	}
-		echo '<td><h2><a href="viewhistoryofquestion.php' .CreateQuestionURL($question, $room). '">History</a></h2><h1>Generation '.$generation.'</h1></td>';
+		echo '<td><h2><a href="vhq.php' .CreateQuestionURL($question, $room). '">History</a></h2><h1>Generation '.$generation.'</h1></td>';
 		if ($generation+1<$generationnow)	{ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation+1,$room).'</strong></td>';}
 		else		{echo '<td width="30%"><strong></strong></td>';	}		
 		echo '</tr></table>';
@@ -163,7 +163,7 @@ if ($userid)
 			{
 				echo '<div class="paretoproposal">';
 			?>	
-					<form method="get" action="newproposalversion.php" target="_blank">
+					<form method="get" action="npv.php" target="_blank">
 				<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 						<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
@@ -179,6 +179,7 @@ if ($userid)
 				
 				echo '</div>';
 			}
+			$PropOrdered = array();
 			foreach ($NonParetoProposals as $p)
 			{
 				$PropOrdered[$p]=CountEndorsersToAProposal($p);
@@ -189,7 +190,7 @@ if ($userid)
 				#echo '<div class="paretoproposal">';
 				echo '<div class="nonparetoproposal">';
 				?>	
-						<form method="get" action="newproposalversion.php" target="_blank">
+						<form method="get" action="npv.php" target="_blank">
 					<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>

@@ -2870,7 +2870,7 @@ function WriteWhyDomination($proposalAbove,$proposalBelow,$room,$userid)
 
 function WriteGenerationPage($question,$generation,$room)
 {
-	return '<a href="viewgeneration.php'.CreateGenerationURL($question,$generation,$room).'">Generation '.$generation. '</a> ';
+	return '<a href="vg.php'.CreateGenerationURL($question,$generation,$room).'">Generation '.$generation. '</a> ';
 }
 
 function TimeLastProposalOrEndorsement($question, $phase, $generation)
@@ -3736,7 +3736,7 @@ function InviteKeyPlayerToRewriteProposal($proposal,$room)
 
 	You can also try our experimental new link (do not  hold your breath that it will work) which should send you directly to a page with 
 	an edit box and the proposal inside, so you can just change it, and submit it
-	'.SITE_DOMAIN.'/newproposalversion.php'.$urlquery.'
+	'.SITE_DOMAIN.'/npv.php'.$urlquery.'
 	
 	';
 	return $message;

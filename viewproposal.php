@@ -45,7 +45,7 @@ include('header.php');
 		}
 		
 		?>
-			<form method="get" action="newproposalversion.php" target="_blank">
+			<form method="get" action="npv.php" target="_blank">
 		<?php	echo '<h3>'.WriteProposalPage($proposal,$room)." ";?>	
 				<input type="hidden" name="p" id="p" value="<?php echo $proposal; ?>" />
 				<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>

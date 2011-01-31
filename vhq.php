@@ -222,7 +222,7 @@ include('header.php');
 			#echo '<div class="paretoproposal">';
 				
 				?>
-				<form method="get" action="newproposalversion.php" target="_blank"><?php	echo '<h3>'.WriteProposalPage($row[0],$room)." ";?>	
+				<form method="get" action="npv.php" target="_blank"><?php	echo '<h3>'.WriteProposalPage($row[0],$room)." ";?>	
 						<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
 						<?php	
 			if($room) 
@@ -279,7 +279,7 @@ include('header.php');
 			}
 			
 			?>
-			<form method="post" action="newproposalversion.php">
+			<form method="post" action="npv.php">
 			<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
 			<input <?php echo $mod_btn; ?> type="submit" name="submit" id="submit" value="Modify" title="Click here to create a new version of this proposal"/>
 			</form>
