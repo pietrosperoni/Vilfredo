@@ -136,6 +136,8 @@ try{
 			         include_once("js/jquery/RichTextEditor/editor.php");
 			      ?>
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+				<input type="hidden" name="mutate" value="" />
+				<input type="hidden" name="origpid" value="<?=$proposal?>" />
 				
 				
 				<?php 

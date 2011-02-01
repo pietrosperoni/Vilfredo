@@ -49,6 +49,6 @@ CREATE TABLE IF NOT EXISTS `proposal_relations` (
   `frompid` int(11) NOT NULL,
   `topid` int(11) NOT NULL,
   `userid` int(11) NOT NULL DEFAULT '0',
-  `relation` enum('derivedfrom','implies','equivalent') NOT NULL,
+  `relation` enum('derives','implies','equivalent') NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8

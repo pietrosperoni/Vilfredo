@@ -112,6 +112,29 @@ else
 	}
 	
 	$newpropid = mysql_insert_id();
+	
+	// Add mutated proposal $newpropid to proposal_relations table
+	if (isset($_POST['mutate']) and isset($_POST['origpid']))
+	{
+		$frompid = (int)mysql_real_escape_string($_POST['origpid']);
+		
+		if ($frompid)
+		{
+			$sql = "INSERT INTO `proposal_relations` 
+			( `frompid`, `topid`, `userid` ,  `relation`)
+			VALUES ( $frompid, $newpropid, '$userid', 'derives')";
+
+			if (!mysql_query($sql))
+			{
+				db_error(__FILE__ . " SQL: " . $sql);
+				set_log("Failed to add mutated proposal $newpropid to proposal_relations table");
+			}
+		}
+		else
+		{
+			set_log("Failed to add mutated proposal $newpropid to proposal_relations table - invalid original pid supplied in POST");
+		}
+	}
 
 	$NEWnAuthorsNewProposals=count(AuthorsOfNewProposals($question,$roundid));
 	if(	$nAuthorsNewProposals< $NEWnAuthorsNewProposals)
