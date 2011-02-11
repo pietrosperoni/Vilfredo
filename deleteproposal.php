@@ -50,6 +50,12 @@ if ($userid)
 				
 		$sql = "DELETE FROM proposals WHERE  proposals.id = " . $proposal . " ";
 		mysql_query($sql);
+		
+		// Delete any defines relation (actually should be ALL relations) for this proposal
+		if ($originalproposal = getMutatedRelationFrom($proposal))
+		{
+			deleteProposalRelation($originalproposal, $proposal, 'derives');
+		}
 
 		?>
 		<div id="actionbox">
@@ -57,6 +63,7 @@ if ($userid)
 			<p>Your proposal has been <B>DELETED</B>, please if necessary post the new version.</p>
 		
 			<form method="POST" action="newproposaltake.php">			
+     				
      				
      				<div id="editor_panel">
 				<!-- Input Proposal start -->
@@ -112,6 +119,10 @@ try{
 			         include_once("js/jquery/RichTextEditor/editor.php");
 			      ?>
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+				<?php if ($originalproposal) : ?>
+				<input type="hidden" name="origpid" id="origpid" value="<?php echo $originalproposal; ?>" />
+				<input type="hidden" name="mutate" id="mutate" value="" />
+				<?php endif ?>
 				<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
 				</div> <!-- proposal_RTE -->
 				</div> <!-- editor_panel -->

@@ -51,6 +51,310 @@ function isAdmin($userid)
 	
 	return $admin;
 }
+//
+//  ******************************************/
+// PROPOSAL RELATIONS
+//	
+//  
+// ******************************************/
+function getMutatedRelationFrom($to)
+{
+	if (empty($to))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "SELECT `frompid` FROM `proposal_relations` WHERE 
+		`topid` = $to AND `relation` = 'derives'";
+		
+		//printbrx($sql);
+		
+		if ($result = mysql_query($sql))
+		{
+			if (mysql_num_rows($result) == 0)
+			{
+				// No such relation listed
+				return false;
+			}
+			else
+			{
+				$row = mysql_fetch_assoc($result);
+				return $row['frompid'];
+			}
+		}
+		else
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			return false;
+		}
+	}
+}
+function getProposalRelationsTo($to, $relation)
+{
+	if (empty($to) or empty($relation))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "SELECT * FROM `proposal_relations` WHERE 
+		`topid` = '$to' AND `relation` = '$relation'";
+
+		if ($result = mysql_query($sql))
+		{
+			$relations = array();
+			$count = mysql_num_rows($result);
+			if ($count > 0)
+			{
+				for ($i=0; $i<$count;$i++)
+				{
+					$row = mysql_fetch_assoc($result);
+					$relations[$i]['frompid'] = $row['frompid'];
+					$relations[$i]['topid'] = $row['topid'];
+					$relations[$i]['iserid'] = $row['iserid'];
+					$relations[$i]['relation'] = $row['relation'];
+				}
+			}
+
+			return $relations;
+		}
+		else
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			return false;
+		}
+	}
+}
+function createProposalRelation($from, $to, $relation)
+{
+	if (empty($from) or empty($to) or empty($relation))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "INSERT INTO `proposal_relations` 
+			( `frompid`, `topid`, `userid` ,  `relation`)
+			VALUES ( '$from', '$to', '$userid', '$relation')";
+
+		if (!mysql_query($sql))
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			set_log(__FUNCTION__ . "Failed to create $relation relation between $from and $to");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+function deleteAllProposalRelationsForProposal($proposal)
+{
+	if (empty($id))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "DELETE FROM `proposal_relations` WHERE 
+		`frompid` = $proposal OR `topid` = $proposal";
+		
+		if (!mysql_query($sql))
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			set_log(__FUNCTION__ . "Failed to delete all relations for proposal $proposal");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+function deleteProposalRelationWithID($id)
+{
+	if (empty($id))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "DELETE FROM `proposal_relations` WHERE 
+		`id` = '$id'";
+		
+		if (!mysql_query($sql))
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			set_log(__FUNCTION__ . "Failed to delete $relation relation between $from and $to");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+function deleteProposalRelationsTo($to, $relation)
+{
+	if (empty($to) or empty($relation))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "DELETE FROM `proposal_relations` WHERE 
+		`topid` = '$to' AND `relation` = '$relation'";
+
+		if (!mysql_query($sql))
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			set_log(__FUNCTION__ . "Failed to delete $relation relation between $from and $to");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+function deleteProposalRelation($from, $to, $relation)
+{
+	if (empty($from) or empty($to) or empty($relation))
+	{
+		return false;
+	}
+	else
+	{
+		$sql = "DELETE FROM `proposal_relations` WHERE 
+		`frompid` = '$from' AND `topid` = '$to' AND `relation` = '$relation'";
+
+		if (!mysql_query($sql))
+		{
+			db_error(__FUNCTION__ . " SQL: " . $sql);
+			set_log(__FUNCTION__ . "Failed to delete $relation relation between $from and $to");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+}
+//
+//  ******************************************/
+// MULTILINGUAL
+//	Loads language dictionary into array
+//      ...... and stuff.
+// ******************************************/
+function _plural_v2($phrases, $key, $n)
+{
+	$s = $phrases[$key];
+	$p = $phrases[$key.'_pl'];
+	
+	if ($n == 1 or ($n != 1 and !$p))
+	{
+		return sprintf($s, $n);
+	}
+	else
+	{
+		return sprintf($p, $n);
+	}
+}
+
+function _plural($phrases, $key, $n)
+{
+	$s = $phrases[$key];
+	$p = $phrases[$key.'_pl'];
+	
+	if ($n == 1 or ($n != 1 and !$p))
+	{
+		return sprintf($s, $n);
+	}
+	else
+	{
+		return sprintf($p, $n);
+	}
+}
+
+function getLanguage($language = 'en',  $altfile=null)
+{
+	if (!empty($altfile))
+	{
+		$filename = $altfile;
+	}
+	else
+	{
+		$filename = 'language';
+	}
+	
+	return 'lang/' . $filename . '_' . $language . '.php';
+}
+
+// Returns preferred language from client or default
+function fetch_preferred_language_from_client()
+{
+	$langs = array();
+
+	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+	    // break up string into pieces (languages and q factors)
+	    preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+
+	    if (count($lang_parse[1])) {
+		// create a list like "en" => 0.8
+		$langs = array_combine($lang_parse[1], $lang_parse[4]);
+
+		// set default to 1 for any without q factor
+		foreach ($langs as $lang => $val) {
+		    if ($val === '') $langs[$lang] = 1;
+		}
+
+		// sort list based on value	
+		arsort($langs, SORT_NUMERIC);
+	    }
+	}
+
+	// look through sorted list and use first one that matches our languages
+	foreach ($langs as $lang => $val) 
+	{
+		if (strpos($lang, 'en') === 0)
+		{
+			// show English
+			//printbrx('English! Long live the king!!!');
+			return 'en';
+		} 
+		elseif (strpos($lang, 'it') === 0) 
+		{
+			// show Italian
+			//printbrx('Italian! Long live the pasta!!!');
+			return 'it';
+		} 
+	}
+
+	// show default
+	return 'en';
+}
+///////////////////////
+function loadLangXML($file, $language = 'en')
+{
+	$phrases = array();
+	$xml = simplexml_load_file(sprintf('lang/%s/%s.xml', $language, $file));
+	if ($xml)
+	{
+		$children = $xml->children(); 
+		foreach ($children as $node)
+		{
+			$attributes = $node->attributes();
+			$phrases[(string)$attributes[0]] = (string)$node;
+		}
+	}
+	else
+	{
+		//printbrx("Couldn't load dictionary file $language/$file!");
+	}
+	return $phrases;
+}
 //  ******************************************/
 // ANONYMOUS USERS
 //	Reusable user records used by external anonymous users
@@ -2391,6 +2695,7 @@ function Endorsers($question,$generation)
 function WriteQuestion($question,$userid)
 {
 	$answer="";
+	global $phrases;
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, users.username, users.id, questions.question, questions.room  FROM questions, users WHERE questions.id = ".$question." AND users.id = questions.usercreatorid ";
 	$response = mysql_query($sql);
@@ -2573,6 +2878,7 @@ function WriteQuestion($question,$userid)
 					$UserString=WriteUserVsReader($thatuserid,$userid);
 
 					$answer=$answer.'by '.$UserString;
+					//$answer=$answer.$phrases['by_txt'] . ' '.$UserString;
 					$answer=$answer.'</td></tr></table>';
 
 					$answer=$answer.'<div class="invisible" id="footnote'.$questionid.'">This is a new question. Be the first to suggest an answer!<br/>QUESTION: '.$questiontext.'.</div>';

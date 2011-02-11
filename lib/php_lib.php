@@ -3,6 +3,23 @@
 // Useful functions
 // ****************************************
 //
+// For cleaning POST & GET before input into DB
+function clean_input_array(&$input)
+{
+	foreach($input AS $key => $value) 
+	{ 
+		if (is_array($input[$key]))
+		{
+			clean_input_array($input[$key]);
+		}
+		else
+		{
+			$input[$key] = mysql_real_escape_string($value);			
+		}
+	} 
+	return $input;
+}
+
 function GetEscapedPostParam($key)
 {
 	if (empty($_POST[$key]))
@@ -67,7 +84,11 @@ function printbrx($str='', $lines=2, $quit=FALSE)
 
 function printbr($str='', $lines=2, $quit=FALSE)
 {
-	if (is_bool($str))
+	if (is_null($str))
+	{
+		echo 'Null';
+	}
+	elseif (is_bool($str))
 	{
 		if ($str)
 		{
