@@ -52,7 +52,7 @@ echo "</h1>";
 ?>
 
 
-<h3><a href="newquestion.php<?php echo $room_param?>">Ask a New Question</a></h3>
+<h3><a href="newquestion.php<?php echo $room_param?>"><?=$VGA_CONTENT['ask_quest_txt']?></a></h3>
 </div>
 <?php
 	
@@ -89,7 +89,7 @@ echo "</h1>";
 			if (!$newquestionswritten)
 			{
 				echo '<div class="newquestionbox">';
-				echo "<h2>New Questions</h2><p>";
+				echo "<h2>{$VGA_CONTENT['new_quest_txt']}</h2><p>";
 			}
 
 			$newquestionswritten=$newquestionswritten+1;
@@ -101,14 +101,14 @@ echo "</h1>";
 			}
 			
 			echo '<fieldset class="foottip">';
-			echo '<a href="http://www.flickr.com/photos/found_drama/1023671528/"><img src="images/germinating.jpg" title="New Question" height=42 ></a> <a title="This is a new question. Be the first to suggest an answer!" href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a> ';
+			echo '<a href="http://www.flickr.com/photos/found_drama/1023671528/"><img src="images/germinating.jpg" title="' . $VGA_CONTENT['new_quest_title'] . '" height=42 ></a> <a title="' . $VGA_CONTENT['new_quest_exp_title'] . '" href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a> ';
 
 			$UserString=WriteUserVsReader($thatuserid,$userid);
 
 			echo RenderQIconInfo($UserString, $room);
 			echo '</td></tr></table>';
 
-			echo '<div class="invisible" id="footnote' . $row[0] . '">This is a new question. Be the first to suggest an answer!<br/>QUESTION: '.$row[6].'.</div>';
+			echo '<div class="invisible" id="footnote' . $row[0] . '">' . $VGA_CONTENT['new_quest_exp_title'] . '<br/>' . $VGA_CONTENT['question_label'] . ' '.$row[6].'.</div>';
 			echo '</fieldset>';
 			if ($thatuserid==$userid)
 			{
@@ -134,7 +134,7 @@ echo "</h1>";
 
 	echo '<div class="proposingbox">';
 
-	echo '<h2> <img src="images/writing.jpg" height=48> Propose an Answer to a Question</h2><p>';
+	echo '<h2> <img src="images/writing.jpg" height=48> ' . $VGA_CONTENT['propose_ans_txt'] . '</h2><p>';
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, 
 	users.username, users.id, MAX(proposals.id) AS latest, 
@@ -206,11 +206,11 @@ echo "</h1>";
 			{
 				if (HasThisUserProposedSomething($questionid,$generation,$userid))
 				{
-					echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					echo '<img src="images/tick.jpg" height=20 title="' . $VGA_CONTENT['already_prop_title'] . '"> ';
 				}
 				else
 				{
-					echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					echo '<img src="images/tick_empty.png" height=20 title="' . $VGA_CONTENT['not_prop_title'] . '"> ';
 				}
 			}
 			else
@@ -218,7 +218,7 @@ echo "</h1>";
 				echo '&nbsp;';
 			}
 
-			echo '</td><td><a href="http://www.flickr.com/photos/jphilipson/2100627902/"><img src="images/tree.jpg" title="Generation '.$generation.'" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '"  tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a><br /> ';
+			echo '</td><td><a href="http://www.flickr.com/photos/jphilipson/2100627902/"><img src="images/tree.jpg" title="' . $VGA_CONTENT['gen_txt'] . ' '.$generation.'" height=42 ></a></td><td><a href="viewquestion.php' . $urlquery . '"  tooltip="#footnote' . $row[0] . '" >' . $row[1] . '</a><br /> ';
 
 				$UserString=WriteUserVsReader($thatuserid,$userid);
 
@@ -227,12 +227,12 @@ echo "</h1>";
 				$ReadyToGo= IsQuestionReadyToBeMovedOn($questionid,$phase,$generation);
 				if($ReadyToGo)
 				{
-					echo '<td><img src="images/clock.jpg" title="This question is ready to be moved on. The questionair can do it at any time. If you still have not proposed your possible answers, please do so as soon as possible" height=42></td>';
+					echo '<td><img src="images/clock.jpg" title="' . $VGA_CONTENT['ready_to_move_title'] . '" height=42></td>';
 				}
 				$ReadyToAutoGo= IsQuestionReadyToAutoMoveOn($questionid,$phase,$generation);
 				if($ReadyToAutoGo)
 				{
-					echo '<td><img src="images/sveglia.gif" title="This question will soon be automatically moved on. If you still have not proposed your possible answers, please do so as soon as possible" height=42></td>';
+					echo '<td><img src="images/sveglia.gif" title="' . $VGA_CONTENT['auto_move_title'] . '" height=42></td>';
 				}
 
 				echo '</td></tr></table>';
@@ -256,11 +256,11 @@ echo "</h1>";
 			{
 				if (HasThisUserProposedSomething($questionid,$generation,$userid))
 				{
-					echo '<img src="images/tick.jpg" height=20 title="you have already proposed something this generation, but you can propose more"> ';
+					echo '<img src="images/tick.jpg" height=20 title="' . $VGA_CONTENT['already_prop_title'] . '"> ';
 				}
 				else
 				{
-					echo '<img src="images/tick_empty.png" height=20 title="you have not yes proposed anything new this generation"> ';
+					echo '<img src="images/tick_empty.png" height=20 title="' . $VGA_CONTENT['not_prop_title'] . '"> ';
 				}
 			}
 			else
@@ -312,7 +312,7 @@ echo "</h1>";
 		echo '<div class="rightfloatbox">';
 		echo '<div class="endorsingbox">';
 		
-		echo '<h2> <img src="images/endorsing.jpg" height=48> Vote all the Answers you Agree on</h2><p>';
+		echo '<h2> <img src="images/endorsing.jpg" height=48> ' . $VGA_CONTENT['vote_all_txt'] . '</h2><p>';
 	
 		$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, 
 		users.username, users.id, questions.minimumtime, questions.maximumtime, questions.room  
@@ -354,7 +354,7 @@ echo "</h1>";
 				}
 				else
 				{
-					echo '<img src="images/tick_empty.png" height=20 title="you have not expressed any endorsements over here"> ';
+					echo '<img src="images/tick_empty.png" height=20 title="' . $VGA_CONTENT['not_expressed_end_title'] . '"> ';
 				}
 			}
 			else
@@ -363,7 +363,7 @@ echo "</h1>";
 			}
 	
 	
-			echo '</td><td><a href="http://www.flickr.com/photos/johnfahertyphotography/2675723448/"><img src="images/flowers.jpg" title="Chose the ones you like" height=42 ></a></td><td> <a href="viewquestion.php' . $urlquery. '" tooltip="#footnote' . $row[0] . '"   >' . $row[1] . '</a> <br />';
+			echo '</td><td><a href="http://www.flickr.com/photos/johnfahertyphotography/2675723448/"><img src="images/flowers.jpg" title="' . $VGA_CONTENT['choose_title'] . '" height=42 ></a></td><td> <a href="viewquestion.php' . $urlquery. '" tooltip="#footnote' . $row[0] . '"   >' . $row[1] . '</a> <br />';
 	
 			$UserString=WriteUserVsReader($thatuserid,$userid);
 	
@@ -378,7 +378,7 @@ echo "</h1>";
 			$ReadyToAutoGo= IsQuestionReadyToAutoMoveOn($questionid,$phase,$generation);
 			if($ReadyToAutoGo)
 			{
-				echo '<td><img src="images/sveglia.gif" title="This question will soon be automatically moved on. If you still have not endorsed the answers you agree with, please do so as soon as possible" height=42></td>';
+				echo '<td><img src="images/sveglia.gif" title="' . $VGA_CONTENT['auto_mve_soon_title'] . '" height=42></td>';
 			}
 	
 			echo '</td></tr></table>';
@@ -395,11 +395,11 @@ echo "</h1>";
 				echo '<li>'.$answertext.'</li>';
 			}
 			echo '</ol>';
-			echo '<strong>Generation</strong>='.$generation.';<br/>Recently '.$nrecentendorsers.' human beings voted on '.$nrecentproposals.' possible solutions,<br/>'.$newproposalswritten.' produced by '.$nAuthorsNewProposals.' human being(s)<br/>
-			and '.$nrecentparetofront.' inherited from the previous generation.';
+			echo '<strong>' . $VGA_CONTENT['gen_txt'] . '</strong>='.$generation.';<br/>' . $VGA_CONTENT['recently_txt'] . ' '.$nrecentendorsers.' ' . $VGA_CONTENT['humans_voted_txt'] . ' '.$nrecentproposals.' ' . $VGA_CONTENT['poss_sol_txt'] . '<br/>'.$newproposalswritten.' ' . $VGA_CONTENT['prod_by_txt'] . ' '.$nAuthorsNewProposals.' ' . $VGA_CONTENT['humans_txt'] . '<br/>
+			' . $VGA_CONTENT['and_txt'] . ' '.$nrecentparetofront.' ' . $VGA_CONTENT['inhreited_from_txt'] . '';
 			$mintime=WriteTime($minimumtime);
 			$maxtime=WriteTime($maximumtime);
-			echo '<br/>Minumum time: '.$mintime.';<br/> Maximum time: '.$maxtime;
+			echo '<br/>' . $VGA_CONTENT['min_time_txt'] . ' '.$mintime.';<br/> ' . $VGA_CONTENT['max_time_txt'] . ' '.$maxtime;
 			echo '</div>';
 	
 			echo '</fieldset>';
@@ -420,8 +420,8 @@ echo "</h1>";
 
 	echo '<div class="centerbox">';
 	echo '<div class="solvedbox">';
-	echo '<h2><img src="images/manyhands.jpg" height=48>Questions that reached unanimity</h2><p>';
-	echo "<p>If you do not agree with tha answers you can reopen them, by adding other proposals.</p>";
+	echo '<h2><img src="images/manyhands.jpg" height=48>' . $VGA_CONTENT['unanimity_txt'] . '</h2><p>';
+	echo "<p>{$VGA_CONTENT['reopen_txt']}</p>";
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, 
 		questions.phase, users.username, users.id, questions.room  
@@ -475,7 +475,7 @@ echo "</h1>";
 
 					if (mysql_num_rows($response3) > 1)
 					{
-						echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="Everybody Agreed on More than One Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
+						echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="' . $VGA_CONTENT['agree_more_title'] . '" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 						$UserString=WriteUserVsReader($thatuserid,$userid);
 
 						echo RenderQIconInfo($UserString, $room) . '<br />';
@@ -489,7 +489,7 @@ echo "</h1>";
 					}
 					
 					$endorsers=Endorsers($questionid,$pastgeneration);
-					echo "<b>Agreement found between</b>: ";
+					echo "<b>{$VGA_CONTENT['agree_fnd_txt']}</b>: ";
 					
 					foreach ($endorsers as $e)
 					{

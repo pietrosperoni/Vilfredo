@@ -70,43 +70,43 @@ else
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 			<table border="0">
 				<tr>
-					<td>Username: (note this will be published on the site, so don't use your email address, unless you want that to be public and potentially taken by spiders)</td>
+					<td><?=$VGA_CONTENT['username_label']?> <?=$VGA_CONTENT['user_caution_txt']?></td>
 					<td>
 						<input type="text" name="username" maxlength="60" value="<?php echo $_POST['username']?>">
 					</td>
 				</tr>
 				<tr>
-					<td>Email:</td>
+					<td><?=$VGA_CONTENT['email_label']?></td>
 					<td>
 						<input type="text" name="email" maxlength="60" value="<?php echo $_POST['email']?>">
 					</td>
 				</tr>
 				<tr>
-					<td>Password:</td>
+					<td><?=$VGA_CONTENT['password_label']?></td>
 					<td>
 						<input type="password" name="pass">
 					</td>
 				</tr>
 				<tr>
-					<td>Confirm Password:</td>
+					<td><?=$VGA_CONTENT['pass_conf_label']?></td>
 					<td>
 						<input type="password" name="pass2">
 					</td>
 				</tr>
 				<tr>
-					<td>Please enter the words in the image:</td>
+					<td><?=$VGA_CONTENT['captch_req_label']?></td>
 					<td>
 						<?php echo recaptcha_get_html($recaptcha_public_key, $recaptcha_error); ?>
 					</td>
 				</tr>
 				<tr>
 					<th colspan=2>
-						<input type="submit" name="submit" value="Register">
+						<input type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
 					</th>
 				</tr>
 			</table>
 		</form>
-		<p><b>Note:</b> the email is needed to receive updates on the questions you are working on. <br/>But you will be able to chose, for each question, if you want to be updated.</p> 
+		<p><?=$VGA_CONTENT['email_exp_txt']?></p> 
 		<?php
 	}
 }

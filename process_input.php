@@ -4,6 +4,7 @@ function register_user()
 {
 	require_once('lib/recaptcha-php-1.11/recaptchalib.php');
 	global $FACEBOOK_ID, $recaptcha_private_key;
+	global $VGA_CONTENT;
 	$errors = false;
 	
 	$resp = recaptcha_check_answer ($recaptcha_private_key,
@@ -12,14 +13,16 @@ function register_user()
 			$_POST["recaptcha_response_field"]);
 
 	if (!$resp->is_valid) {
-		set_message("error", "Sorry, you did not enter the captcha words correctly.");
+		$msg = "{$VGA_CONTENT['captcha_err_txt']}";
+		set_message("error", $msg);
 		$errors = true;
 	}
 
 	//This makes sure they did not leave any fields blank
 	if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] | !$_POST['email']) 
 	{
-		set_message("error", "You did not fill in all the required fields");
+		$msg = "{$VGA_CONTENT['req_flds_err_txt']}";
+		set_message("error", $msg);
 		$errors = true;
 		return false;
 	}
@@ -27,7 +30,7 @@ function register_user()
 	$UsernameIsEmail=validEmail($_POST['username']);
 	if ($UsernameIsEmail)
 	{
-		$msg = "Your username will be public and as such it should not be an email address";
+		$msg = "{$VGA_CONTENT['useremail_err_txt']}";
 		set_message("error", $msg);
 		$errors = true;
 		//return false;
@@ -38,7 +41,8 @@ function register_user()
 		$EmailIsValid=validEmail($_POST['email']);
 		if (!$EmailIsValid)
 		{
-			set_message("error", 'The Email address you inserted is not a valid email address.');
+			$msg = "{$VGA_CONTENT['email_err_txt']}";
+			set_message("error", $msg);
 			$errors = true;
 			//return false;
 		}
@@ -55,7 +59,8 @@ function register_user()
 	if (!$check)
 	{
 		handle_db_error($check);
-		set_message("error", "System error");
+		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		set_message("error", $msg);
 		$errors = true;
 		//return false;
 	}
@@ -65,7 +70,8 @@ function register_user()
 	//if the name exists it gives an error
 	if ($check2 != 0) 
 	{
-		$msg = 'Sorry, the username '.$_POST['username'].' is already in use.';
+		$format = "{$VGA_CONTENT['user_unav_err_txt']}";
+		$msg = sprintf($format, $_POST['username']);
 		set_message("error", $msg);
 		$errors = true;
 		//return false;
@@ -74,7 +80,8 @@ function register_user()
 	// this makes sure both passwords entered match
 	if ($_POST['pass'] != $_POST['pass2']) 
 	{
-		set_message("error", "Your passwords did not match");
+		$msg = "{$VGA_CONTENT['pwds_err_txt']}";
+		set_message("error", $msg);
 		$errors = true;
 		//return false;
 	}
@@ -101,7 +108,8 @@ function register_user()
 	if (!$add_member)
 	{
 		handle_db_error($add_member, $insert);
-		set_message("error", "System error");
+		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 	
@@ -112,11 +120,13 @@ function register_user()
 function login_user()
 {
 	global $FACEBOOK_ID;
+	global $VGA_CONTENT;
 	
 	// makes sure they filled it in
 	if(empty($_POST['username']) || empty($_POST['pass'])) 
 	{
-		set_message("error", "You did not fill in a required field");
+		$msg = "{$VGA_CONTENT['required_field_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 	
@@ -129,7 +139,8 @@ function login_user()
 	if (!$check)
 	{
 		handle_db_error($check);
-		set_message("error", "Sorry, could not log you in at the moment");
+		$msg = "{$VGA_CONTENT['goin_err_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 
@@ -137,7 +148,7 @@ function login_user()
 	$check2 = mysql_num_rows($check);
 	if ($check2 == 0) 
 	{
-		$msg = "That user does not exist in our database. <a href=register.php>Click Here to Register</a>";
+		$msg = "{$VGA_CONTENT['user_exist_err_txt']}";
 		set_message("error", $msg);
 		return false;
 	}
@@ -150,7 +161,8 @@ function login_user()
 		//gives error if the password is wrong
 		if ($_POST['pass'] != $info['password']) 
 		{
-			set_message("error", "Incorrect password, please try again");
+			$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
+			set_message("error", $msg);
 			return false;
 		}
 		else
@@ -193,18 +205,20 @@ function login_user()
 function fb_register_user()
 {
 	global $FACEBOOK_ID;
+	global $VGA_CONTENT;
 	
 	//This makes sure they did not leave any fields blank
 	if (!$_POST['username']) 
 	{
-		set_message("error", "You did not fill in a required field");
+		$msg = "{$VGA_CONTENT['required_field_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 
 	$UsernameIsEmail=validEmail($_POST['username']);
 	if ($UsernameIsEmail)
 	{
-		$msg = 'Your username will be public and as such it cannot be an email address (for security reasons)';
+		$msg = $VGA_CONTENT['not_email_err_txt'];
 		set_message("error", $msg);
 		return false;
 	}
@@ -214,7 +228,8 @@ function fb_register_user()
 		$EmailIsValid=validEmail($_POST['email']);
 		if (!$EmailIsValid)
 		{
-			set_message("error", 'The Email address you inserted is not a valid email address.');
+			$msg = "{$VGA_CONTENT['email_err_txt']}";
+			set_message("error", $msg);
 			return false;
 		}
 	}
@@ -230,7 +245,8 @@ function fb_register_user()
 	if (!$check)
 	{
 		handle_db_error($check);
-		set_message("error", "System error");
+		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 	
@@ -239,7 +255,8 @@ function fb_register_user()
 	//if the name exists it gives an error
 	if ($check2 != 0) 
 	{
-		$msg = 'Sorry, the username '.$_POST['username'].' is already in use.';
+		$format = "{$VGA_CONTENT['user_unav_err_txt']}";
+		$msg = sprintf($format, $_POST['username']);
 		set_message("error", $msg);
 		return false;
 	}
@@ -257,7 +274,8 @@ function fb_register_user()
 	if (!$add_member)
 	{
 		handle_db_error($add_member, $insert);
-		set_message("error", "System error");
+		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 	
@@ -268,11 +286,13 @@ function fb_register_user()
 function fb_connect_user()
 {
 	global $FACEBOOK_ID;
+	global $VGA_CONTENT;
 	
 	// makes sure they filled it in
 	if(empty($_POST['username']) || empty($_POST['pass'])) 
 	{
-		set_message("error", "You did not fill in a required field");
+		$msg = "{$VGA_CONTENT['required_field_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 
@@ -282,7 +302,8 @@ function fb_connect_user()
 	if (!$check)
 	{
 		handle_db_error($check);
-		set_message("error", "System error");
+		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 
@@ -290,7 +311,7 @@ function fb_connect_user()
 	$check2 = mysql_num_rows($check);
 	if ($check2 == 0) 
 	{
-		$msg = "Sorry, that user does not exist in our database.";
+		$msg = "{$VGA_CONTENT['no_user_err_txt']}";
 		set_message("error", $msg);
 		return false;
 	}
@@ -304,7 +325,8 @@ function fb_connect_user()
 	//gives error if the password is wrong
 	if ($_POST['pass'] != $info['password']) 
 	{
-		set_message("error", "Incorrect password, please try again");
+		$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
+		set_message("error", $msg);
 		return false;
 	}
 	else
@@ -320,7 +342,8 @@ function fb_connect_user()
 		if (!$result)
 		{
 			handle_db_error($result);
-			set_message("error", "System error");
+			$msg = "{$VGA_CONTENT['sys_err_txt']}";
+			set_message("error", $msg);
 			return false;
 		}
 		

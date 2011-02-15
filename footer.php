@@ -1,7 +1,7 @@
 
 			</div>
 			<div id="footer">
-				<p><em>Made by the marvelous <a href="http://turnfront.com/">Chris</a>, <a href="http://pietrosperoni.it/">Pietro</a> &amp; Derek.</em></p>
+				<p><em><?=$VGA_CONTENT['madeby_txt']?> <a href="http://turnfront.com/">Chris</a>, <a href="http://pietrosperoni.it/">Pietro</a> &amp; Derek.</em></p>
 			</div>
 			
 			<!--FB Start*****-->

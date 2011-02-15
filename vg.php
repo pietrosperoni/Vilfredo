@@ -19,7 +19,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 
 include('header.php');
@@ -84,7 +84,7 @@ if ($userid)
 		
 		#$generation
 		
-		echo "<h2>Question</h2>";
+		echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
 
 		?>
 			<h2 id="question">
@@ -98,7 +98,7 @@ if ($userid)
 			{
 				?> <input type="submit" name="submit" id="submit" value="email Unsubscribe" /> <?php
 			}else{
-				?> <input type="submit" name="submit" id="submit" value="email Subscribe" /> <?php
+				?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>" /> <?php
 			}
 		}
 			?>
@@ -121,7 +121,7 @@ if ($userid)
 		
 		while ($row2 = mysql_fetch_array($response2))
 		{
-			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			 echo '</div>';
 		}
 
@@ -129,7 +129,7 @@ if ($userid)
 		echo '<table border="1" class="historytable"><tr>';
 		if ($generation>=2){ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation-1,$room).'</strong></td>';	}
 		else {	echo '<td width="30%"><strong></strong></td>';	}
-		echo '<td><h2><a href="vhq.php' .CreateQuestionURL($question, $room). '">History</a></h2><h1>Generation '.$generation.'</h1></td>';
+		echo '<td><h2><a href="vhq.php' .CreateQuestionURL($question, $room). '">' . $VGA_CONTENT['history_link'] . '</a></h2><h1>' . $VGA_CONTENT['gen_txt'] . ' '.$generation.'</h1></td>';
 		if ($generation+1<$generationnow)	{ echo '<td width="30%"><strong>'.WriteGenerationPage($question,$generation+1,$room).'</strong></td>';}
 		else		{echo '<td width="30%"><strong></strong></td>';	}		
 		echo '</tr></table>';
@@ -154,7 +154,7 @@ if ($userid)
 			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
 			*/
 			echo '<div id="paretofrontbox">';
-			echo "<h3>Pareto Front</h3>";
+			echo "<h3>{$VGA_CONTENT['pareto_front_txt']}</h3>";
 			$ParetoFront=ParetoFront($question,$generation);
 			$proposals=GetProposalsInGeneration($question,$generation);
 			$NonParetoProposals=array_diff($proposals,$ParetoFront);
@@ -167,7 +167,7 @@ if ($userid)
 				<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 						<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-						<input type="submit" name="submit" title="Click here to repropose or modify an alternative to this" id="submit" value="Repropose or Mutate" /></form>
+						<input type="submit" name="submit" title="<?=$VGA_CONTENT['click_rep_mod_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
 						<?php	echo '</h3>';
 				WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);				
 				WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
@@ -194,7 +194,7 @@ if ($userid)
 					<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-							<input type="submit" name="submit" title="Click here to repropose or modify an alternative to this" id="submit" value="Repropose or Mutate" /></form>
+							<input type="submit" name="submit" title="<?=$VGA_CONTENT['click_rep_mod_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
 							<?php	echo '</h3>';
 					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);				
 					WriteAuthorOfAProposal($p,$userid,$generation,$question,$room);
@@ -219,23 +219,24 @@ if ($userid)
 			$endorsers=Endorsers($question,$generation);
 			foreach ($endorsers as $e)
 			{
-				echo WriteUserVsReader($e,$userid)."has voted for ";
+				echo WriteUserVsReader($e,$userid)."{$VGA_CONTENT['has_voted_for_txt']} ";
 				$proposers=ProposalsToAnEndorser($e,$question,$generation);
 				foreach ($proposers as $p)	   {	echo WriteProposalNumber($p,$room);}
 				echo '<br />';	
-				echo " of those ";
+				echo " {$VGA_CONTENT['of_those_txt']} ";
 				$proposersInPF=array_intersect($proposers,$ParetoFront);
 				foreach ($proposersInPF as $p)	{	echo WriteProposalNumber($p,$room);}
-				echo ' are in the Pareto Front<br />';	
+				echo $VGA_CONTENT['in_pf_txt'] . '<br />';	
 				echo '<br />';	
 			}
 			echo '<br />';	
 			echo '</div>';	
 					
-			echo '<h3>Alternative History</h3><br />';
+			echo '<h3>' . $VGA_CONTENT['alt_history_txt'] . '</h3><br />';
 			
-			echo 'History is not made with the IF, but there are some particular cases in which an alternative series of events could have unleashed and they are particularly easy and interesting to predict.<br />';
-			echo '<h4>Key Players</h4><br />';			
+			echo '' . $VGA_CONTENT['alt_events_txt'] . '<br />';
+			echo '<h4>' . $VGA_CONTENT['key_players_txt'] . '</h4><br />';			
+			
 			$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
 			if (count($ProposalsCouldDominate) > 0)
 			{
@@ -244,14 +245,21 @@ if ($userid)
 				{
 					foreach ($ProposalsCouldDominate[$KP] as $PCD)
 					{
-						echo WriteUserVsReader($KP,$userid).' did not support '.WriteProposalNumber($PCD,$room).', but IF she or he did, then the Pareto Front would have be simpler.<br />We say that '.WriteUserVsReader($KP,$userid).' is a Key Player for this proposal for Generation '.$generation.'.<br />We emailed '.WriteUserVsReader($KP,$userid).' asking him or her to rewrite '.WriteProposalNumber($PCD,$room).' in a format acceptable to him or her.<br/>';
+						/*
+						echo WriteUserVsReader($KP,$userid).' did not support '.WriteProposalNumber($PCD,$room).', but IF she or he did, then the Pareto Front would have be simpler.<br />We say that '.WriteUserVsReader($KP,$userid).' is a Key Player for this proposal for Generation '.$generation.'.<br />We emailed '.WriteUserVsReader($KP,$userid).' asking him or her to rewrite '.WriteProposalNumber($PCD,$room).' in a format acceptable to him or her.<br/>';*/
+						
+						$keyPlayer = WriteUserVsReader($KP,$userid);
+						$proposalNumber = WriteProposalNumber($PCD,$room);
+						$format = $VGA_CONTENT['key_player_exp_txt'];
+						echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
+						echo '<br/>';
 					}
-					echo "<br/>";
+					echo '<br/>';
 				}
 				echo '</p>';
 			}	
 
-			echo '<h4>Effect Of Each Participant</h4><br />';
+			echo '<h4>' . $VGA_CONTENT['each_part_txt'] . '</h4><br />';
 
 			foreach ($endorsers as $e)
 			{
@@ -302,7 +310,7 @@ if ($userid)
 					echo "By voting ".WriteUserVsReader($e,$userid)." did not change the resulting Pareto Front.<br />But we love ".WriteUserVsReader($e,$userid)." anyway :-). Maybe, even more so ;-)!<br /><br />";
 				}
 			}
-			echo "<br />NOTE: The combined effect of more people not voting is NOT the sum of the combined effect of each person not voting.<br /> But it would be too long and ultimately irrelevant to study all those possibilities. <br />In this case really it is the case of saying that history is not made with the \"if\".<br /> Thus this analysis terminates here.";
+			echo $VGA_CONTENT['combined_effect_txt'];
 			
 			
 		}

@@ -278,8 +278,43 @@ function _plural($phrases, $key, $n)
 	}
 }
 
+function getVGAContent($key)
+{
+	global $VGA_CONTENT;
+	
+	return $VGA_CONTENT[$key];
+}
+
+function getLanguageForJS($language = 'en',  $altfile=null)
+{
+	$default_language = 'en';
+	
+	if ($language != 'en' and $language != 'it')
+	{
+		$language = $default_language;
+	}
+	
+	if (!empty($altfile))
+	{
+		$filename = $altfile;
+	}
+	else
+	{
+		$filename = 'language';
+	}
+	
+	return '../lang/' . $filename . '_' . $language . '.php';
+}
+
 function getLanguage($language = 'en',  $altfile=null)
 {
+	$default_language = 'en';
+	
+	if ($language != 'en' and $language != 'it')
+	{
+		$language = $default_language;
+	}
+	
 	if (!empty($altfile))
 	{
 		$filename = $altfile;
@@ -338,7 +373,7 @@ function fetch_preferred_language_from_client()
 ///////////////////////
 function loadLangXML($file, $language = 'en')
 {
-	$phrases = array();
+	$vgaphrases = array();
 	$xml = simplexml_load_file(sprintf('lang/%s/%s.xml', $language, $file));
 	if ($xml)
 	{
@@ -346,14 +381,14 @@ function loadLangXML($file, $language = 'en')
 		foreach ($children as $node)
 		{
 			$attributes = $node->attributes();
-			$phrases[(string)$attributes[0]] = (string)$node;
+			$vgaphrases[(string)$attributes[0]] = (string)$node;
 		}
 	}
 	else
 	{
 		//printbrx("Couldn't load dictionary file $language/$file!");
 	}
-	return $phrases;
+	return $vgaphrases;
 }
 //  ******************************************/
 // ANONYMOUS USERS
@@ -780,60 +815,6 @@ function handle_db_error($result=false, $sql="")
 	}
 }
 
-function display_viewall_link() 
-{
-	return '<h3>Abstract <a href="#" class="viewall" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="viewall-label">view full text</span></a></h3>';
-}
-
-function display_view_all_link() 
-{
-	return '<h3>Abstract</h3>';
-	//return '<h3>Abstract <a href="#" class="view-all" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="view-all-label">view full text</span></a></h3>';
-}
-
-function display_show_full_text_link()
-{	
-	//return '';
-	return '<a class="expandbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a>';
-}
-
-function display_fulltext_link()
-{	
-	return '<span class="expandabstract" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></span>';
-}
-
-function display_editproposal_link2()
-{	
-	return '<span class="editproposal" title="Click here to edit or delete your proposal"><span class="label">Edit or Delete</span></span>';
-}
-
-function display_editproposal_link()
-{	
-	return '<span class="editproposal" title="Click here to edit or delete your proposal"><form method="POST" action="deleteproposal.php">
-	<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-	<input type="submit" name="submit" id="submit" value="Edit or Delete" />
-</form></span>';
-}
-
-function display_fulltext_link2()
-{	
-	return '<span class="paretoabstractfulltextlink"><a class="expandabstractbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a></span>';
-}
-
-function display_show_full_text_link_2($str='Show Full Text...')
-{
-	$intro = 100;
-	
-	$str = strip_tags($str);
-	
-	if (empty($str)) 
-		$str = 'Show Full Text...';
-		
-	$str = substr($str, 0, $intro) . '...';
-		
-	return '<a class="expandbtn" href="#">' . $str . '</a>';
-}
-
 function messages_set($message_type=false)
 {
 	if (!$message_type)
@@ -890,6 +871,36 @@ function get_message_string_clr($message_type='error')
 // VILFREDO ROOMS
 //
 // ******************************************
+function unset_query_string_var($varname,$query_string) {
+    $query_array = array();
+    parse_str($query_string,$query_array);
+    unset($query_array[$varname]);
+    $query_string = http_build_query($query_array);
+    return $query_string;
+}
+
+function AppendToQuery($key, $val)
+{
+	
+	//$url = $_SERVER["SERVER_NAME"].$_SERVER['PHP_SELF'];
+	//$query_string = unset_query_string_var($key,$_SERVER["QUERY_STRING"]);   
+	//if (!empty($query_string)) $url .= '?'.$query_string;
+	//return $url;
+	
+	$url = $_SERVER['PHP_SELF'];
+	$query_string = $_SERVER["QUERY_STRING"];  
+	$query_string = unset_query_string_var($key, $query_string); 
+
+	if (!empty($query_string))
+	{
+		return $url . '?' . $query_string . '&' . $key . '=' . $val;
+	}
+	else
+	{
+		return $url . '?' . $key . '=' . $val;
+	}
+}
+
 function GetParamFromQuery($key)
 {
 	$param = isset($_GET[$key]) ? $_GET[$key] : "";
@@ -968,16 +979,96 @@ function CreateGenerationURL($question,$generation,$room)
 	return $generation_url;
 }
 
+//
+// Render output
+//
+function display_viewall_link() 
+{
+	return '<h3>' . getVGAContent('abstract_txt') . ' <a href="#" class="viewall" title="' . getVGAContent('display_full_title') . '"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="viewall-label">' . getVGAContent('view_full_txt_link') . '</span></a></h3>';
+}
+
+function display_fulltext_link()
+{	
+	return '<span class="expandabstract" title="' . getVGAContent('display_full_title') . '"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">' . getVGAContent('view_full_txt_link') . '</span></span>';
+}
+
+function LoadLoginRegisterLinks($userid, $target, $debug=false) 
+{
+global $VGA_CONTENT; 
+
+$str = <<<_HTML_
+<div id="register_request" class="ui-widget register-alert">
+	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+		{$VGA_CONTENT['must_register_txt']} <a href="#" id="ajax_register" btn=$target>{$VGA_CONTENT['register_link']}</a></p>
+	</div>
+</div>
+_HTML_;
+
+$loggedin = (bool)$userid;
+
+if ($debug) {
+	set_log('LoadLoginRegisterLinks: User logged in? : ' . boolString($loggedin));
+}
+
+return (!$loggedin && false) ? $str : ''; 
+}
+
+//***********************************NOT USED?
+
+function display_view_all_link() 
+{
+	return '<h3>Abstract</h3>';
+	//return '<h3>Abstract <a href="#" class="view-all" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="18" height="18" alt="" /><span class="view-all-label">view full text</span></a></h3>';
+}
+
+function display_show_full_text_link()
+{	
+	//return '';
+	return '<a class="expandbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a>';
+}
+
+function display_editproposal_link2()
+{	
+	return '<span class="editproposal" title="Click here to edit or delete your proposal"><span class="label">Edit or Delete</span></span>';
+}
+
+function display_editproposal_link()
+{	
+	return '<span class="editproposal" title="Click here to edit or delete your proposal"><form method="POST" action="deleteproposal.php">
+	<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
+	<input type="submit" name="submit" id="submit" value="Edit or Delete" />
+</form></span>';
+}
+
+function display_fulltext_link2()
+{	
+	return '<span class="paretoabstractfulltextlink"><a class="expandabstractbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a></span>';
+}
+
+function display_show_full_text_link_2($str='Show Full Text...')
+{
+	$intro = 100;
+	
+	$str = strip_tags($str);
+	
+	if (empty($str)) 
+		$str = 'Show Full Text...';
+		
+	$str = substr($str, 0, $intro) . '...';
+		
+	return '<a class="expandbtn" href="#">' . $str . '</a>';
+}
 
 function RenderQIconInfo($username, $room)
 {	
 	if (!empty($room) && SHOW_QICON_ROOMS)
 	{
-		return "by $username in <a href=\"" . SITE_DOMAIN . "/viewquestions.php?room=$room\">$room</a>";
+		return getVGAContent('by_txt') . " $username " . getVGAContent('in_txt') . " <a href=\"" . SITE_DOMAIN . "/viewquestions.php?room=$room\">$room</a>";
 	}
 	else
 	{
-		return "by $username";
+		return getVGAContent('by_txt') . " $username";
 	}
 }
 
@@ -1270,26 +1361,6 @@ function GetQuestionFilter($userid)
 	}
 	
 	return $filter;
-}
-
-function LoadLoginRegisterLinks($userid, $target, $debug=false) 
-{
-$str = <<<_HTML_
-<div id="register_request" class="ui-widget register-alert">
-	<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-		<strong>Note:</strong> You must register to activate the submit button: <a href="#" id="ajax_register" btn=$target>Register</a></p>
-	</div>
-</div>
-_HTML_;
-
-$loggedin = (bool)$userid;
-
-if ($debug) {
-	set_log('LoadLoginRegisterLinks: User logged in? : ' . boolString($loggedin));
-}
-
-return (!$loggedin && false) ? $str : ''; 
 }
 
 function LoadGoogleAnalytics($display=true) 
@@ -2992,7 +3063,7 @@ function WriteUserVsReader($user,$reader)
 		}
 		else
 		{
-		$answer= $answer.'<sup><img src="images/email.png" height=12 title="the user receives emails updates"></sup>';
+		$answer= $answer.'<sup><img src="images/email.png" height=12 title="' . getVGAContent('receives_emails_title') . '"></sup>';
 		}
 
 
@@ -3078,10 +3149,10 @@ function WriteAuthorOfAProposal($p,$userid,$generation,$question,$room)
 	$OPropID=$OriginalProposal["proposalid"];
 	$OPropGen=$OriginalProposal["generation"];
 		
-	echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+	echo '<br />' . getVGAContent('written_by_txt') . ': '.WriteUserVsReader(AuthorOfProposal($p),$userid);
 	if ($OPropGen!=$generation)
 	{
-		echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";						
+	echo getVGAContent('in_txt') . WriteGenerationPage($question,$OPropGen,$room).".<br>";						
 	}
 }
 
@@ -3092,9 +3163,61 @@ function WriteProposalText($p,$question,$generation,$room,$userid)
 	WriteEndorsersToAProposal($p,$userid);
 }
 
-
-
 function WriteProposalRelation($proposal,$question,$generation,$userid,$room)
+{
+	global $VGA_CONTENT;
+
+	$answer="";
+	$RelatedProposals=CalculateProposalsRelationTo($proposal,$question,$generation);
+	$DominatedProposals=$RelatedProposals["dominated"];
+	$DominatingProposals=$RelatedProposals["dominating"];
+
+	$sizeof_Below = sizeof($DominatedProposals);
+	if ($sizeof_Below>0)
+	{
+		$answer.='' . $VGA_CONTENT['prop_dom1_txt'] . ' ';
+		foreach ($DominatedProposals as $p)
+		{
+			$answer.=WriteProposalNumber($p,$room);
+			#echo WriteWhyDomination($proposal,$p,$room,$userid);
+		}
+	}
+	else
+	{
+		$answer.='' . $VGA_CONTENT['prop_dom2_txt'] . ' ';
+	}
+			
+	$sizeof_Above = sizeof($DominatingProposals);
+	if ($sizeof_Above>0)
+	{
+		$answer.= '<br />' . "{$VGA_CONTENT['prop_dom3_txt']} ";
+		foreach ($DominatingProposals as $p)
+		{
+			$answer.=WriteProposalNumber($p,$room);
+			#echo WriteWhyDomination($p,$proposal,$room,$userid);
+		}
+		$answer.= '<br />';			
+	}
+	else
+	{
+		$answer.= '<br />' . "{$VGA_CONTENT['prop_dom4_txt']}";
+		if(CountEndorsersToAProposal($proposal)==CountEndorsers($question,$generation))
+		{
+			$answer.= '<br />';
+			$answer.="{$VGA_CONTENT['prop_dom5_txt']}";
+			$answer.= '<br />';
+			$answer.="{$VGA_CONTENT['prop_dom6_txt']} ".WriteGenerationPage($question,$generation+1,$room)."{$VGA_CONTENT['prop_dom7_txt']}";						
+		}
+		else
+		{
+			$answer.= '<br />';
+			$answer.="{$VGA_CONTENT['prop_dom8_txt']}" . " (".WriteGenerationPage($question,$generation+1,$room).").";			
+		}
+	}
+	return $answer;
+}
+
+function WriteProposalRelation2($proposal,$question,$generation,$userid,$room)
 {
 	$answer="";
 	$RelatedProposals=CalculateProposalsRelationTo($proposal,$question,$generation);
@@ -3156,7 +3279,7 @@ function WriteProposalNumber($proposal,$room)
 
 function WriteProposalPage($proposal,$room)
 {
-	return '<a href="viewproposal.php'.CreateProposalURL($proposal,$room).'">Proposal '.$proposal. '</a> ';
+	return '<a href="viewproposal.php'.CreateProposalURL($proposal,$room).'">' . getVGAContent('proposal_txt') . ' '.$proposal. '</a> ';
 }
 
 function WriteWhyDomination($proposalAbove,$proposalBelow,$room,$userid)

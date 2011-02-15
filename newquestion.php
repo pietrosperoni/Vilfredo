@@ -21,7 +21,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 include('header.php');
 
@@ -51,25 +51,21 @@ var roomId = <?php echo "'$randomID'" ?>;
     ?>
     <div id="actionbox">
 	<p>
-    <h2>Create a New Question</h2>
+    <h2><?=$VGA_CONTENT['create_quest_txt']?></h2>
 	<form method="POST" action="newquestiontake.php">
-	<p><strong>Create a new room for your question (Optional)</strong>: <input name="room_id" id="room_id" type="text" size="22" maxlength="20" value="<?php echo $room_param?>"/> <input name="getRoomID" value="Generate Room ID" type="button" onclick="document.getElementById('room_id').value=roomId"/></p>
-	<p><strong>Important: Leave this blank if you want <i>everyone</i> to see your question!</strong></p>
-	<p><strong>The people you invite to submit proposals, however, <i>will</i> see your new question listed on their ToDo List page.</strong></p>
-	<p>When you ask a new question you are given the option to assign it to a room. You can name the room (alpha-numeric characters and underscores only) or generate a random name - good if you want privacy. Only people who know the room will see your question. Furthermore, room names beginning with an underscore '_' will not appear in future room searches. This will also be true if you name your room something like '_Politics', however such a name will be easily guessed and may still be found. For the moment, in order to view a question in a room you need to enter the question number and the room parameter in the URL, eg</p><p><code>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</code></p>
+	<p><strong><?=$VGA_CONTENT['create_room_txt']?></strong>: <input name="room_id" id="room_id" type="text" size="22" maxlength="20" value="<?php echo $room_param?>"/> <input name="getRoomID" value="Generate Room ID" type="button" onclick="document.getElementById('room_id').value=roomId"/></p>
+	<p><strong><?=$VGA_CONTENT['leave_blank_txt']?></strong></p>
+	<p><strong><?=$VGA_CONTENT['invite_exp_txt']?></strong></p>
+	<p><?=$VGA_CONTENT['new_quest_exp_txt']?></p><p><code>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</code></p>
 
-	<p><strong>The question must be an open question</strong>: A question that has multiple possible answers.<br/>
-    So many, in fact, that you cannot think yourself of ALL the alternatives! <br/>
-    Open questions generally start with 'what' or 'how', although other formulations are also possible. <br/>
-    Yes/no questions are not the right type of question to ask over here. <br/>
-    Please see the <a href="FAQ.php">frequently asked questions.</a></p>
+	<p><?=$VGA_CONTENT['open_exp_txt']?> <a href="FAQ.php"><?=$VGA_CONTENT['faq_link']?>.</a></p>
 
-    <h3>Title (max 100 ch):
+    <h3><?=$VGA_CONTENT['title_max_txt']?>
      <input type="text" size="100" maxlength="100" name="title" class="title"/></h3>
    
    
 <div id="editor_panel">
-    <h3>Content:
+    <h3><?=$VGA_CONTENT['content_txt']?>
 
 <div id="proposal_RTE">
       <textarea id="content" name="question" class="jqrte_popup" rows="500" cols="70"></textarea>
@@ -77,72 +73,86 @@ var roomId = <?php echo "'$randomID'" ?>;
          include_once("js/jquery/RichTextEditor/content_editor.php");
          include_once("js/jquery/RichTextEditor/editor.php");
 
-      ?></h3>
-      Minimum Time:
-      <select name="minimumtime" title="after this time, from when the first person has voted or proposed you are allowed to move the question on">
-  <option value="60">1 min</option>
-  <option value="120">2 min</option>
-  <option value="300">5 min</option>
-  <option value="3600">1 hour</option>
-  <option value="7200">2 hours</option>
-  <option value="10800">3 hours</option>
-  <option value="21600">6 hours</option>
-  <option value="43200">12 hours / half a day</option>
-  <option value="64800">18 hours</option>
-  <option value="86400" selected="yes" >1 day</option>
-  <option value="172800">2 days</option>
-  <option value="259200">3 days</option>
-  <option value="302400">half a week</option>
-  <option value="345600">4 days</option>
-  <option value="432000">5 days</option>
-  <option value="518400">6 days</option>
-  <option value="604800">1 week</option>
-  <option value="864000">10 days</option>
-  <option value="907200">1 week and a half</option>
-  <option value="1209600">2 weeks</option>
-  <option value="1296000">15 days</option>
-  <option value="1728000">20 days</option>
-  <option value="1814400">3 weeks</option>
-  <option value="2419200">4 weeks</option>
-  <option value="2592000">30 days / 1 month</option>
-  <option value="2678400">31 days</option>
-</select> <br/>
-Maximum Time:
-<select name="maximumtime" title="after this time, from when the first person has voted or proposed the system will automatically move on">
-  <option value="60">1 min</option>
-  <option value="120">2 min</option>
-  <option value="300">5 min</option>
-  <option value="3600">1 hour</option>
-  <option value="7200">2 hours</option>
-  <option value="10800">3 hours</option>
-  <option value="21600">6 hours</option>
-  <option value="43200">12 hours / half a day</option>
-  <option value="64800">18 hours</option>
-  <option value="86400">1 day</option>
-  <option value="172800">2 days</option>
-  <option value="259200">3 days</option>
-  <option value="302400">half a week</option>
-  <option value="345600">4 days</option>
-  <option value="432000">5 days</option>
-  <option value="518400">6 days</option>
-  <option value="604800" selected="yes" >1 week</option>
-  <option value="864000">10 days</option>
-  <option value="907200">1 week and a half</option>
-  <option value="1209600">2 weeks</option>
-  <option value="1296000">15 days</option>
-  <option value="1728000">20 days</option>
-  <option value="1814400">3 weeks</option>
-  <option value="2419200">4 weeks</option>
-  <option value="2592000">30 days / 1 month</option>
-  <option value="2678400">31 days</option>
-</select> <br/>
-If you chose a maximum time smaller than the minimum time, then the system will never ask you to move on, but will just do it automatically.
-Yes, this is a feature!)<br/><br/>
 
-<h4>Permit Anonymous Users</h4>
-<p>By default only members of Vilfredo can vote and create proposals to questions. Select the options below to permit anonymous voting and/or proposing for your question.</p>
-<p><Input type = "Checkbox" Name ="permit_anon_votes" id="permit_anon_votes" title="Check this box if you wish to permit anonymous users to vote" value="" /> Anonymous users can <strong>vote</strong>.</p>
-<p><Input type = "Checkbox" Name ="permit_anon_proposals" id="permit_anon_proposals" title="Check this box if you wish to permit anonymous users to create proposals" value="" /> Anonymous users can <strong>create proposals</strong>.</p>
+/*
+$min = $VGA_CONTENT['min'];
+$mins = $VGA_CONTENT['mins'];
+$hour = $VGA_CONTENT['hour'];
+$hours = $VGA_CONTENT['hours'];
+$day = $VGA_CONTENT['day'];
+$days = $VGA_CONTENT['days'];
+$week = $VGA_CONTENT['week'];
+$weeks = $VGA_CONTENT['weeks'];
+$week_and_a_half = $VGA_CONTENT['week and a half'];
+*/
+      ?>
+      
+      
+      </h3>
+      <?=$VGA_CONTENT['min_tme_txt']?>
+      <select name="minimumtime" title="<?=$VGA_CONTENT['time_exp_title']?>">
+  <option value="60">1  <?= $VGA_CONTENT['time_minute_txt'] ?></option>
+  <option value="120">2  <?= $VGA_CONTENT['time_minutes_txt'] ?></option>
+  <option value="300">5  <?= $VGA_CONTENT['time_minutes_txt'] ?></option>
+  <option value="3600">1 <?= $VGA_CONTENT['time_hour_txt'] ?></option>
+  <option value="7200">2 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+  <option value="10800">3 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+  <option value="21600">6 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+  <option value="43200">12 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+  <option value="64800">18 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+  <option value="86400" selected="yes" >1 <?= $VGA_CONTENT['time_day_txt'] ?></option>
+  <option value="172800">2 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="259200">3 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="302400"><?= $VGA_CONTENT['time_halfweek_txt'] ?></option>
+  <option value="345600">4 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="432000">5 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="518400">6 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="604800">1 <?= $VGA_CONTENT['time_week_txt'] ?></option>
+  <option value="864000">10 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="907200"><?= $VGA_CONTENT['time_weekandahalf_txt'] ?> </option>
+  <option value="1209600">2 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+  <option value="1296000">15 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="1728000">20 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+  <option value="1814400">3 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+  <option value="2419200">4 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+  <option value="2592000">30 <?= $VGA_CONTENT['time_days_txt'] ?> / 1 month</option>
+  <option value="2678400">31 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+</select> <br/>
+<?=$VGA_CONTENT['max_time_txt']?>
+<select name="maximumtime" title="<?=$VGA_CONTENT['auto_exp_title']?>">
+  <option value="60">1  <?= $VGA_CONTENT['time_minute_txt'] ?></option>
+    <option value="120">2  <?= $VGA_CONTENT['time_minutes_txt'] ?></option>
+    <option value="300">5  <?= $VGA_CONTENT['time_minutes_txt'] ?></option>
+    <option value="3600">1 <?= $VGA_CONTENT['time_hour_txt'] ?></option>
+    <option value="7200">2 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+    <option value="10800">3 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+    <option value="21600">6 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+    <option value="43200">12 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+    <option value="64800">18 <?= $VGA_CONTENT['time_hours_txt'] ?></option>
+    <option value="86400">1 <?= $VGA_CONTENT['time_day_txt'] ?></option>
+    <option value="172800">2 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="259200">3 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="302400"><?= $VGA_CONTENT['time_halfweek_txt'] ?></option>
+    <option value="345600">4 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="432000">5 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="518400">6 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="604800" selected="yes" >1 <?= $VGA_CONTENT['time_week_txt'] ?></option>
+    <option value="864000">10 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="907200"><?= $VGA_CONTENT['time_weekandahalf_txt'] ?> </option>
+    <option value="1209600">2 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+    <option value="1296000">15 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="1728000">20 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+    <option value="1814400">3 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+    <option value="2419200">4 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
+    <option value="2592000">30 <?= $VGA_CONTENT['time_days_txt'] ?> / 1 month</option>
+  <option value="2678400">31 <?= $VGA_CONTENT['time_days_txt'] ?></option>
+</select> <br/>
+<?=$VGA_CONTENT['max_min_exp_txt']?><br/><br/>
+
+<h4><?=$VGA_CONTENT['perm_anon_txt']?></h4>
+<p><?=$VGA_CONTENT['permit_anon_txt']?></p>
+<p><Input type = "Checkbox" Name ="permit_anon_votes" id="permit_anon_votes" title="<?=$VGA_CONTENT['anon_votes_title']?>" value="" /> <?=$VGA_CONTENT['anon_vote_txt']?></p>
+<p><Input type = "Checkbox" Name ="permit_anon_proposals" id="permit_anon_proposals" title="<?=$VGA_CONTENT['anon_props_title']?>" value="" /> <?=$VGA_CONTENT['anon_props_txt']?></p>
 
 	<?php 
 	if ($userid) {
@@ -152,7 +162,8 @@ Yes, this is a feature!)<br/><br/>
 	}
 	?>
 	
-	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_nq" id="submit_nq" value="Create question"/>
+	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_nq" id="submit_nq" value="<?=$VGA_CONTENT['create_question_button']?>
+	"/>
 
 <!--<input type="submit" name="submit_nq" id="submit_nq" value="Create question" />--?
 

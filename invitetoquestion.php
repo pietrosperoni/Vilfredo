@@ -16,18 +16,16 @@ if ($userid)
     if (mysql_num_rows($response) > 0)
 	{
 
-		echo "<h2>Invite Users to answer your question:</h2>";
-		echo "<h3>You can only invite people that you have met on Vilfredo.<br />";
-		echo "If you want to invite someone else, please send them an email directly.<br />"; 
-		echo "TIP:You can invite yourself, and the forward the email to them ;-)<br /></h3>";
+		echo "<h2>{$VGA_CONTENT['invite_users_txt']}</h2>";
+		echo "<h3>" . $VGA_CONTENT['inviteusers_exp_txt'] . "</h3><br />";
 
 		$sql2 = 'SELECT questions.title FROM questions WHERE questions.id = '.$question;
 		$response2 = mysql_query($sql2);
 		$row2 = mysql_fetch_array($response2);
 		echo "<h3>".$row2[0]."</h3>";
 
-		echo "<p>Now that you have created a question, you can invite some users to answer it</p>";
-		echo "<h3>Users:</h3>";
+		echo "<p>{$VGA_CONTENT['invite_msg_txt']}</p>";
+		echo "<h3>{$VGA_CONTENT['users_txt']}</h3>";
 			?>
 			<form method="POST" action="inviteuserstoquestion.php">
                         <input type="hidden" name="question" value="<?php echo $question; ?>" />
@@ -47,12 +45,12 @@ if ($userid)
 					echo '<tr><td><p>';
 					echo WriteUserVsReader($row[0],$userid);
 					echo '</p></td><td>';
-					echo '<Input type = "Checkbox" Name ="users[]" title="Check this box if you want to invite this user" value="'.$row[0].'" /></td></tr>';
+					echo '<Input type = "Checkbox" Name ="users[]" title="'.$VGA_CONTENT['check2invite_title'] . '" value="'.$row[0].'" /></td></tr>';
 				}
 			}
 			?>
 			</tr>
-			<tr><td></td><td></td><td></td><td><input type = "Submit" Name = "Submit" title="Votes are not counted unless submitted." VALUE = "Submit!"></td>
+			<tr><td></td><td></td><td></td><td><input type = "Submit" Name = "Submit" title="<?=$VGA_CONTENT['submit2invite_title']?>" VALUE = "<?=$VGA_CONTENT['submit_button']?>"></td>
 			</tr></table>
 			</form>
 			<?php

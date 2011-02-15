@@ -33,31 +33,31 @@ else
 		<table border="0">
 		<tr>
 			<td colspan=2>
-				<h1>Login</h1>
+				<h1><?=$VGA_CONTENT['login_link']?></h1>
 			</td>
 		</tr>
 		<tr>
-			<td>Username:</td>
+			<td><?=$VGA_CONTENT['username_label']?></td>
 			<td>
 				<input type="hidden" name="user_login_action">
 				<input type="text" name="username" maxlength="40">
 			</td>
 		</tr>
 		<tr>
-			<td>Password:</td>
+			<td><?=$VGA_CONTENT['password_label']?></td>
 			<td>
 				<input type="password" name="pass" maxlength="50">
 			</td>
 		</tr>
 		<tr>
-			<td>Keep me logged in:</td>
+			<td><?=$VGA_CONTENT['keep_logged_label']?></td>
 			<td>
 				<input name="remember" type="checkbox">
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2" align="right">
-				<input type="submit" name="submit" value="Login">
+				<input type="submit" name="submit" value="<?=$VGA_CONTENT['login_link']?>"> 
 			</td>
 		</tr>
 		</table>

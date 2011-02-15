@@ -30,8 +30,10 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 
 // Display Facebook Connect button
 function facebook_connect_for_dialog($display=true) {
+global $VGA_CONTENT;
+
 $str = <<<_HTML_
-<fb:login-button v="2" size="medium" onlogin="update_dialog();">Or Log in with Facebook</fb:login-button>
+<fb:login-button v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
 
 <script type="text/javascript">
 function update_dialog() {
@@ -45,20 +47,21 @@ function facebook_login_button_refresh_2($display=true)
 {
 
 global $FACEBOOK_ID;
+global $VGA_CONTENT;
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 {
 	$goto = 'fb_login.php';
-	$button_txt = 'Login with Facebook';
+	$button_txt = $VGA_CONTENT['fb_login_button'];
 }
 else
 {
 	$goto = 'fb_register.php';
-	$button_txt = 'Connect with Facebook';
+	$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
 }
 
 $str = <<<_HTML_
-Or <b>login</b> with Facebook: <br/><br/>
+{$VGA_CONTENT['or_use_fb_label']} <br/><br/>
 
 <fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 

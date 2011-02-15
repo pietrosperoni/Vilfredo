@@ -5,15 +5,15 @@ $urlquery = $_GET['query'];
 
 if (isset($userid))
 {
-	echo "<h3>Your votes were entered successfully!</h3>";
-	echo "<p>Your userid in the results for this round is <strong>$userid</strong></p>";
+	echo "<h3>{$VGA_CONTENT['succ_vote_txt']}</h3>";
+	echo "<p>{$VGA_CONTENT['succ_prop_create_id_txt']} <strong>$userid</strong></p>";
 }
 else
 {
-	echo "<p>We're sorry but there was a problem accepting your votes at this time. Please try again later.</p>";
+	echo "<p>{$VGA_CONTENT['err_anon_vote_txt']}</p>";
 }
 
-echo "<p><a href=\"" . SITE_DOMAIN. "/" . $urlquery . "\">Click here to return to the question</a></p>";
+echo "<p><a href=\"" . SITE_DOMAIN. "/" . $urlquery . "\">{$VGA_CONTENT['click_ret_quest_link']}</a></p>";
 
-include 'footer.php';
+include 'footer.php'; 
 ?>

@@ -19,7 +19,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 
 include('header.php');
@@ -118,7 +118,7 @@ if ($userid) {
 		
 		echo '<div class="questionbox">';
 		
-		echo "<h2>Question</h2>";
+		echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
 
 		?>
 			<h2 id="question">
@@ -130,9 +130,9 @@ if ($userid) {
 		if ($userid) {
 			if ($subscribed==1)
 			{
-				?> <input type="submit" name="submit" id="submit" value="email Unsubscribe" /> <?php
+				?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>" /> <?php
 			}else{
-				?> <input type="submit" name="submit" id="submit" value="email Subscribe" /> <?php
+				?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>" /> <?php
 			}
 		}
 			?>
@@ -150,7 +150,7 @@ if ($userid) {
 		$response2 = mysql_query($sql2);
 		while ($row2 = mysql_fetch_array($response2))
 		{
-			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			
 			 echo '</div>';
 			 
@@ -165,7 +165,7 @@ if ($userid) {
 				$urlshortservice = BITLY_URL;
 				$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
 				$tweetaddress = "http://twitter.com/home?status=$tweet";
-				echo "<p><a class=\"tweet\" href=\"$tweetaddress\"><span>Tweet This Question</span></a></p>";
+				echo "<p><a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a></p>";
 			}
 			
 			echo '</td></tr></table>';
@@ -195,10 +195,10 @@ if ($userid) {
 
 			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
 
-			echo '<h3>Previous agreements, Still Visible (<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">History</a>)</h3>';
+			echo '<h3>' . $VGA_CONTENT['prev_agree_txt'] . ' (<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">' . $VGA_CONTENT['history_link'] . '</a>)</h3>';
 			sort($VisibleProposalsGenerations);
 			
-			if(empty($VisibleProposalsGenerations)) echo "None<br />";
+			if(empty($VisibleProposalsGenerations)) echo "{$VGA_CONTENT['none_txt']}<br />";
 			
 			foreach($VisibleProposalsGenerations as $vpg)
 			{
@@ -206,7 +206,7 @@ if ($userid) {
 				if($generation==$vpg+1){echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
 				else		{	echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
 				
-				echo " an Agreement was found between ".Count($endorsersAgreement)." people ";
+				echo " {$VGA_CONTENT['agree_found_txt']} ".Count($endorsersAgreement)." people ";
 				foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
 				echo "</h4>";
 				
@@ -217,7 +217,8 @@ if ($userid) {
 							<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 								<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 								<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-								<input type="submit" name="submit" title="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal." id="submit" value="Repropose or Mutate" /></form>
+								<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>
+								" /></form>
 								<?php	echo '</h3>';
 						WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
 					}
@@ -226,10 +227,8 @@ if ($userid) {
 			$lastgeneration=$generation-1;
 			if (! in_array($lastgeneration,$VisibleProposalsGenerations))
 			{
-				echo "<h3>Alternative proposals, that emerged from last endorsing round</h3>";
-				echo "<p><i>The different proposals do not represent the best proposals, nor the more popular.
-				Strictly speaking they are the Pareto Front of the set of proposals.
-				You can think of it as the smallest set of proposals such that every participant is represented.</i></p>";
+				echo "<h3>{$VGA_CONTENT['alt_props_txt']}</h3>";
+				echo "<p><i>{$VGA_CONTENT['pareto_txt']}</i></p>";
 
 				$ParetoFront=ParetoFront($question,$generation-1);
 				foreach ($ParetoFront as $p)
@@ -240,17 +239,18 @@ if ($userid) {
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-							<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>
+							" /></form>
 							<?php	echo '</h3>';
 					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);
 					
 					$OriginalProposal=GetOriginalProposal($p);					#$OPropID=$OriginalProposal["proposalid"];
 					$OPropGen=$OriginalProposal["generation"];
 
-					echo '<br />Written by: '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+					echo '<br />' . $VGA_CONTENT['written_by_txt'] . ': '.WriteUserVsReader(AuthorOfProposal($p),$userid);
 					if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
 					$endorsers=EndorsersToAProposal($p);
-					echo '<br />Endorsed by: ';
+					echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
 					foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
 					echo '</div>';
 					#}
@@ -261,30 +261,24 @@ if ($userid) {
 		}
 		
 		echo '<div id="actionbox">';
-		echo "<h3>Generation ".$generation.": ";
+		echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
 		if ( $phase==0)
 		{
-			echo "Phase: Writing New Proposals</h3>";
+			echo "{$VGA_CONTENT['writing_phase_txt']}</h3>";
 			if ($generation==1)
 			{
-				echo "<p><i>What should you do now?
-You should now answer the question. Giving your best shot. Later, after everybody has written their answer, you will all be given the possibility to endorse each other question, and try to find common denominators.</i></p>
+				echo "<p><i>{$VGA_CONTENT['what_to_do_txt']}</i></p>
 ";
 			}
 			else
 			{
-					echo "<p><i>What should you do now? Write new proposals. How?
-You can insert brand new ideas;
-rewrite previous ideas (maybe trying to explain them better);
-Write proposals you did not like, in a format acceptable to you (this is a biggie);
-recover old ideas from the history of the question;
-try to write a proposal that represent an acceptable compromise between different winning proposals. If you do this well, the new proposal will be endorsed by both the proponent of the first and of the second proposal, and you will have effectively joined those proposals.</i></p>
+					echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>
 ";
 			}
 
 	$NProposals=CountProposals($question,$generation);
-	echo "<p>Number of authors of new proposals: ".count(AuthorsOfNewProposals($question,$generation))."</p>";
-	echo "<p>Number of proposals written so far: ".$NProposals."</p>";
+	echo "<p>{$VGA_CONTENT['num_authors_txt']}: ".count(AuthorsOfNewProposals($question,$generation))."</p>";
+	echo "<p>{$VGA_CONTENT['num_props_txt']}: ".$NProposals."</p>";
 #	echo "<p>Number of proposals written by you: ".."</p>";
 #	echo "<p>Number of proposals inherited from the past geeration: ".."</p>";
 #	echo "<p>Number of new proposals written by others: ".."</p>";
@@ -295,9 +289,9 @@ try to write a proposal that represent an acceptable compromise between differen
 		}
 		if ( $phase==1)
 		{
-			echo "Phase: Evaluating Existing Proposals</h3>";
+			echo "{$VGA_CONTENT['eval_phase_txt']}</h3>";
 //			echo "<i>The list of proposals that follow should <br/>(a) give the possibility to endorse all of them, and <br/>(b)be all and only the proposals of this generation plus the winning proposals of the previous generation</i><br/><br/>";
-			echo "<p>Please click on ALL the answers of the question that you agree with.</p>";
+			echo "<p>{$VGA_CONTENT['click_all_txt']}</p>";
 
 		}
 	}
@@ -311,9 +305,10 @@ try to write a proposal that represent an acceptable compromise between differen
 			{
 				?>
 					<form method="post" action="moveontoendorse.php">
-					If everybody has written their proposals, you can:
+					<?=$VGA_CONTENT['you_can_txt']?>:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
+						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>
+						" />
 					</form>
 				<?php
 			}
@@ -336,12 +331,20 @@ try to write a proposal that represent an acceptable compromise between differen
 	if ( $phase==1)
 	{
 		$nEndorsers=CountEndorsers($question,$generation);
-		echo "<p>Number of people who have endorsed at least one proposal: ".$nEndorsers."</p>";
-		echo "<p>Time passed since first endorsement: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: ";
+		
+		echo "<p>{$VGA_CONTENT['num_endors_txt']}: ".$nEndorsers."</p>";
+		echo "<p>";
+		$format = $VGA_CONTENT['time_since_first_txt'];
+		echo sprintf($format, $dayselapsed, $hourseselapsed, $minuteselapsed);
+		echo '<br />';
+		echo $VGA_CONTENT['note_txt'];
+		
+		//echo "<p>{$VGA_CONTENT['time_since_first_txt']}: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> {$VGA_CONTENT['note_txt']} ";
+		
 		if ($minimumdays){ echo $minimumdays." days ";}
 		if ($minimumhours){ echo $minimumhours." hours ";}
 		if ($minimumminutes){ echo $minimumminutes." minutes ";}
-		echo "must have passed between the first endorsement and the moment when the questioner can move the question on. </p>";
+		echo "{$VGA_CONTENT['time_passed_txt']} </p>";
 
 		if ($userid and $nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
 		{
@@ -359,17 +362,39 @@ try to write a proposal that represent an acceptable compromise between differen
 	{
 		?>
 			
-		<h2>Propose an answer</h2>
+		<h2><?=$VGA_CONTENT['prop_ans_txt']?></h2>
 			
-		<p><strong>Note:</strong> Proposals can be of any length and may include an abstract of up to 500 characters in length if you wish. When proposals are listed at the voting stage the abstract will be displayed if one exists, otherwise the full proposal will be displayed. For proposals longer than 1000 characters the abstract is mandatory.</p>
+		<p><strong><?=$VGA_CONTENT['note_txt']?></strong> <?=$VGA_CONTENT['prop_expl_txt']?></p>
 		
 		<?php	#echo "<p>Time since last moveon: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: 1 day need to pass between one moveon and the next</p>";
-		echo "<p>Time since first proposal on this generation: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: ";
+		/*echo "<p>Time since first proposal on this generation: ".$dayselapsed." days, ".$hourseselapsed." hours and ".$minuteselapsed." minutes.<br /> NOTE: ";
 		if ($minimumdays)
 		{ 			echo $minimumdays." days ";}
 		if ($minimumhours)		{			echo $minimumhours." hours ";		}
 		if ($minimumminutes)		{			echo $minimumminutes." minutes ";		}
-		echo "must have passed between the first proposal and the moment when the questioner can move the question on.</p>";
+		echo "{$VGA_CONTENT['time_passed_prop_txt']}</p>";*/
+		//********
+		echo '<p>';
+		$format = '' . $VGA_CONTENT['time_since_txt'] . '';
+		echo sprintf($format, $dayselapsed, $hourseselapsed, $minuteselapsed);
+		
+		echo '<br />';
+		echo '' . $VGA_CONTENT['note_txt'] . ' '; 
+		if ($minimumdays)
+		{ 			
+			echo $minimumdays.' ' . $VGA_CONTENT['days_txt'] . ' ';
+		}
+		if ($minimumhours)		
+		{			
+			echo $minimumhours.' ' . $VGA_CONTENT['hours_txt'] . ' ';		
+		}
+		if ($minimumminutes)		
+		{			
+			echo $minimumminutes.' ' . $VGA_CONTENT['mins_txt'] . ' ';		
+		}
+		echo $VGA_CONTENT['time_passed_prop_txt'];
+		echo '</p>';		
+		//********
 ?>
 
 	
@@ -385,7 +410,7 @@ try to write a proposal that represent an acceptable compromise between differen
 	<!-- Input Proposal start -->
 	
 	<div id="abstract_panel">
-		<h3><span></span><a href="#" id="abstract_title">Abstract (Optional)</a></h3>
+		<h3><span></span><a href="#" id="abstract_title"><?=$VGA_CONTENT['abs_opt_link']?></a></h3>
 		<div id="p_abstract_RTE">
 			<?php require_once("abstract.php"); ?>
 		</div>
@@ -409,15 +434,16 @@ try to write a proposal that represent an acceptable compromise between differen
 	}
 	?>
 	
-	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="<?=$VGA_CONTENT['create_proposal_button']?>
+	" disabled="disabled"/>
 	
 	<?php
 	// Anonymous Submit
 	//set_log('permit_anon: ' . $permit_anon);
 	if (!$userid && $permit_anon_proposals) :
 	?>	
-	Click this checkbox to submit your proposal anonymously
-	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />
+	<?=$VGA_CONTENT['click_anon_txt']?>
+	<Input type = "Checkbox" Name ="anon" id="anon" title="<?=$VGA_CONTENT['check_anon_title']?>" value="" />
 	<?php 
 	endif ?>
 	
@@ -444,14 +470,14 @@ $(document).ready(function() {
 
 		if (content_length  > limit)
 		{
-			title.html("Abstract Required: Enter up to 500 characters below:");
+			title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>:");
 			title.css("color", "green");
 			title.css("font-weight", "bold");
-			$("#content_rte_chars_msg").html("Abstract Required");
+			$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
 		}
 		else if ( content_length  <= limit )
 		{
-			title.html("Abstract (Optional)");
+			title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
 			title.css("color", "black");
 			title.css("font-weight", "normal");
 			$("#content_rte_chars_msg").html("");
@@ -489,7 +515,7 @@ if ($userid) {
 		if ($response)
 		{
 			//****
-			echo "<h3>Proposals You have written:</h3>";
+			echo "<h3>{$VGA_CONTENT['props_you_wrote_txt']}</h3>";
 			echo '<table class="your_proposals userproposal">';
 			while ($row = mysql_fetch_array($response))
 			{
@@ -498,17 +524,17 @@ if ($userid) {
 				if (!empty($row['abstract'])) {
 					echo '<div class="paretoabstract">';
 					echo display_fulltext_link();
-					echo '<h3>Proposal Abstract</h3>';
+					echo '<h3>' . $VGA_CONTENT['prop_abstract_txt'] . '</h3>';
 					echo $row['abstract'] ;
 					echo '</div>';
 					echo '<div class="paretotext">';
-					echo '<h3>Proposal</h3>';
+					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'];
 					echo '</div>';
 				}
 				else {
 					echo '<div class="paretofulltext">';
-					echo '<h3>Proposal</h3>';
+					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
@@ -516,7 +542,8 @@ if ($userid) {
 				?>
 				<form method="post" action="deleteproposal.php">
 				<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-				<input type="submit" name="submit" id="submit" value="Edit or Delete" title="Click here to edit or delete your proposal"/>
+				<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['edit_delete_button']?>
+				" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
 				</form>
 				
 				<?php
@@ -540,7 +567,7 @@ if ($userid) {
 		}
 		else
 		{
-			echo "Sorry no proposals yet";
+			echo "{$VGA_CONTENT['no_props_txt']}";
 		}
 	}
 }
@@ -552,15 +579,15 @@ if ($userid) {
 		$response = mysql_query($sql);
 		if ($response)
 		{
-			echo "<h3>Proposals:</h3>";
+			echo "<h3>{$VGA_CONTENT['proposals_txt']}:</h3>";
 			?>
 			<form method="post" action="endorse_or_not.php">
 					<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1" class="your_endorsements userproposal">
 			<tr>
-			<td class="history_cell"><h4>Voting</br>History</h4></td>
-			<td><h4>Proposed Solution</h4></td>
-			<td class="endorse_cell"><b>Check all the ones you endorse</b></td>
+			<td class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
+			<td><h4><?=$VGA_CONTENT['prop_sol_txt']?></h4></td>
+			<td class="endorse_cell"><b><?=$VGA_CONTENT['check_all_endorse_txt']?></b></td>
 			</tr>
 
 			<?php
@@ -582,17 +609,17 @@ if ($userid) {
 						{
 							#echo "<span>" . $ancestor[generation] . "</span>";
 							#echo ' <img src="images/novote.jpg" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30">';
-							echo ' <img src="images/tick_empty.png" title="You did not participate in the voting on generation '.$ancestor[generation].'"  height="30" alt="empty tick box">';
+							echo ' <img src="images/tick_empty.png" title="' . $VGA_CONTENT['not_part_title'] . ' '.$ancestor[generation].'"  height="30" alt="empty tick box">';
 						}
 						elseif ($ancestor['endorsed'] == 1)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal on generation '.$ancestor[generation].'"  height="30" alt="thumbs up">';
+							echo ' <img src="images/thumbsup.gif" title="' . $VGA_CONTENT['you_endorsed_title'] . ' '.$ancestor[generation].'"  height="30" alt="thumbs up">';
 						}
 						elseif ($ancestor['endorsed'] == 0)
 						{
 							#echo "<span>$ancestor[generation] </span>";
-							echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal  on generation '.$ancestor[generation].'" height="30" alt="thumbs down">';
+							echo ' <img src="images/thumbsdown.gif" title="' . $VGA_CONTENT['you_ignored_title'] . ' '.$ancestor[generation].'" height="30" alt="thumbs down">';
 						}
 						echo '</br>';
 					}
@@ -607,24 +634,24 @@ if ($userid) {
 				if (!empty($row['abstract'])) {
 					echo '<div class="paretoabstract">';
 					echo display_fulltext_link();
-					echo '<h3>Proposal Abstract</h3>';
+					echo '<h3>' . $VGA_CONTENT['prop_abstract_txt'] . '</h3>';
 					echo $row['abstract'] ;
 					echo '</div>';
 					echo '<div class="paretotext">';
-					echo '<h3>Proposal</h3>';
+					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'];
 					echo '</div>';
 				}
 				else {
 					echo '<div class="paretofulltext">';
-					echo '<h3>Proposal</h3>';
+					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
 				echo '</div>';
 				echo '</td><td>';
 				
-				echo '<Input type = "Checkbox" Name ="proposal[]" title="Check this box if you endorse the proposal" value="'.$row[0].'"';
+				echo '<Input type = "Checkbox" Name ="proposal[]" title="' . $VGA_CONTENT['check_to_endorse_title'] . '" value="'.$row[0].'"';
 
 			if ($userid) {
 				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
@@ -640,8 +667,8 @@ if ($userid) {
 	//set_log('permit_anon: ' . $permit_anon);
 	if (!$userid && $permit_anon_votes) :
 	?>	
-	<tr><td colspan="2"><p><strong>Click this checkbox to vote anonymously</strong></p></td><td>
-	<Input type = "Checkbox" Name ="anon" id="anon" title="Check this box if you wish to remain anonymous" value="" />		
+	<tr><td colspan="2"><p><strong><?=$VGA_CONTENT['click_to_vote_anon_txt']?></strong></p></td><td>
+	<Input type = "Checkbox" Name ="anon" id="anon" title="<?=$VGA_CONTENT['check_anon_title']?>" value="" />		
 	</td></tr>
 	<?php 
 	endif ?>
@@ -655,7 +682,8 @@ if ($userid) {
 			$regclass = "reg_submit";
 		}
 	?>
-	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="Submit!"/>			
+	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="<?=$VGA_CONTENT['submit_button']?>
+	"/>			
 	</td></tr>
 	</table>
 	</form>
@@ -664,7 +692,7 @@ if ($userid) {
 		}
 		else
 		{
-			echo "Sorry no proposals yet";
+			echo "{$VGA_CONTENT['no_props_txt']}";
 		}
 	}
 
@@ -672,7 +700,7 @@ if ($userid) {
 	if ($generation>1)
 	{
 		echo '<div>';
-		echo '<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">View History of The Question</a>. Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.';
+		echo '<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">' . $VGA_CONTENT['view_hist_link'] . '</a> ' . $VGA_CONTENT['view_hist_txt'];
 		echo '</div>';
 	}
 

@@ -4,19 +4,38 @@
 // ****************************************
 //
 // For cleaning POST & GET before input into DB
-function clean_input_array(&$input)
+function clean_input_string($input)
 {
-	foreach($input AS $key => $value) 
-	{ 
-		if (is_array($input[$key]))
-		{
-			clean_input_array($input[$key]);
-		}
-		else
-		{
-			$input[$key] = mysql_real_escape_string($value);			
-		}
-	} 
+	if (is_string($input))
+	{
+		return mysql_real_escape_string($input);
+	}
+	else
+	{
+		return '';
+	}
+}
+
+function clean_input_array($input)
+{
+	if (!is_array($input))
+	{
+		return false;
+	}
+	else
+	{
+		foreach($input as $key => $value) 
+		{ 
+			if (is_array($input[$key]))
+			{
+				clean_input_array($input[$key]);
+			}
+			else
+			{
+				$input[$key] = mysql_real_escape_string($value);			
+			}
+		} 
+	}
 	return $input;
 }
 

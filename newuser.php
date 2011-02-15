@@ -3,6 +3,8 @@ require_once 'config.inc.php';
 
 function registerfbuser()
 {
+	global $VGA_CONTENTS;
+	
 	if (!empty($_POST['usernameok']))
 	{
 		$testname = GetEscapedPostParam('usernameok');
@@ -10,7 +12,7 @@ function registerfbuser()
 		if (!$check)
 		{
 			handle_db_error($check);
-			echo 'Sorry, request timed out.';
+			echo '' . $VGA_CONTENT['req_timeout_txt'] . '';
 			exit();
 		}
 
@@ -18,7 +20,7 @@ function registerfbuser()
 		//if the name exists it gives an error
 		if ($check2 != 0) 
 		{
-			echo 'Already registered!';
+			echo '' . $VGA_CONTENT['already_reg_txt'] . '';
 			exit();
 		}
 	}
@@ -27,7 +29,7 @@ function registerfbuser()
 	$fields = "";
 	if (empty($_POST['usernameok']))
 	{
-		$fields .= " Username ";
+		$fields .= " {$VGA_CONTENT['username_label']} ";
 	}
 	
 	if (!empty($fields))
@@ -38,7 +40,7 @@ function registerfbuser()
 	
 	if (validEmail($_POST['usernameok']))
 	{
-		echo "Username must not be your email";
+		echo "{$VGA_CONTENT['not_email_txt']}";
 		exit();
 	}
 	
@@ -46,7 +48,7 @@ function registerfbuser()
 	{
 		if (!validEmail($_POST['email']))
 		{
-			echo "Email not valid";
+			echo "{$VGA_CONTENT['email_invalid_txt']}";
 			exit();
 		}
 	}
@@ -81,6 +83,8 @@ function registerfbuser()
 
 function registeruser()
 {
+	global $VGA_CONTENTS;
+	
 	if (!empty($_POST['usernameok']))
 	{
 		$testname = GetEscapedPostParam('usernameok');
@@ -88,7 +92,7 @@ function registeruser()
 		if (!$check)
 		{
 			handle_db_error($check);
-			echo 'Sorry, request timed out.';
+			echo '' . $VGA_CONTENT['req_timeout_txt'] . '';
 			exit();
 		}
 
@@ -96,7 +100,7 @@ function registeruser()
 		//if the name exists it gives an error
 		if ($check2 != 0) 
 		{
-			echo 'Already registered!';
+			echo '' . $VGA_CONTENT['already_reg_txt'] . '';
 			exit();
 		}
 	}
@@ -110,7 +114,7 @@ function registeruser()
 	
 	if (!$resp->is_valid) 
 	{
-		echo 'Sorry, you did not enter the recaptcha words correctly';
+		echo '' . $VGA_CONTENT['captcha_error_txt'] . '';
 		exit();
 	}
 	
@@ -118,12 +122,12 @@ function registeruser()
 	$fields = "";
 	if (empty($_POST['usernameok']))
 	{
-		$fields .= " Username ";
+		$fields .= " {$VGA_CONTENT['username_label']} ";
 	}
 	
 	if (empty($_POST['email']))
 		{
-			$fields .= " Email ";
+			$fields .= " {$VGA_CONTENT['email_txt']} ";
 	}
 	
 	if (empty($_POST['pass']) || empty($_POST['pass2'] ))
@@ -133,7 +137,7 @@ function registeruser()
 	
 	if (!empty($fields))
 	{
-		echo 'Required fields:' . $fields;
+		echo '' . $VGA_CONTENT['req_flds_txt'] . '' . $fields;
 		exit();
 	}
 	
@@ -146,7 +150,7 @@ function registeruser()
 	
 	if (validEmail($_POST['usernameok']))
 	{
-		echo "Username must not be your email";
+		echo "{$VGA_CONTENT['not_email_txt']}";
 		exit();
 	}
 	
@@ -154,7 +158,7 @@ function registeruser()
 	{
 		if (!validEmail($_POST['email']))
 		{
-			echo "Email not valid";
+			echo "{$VGA_CONTENT['email_invalid_txt']}";
 			exit();
 		}
 	}
@@ -192,9 +196,11 @@ function registeruser()
 
 function checkusername()
 {
+	global $VGA_CONTENTS;
+	
 	if (empty($_POST['username']))
 	{
-		echo 'You did not enter a username.';
+		echo '' . $VGA_CONTENT['not_enter_un_txt'] . '';
 		exit();
 	}
 	
@@ -203,7 +209,7 @@ function checkusername()
 	if (!$check)
 	{
 		handle_db_error($check);
-		echo 'Sorry, request timed out.';
+		echo '' . $VGA_CONTENT['req_timeout_txt'] . '.';
 		exit();
 	}
 	

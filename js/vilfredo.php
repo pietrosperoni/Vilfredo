@@ -1,3 +1,17 @@
+<?php
+Header("content-type: application/x-javascript");
+include '../vga_functions.php';
+session_start();
+if (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
+{
+	$locale = $_SESSION["locale"];
+}
+else
+{
+	$locale = fetch_preferred_language_from_client();
+}
+@include getLanguageForJS($locale);
+?>
 $(function() {
 	$.ajaxSetup({cache: false});
 
@@ -30,17 +44,17 @@ $(function() {
 	    var expandbtnlabel = $(this).parents('.paretoabstract').siblings("a.expandbtn").find('.show-full-label');
 	    if (fulltxt.is(":hidden")) {
 			fulltxt.slideDown("slow");
-			label.text("Hide Full Text");
+			label.text("<?=$VGA_CONTENT['hide_full_txt_link']?>");
 			// expand button
 			expandbtn.addClass('expandbtn-open');
-			expandbtnlabel.text("Hide Full Text");
+			expandbtnlabel.text("<?=$VGA_CONTENT['hide_full_txt_link']?>");
 	    } 
 	    else {
 		fulltxt.slideUp("slow");
-		label.text("View Full Text");
+		label.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 		// expand button
 		expandbtn.removeClass('expandbtn-open');
-		expandbtnlabel.text("View Full Text");
+		expandbtnlabel.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 	    }
 	});
 	
@@ -51,13 +65,13 @@ $(function() {
 		    var bg = $(this).parents('.paretocell');
 		    if (fulltxt.is(":hidden")) {
 				fulltxt.slideDown("slow");
-				label.text("show abstract only");
+				label.text("<?=$VGA_CONTENT['show_abs_only_txt']?>");
 				//bg.css('background-color', '#D0F5A9');
 				bg.addClass('fulltext');
 		    } 
 		    else {
 			fulltxt.slideUp("slow");
-			label.text("view full text");
+			label.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 			//bg.css('background-color', '#FFFFFF');
 			bg.removeClass('fulltext');
 		   }
@@ -71,16 +85,16 @@ $(function() {
 	    if (fulltxt.is(":hidden")) {
 	    		$(this).addClass('expandbtn-open');
 			fulltxt.slideDown("slow");
-			label.text("Hide Full Text");
+			label.text("<?=$VGA_CONTENT['hide_full_txt_link']?>");
 			//view-all button
 			viewallbtn.text("show abstract only");
 	    } 
 		else {
 			$(this).removeClass('expandbtn-open');
 			fulltxt.slideUp("slow");
-			label.text("View Full Text");
+			label.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 			//view-all button
-			viewallbtn.text("view full text");
+			viewallbtn.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 	     }
 	});
 	
@@ -136,12 +150,12 @@ $(function() {
 				response = jQuery.trim(response);
 				if (response == '0')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, login failed.');
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['login_fail_txt']?>");
 				}
 				else if (response == '1')
 				{
 					$("#login form").fadeOut(250);
-					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['welcome_txt']?>");
 					user_dialog.dialog('option', welcomeOptions);
 				}
 				else
@@ -165,17 +179,17 @@ $(function() {
 				response = jQuery.trim(response);
 				if (response == '0')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, connect failed.');
+					$('#msg').css('color', 'blue').html('<?=$VGA_CONTENT['conn_fail_txt']?>');
 				}
 				else if (response == '1')
 				{
 					$("#connect").fadeOut(250);
-					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['welcome_txt']?>");
 					user_dialog.dialog('option', welcomeOptions);
 				}
 				else if (response == '2')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
+					$('#msg').css('color', 'blue').html('<?=$VGA_CONTENT['fbdata_fail_txt']?>');
 				}
 				else
 				{
@@ -199,12 +213,12 @@ $(function() {
 				response = jQuery.trim(response);
 				if (response == '0')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, could not register you at thie time.');
+					$('#msg').css('color', 'blue').html('<?=$VGA_CONTENT['reg_fail_txt']?>');
 				}
 				else if (response == '1')
 				{
 					$("#register").fadeOut(250);
-					$('#msg').css('color', 'blue').html("Success! Welcome to Vilfredo!");
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['reg_succ_txt']?>");
 					user_dialog.dialog('option', welcomeOptions);
 				}
 				else
@@ -218,7 +232,7 @@ $(function() {
 	}
 	
 	var ajax_error = function (xhr) {
-		$('#msg').css('color', 'red').html('Sorry, there was a problem with your request.');
+		$('#msg').css('color', 'red').html("<?=$VGA_CONTENT['req_fail_txt']?>");
 	}
 	
 	$("#acceptbtn").livequery("click", function(e){
@@ -255,11 +269,11 @@ $(function() {
 				response = jQuery.trim(response);
 				if (response == '0')
 				{
-					$('#msg').css('color', 'blue').html('Username not available.');
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['username_na_txt']?>");
 				}
 				else 
 				{
-					$('#msg').css('color', 'green').html('Username available: Accept?<span id="acceptbtn" class="btn"></span>');
+					$('#msg').css('color', 'green').html('<?=$VGA_CONTENT['username_ok_txt']?><span id="acceptbtn" class="btn"></span>');
 				}
 			}
 		});
@@ -268,69 +282,69 @@ $(function() {
 	var checkNameOptions = {
 		buttons: 
 		{    
-			"Check ID Exists": checkIdExists,
-			"Cancel": cancelReg
+			"<?=$VGA_CONTENT['check_id_button']?>": checkIdExists,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelReg
 		}
 	};
 	
 	var checkFBNameOptions = {
 		buttons: 
 		{    
-			"Check ID Exists": checkIdExists,
-			"Cancel": cancelReg
+			"<?=$VGA_CONTENT['check_id_button']?>": checkIdExists,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelReg
 		}
 	};
 	
 	var welcomeOptions = {
 		buttons:
 		{    
-			"OK": nowSubmit
+			"<?=$VGA_CONTENT['ok_button']?>": nowSubmit
 		}
 	};
 	
 	var registerUserOptions = {
 		buttons: 
 		{   
-			"Register": registerUser,
-			"Cancel": cancelReg
+			"<?=$VGA_CONTENT['register_button']?>": registerUser,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelReg
 		}
 	};
 	
 	var externalOptions = {
 		buttons: 
 		{   
-			"Register:": loadRegister,
-			"Login": loadLogin,
-			"Cancel": cancelReg
+			"<?=$VGA_CONTENT['register_button']?>": loadRegister,
+			"<?=$VGA_CONTENT['login_button']?>": loadLogin,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelReg
 		}
 	};
 	
 	var loginUserOptions = {
 		buttons: 
 		{   
-			"Login": doLogin,
-			"Cancel": cancelLogin
+			"<?=$VGA_CONTENT['login_button']?>": doLogin,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelLogin
 		}
 	};
 	
 	var connectUserOptions = {
 			buttons: 
 			{   
-				"Connect": doFBConnect,
-				"Cancel": cancelLogin
+				"<?=$VGA_CONTENT['connect_button']?>": doFBConnect,
+				"<?=$VGA_CONTENT['cancel_button']?>": cancelLogin
 			}
 	};
 	
 	var fbUserOptions = {
 		buttons: 
 		{   
-			"Login": doFBConnect,
-			"Cancel": cancelLogin
+			"<?=$VGA_CONTENT['login_button']?>": doFBConnect,
+			"<?=$VGA_CONTENT['cancel_button']?>": cancelLogin
 		}
 	};
 	
 	var loadRegister = function() {
-		$.get("register_form.html", function(data){
+		$.get("register_form.php", function(data){
 			dialog_cont.html(data);
 		});
 		user_dialog.dialog('option', checkNameOptions);
@@ -360,17 +374,17 @@ $(function() {
 				response = jQuery.trim(response);
 				if (response == '0')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, login failed.');
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['login_fail_txt']?>");
 				}
 				else if (response == '1')
 				{
-					$('#msg').css('color', 'blue').html("Welcome back! Click OK to contine.");
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['welcome_txt']?>");
 					user_dialog.dialog('option', welcomeOptions);
 					dialog_cont.html("");
 				}
 				else if (response == '2')
 				{
-					$('#msg').css('color', 'blue').html('Sorry, could not get user data from Facebook.');
+					$('#msg').css('color', 'blue').html("<?=$VGA_CONTENT['fbdata_fail_txt']?>");
 				}
 				else
 				{
@@ -389,7 +403,7 @@ $(function() {
 	}
 		
 	var loadLogin = function() {
-		$.get("login_form.html", function(data){
+		$.get("login_form.php", function(data){
 			dialog_cont.html(data);
 		});
 		user_dialog.dialog('option', loginUserOptions);
@@ -431,16 +445,15 @@ $(function() {
 				autoOpen: false,
 				buttons: 
 				{    
-					"Register": loadRegister,
-					"Login": loadLogin,
-					"Cancel": cancelReg
+					"<?=$VGA_CONTENT['register_button']?>": loadRegister,
+					"<?=$VGA_CONTENT['login_button']?>": loadLogin,
+					"<?=$VGA_CONTENT['cancel_button']?>": cancelReg
 				}
 			});
 			dialog_cont = $('#dialog #data');
 			$.get("dialog_splash.php", function(data){
 				dialog_cont.html(data);
 			});
-			//dialog_cont.html('<h2>Please log in or register.</h2>');
 			user_dialog.dialog('open');
 		}
 	}); 

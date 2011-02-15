@@ -6,7 +6,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 include('header.php');
 
@@ -27,7 +27,7 @@ include('header.php');
 	echo '<div class="questionbox">';
 
 	$Disabled="DISABLED";
-	$Tootip="It is only permitted to propose during the writing phase. Please wait until the next writing phase to propose something";
+	$Tootip="{$VGA_CONTENT['wait_to_write_tooltip']}";
 	
 	
 	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
@@ -54,7 +54,7 @@ include('header.php');
 		
 		
 		
-		echo "<h2>Question:</h2>";
+		echo "<h2>{$VGA_CONTENT['question_label']}</h2>";
 		
 		echo '<h4 id="question">' . $title . '</h2>';
 		echo '<div id="question">' . $content . '</div>';
@@ -63,25 +63,25 @@ include('header.php');
 		$response2 = mysql_query($sql2);
 		while ($row2 = mysql_fetch_row($response2))
 		{
-			echo '<p id="author"><cite>asked by <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 		}
 
 #		echo '<div id="actionbox">';
-		echo "Current Generation: <strong>".$generation."</strong>";
+		echo "{$VGA_CONTENT['curr_gen_txt']} <strong>".$generation."</strong>";
 		
 		echo '</div>';
 		
-		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >Question Page</a>';
+		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >' . $VGA_CONTENT['quest_page_link'] . '</a>';
 #		echo '</div>';
 		
 		if($phase==0)	
 		{
 			$Disabled="";
-			$Tootip="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal.";
+			$Tootip="{$VGA_CONTENT['reprop_this_title']}";
 		}
 	}
 
-	echo "<h1>History of past Proposals:</h1>";
+	echo "<h1>{$VGA_CONTENT['hist_props_txt']}</h1>";
 	#	echo '<quote>"History, teach us nothing": Sting</quote><br /><br />';
 
 	#WriteIntergenerationalGVMap($question);
@@ -91,7 +91,7 @@ include('header.php');
 	{
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
-		echo '<tr><th><strong>Proposal</strong></th><th><strong>Author</strong></th><th><strong>Endorsers</strong></th><th><strong>Result</strong></th><th><strong>You</strong></th></tr>';
+		echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
 		$genshowing=$generation;
 		$i = 0;
 		while ($row = mysql_fetch_array($response))
@@ -231,7 +231,7 @@ include('header.php');
 						}
 						
 					?>
-					<input type="submit" name="submit" title="<?php echo $Tootip; ?>" id="submit" value="Repropose or Mutate" <?php echo $Disabled; ?>/></form>
+					<input type="submit" name="submit" title="<?php echo $Tootip; ?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" <?php echo $Disabled; ?>/></form>
 						<?php	echo '</h3>';
 				WriteProposalOnlyContent($row[0],$question,$generation,$room,$userid);
 			
@@ -317,8 +317,7 @@ include('header.php');
 			echo '<td>';
 			if ($row[5])
 			{
-				echo "<h6>Inherited;<br />";
-				echo "originally written by: ";
+				echo "<h6>{$VGA_CONTENT['inherited_txt']} ";
 				echo WriteUserVsReader($row[2],$userid);
 				echo "</h6>";
 			}
@@ -343,11 +342,11 @@ include('header.php');
 
 			if($row[6])
 			{
-				echo '<img src="images/thumbsdown.gif" title="The community rejected this proposal" height="45">';
+				echo '<img src="images/thumbsdown.gif" title="' . $VGA_CONTENT['comm_reject_title'] . '" height="45">';
 			}
 			else
 			{
-				echo '<img src="images/thumbsup.gif" title="The community accepted this proposal"  height="48">';
+				echo '<img src="images/thumbsup.gif" title="' . $VGA_CONTENT['comm_accept_title'] . '"  height="48">';
 			}
 			echo '</td>';
 			echo '<td>';
@@ -356,13 +355,13 @@ include('header.php');
 			{
 				if($Endorsed)
 				{
-					echo ' <img src="images/thumbsup.gif" title="You endorsed this proposal"  height="28">';
+					echo ' <img src="images/thumbsup.gif" title="' . $VGA_CONTENT['you_end_prop_title'] . '"  height="28">';
 				}
 				else
 				{
-					echo ' <img src="images/thumbsdown.gif" title="You ignored this proposal" height="25">';
+					echo ' <img src="images/thumbsdown.gif" title="' . $VGA_CONTENT['you_ign_prop_title'] . '" height="25">';
 				}
-				echo '<a title="results are not consistent, due to a recent Bug" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
+				echo '<a title="' . $VGA_CONTENT['res_incon_link'] . '" href="FAQ.php#bugendorsmen"><sup>*</sup></a>';
 			}
 			else
 			{

@@ -59,8 +59,8 @@ if ($userid)
 
 		?>
 		<div id="actionbox">
-			<h2>Propose an answer</h2>
-			<p>Your proposal has been <B>DELETED</B>, please if necessary post the new version.</p>
+			<h2><?=$VGA_CONTENT['prop_ans_txt']?></h2>
+			<p><?=$VGA_CONTENT['prop_del_txt']?></p>
 		
 			<form method="POST" action="newproposaltake.php">			
      				
@@ -68,7 +68,7 @@ if ($userid)
      				<div id="editor_panel">
 				<!-- Input Proposal start -->
 				<div id="abstract_panel">
-					<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
+					<h3><span></span><a href="#" id="abstract_title"><?=$VGA_CONTENT['abs_opt_link']?></a></h3>
 					<div id="p_abstract_RTE">
 						      <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
 						      <?php
@@ -123,7 +123,7 @@ try{
 				<input type="hidden" name="origpid" id="origpid" value="<?php echo $originalproposal; ?>" />
 				<input type="hidden" name="mutate" id="mutate" value="" />
 				<?php endif ?>
-				<input type="submit" name="submit" id="submit" value="Create proposal" disabled="disabled"/>
+				<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['create_proposal_button']?>" disabled="disabled"/>
 				</div> <!-- proposal_RTE -->
 				</div> <!-- editor_panel -->
 				

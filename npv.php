@@ -18,7 +18,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 include('header.php');
 
