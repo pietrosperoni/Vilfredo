@@ -147,14 +147,14 @@ try{
 					
 					if (content_length  > limit)
 					{
-						title.html("Abstract Required: Enter up to 500 characters below:");
+						title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>:");
 						title.css("color", "green"); 
 						title.css("font-weight", "bold"); 
-						$("#content_rte_chars_msg").html("Abstract Required");
+						$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
 					}
 					else if ( content_length  <= limit )
 					{
-						title.html("Abstract (Optional)");
+						title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
 						title.css("color", "black"); 
 						title.css("font-weight", "normal"); 
 						$("#content_rte_chars_msg").html("");

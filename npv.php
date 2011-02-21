@@ -50,31 +50,41 @@ $generationNow=GetQuestionGeneration($question_id);
 // Check if question is in the writing state before allowing new proposal version
 if (!$is_writing)
 {
-	printbr('Sorry, This question is now in the voting phase. Please wait until the question moves on to the next generation before creating any new proposals.');
+	echo $VGA_CONTENT['now_voting_err_txt'];
+	echo '<br />';
 }
 elseif ($whenfrom==$generationNow AND $userid!=$whofrom)
 {
-	printbr('It looks like you tried to mutate a proposal presented in this generation by someone else. This is not allowed. If you have written this proposal, please log in as the author of it.');
+	echo $VGA_CONTENT['wrong_user_err_txt'];
+	echo '<br />';
 }
 else
 {
 	
-	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract FROM proposals WHERE proposals.id = ".$proposal;
+	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract, 
+	questions.permit_anon_proposals
+	FROM proposals, questions 
+	WHERE proposals.id = $proposal
+	AND proposals.experimentid = questions.id";
+
 
 	$response = mysql_query($sql);
 	
 	while ($row = mysql_fetch_array($response))
 	{		
-		$blurb =	$row[0];
-		$question = $row[1];
-		$abstract = $row[2];
-
+		$blurb = $row['blurb'];
+		$question = $row['experimentid'];
+		$abstract = $row['abstract'];
+		$permit_anon_proposals = $row['permit_anon_proposals'];
 		?>
 		<div id="actionbox">
-			<h2>Propose an answer</h2>
-			<p>You have chosen to create a new proposal based on proposal <?= $proposal ?></p>
-		
+			<h2><?=$VGA_CONTENT['prop_ans_txt']?></h2>
 			<?php 
+			echo '<p>';
+			$format = $VGA_CONTENT['new_mutate_txt'];
+			echo sprintf($format, $proposal);
+			echo '</p>';
+			
 			if ($userid) {//open 
 			?>
 			<form method="post" action="newproposaltake.php">
@@ -85,7 +95,7 @@ else
      				<div id="editor_panel">
 				<!-- Input Proposal start -->
 				<div id="abstract_panel">
-					<h3><span></span><a href="#" id="abstract_title">Abstract (optional)</a></h3>
+					<h3><span></span><a href="#" id="abstract_title"><?=$VGA_CONTENT['abs_opt_link']?></a></h3>
 					<div id="p_abstract_RTE">
 						      <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
 						      <?php
@@ -148,7 +158,17 @@ try{
 				}
 				?>
 
-				<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="Create proposal" disabled="disabled"/>
+				<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="<?=$VGA_CONTENT['create_proposal_button']?>" disabled="disabled"/>
+				
+				<?php
+					// Anonymous Submit
+					//set_log('permit_anon: ' . $permit_anon);
+					if (!$userid && $permit_anon_proposals) :
+					?>	
+					<?=$VGA_CONTENT['click_anon_txt']?>
+					<Input type = "Checkbox" Name ="anon" id="anon" title="<?=$VGA_CONTENT['check_anon_title']?>" value="" />
+					<?php 
+					endif ?>
 			
 				</div> <!-- proposal_RTE -->
 				</div> <!-- editor_panel -->
@@ -164,23 +184,25 @@ try{
 					
 					if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 					{
-						$("input[value=Create proposal]").removeAttr("disabled");
+						/*$("input[value=Create proposal]").removeAttr("disabled");*/
+						$("#submit_p").removeAttr("disabled");
 					}
 					else 
 					{
-						$("input[value=Create proposal]").attr("disabled","disabled");
+						/*$("input[value=Create proposal]").attr("disabled","disabled");*/
+						$("#submit_p").attr("disabled");
 					}
 					
 					if (content_length  > limit)
 					{
-						title.html("Abstract Required: Enter up to 500 characters below:");
+						title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>:");
 						title.css("color", "green"); 
 						title.css("font-weight", "bold"); 
-						$("#content_rte_chars_msg").html("Abstract Required");
+						$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
 					}
 					else if ( content_length  <= limit )
 					{
-						title.html("Abstract (Optional)");
+						title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
 						title.css("color", "black"); 
 						title.css("font-weight", "normal"); 
 						$("#content_rte_chars_msg").html("");
@@ -200,6 +222,7 @@ try{
 						$("#abstract_rte").data('callback', checklength);
 					}
 					var prop_content = <?= empty($blurb) ? 'null' : json_encode($blurb); ?>;
+					
 
 					if (prop_content) {
 						setTimeout(function() {

@@ -4028,6 +4028,53 @@ and click on the "moveon" button.
 	}
 }
 
+// Alternate version of json_encode that works outside of UTF-8
+//	No longer required now that UTF-8 (but hang onto for now)
+//
+function json_encode2($a=false)
+{
+	// Some basic debugging to ensure we have something returned
+	if (is_null($a)) return 'null';
+	if ($a === false) return 'false';
+	if ($a === true) return 'true';
+	if (is_scalar($a))
+	{
+		if (is_float($a))
+		{
+			// Always use "." for floats.
+			return floatval(str_replace(",", ".", strval($a)));
+		}
+
+		if (is_string($a))
+		{
+			static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
+			return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
+		}
+		else
+			return $a;
+	}
+	$isList = true;
+	for ($i = 0; reset($a); $i) {
+		if (key($a) !== $i)
+		{
+			$isList = false;
+			break;
+		}
+	}
+	$result = array();
+	if ($isList)
+	{
+		foreach ($a as $v) $result[] = json_encode2($v);
+		return '[' . join(',', $result) . ']';
+	}
+	else
+	{
+		foreach ($a as $k => $v) $result[] = json_encode2($k).':'.json_encode2($v);
+		return '{' . join(',', $result) . '}';
+	}
+}
+
+
 function InviteUserToQuestion($user,$question,$room,$userid)
 {
     $question_url = CreateQuestionURL($question,$room);
@@ -4757,7 +4804,7 @@ function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlight
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
-	set_log($filename);
+	set_log(__FUNCTION__ . $filename);
 	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
 	if ($svgfile)
 	{

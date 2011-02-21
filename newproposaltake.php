@@ -79,7 +79,7 @@ else
 		//$wait_str = formatSeconds($wait);
 		//set_log("Time remaining before next request for this IP is $wait_str");
 		$userid = getAnonymousUser($question);
-		logUser($userid);
+		//logUser($userid);
 		/*
 		if ($wait > 0)
 		{

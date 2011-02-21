@@ -253,4 +253,7 @@
   'users_txt' => 'Users:',
   'check2invite_title' => 'Check this box if you want to invite this user',
   'submit2invite_title' => 'Submit to invite users',
+  'now_voting_err_txt' => 'Sorry, This question is now in the voting phase. Please wait until the question moves on to the next generation before creating any new proposals.',
+  'wrong_user_err_txt' => 'It looks like you tried to mutate a proposal presented in this generation by someone else. This is not allowed. If you have written this proposal, please log in as the author of it.',
+  'new_mutate_txt' => 'You have chosen to create a new proposal based on proposal %1$s',
 ); ?>

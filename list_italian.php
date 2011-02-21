@@ -1,5 +1,7 @@
 <?php 
-include('config.inc.php'); ?>
+include('config.inc.php'); 
+header('Content-Type: text/html; charset=utf-8'); 
+?>
 <style type="text/css">
  td 
  {

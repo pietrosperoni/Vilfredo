@@ -28,6 +28,7 @@ session_start();
 // ******************************************
 // Connects to the Database
 mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
+mysql_set_charset('utf8');
 mysql_select_db($dbname) or die(mysql_error());
 //******************************************
 //

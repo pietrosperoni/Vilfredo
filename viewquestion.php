@@ -174,9 +174,9 @@ if ($userid) {
 
 		if (($phase==0) && ($generation>1))
 		{
-			InsertMap($question,$generation-1);
-			/*
-			$graphsize = 'mediumgraph';
+			//InsertMap($question,$generation-1);
+			
+			$graphsize = 'largegraph';
 			if ($filename = InsertMap2($question,$generation-1))
 			{
 				$filename .= '.svg';
@@ -189,8 +189,8 @@ if ($userid) {
 				</script>
 				<?php
 			}
-			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
-			*/
+			echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
+			
 			echo '<div id="paretofrontbox">';
 
 			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
@@ -217,8 +217,7 @@ if ($userid) {
 							<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 								<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 								<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-								<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>
-								" /></form>
+								<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
 								<?php	echo '</h3>';
 						WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
 					}
@@ -239,8 +238,7 @@ if ($userid) {
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>
-							" /></form>
+							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>" /></form>
 							<?php	echo '</h3>';
 					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);
 					
@@ -434,8 +432,7 @@ if ($userid) {
 	}
 	?>
 	
-	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="<?=$VGA_CONTENT['create_proposal_button']?>
-	" disabled="disabled"/>
+	<input class="rte_submit <?= $regclass; ?>" type="button" name="submit_p" id="submit_p" value="<?=$VGA_CONTENT['create_proposal_button']?>" disabled="disabled"/>
 	
 	<?php
 	// Anonymous Submit

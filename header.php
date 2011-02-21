@@ -71,7 +71,7 @@ $rss_link = CreateRSSLink();
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<!-- <meta http-equiv="content-type" content="text/html; charset=utf-8" /> --> 
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
 	<meta http-equiv="expires" value="Thu, 16 Mar 2000 11:00:00 GMT" />
 	<meta http-equiv="pragma" content="no-cache" />
 

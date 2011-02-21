@@ -4,6 +4,7 @@ $headcommands='
 <!-- <link type="text/css" href="widgets.css" rel="stylesheet" /> -->
 
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <script type="text/javascript" src="js/vilfredo.php"></script>';
@@ -152,7 +153,23 @@ include('header.php');
 				echo '</td></tr>';
 				
 				echo '<tr><td colspan="1" class="genhist">';
-				InsertMap($question,$genshowing,$userid,"M");
+				//InsertMap($question,$genshowing,$userid,"M");
+				//
+				$graphsize = 'mediumgraph';
+				if ($filename = InsertMap2($question,$genshowing,$userid,"M"))
+				{
+					$filename .= '.svg';
+					?>
+					<script type="text/javascript">
+					$(document).ready(function() {
+						var svgfile = '<?= $filename; ?>';
+						$('#svggraph1').svg({loadURL: svgfile});
+					});
+					</script>
+				<?php
+				}
+				echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
+				//
 				echo '</td>';
 				
 				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);

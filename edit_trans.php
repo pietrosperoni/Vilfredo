@@ -1,5 +1,6 @@
 <?php 
 include('config.inc.php'); 
+header('Content-Type: text/html; charset=utf-8'); 
 if (isset($_GET['id']) ) { 
 $id = (int) $_GET['id']; 
 if (isset($_POST['submitted'])) { 

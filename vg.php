@@ -136,8 +136,8 @@ if ($userid)
 
 		if ($generation>0)
 		{
-			InsertMap($question,$generation,$userid,"L",0);
-			/*
+			//InsertMap($question,$generation,$userid,"L",0);
+			
 			$graphsize = 'largegraph';
 			if ($filename = InsertMap2($question,$generation,$userid,"L",0))
 			{
@@ -152,7 +152,7 @@ if ($userid)
 				<?php
 			}
 			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
-			*/
+			
 			echo '<div id="paretofrontbox">';
 			echo "<h3>{$VGA_CONTENT['pareto_front_txt']}</h3>";
 			$ParetoFront=ParetoFront($question,$generation);

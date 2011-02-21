@@ -1,4 +1,8 @@
 <?php
+$headcommands='
+<script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>';
+
 include('header.php');
 #$userid=isloggedin();
 //if ($userid)
@@ -81,7 +85,23 @@ include('header.php');
 			$ProposalToStudy=GetProposalDaughter($ProposalToStudy);			
 			$GenerationToStudy+=1;					
 			echo '</td><td>';
-			InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
+			//InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
+			//			
+			$graphsize = 'smallgraph';
+			if ($filename = InsertMap2($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap))
+			{
+				$filename .= '.svg';
+				?>
+				<script type="text/javascript">
+				$(document).ready(function() {
+					var svgfile = '<?= $filename; ?>';
+					$('#svggraph1').svg({loadURL: svgfile});
+				});
+				</script>
+			<?php
+			}
+			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
+			//
 			echo '</td></tr></table>';
 		}
 		
