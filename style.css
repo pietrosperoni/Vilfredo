@@ -294,7 +294,7 @@ h1 img {
 #room_title {
 	font-size: 1.5em;
 	font-weight: bold;
-	//text-align: center;
+	/* text-align: center; */
 }
 
 .rss-link {
@@ -520,9 +520,7 @@ a.expandabstractbtn img {
 
 div.paretotext {
 	display: none;
-	/* width: 96%; */
 	padding: 1em;
-	/* margin-top: 0; */
 }
 
 div.paretofulltext {
@@ -915,8 +913,6 @@ a.tweet span.vert {
 .largegraph {
 	width: 1100; 
 	height: 550px; 
-	//border: 1px solid;
-	//margin-left: 3px;
 	margin:0 auto;
 	padding-bottom: 3px;
 }
@@ -924,8 +920,6 @@ a.tweet span.vert {
 .mediumgraph {
 	width: 800; 
 	height: 400px; 
-	//border: 1px solid;
-	//margin-left: 3px;
 	margin:0 auto;
 	padding-bottom: 3px;
 }
@@ -933,8 +927,6 @@ a.tweet span.vert {
 .smallgraph {
 	width: 600; 
 	height: 300px; 
-	//border: 1px solid;
-	//margin-left: 3px;
 	margin:0 auto;
 	padding-bottom: 3px;
 }
@@ -942,8 +934,6 @@ a.tweet span.vert {
 .xsmallgraph {
 	width: 400; 
 	height: 200px; 
-	//border: 1px solid;
-	//margin-left: 3px;
 	margin:0 auto;
 	padding-bottom: 3px;
 }
