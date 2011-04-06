@@ -1,7 +1,11 @@
 <?php
 $headcommands='
 <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>';
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+<script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>
+<script type="text/javascript" src="js/vilfredo.php"></script>
+';
 
 include('header.php');
 #$userid=isloggedin();
@@ -86,7 +90,9 @@ include('header.php');
 			$GenerationToStudy+=1;					
 			echo '</td><td>';
 			//InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
-			//			
+			//	
+			$mapno = $GenerationToStudy - 1;
+			$mapid = 'svggraph' . $mapno;
 			$graphsize = 'smallgraph';
 			if ($filename = InsertMap2($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap))
 			{
@@ -95,12 +101,12 @@ include('header.php');
 				<script type="text/javascript">
 				$(document).ready(function() {
 					var svgfile = '<?= $filename; ?>';
-					$('#svggraph1').svg({loadURL: svgfile});
+					$('#' + '<?=$mapid?>').svg({loadURL: svgfile});
 				});
 				</script>
 			<?php
 			}
-			echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
+			echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
 			//
 			echo '</td></tr></table>';
 		}

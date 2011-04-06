@@ -155,6 +155,7 @@ include('header.php');
 				echo '<tr><td colspan="1" class="genhist">';
 				//InsertMap($question,$genshowing,$userid,"M");
 				//
+				$mapid = 'svggraph' . $genshowing;
 				$graphsize = 'mediumgraph';
 				if ($filename = InsertMap2($question,$genshowing,$userid,"M"))
 				{
@@ -163,12 +164,12 @@ include('header.php');
 					<script type="text/javascript">
 					$(document).ready(function() {
 						var svgfile = '<?= $filename; ?>';
-						$('#svggraph1').svg({loadURL: svgfile});
+						$('#' + '<?=$mapid?>').svg({loadURL: svgfile});
 					});
 					</script>
 				<?php
 				}
-				echo '<div id="svggraph1" class="'.$graphsize.'"></div>';
+				echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
 				//
 				echo '</td>';
 				
