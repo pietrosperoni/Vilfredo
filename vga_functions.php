@@ -574,6 +574,30 @@ function getAllAnonymousUsersForQuestion($question)
 	}
 }
 
+function getUserQuestionCount($userid)
+{
+	$sql = "SELECT COUNT(*) as count FROM `questions`
+	WHERE `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result))
+		{
+			$row = mysql_fetch_assoc($result);
+			return $row['count'];
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
 function getAnonymousUser($question)
 {
 	if (!isset($question))
@@ -992,6 +1016,11 @@ function display_fulltext_link()
 	return '<span class="expandabstract" title="' . getVGAContent('display_full_title') . '"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">' . getVGAContent('view_full_txt_link') . '</span></span>';
 }
 
+function display_fulltext_link2()
+{	
+	return '<span class="paretoabstractfulltextlink"><a class="expandabstractbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a></span>';
+}
+
 function LoadLoginRegisterLinks($userid, $target, $debug=false) 
 {
 global $VGA_CONTENT; 
@@ -1039,11 +1068,6 @@ function display_editproposal_link()
 	<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
 	<input type="submit" name="submit" id="submit" value="Edit or Delete" />
 </form></span>';
-}
-
-function display_fulltext_link2()
-{	
-	return '<span class="paretoabstractfulltextlink"><a class="expandabstractbtn" href="#" title="Click here to display the full proposal text"><img src="images/fulltext32.png" width="30" height="30" alt="" /><span class="show-full-label">View Full Text</span></a></span>';
 }
 
 function display_show_full_text_link_2($str='Show Full Text...')
@@ -1569,7 +1593,7 @@ function HasQuestionAccess()
 	
 	// rooms are case sensitive
 	if ($room_param == $room_id)
-	// make roome id comparison case insensitive
+	// make room id comparison case insensitive
 	//if(strcasecmp($room_param, $room_id) == 0)
 		return true;
 	else
@@ -1697,13 +1721,13 @@ function IsQuestionWriting($question)
 {
 	 $sql="SELECT phase
 	     FROM questions
-	     WHERE id=$question";
+	     WHERE id = $question";
 		
 	$result = mysql_query($sql);
 				
 	if (!$result)
 	{
-		db_error($sql);
+		db_error(__FUNCTION__ . ' :: ' . $sql);
 		return false;
 	}
 	else 
@@ -1768,15 +1792,6 @@ function GetQuestionCreator($question)
 
 function display_logout_link()
 {
-	/*
-	if ($_SESSION[USER_LOGIN_MODE] == 'FB') 
-	{
-		return facebook_logout_link('fb_logout.php', 'Logout of Facebook'); 
-	}
-	else
-	{
-		return '<a href="logout.php">Logout</a>';
-	}*/
 	return '<a href="logout.php">Logout</a>';
 }
 
@@ -2574,6 +2589,29 @@ function CountProposals($question,$generation)
 	return $n;
 }
 
+function hasUserEndorsed($user, $question, $generation)
+{
+	$sql = 'SELECT DISTINCT endorse.proposalid 
+		FROM proposals, endorse 
+	WHERE proposals.experimentid = '.$question.' and proposals.roundid = '.$generation.' and proposals.id = endorse.proposalid and endorse.userid= '.$user;
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) != 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
 
 function CountEndorsersToAProposal($proposal)
 {
@@ -2607,7 +2645,6 @@ function ProposalsToAnEndorser($user,$question,$generation)
 		array_push($proposals,$row[0]);
 	}
 	return $proposals;
-
 }
 
 
@@ -3582,6 +3619,8 @@ Now in Generation 4
 
 Agreement Found!
 [5] How should we handle the wall of text? 1 Solution found in 5 steps <bit.ly link>
+
+TODO: Add room bubbles!!!
 */
 function UpdateFeed($room='')
 {	
@@ -3629,6 +3668,7 @@ function UpdateFeed($room='')
 		$rss->cssStyleSheet = "";
 		$rss->category = 'eDemocracy';
 		$rss->room = $room_title;
+		//$rss->encoding = "utf-8";
 		
 		$question_status;
 		question_status_code;
@@ -4800,11 +4840,35 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 ////////////////FUNCTIONS TO DRAW THE GRAPHVIZ MAP///////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+function InsertMap3($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+	switch ($size)
+	{
+		case 'S':
+			$graphsize = 'smallgraph';
+			break;
+		case 'M':
+			$graphsize = 'mediumgraph';
+			break;
+		case 'L':
+			$graphsize = 'largegraph';
+			break;
+		default:
+			$graphsize = 'largegraph';
+	}
+	//$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+}
 function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
+	if (!USE_GRAPHVIZ_MAPS)
+	{
+		return false;
+	}
+	
 	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
-	set_log(__FUNCTION__ . $filename);
+	//set_log(__FUNCTION__ . $filename);
 	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
 	if ($svgfile)
 	{
@@ -4831,6 +4895,25 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 			elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
 			elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
 			$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
+			echo $buf;
+		}		
+	}
+	return;
+}
+function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+#	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
+	if (USE_GRAPHVIZ_MAPS)
+	{
+		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+		if ($svgfile)
+		{
+			$buf='<center><embed src="'.$svgfile.'" ';
+			if($size=="L")      {	$buf.='width="1100" height="550" ';	}
+			elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
+			elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
+			elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
+			$buf.=' type="image/svg+xml" /></center>';
 			echo $buf;
 		}		
 	}

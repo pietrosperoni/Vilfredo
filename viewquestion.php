@@ -10,7 +10,9 @@ $headcommands='
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
-<script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+<!-- <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/jquery-1.4.2.js"></script> -->
+<script type="text/javascript" src="js/jquery-1.6.min.js"></script>
 <script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
@@ -42,7 +44,6 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$question = $_GET[QUERY_KEY_QUESTION];
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-	//$room = ucfirst($room);
 
 if ($userid) {
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
@@ -152,30 +153,41 @@ if ($userid) {
 		{
 			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
 			
-			 echo '</div>';
+			 //echo '</div>';
 			 
 			 //echo '<div class="social-buttons">';
-			 
 			 echo '<table id="social-buttons"><tr><td>';
 			
 			// Only display twit button if shorturl found in DB or generated from bitly
 			if (!empty($shorturl))
 			{
-				$retweetprefix = "RT @Vg2A";
-				$urlshortservice = BITLY_URL;
-				$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
-				$tweetaddress = "http://twitter.com/home?status=$tweet";
-				echo "<p><a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a></p>";
+				if (false)
+				{
+					$retweetprefix = "RT @Vg2A";
+					$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
+					$tweetaddress = "http://twitter.com/home?status=$tweet";
+					echo "<a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a>";
+				}
+				else
+				{
+					set_log('Tweet Button lang = ' . $locale);
+					echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
+				}
 			}
 			
-			echo '</td></tr></table>';
+			echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
+			
+			echo '</div>';//---extended questionbox
+			?>
+			
+			<?php
 			
 		}
 
 		if (($phase==0) && ($generation>1))
 		{
-			//InsertMap($question,$generation-1);
-			
+			InsertMap($question,$generation-1);
+			/*
 			$graphsize = 'largegraph';
 			if ($filename = InsertMap2($question,$generation-1))
 			{
@@ -188,8 +200,8 @@ if ($userid) {
 				});
 				</script>
 				<?php
-			}
-			echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
+				echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
+			} */
 			
 			echo '<div id="paretofrontbox">';
 
@@ -234,15 +246,20 @@ if ($userid) {
 				{
 						echo '<div class="paretoproposal">';
 					
-					?><form method="get" action="npv.php" target="_blank">
-						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
+					?>
+					<form method="get" action="npv.php" target="_blank">
+					<h3>
+						<?php	echo WriteProposalPage($p,$room);?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>" /></form>
-							<?php	echo '</h3>';
-					WriteProposalOnlyContent($p,$question);#,$generation,$room,$userid);
+							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>" />
+							</h3>
+							</form>
 					
-					$OriginalProposal=GetOriginalProposal($p);					#$OPropID=$OriginalProposal["proposalid"];
+					<?php
+					WriteProposalOnlyContent($p,$question);
+					
+					$OriginalProposal=GetOriginalProposal($p);
 					$OPropGen=$OriginalProposal["generation"];
 
 					echo '<br />' . $VGA_CONTENT['written_by_txt'] . ': '.WriteUserVsReader(AuthorOfProposal($p),$userid);
@@ -305,8 +322,7 @@ if ($userid) {
 					<form method="post" action="moveontoendorse.php">
 					<?=$VGA_CONTENT['you_can_txt']?>:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>
-						" />
+						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>" />
 					</form>
 				<?php
 			}
@@ -317,9 +333,9 @@ if ($userid) {
 			{
 				?>
 					<form method="post" action="moveontoendorse.php">
-					If everybody has written their proposals, you can:
+					<?=$VGA_CONTENT['you_can_txt']?>:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-						<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
+						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>" />
 					</form>
 				<?php
 			}
@@ -450,7 +466,56 @@ if ($userid) {
 <!-- </form> -->
 <script type="text/javascript">
 $(document).ready(function() {
-	var checklength = function (len) {
+	function checklengths() {
+		var abstract_txt = $("#abstract_rte").contents().find("body").text();
+		var proposal_txt = $("#content_rte").contents().find("body").text();
+		var abstract_length = abstract_txt.length;
+		var content_length = proposal_txt.length;
+		var title = $("#abstract_title");
+	
+		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
+		{
+			$("#submit_p").removeAttr("disabled");
+		}
+		else 
+		{
+			$("#submit_p").attr("disabled");
+		}
+	
+		if (content_length  > limit)
+		{
+			title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>:");
+			title.css("color", "red"); 
+			title.css("font-weight", "bold"); 
+			$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
+		}
+		else if ( content_length  <= limit )
+		{
+			title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
+			title.css("color", "black"); 
+			title.css("font-weight", "normal"); 
+			$("#content_rte_chars_msg").html("");
+		}
+		// Set Abstract indicator
+		var abs_remaining = limit_abs - abstract_length;
+		var abs_indicator = $("#abstract_rte" + "_chars_remaining");
+		abs_indicator.text(abs_remaining);
+		if (abs_remaining < 0) {
+			abs_indicator.addClass("length_not_ok");
+		} else {
+			abs_indicator.removeClass("length_not_ok");
+		} 
+		// Set Proposal Content indicator
+		var prop_remaining = limit - content_length;
+		var prop_indicator = $("#content_rte" +"_chars_remaining");
+		prop_indicator.text(prop_remaining);
+		if (prop_remaining < 0 && abstract_length == 0) {
+			prop_indicator.addClass("length_not_ok");
+		} else {
+			prop_indicator.removeClass("length_not_ok");
+		}
+	}
+	/* var checklength = function (len) {
 		var title = $("#abstract_title");
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
@@ -479,8 +544,8 @@ $(document).ready(function() {
 			title.css("font-weight", "normal");
 			$("#content_rte_chars_msg").html("");
 		}
-	}
-
+	} */
+ 
 	try{
 		$("#content_rte").jqrte();
 		$("#content_rte").jqrte_setIcon();
@@ -491,8 +556,8 @@ $(document).ready(function() {
 		var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
 		if (limit) {
 			$("#content_rte").data('maxlength', limit);
-			$("#content_rte").data('callback', checklength);
-			$("#abstract_rte").data('callback', checklength);
+			$("#content_rte").data('callback', checklengths);
+			$("#abstract_rte").data('callback', checklengths);
 		}
 	}
 	catch(e){}
@@ -539,8 +604,7 @@ if ($userid) {
 				?>
 				<form method="post" action="deleteproposal.php">
 				<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-				<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['edit_delete_button']?>
-				" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
+				<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['edit_delete_button']?>" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
 				</form>
 				
 				<?php
@@ -576,10 +640,21 @@ if ($userid) {
 		$response = mysql_query($sql);
 		if ($response)
 		{
+			$userhasvoted = false;
+			if ($userid)
+			{
+				$userhasvoted = hasUserEndorsed($userid, $question, $generation);
+			}
+			
 			echo "<h3>{$VGA_CONTENT['proposals_txt']}:</h3>";
+			
+			if ($userhasvoted)
+			{
+				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div></div>";
+			}
 			?>
 			<form method="post" action="endorse_or_not.php">
-					<input type="hidden" name="question" value="<?php echo $question; ?>" />
+			<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1" class="your_endorsements userproposal">
 			<tr>
 			<td class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
@@ -624,8 +699,6 @@ if ($userid) {
 				else{ echo '&nbsp;'; }
 				echo '</td>';
 				
-				
-				$has_abstract = false;
 				echo '<td>';
 				echo '<div class="paretoproposal">';
 				if (!empty($row['abstract'])) {
@@ -665,7 +738,7 @@ if ($userid) {
 	if (!$userid && $permit_anon_votes) :
 	?>	
 	<tr><td colspan="2"><p><strong><?=$VGA_CONTENT['click_to_vote_anon_txt']?></strong></p></td><td>
-	<Input type = "Checkbox" Name ="anon" id="anon" title="<?=$VGA_CONTENT['check_anon_title']?>" value="" />		
+	<input type = "Checkbox" name="anon" id="anon" title="<?=$VGA_CONTENT['check_anon_title']?>" value="" />		
 	</td></tr>
 	<?php 
 	endif ?>
@@ -679,8 +752,7 @@ if ($userid) {
 			$regclass = "reg_submit";
 		}
 	?>
-	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="<?=$VGA_CONTENT['submit_button']?>
-	"/>			
+	<input class="<?= $regclass; ?>" type="button" name="submit_e" id="submit_e" value="<?=$VGA_CONTENT['submit_button']?>"/>			
 	</td></tr>
 	</table>
 	</form>

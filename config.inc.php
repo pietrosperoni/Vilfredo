@@ -12,6 +12,7 @@ require_once 'vga_functions.php';
 include_once 'lib/php_lib.php';
 require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
 require_once "lib/feedcreator-1.7.2-ppt/include/feedcreator.class.php";
+require_once "vga_bubble_functions.php";
 
 // Set error logs if log directory is defined (in config.domain.php)
 if (defined('LOG_DIRECTORY'))

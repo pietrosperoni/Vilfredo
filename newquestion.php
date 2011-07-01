@@ -21,7 +21,8 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.php"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>
+<script type="text/javascript" src="newbubbles/js/cookies/jquery.cookie.js"></script>';
 
 include('header.php');
 
@@ -58,7 +59,18 @@ var roomId = <?php echo "'$randomID'" ?>;
 	<p><strong><?=$VGA_CONTENT['invite_exp_txt']?></strong></p>
 	<p><?=$VGA_CONTENT['new_quest_exp_txt']?></p><p><code>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</code></p>
 
-	<p><?=$VGA_CONTENT['open_exp_txt']?> <a href="FAQ.php"><?=$VGA_CONTENT['faq_link']?>.</a></p>
+
+	<div id="choosequestiontype">
+	<h3>Select Type of Question</h3>
+	<p><input id="vgaqtype" type = "radio" value="question" name ="questiontype" title="" /> Create a Vilfredo Open Question</p>
+	<p><input id="vgabtype" type = "radio" value="bubble" name ="questiontype" title=""  /> Create a Question Bubble (New)</p>
+	</div>
+
+
+	<p id="bubblequestionintro" class="quest-type-intro" style="display:none;">Bubble questions should be Open Questions looking for a number of Proposed Solutions.</p>
+	
+	<p id="vgaquestionintro" class="quest-type-intro"><?=$VGA_CONTENT['open_exp_txt']?> <a href="FAQ.php"><?=$VGA_CONTENT['faq_link']?>.</a></p>
+	
 
     <h3><?=$VGA_CONTENT['title_max_txt']?>
      <input type="text" size="100" maxlength="100" name="title" class="title"/></h3>
@@ -85,10 +97,58 @@ $week = $VGA_CONTENT['week'];
 $weeks = $VGA_CONTENT['weeks'];
 $week_and_a_half = $VGA_CONTENT['week and a half'];
 */
-      ?>
-      
-      
+      ?>      
       </h3>
+      
+      
+  
+ 
+ <script type="text/javascript">
+ var cookieexpires = 3; //days
+  $(function() {
+ 	 $("input:radio[name=questiontype]").click(function() {
+		 if ($(this).val() == 'bubble')
+		 {
+		 	$.cookie('btab', 'b', {expires: cookieexpires});
+		 	$('#vgaquestionoptions').slideUp(1000);
+		 	$('#vgaquestionintro').fadeOut(1000, function() {
+		 		$('#bubblequestionintro').fadeIn(1000);
+		 	});
+		 	$('#choosequestiontype').css({'background-color' : '#3399FF', 'color' : 'white', 'background-image' : 'url(images/bubble-small.gif)'});
+		 }
+		 else
+		 {
+		 	$.cookie('btab', null);
+		 	$('#vgaquestionoptions').slideDown(1000);
+		 	$('#bubblequestionintro').fadeOut(1000, function() {
+				$('#vgaquestionintro').fadeIn(1000);
+		 	});
+		 	$('#choosequestiontype').css({'background-color' : '#cdffcc', 'color' : 'black', 'background-image' : 'url(images/pareto_fb.png)'});
+		 }
+   	});
+   	
+   	if ($.cookie('btab'))
+	{
+		//$("input:radio[name=questiontype]").click();
+		//$("input:radio[value=question]").attr('checked', '');
+		//$("input:radio[value=bubble]").attr('checked', 'checked');
+		//$('input[name="questiontype"]').attr('checked', false);
+		//$('#vgaqtype').attr('checked', '');
+		$('#vgabtype').attr('checked', 'checked').click();
+	}
+	else
+	{
+		$('#vgaqtype').attr('checked', 'checked');
+		//$('#vgabtype').attr('checked', '');
+	}
+ });
+</script>
+
+      
+    <div id="vgaquestionoptions">  
+    
+  <!--   <h3>Complete the Following Options for a VGA Open Question Only</h3> -->
+    
       <?=$VGA_CONTENT['min_tme_txt']?>
       <select name="minimumtime" title="<?=$VGA_CONTENT['time_exp_title']?>">
   <option value="60">1  <?= $VGA_CONTENT['time_minute_txt'] ?></option>
@@ -153,6 +213,8 @@ $week_and_a_half = $VGA_CONTENT['week and a half'];
 <p><?=$VGA_CONTENT['permit_anon_txt']?></p>
 <p><Input type = "Checkbox" Name ="permit_anon_votes" id="permit_anon_votes" title="<?=$VGA_CONTENT['anon_votes_title']?>" value="" /> <?=$VGA_CONTENT['anon_vote_txt']?></p>
 <p><Input type = "Checkbox" Name ="permit_anon_proposals" id="permit_anon_proposals" title="<?=$VGA_CONTENT['anon_props_title']?>" value="" /> <?=$VGA_CONTENT['anon_props_txt']?></p>
+
+</div>
 
 	<?php 
 	if ($userid) {

@@ -153,8 +153,8 @@ include('header.php');
 				echo '</td></tr>';
 				
 				echo '<tr><td colspan="1" class="genhist">';
-				//InsertMap($question,$genshowing,$userid,"M");
-				//
+				InsertMap($question,$genshowing,$userid,"M");
+				/*
 				$mapid = 'svggraph' . $genshowing;
 				$graphsize = 'mediumgraph';
 				if ($filename = InsertMap2($question,$genshowing,$userid,"M"))
@@ -170,7 +170,7 @@ include('header.php');
 				<?php
 				}
 				echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
-				//
+				*/
 				echo '</td>';
 				
 				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);

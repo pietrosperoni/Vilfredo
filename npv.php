@@ -37,8 +37,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 $proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
 if (!HasProposalAccess())
 {
-	#	header("Location: viewquestions.php");
-	echo "no access";
+	header("Location: viewquestions.php");
+	//echo "no access";
 }
 
 $question_id = GetProposalQuestion($proposal);
@@ -184,12 +184,10 @@ try{
 					
 					if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 					{
-						/*$("input[value=Create proposal]").removeAttr("disabled");*/
 						$("#submit_p").removeAttr("disabled");
 					}
 					else 
 					{
-						/*$("input[value=Create proposal]").attr("disabled","disabled");*/
 						$("#submit_p").attr("disabled");
 					}
 					
@@ -200,7 +198,7 @@ try{
 						title.css("font-weight", "bold"); 
 						$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
 					}
-					else if ( content_length  <= limit )
+					else if ( content_length <= limit )
 					{
 						title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
 						title.css("color", "black"); 
@@ -213,7 +211,6 @@ try{
 					var content_box = $("#content_rte");
 					content_box.jqrte();
 					content_box.jqrte_setIcon();
-					//content_box.jqrte_setContent();
 					var limit_abs = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
 					var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
 					if (limit) {

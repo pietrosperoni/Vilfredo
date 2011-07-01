@@ -37,24 +37,28 @@ $(function() {
 		function() { $(this).removeClass('expandabstract-hover'); }
 	);
 	
+	/*
+	$('.clickme').click(function() {
+		var elements = $(this).parent().siblings('.target');
+		//alert(elements.length);
+		elements.css('color', 'red');
+	});
+	*/
+	
 	$(".expandabstract").click(function (e) {
 	    var label = $(this).find('.show-full-label');
-	    var fulltxt = $(this).parent().siblings("div.paretotext");
-	    var expandbtn = $(this).parents('.paretoabstract').siblings("a.expandbtn");
-	    var expandbtnlabel = $(this).parents('.paretoabstract').siblings("a.expandbtn").find('.show-full-label');
+	    var parent = $(this).parent();
+	    var fulltxt = $(this).parent().siblings('.paretotext');
+	    var textelements = fulltxt.length;
 	    if (fulltxt.is(":hidden")) {
+			//alert('fullt text is hidden');
 			fulltxt.slideDown("slow");
 			label.text("<?=$VGA_CONTENT['hide_full_txt_link']?>");
-			// expand button
-			expandbtn.addClass('expandbtn-open');
-			expandbtnlabel.text("<?=$VGA_CONTENT['hide_full_txt_link']?>");
 	    } 
 	    else {
+	    	//alert('fullt text is displayed');
 		fulltxt.slideUp("slow");
 		label.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
-		// expand button
-		expandbtn.removeClass('expandbtn-open');
-		expandbtnlabel.text("<?= $VGA_CONTENT['view_full_txt_link'] ?>");
 	    }
 	});
 	

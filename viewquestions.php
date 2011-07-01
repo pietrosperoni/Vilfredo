@@ -2,12 +2,24 @@
 
 $headcommands='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
+<link rel="stylesheet" href="newbubbles/css/velocity.css" />
+<link rel="stylesheet" href="tabs.css" />
 
-<script src="js/jquery/jquery.js" type="text/javascript"></script>
+<!-- <script src="js/jquery/jquery.js" type="text/javascript"></script> -->
+<script src="js/svg/jquery-1.4.2.min.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/jquery.tooltip.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
+<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="newbubbles/js/svg/jquery.svg.js"></script>
+<script type="text/javascript" src="newbubbles/js/svg/jquery.svgdom.js"></script>
+<script type="text/javascript" src="newbubbles/js/svg/jquery.svganim.js"></script>
+<script type="text/javascript" src="newbubbles/js/json2.js"></script> 
+<script type="text/javascript" src="newbubbles/js/cookies/jquery.cookie.js"></script>
+
+<script type="text/javascript" src="newbubbles/velocityq.js"></script>
 
 <title>VgtA: Questions</title>
 ';
@@ -20,13 +32,28 @@ include('header.php');
 //{
 ?>
 <script type="text/javascript">
+var cookieexpires = 3; //days
 $(function() {
-$(".foottip a").tooltip({
+$(".foottip a[tooltip]").tooltip({
 	bodyHandler: function() {
 		return $($(this).attr("tooltip")).html();
 	},
 	showURL: false
 });
+
+$("ul.tabs").tabs("div.panel");
+
+$('#bubbletab').click(function() {
+	$.cookie('btab', 'b', {expires: cookieexpires});
+});
+$('#questiontab').click(function() {
+	$.cookie('btab', null);
+});
+
+if ($.cookie('btab'))
+{
+	$('#bubbletab').click();
+}
 
 });
 </script>
@@ -35,25 +62,28 @@ $(".foottip a").tooltip({
 $room_param = CreateNewQuestionURL();
 ?>
 
+<div class="">
 <div class="centerbox">
 <div class="newquestionbox">
-
-
-<?php
-/*
-$current_room = GetParamFromQuery(QUERY_KEY_ROOM);
-echo '<h1>Current Room: ';
-if  ($current_room)
-	echo $current_room;
-else
-	echo "Common";
-echo "</h1>";
-*/
-?>
-
-
 <h3><a href="newquestion.php<?php echo $room_param?>"><?=$VGA_CONTENT['ask_quest_txt']?></a></h3>
 </div>
+</div>
+<div class="clearboth">&nbsp;</div>
+</div>
+
+<!-- the tabs -->
+<ul class="tabs">
+	<li><a id="questiontab" href="">Vilfredo Questions</a></li>
+	<li><a id="bubbletab" href="">Bubbles</a></li>
+</ul>
+
+<div class="panels">
+<div class="panel">
+<div class="centerbox">
+
+<div class="newquestionbox">
+<h2><?=$VGA_CONTENT['new_quest_txt']?></h2>
+
 <?php
 	
 	// **
@@ -88,8 +118,8 @@ echo "</h1>";
 		{
 			if (!$newquestionswritten)
 			{
-				echo '<div class="newquestionbox">';
-				echo "<h2>{$VGA_CONTENT['new_quest_txt']}</h2><p>";
+				//echo '<div class="newquestionbox">';
+				//echo "<h2>{$VGA_CONTENT['new_quest_txt']}</h2><p>";
 			}
 
 			$newquestionswritten=$newquestionswritten+1;
@@ -117,13 +147,17 @@ echo "</h1>";
 			echo '</p>';
 		}
 	}
-	if ($newquestionswritten)
+	if (!$newquestionswritten)
 	{
-		echo '</div>';
+		//echo '</div>';
+		
+		echo '<p>No New Vilfredo Questions for this Room</p>';
 	}
-
-	echo '</div>';
 	
+	echo '</div>'; // New questions box
+
+	echo '</div><!-- centerbox -->';
+	echo '<div class="clearboth">&nbsp;</div>';
 	
 	// *****
 	// PROPOSING
@@ -302,8 +336,8 @@ echo "</h1>";
 
 		echo '</p>';
 	}
-	echo '</div>';
-	echo '</div>';
+	echo '</div><!-- leftfloatbox -->';
+	echo '</div><!-- poposingbox -->';
 	
 	
 	// *****
@@ -412,7 +446,7 @@ echo "</h1>";
 		echo '</div>';
 		echo '</div>';
 	// ENDORSING END
-
+echo '<div class="clearboth">&nbsp;</div>';
 
 	// *****
 	// REACHED CONCENSUS
@@ -518,8 +552,29 @@ echo "</h1>";
 	}
 	 echo '</div>';
 	 echo '</div>';
-	 echo '</div>';
+	 echo '<div class="clearboth">&nbsp;</div>';
+	 
+	 //echo '</div>';
+	 ?>
+	 </div>
+	 <div class="panel bubblepanel">
+	 <?php
+	 include('newbubbles/bubbles.config.php');
+	 include('newbubbles/viewbubblequestionstab.php');
+	 ?>
+	 </div><!-- panel -->
+	 </div><!-- panels -->
+	 
+	 
+<script type="text/javascript">
+$(function() {
+	// setup ul.tabs
+	//$("ul.tabs").tabs("div.panel");
+});
+</script>
 
+
+<?php
 	// echo "<a href=logout.php>Logout</a>";  tip: 'tooltip',
 /*
 }

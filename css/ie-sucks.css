@@ -18,3 +18,15 @@ paretofulltext {
 	/* width: 95%; */
 }
 
+#p_abstract_RTE {
+	height: 400px;
+}
+
+#contentpage {
+	z-index: -5000;
+}
+
+.tooltip {
+	z-index: 6000;
+}
+

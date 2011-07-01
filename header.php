@@ -36,9 +36,9 @@ require_once 'config.inc.php';
 //$VGA_CONTENT[$common_lang_page] = loadLangXML($common_lang_page, $lang);
 //eg $VGA_CONTENT[$common_lang_page]['site_title_txt']
 
-if (isset($_GET["locale"]) and ($_GET["locale"] == 'en' or $_GET["locale"] == 'it' ))
+if (isset($_get["locale"]) and ($_get["locale"] == 'en' or $_get["locale"] == 'it' ))
 {
-	$locale = $_GET["locale"];
+	$locale = $_get["locale"];
 	$_SESSION['locale'] = $locale;
 }
 elseif (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
@@ -68,12 +68,17 @@ $rss_link = CreateRSSLink();
 
 // ******************************************
 ?>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
-	<meta http-equiv="expires" value="Thu, 16 Mar 2000 11:00:00 GMT" />
+	<title><?=$VGA_CONTENT['site_title_txt']?></title>
+	<meta http-equiv="expires" content="Thu, 16 Mar 2000 11:00:00 GMT" />
 	<meta http-equiv="pragma" content="no-cache" />
+	<!--[if IE8]>
+	<meta http-equiv="X-UA-Compatible" content="IE=7" />
+	<![endif]-->
 
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen, print" >
 		<!--[if IE]>
@@ -85,7 +90,6 @@ $rss_link = CreateRSSLink();
 		<link rel="stylesheet" type="text/css" href="widgets.css">
 		<link rel="alternate" type="application/rss+xml" href="<?php echo $rss_link; ?>">
 		<?php echo $headcommands; ?>
-		<title><?=$VGA_CONTENT['site_title_txt']?></title>
 	</head>
 	<?php
 #	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -98,54 +102,66 @@ echo LoadGoogleAnalytics();
 
 // Get user ID if logged in
 $userid=isloggedin();
-//*******************************Header Links***************************
-echo '<div id="top_links">';
-// Logged in
+$userquestioncount = 0;
 if ($userid)
 {
+	$userquestioncount = getUserQuestionCount($userid);
+}
+//*******************************Header Links***************************
+echo '<div id="content_page">';
 ?>
 	<div id="header">
-
-	<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto"><img src="images/pareto.png" id="paretoimg" alt="Illustration of Pereto"/></a>
-	<img src="images/athens.png" id="athens" alt="Illustration of the Greek forum"/>
-
-		<h1><img src="images/titleimg.png" alt="<?=$VGA_CONTENT['site_title_txt']?>"/></h1>
-
+		<div id="top-pics">
+			<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto">
+			<img src="images/pareto.png" width="95" height="126" id="paretoimg" alt="Illustration of Pereto"/></a>
+			<img src="images/athens.png" width="194" height="120" id="athens" alt="Illustration of the Greek forum"/><!-- <img src="images/titleimg.png" id="titleimg" width="462" height="97" alt="<?=$VGA_CONTENT['site_title_txt']?>"/> -->
+			<div id="vilfredo_title">
+				<img src="images/vilfredo_title_s.png" width="206" height="40" alt="<?=$VGA_CONTENT['site_title_txt']?>"/>
+				<img src="images/goes_title_s.png" width="104" height="40" alt="<?=$VGA_CONTENT['site_title_txt']?>"/>
+				<img src="images/to_title_s.png" width="77" height="40" alt="<?=$VGA_CONTENT['site_title_txt']?>"/>
+				<img src="images/athens_title_s.png" width="161" height="40" alt="<?=$VGA_CONTENT['site_title_txt']?>"/>
+			</div>
+		</div> <!-- top-pics -->
+	
 		<ul class="nav" id="top-nav">
-			<li><a href="viewquestions.php?u= <?php echo $userid; ?>"><?=$VGA_CONTENT['myquestions_link']?></a></li>
+		<li><a href="viewquestions.php"><?=$VGA_CONTENT['home_link']?></a></li>
+		<?php
+		if ($userid)
+		{
+			if ($userquestioncount)
+			{ ?>
+			<li><a href="viewquestions.php?u=<?=$userid?>"><?=$VGA_CONTENT['myquestions_link']?></a></li>
+			<?php
+			}
+			else
+			{ ?>
+			<li class="disabled-link" title="You currently have no questions to view"><?=$VGA_CONTENT['myquestions_link']?></li>
+			<?php
+			} ?>
+			
 			<li><a href="viewquestions.php?todo="><?=$VGA_CONTENT['todo_link']?></a></li>
 			<li><a href="http://metagovernment.org/wiki/Vilfredo"><?=$VGA_CONTENT['about_link']?></a></li>
-			<li><?=$VGA_CONTENT['hello_txt']?> <?php echo get_session_username(); ?></li>
+			<li><?=$VGA_CONTENT['hello_txt']?> <?=get_session_username()?></li>
 			<li><a href="editdetails.php"><?=$VGA_CONTENT['update_email_link']?></a></li>
-			<!--  <li>Languages: <a href="<?=AppendToQuery('locale','en')?>">English</a> <a href="<?=AppendToQuery('locale','it')?>">Italian</a></li> -->
 			<li><a href="logout.php"><?=$VGA_CONTENT['lougout_link']?></a></li>
-		</ul>
-	</div> <!-- header -->
-<?php
-}
-
-// Not logged in
-else 
-{
-?>
-	<div id="header">
-
-		<img src="images/pareto.png" id="paretoimg" alt="<?=$VGA_CONTENT['pareto_alt']?>"/>
-		<img src="images/athens.png" id="athens" alt="<?=$VGA_CONTENT['forum_alt']?>"/>
-
-		<h1><img src="images/titleimg.png" alt="<?=$VGA_CONTENT['site_title_txt']?>" /></h1>
-
-		<ul class="nav">
-			<li><a href="index.php"><?=$VGA_CONTENT['home_link']?></a></li>
-			<li><a href="viewquestions.php"><?=$VGA_CONTENT['view_questions_link']?></a></li>
+			
+		<?php
+		}		
+		// Not logged in
+		else 
+		{
+		?>
 			<li><a href="login.php"><?=$VGA_CONTENT['login_link']?></a></li>
 			<li><a href="register.php"><?=$VGA_CONTENT['register_link']?></a></li>
-			<!-- <li>Languages: <a href="<?=$_SERVER['REQUEST_URI']?>&locale=en">English</a> <a href="<?=$_SERVER['REQUEST_URI']?>&locale=it">Italian</a></p></li> -->
+		<?php 
+		}		
+		?>
+			<li><a href="feedback.php">Feedback</a></li>
 		</ul>
 	</div> <!-- header -->
- <?php
-}
-echo '</div>';
+
+<?php
+echo '<div id="innerheader">';
 $query_room = GetParamFromQuery(QUERY_KEY_ROOM);
 if  (!$query_room)
 {
@@ -155,22 +171,22 @@ else
 {
 	$current_room = $query_room;
 }
-echo '<div id="room_title">' . $VGA_CONTENT['room_label'] . ': &nbsp;' . $current_room;
-echo "</div>";
 ?>
 
+<div id="room_title"><?=$VGA_CONTENT['room_label']?>:&nbsp; <?=$current_room?><a href="<?=$rss_link?>"><img src="images/rss.jpg" width="19" height="19" alt="RSS Feed" /></a></div>
 
-<p><strong><?=$VGA_CONTENT['langs_label']?></strong> <a href="<?=AppendToQuery('locale','en')?>">English</a> <a href="<?=AppendToQuery('locale','it')?>">Italiano</a></p>
-<p><a class="rss-link" href="<?php echo $rss_link?>"> <?=$VGA_CONTENT['room_feed_link']?></a></p>
+<span id="langs"><strong><?=$VGA_CONTENT['langs_label']?></strong> <a href="<?=AppendToQuery('locale','en')?>"><img src="images/en.png" width="16" height="16" alt="Select English" /></a> <a href="<?=AppendToQuery('locale','it')?>"><img src="images/it.png" width="16" height="16" alt="Select Italian" /></a></span>
 
+<!-- <div id="roomfeed"><a class="rss-link" href="<?php echo $rss_link?>"> <?=$VGA_CONTENT['room_feed_link']?></a></div> -->
 
-<form method="GET" action="viewquestions.php">
+<div class="navbar">
+<form method="get" action="viewquestions.php">
 	<strong><?=$VGA_CONTENT['room_label']?>:</strong>
 	<input name="room" id="room" type="text" size="22" maxlength="20"/>
-	<input type="submit" id="submit" value="<?=$VGA_CONTENT['go_button']?>
-	" />
+	<input type="submit" id="submit" value="<?=$VGA_CONTENT['go_button']?>"/>
 </form>
-<ul class="nav">
+
+<ul class="innernav">
 	<li><strong><?=$VGA_CONTENT['rooms_txt']?>:</strong></li>
 	<li><a href="viewquestions.php">Common</a></li>
 	<li><a href="viewquestions.php?room=Vilfredo" tooltip="<?=$VGA_CONTENT['vilfredo_tooltip']?>">Vilfredo</a></li>
@@ -187,7 +203,10 @@ echo "</div>";
 	?>
 	</ul>
 	
-
+	</div> <!-- navbar -->
+	
+	</div> <!-- innerheader -->
+	
 <noscript>
 <br />
 <div class="ui-widget">
@@ -207,4 +226,3 @@ include_once 'update_email_form.php';
 //printbr($VGA_CONTENT['succ_prop_create_id_txt']);
 ?>
 
-<div id="content_page">

@@ -13,7 +13,7 @@
  *   http://www.gnu.org/licenses/gpl.html
  */
  
-;(function($) {
+(function($) {
 	
 		// the tooltip element
 	var helper = {},

@@ -1,5 +1,6 @@
 <?php
 include('header.php');
+include('newbubbles/velocity_time.php');
 
 if ($userid)
 {
@@ -13,6 +14,8 @@ if ($userid)
 	$room = '';
 	// Alpha-numeric characters and underscores only.
 	$room = FormatRoomId($_POST['room_id']);
+	
+	$questiontype = isset($_POST['questiontype']) ? $_POST['questiontype'] : 'question';
 
 	$title = strip_tags($_POST['title']);
 	
@@ -39,19 +42,27 @@ if ($userid)
 
 	if($blurb and $title)
 	{
-		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
-		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '$room', $permit_anon_votes, $permit_anon_proposals)";
-		
-                if (!mysql_query($sql))
+		if ($questiontype == "question")
 		{
-			db_error($sql);
-			set_log("Failed to create new question titled $title");
+			$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
+			VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '$room', $permit_anon_votes, $permit_anon_proposals)";
+
+			if (!mysql_query($sql))
+			{
+				db_error($sql);
+				set_log("Failed to create new question titled $title");
+			}
+			else
+			{
+				$newquestionid = mysql_insert_id();
+				$urlquery = CreateQuestionURL($newquestionid, $room);
+				header("Location: invitetoquestion.php".$urlquery);
+			}
 		}
-		else
+		else // Create new Bubble
 		{
-			$newquestionid = mysql_insert_id();
-			$urlquery = CreateQuestionURL($newquestionid, $room);
-			header("Location: invitetoquestion.php".$urlquery);
+			$submitQuestion = submitQuestion($userid, $blurb, $title, $room);
+			header("Location: viewquestions.php?room=$room");
 		}
 	}
 	else

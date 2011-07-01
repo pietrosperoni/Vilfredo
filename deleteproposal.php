@@ -159,7 +159,7 @@ try{
 						title.css("font-weight", "normal"); 
 						$("#content_rte_chars_msg").html("");
 					}
-				}
+				} 
 				
 				try{
 					var content_box = $("#content_rte");

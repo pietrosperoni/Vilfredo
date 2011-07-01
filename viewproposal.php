@@ -89,8 +89,8 @@ include('header.php');
 			$ProposalToStudy=GetProposalDaughter($ProposalToStudy);			
 			$GenerationToStudy+=1;					
 			echo '</td><td>';
-			//InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
-			//	
+			InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
+			/*	
 			$mapno = $GenerationToStudy - 1;
 			$mapid = 'svggraph' . $mapno;
 			$graphsize = 'smallgraph';
@@ -107,7 +107,7 @@ include('header.php');
 			<?php
 			}
 			echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
-			//
+			*/
 			echo '</td></tr></table>';
 		}
 		
