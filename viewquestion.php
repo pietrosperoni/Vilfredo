@@ -282,13 +282,11 @@ if ($userid) {
 			echo "{$VGA_CONTENT['writing_phase_txt']}</h3>";
 			if ($generation==1)
 			{
-				echo "<p><i>{$VGA_CONTENT['what_to_do_txt']}</i></p>
-";
+				echo "<p><i>{$VGA_CONTENT['what_to_do_txt']}</i></p>";
 			}
 			else
 			{
-					echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>
-";
+					echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>";
 			}
 
 	$NProposals=CountProposals($question,$generation);
@@ -462,6 +460,18 @@ if ($userid) {
 	
 	</div><!-- proposal_RTE -->
 	</div><!-- editor_panel -->
+	<!--translate-->
+	</br></br><p>subscribe to question<?=$VGA_CONTENT['subscribe_to_question_txt']?>
+	<input type = "Checkbox" name="subscribe" id="subscribe" title="Receives exciting and unexpected emails every time the question goes from one generation to the other<?=$VGA_CONTENT['suscribe_to_question_title']?>" 
+	
+	<?php
+	if($subscribed or !$userid or !isUserActiveInQuestion($userid, $question))	
+		{echo " checked ";}
+	else	
+		{echo " ";}		
+	?>
+	/>
+	</p>
 
 <!-- </form> -->
 <script type="text/javascript">
@@ -742,6 +752,21 @@ if ($userid) {
 	</td></tr>
 	<?php 
 	endif ?>
+	
+	<!--translate-->
+	<tr><td colspan="2"><p>subscribe to question<?=$VGA_CONTENT['subscribe_to_question_txt']?></p></td><td>
+	<input type = "Checkbox" name="subscribe" id="subscribe" title="Receives exciting and unexpected emails every time the question goes from one generation to the other<?=$VGA_CONTENT['suscribe_to_question_title']?>" 
+	
+	<?php
+	if($subscribed or !$userid or !isUserActiveInQuestion($userid, $question))	
+	{echo " checked ";}
+	else	{echo " ";}
+	?>
+	
+	/>		
+	</td></tr>
+	
+	
 	
 	<tr><td colspan="2">&nbsp;</td><td>
 	<?php

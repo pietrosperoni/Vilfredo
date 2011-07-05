@@ -13,6 +13,7 @@ if (IsQuestionWriting($question))
 
 // User is anonymous if anon checkbox has been clicked (is defined)
 $is_anon = isset($_POST['anon']);
+
 $userid=isloggedin();
 
 if ($is_anon)
@@ -24,6 +25,34 @@ if ($is_anon)
 		set_log(" User $userid submitted anonymously whilst logged in!");
 	}
 }
+
+
+$is_subscribe = isset($_POST['subscribe']);
+
+if ($userid) {
+	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	if ($row)
+	{
+		if(!$is_subscribe)
+		{
+			$sql = "DELETE FROM updates WHERE  updates.question = " . $question . " AND updates.user = " . $userid . "  ";
+			if (!mysql_query($sql)) error("Database update failed");				
+		}
+	}
+	else
+	{
+		if($is_subscribe)
+		{
+			$how="asap";
+			$sql = 'INSERT INTO `updates` (`user`, `question`, `how`) VALUES (\'' . $userid . '\', \'' . $question . '\', \'' . $how . '\');';
+			if (!mysql_query($sql)) error("Database update failed");				
+		}
+	}
+}
+
+
 
 $endorsedproposals = $_POST['proposal'];
 if(!$endorsedproposals){$endorsedproposals=array();}

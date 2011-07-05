@@ -53,6 +53,34 @@ if (!get_magic_quotes_gpc())
 //$blurb = $purifier->purify($blurb);
 
 
+
+$is_subscribe = isset($_POST['subscribe']);
+
+if ($userid) {
+	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	if ($row)
+	{
+		if(!$is_subscribe)
+		{
+			$sql = "DELETE FROM updates WHERE  updates.question = " . $question . " AND updates.user = " . $userid . "  ";
+			if (!mysql_query($sql)) error("Database update failed");				
+		}
+	}
+	else
+	{
+		if($is_subscribe)
+		{
+			$how="asap";
+			$sql = 'INSERT INTO `updates` (`user`, `question`, `how`) VALUES (\'' . $userid . '\', \'' . $question . '\', \'' . $how . '\');';
+			if (!mysql_query($sql)) error("Database update failed");				
+		}
+	}
+}
+
+
+
 $previousProposal=HasProposalBeenSuggested($question,$blurb,$abstract);
 if($previousProposal)
 {
@@ -97,7 +125,7 @@ else
 	
 	if (!$userid)
 	{
-		printbrx("Error: Could not creat anonymous user!");
+		printbrx("Error: Could not create anonymous user!");
 	}
 
 	$sql = "INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) 

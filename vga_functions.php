@@ -5553,8 +5553,41 @@ function MakeIntergenerationalGVMap($question,$size="11,5.5")  #,$highlightuser1
 	return $buf;
 }
 
+function isUserActiveInQuestion($userid, $question)
+{
+	$sql = "
+	SELECT COUNT(*) as author, 
+	(
+		SELECT COUNT(*) FROM proposals
+		WHERE experimentid = $question
+		AND usercreatorid = $userid
+	) AS props,
+	(
+		SELECT COUNT(*) FROM endorse e, proposals p
+		WHERE e.userid = $userid
+		AND e.proposalid = p.id
+		AND p.experimentid = $question
+	) AS votes
+	FROM questions
+	WHERE usercreatorid = $userid
+	AND id = $question
+	";
 
+	if ($result = mysql_query($sql))
+	{
+		$counts = mysql_fetch_assoc($result);
+		foreach ($counts as $count)
+		{
+			if ($count > 0) return true;
+		}
+		return false;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
 
-
+}
 
 ?>
