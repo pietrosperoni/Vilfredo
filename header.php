@@ -36,9 +36,9 @@ require_once 'config.inc.php';
 //$VGA_CONTENT[$common_lang_page] = loadLangXML($common_lang_page, $lang);
 //eg $VGA_CONTENT[$common_lang_page]['site_title_txt']
 
-if (isset($_get["locale"]) and ($_get["locale"] == 'en' or $_get["locale"] == 'it' ))
+if (isset($_GET["locale"]) and ($_GET["locale"] == 'en' or $_GET["locale"] == 'it' ))
 {
-	$locale = $_get["locale"];
+	$locale = $_GET["locale"];
 	$_SESSION['locale'] = $locale;
 }
 elseif (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
@@ -50,6 +50,9 @@ else
 	$locale = fetch_preferred_language_from_client();
 	$_SESSION['locale'] = $locale;
 }
+
+set_log((int)isset($_GET["locale"]));
+set_log(locale);
 
 //$locale = "it"; // For debugging
 putenv("LC_ALL=$locale");
