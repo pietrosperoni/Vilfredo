@@ -5462,6 +5462,18 @@ function WriteIntergenerationalGVMap($question)
 	
 }
 
+function GetProposalsRelated($proposal,$relation)
+{
+	$proposals=array();
+	$sql = 'SELECT topid FROM proposal_relations WHERE frompid = $proposal AND relation = $relation ';
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row[0]);
+	}
+	return $proposals;
+}
+
 function MakeIntergenerationalGVMap($question,$size="11,5.5")  #,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true)
 {
 	$title=StringSafe(GetQuestionTitle($question));
@@ -5523,10 +5535,20 @@ function MakeIntergenerationalGVMap($question,$size="11,5.5")  #,$highlightuser1
 		$pd=GetProposalDaughter($p);
 		if($pd)
 		{
-			$buf.=$p.' -> '.$pd.' ';	
+			$buf.=$p.' -> '.$pd.' [color=blue] ';	
 			$buf.="\n";
 		}		
 	}
+	foreach($AllProposals as $p)	
+	{
+		$psd=GetProposalsRelated($p,"derives");
+		foreach($psd as $pd)
+		{
+			$buf.=$p.' -> '.$pd.' [color=red] ';	
+			$buf.="\n";
+		}		
+	}
+	
 	$buf.="\n}";
 	return $buf;
 }
