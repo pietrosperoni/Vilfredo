@@ -116,6 +116,7 @@ if ($userid) {
 		$minimumhours=(int)($minimumtime/(60*60));
 		$minimumtime=$minimumtime-$minimumhours*60*60;
 		$minimumminutes=(int)($minimumtime/60);
+		MakeQuestionMap($userid,$question,$room,$generation,$phase);
 		
 		echo '<div class="questionbox">';
 		

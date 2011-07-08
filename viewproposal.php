@@ -34,6 +34,10 @@ include('header.php');
 		$questiontitle=$row[7];
 		$proposalabstract=$row[8];
 		$author=$row[9];
+		
+		MakeQuestionMap($userid,$questionid,$room,$questionround,$questionphase);
+		
+		
 		$urlquery = CreateQuestionURL($questionid, $room);
 
 		echo '<h1 id="question">Proposal</h1>';

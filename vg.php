@@ -78,6 +78,7 @@ if ($userid)
 		$bitlyhash = $row['bitlyhash'];
 		$shorturl = '';
 		
+		MakeQuestionMap($userid,$question,$room,$generationnow,$phase);
 		
 		echo '<div class="questionbox">';
 		

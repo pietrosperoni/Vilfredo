@@ -23,19 +23,12 @@ include('header.php');
 	$room = GetParamFromQuery(QUERY_KEY_ROOM);
 
 
-
-
-	echo '<div class="questionbox">';
-
 	$Disabled="DISABLED";
 	$Tootip="{$VGA_CONTENT['wait_to_write_tooltip']}";
 	
-	
 	$sql = "SELECT * FROM questions WHERE id = ".$question." LIMIT 1 ";
 	$response = mysql_query($sql);
-	
-	
-	
+		
 	while ($row = mysql_fetch_array($response))
 	{
 		$content=$row[1];
@@ -44,43 +37,43 @@ include('header.php');
 		$creatorid=$row[4];
 		$title=$row[5];
 		$room=$row[9];
-		$urlquery = CreateQuestionURL($question, $room);
-		
-		
-		if($generation>2)
-		{
-			$graph=StudyQuestion($question);
-			echo "<img src='".$graph."'>";
-		}
-		
-		
-		
-		echo "<h2>{$VGA_CONTENT['question_label']}</h2>";
-		
-		echo '<h4 id="question">' . $title . '</h2>';
-		echo '<div id="question">' . $content . '</div>';
-
-		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
-		$response2 = mysql_query($sql2);
-		while ($row2 = mysql_fetch_row($response2))
-		{
-			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
-		}
-
-#		echo '<div id="actionbox">';
-		echo "{$VGA_CONTENT['curr_gen_txt']} <strong>".$generation."</strong>";
-		
-		echo '</div>';
-		
-		echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >' . $VGA_CONTENT['quest_page_link'] . '</a>';
-#		echo '</div>';
-		
-		if($phase==0)	
-		{
-			$Disabled="";
-			$Tootip="{$VGA_CONTENT['reprop_this_title']}";
-		}
 	}
+	MakeQuestionMap($userid,$question,$room,$generation,$phase);		
+
+	echo '<div class="questionbox">';
+
+	$urlquery = CreateQuestionURL($question, $room);
+
+	if($generation>2)
+	{
+		$graph=StudyQuestion($question);
+		echo "<img src='".$graph."'>";
+	}
+
+	echo "<h2>{$VGA_CONTENT['question_label']}</h2>";
+
+	echo '<h4 id="question">' . $title . '</h2>';
+	echo '<div id="question">' . $content . '</div>';
+
+	$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
+	$response2 = mysql_query($sql2);
+	while ($row2 = mysql_fetch_row($response2))
+	{
+		echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
+	}
+
+	echo "{$VGA_CONTENT['curr_gen_txt']} <strong>".$generation."</strong>";
+
+	echo '</div>';
+
+#	echo '<a href="' . SITE_DOMAIN . '/viewquestion.php'.$urlquery.'" >' . $VGA_CONTENT['quest_page_link'] . '</a>';
+
+	if($phase==0)	
+	{
+		$Disabled="";
+		$Tootip="{$VGA_CONTENT['reprop_this_title']}";
+	}
+
 
 	echo "<h1>{$VGA_CONTENT['hist_props_txt']}</h1>";
 	#	echo '<quote>"History, teach us nothing": Sting</quote><br /><br />';

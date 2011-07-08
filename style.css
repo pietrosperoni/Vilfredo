@@ -708,7 +708,8 @@ a.expandbtn {
 	/*font-style: italic;*/
 	padding: 3px;
 	margin-top: 20px;
-	margin-bottom: 0;	display: block;
+	margin-bottom: 0;
+	display: block;
 }
 
 a.expandbtn-hover, a.expandbtn-open.expandbtn-hover {
@@ -1107,4 +1108,8 @@ a.tweet span.vert {
 	margin: 50px 5px 50px 0px;
 	font-size: 1em;
 	line-height: 1.5em;
+}
+
+.emptycell {
+	border: 0;
 }
