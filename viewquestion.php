@@ -45,236 +45,147 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
 
-if ($userid) {
-	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
-	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
-	if ($row)
-		{$subscribed=1;}
-	else
-		{$subscribed=0;}
-}
+	WriteQuestionInfo($question,$userid);
 
-	$sql = "SELECT * FROM questions WHERE id = $question";
-	$response = mysql_query($sql);
-	if (!$response)
+	$QuestionInfo=GetQuestion($question);
+	$title=$QuestionInfo['title'];
+	$content=$QuestionInfo['question'];
+#	$room=$QuestionInfo['room'];
+	$phase=$QuestionInfo['phase'];
+	$generation=$QuestionInfo['roundid'];
+	$author=$QuestionInfo['usercreatorid'];
+
+	$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
+	if (!$lastmoveonTime)
 	{
-		db_error($sql);
+		$lastmoveonTime=strtotime( $row[6] );
 	}
-	
-	while ($row = mysql_fetch_array($response))
+	$minimumtime= $row[7] ;
+
+	$timeelapsed=time()-$lastmoveonTime;
+	if ($timeelapsed>=$minimumtime)
 	{
-		$content=$row['question'];
-		$phase=$row['phase'];
-		$generation=$row['roundid'];
-		$creatorid=$row['usercreatorid'];
-		$title=$row['title'];
-		$bitlyhash = $row['bitlyhash'];
-		$shorturl = '';
-		$permit_anon_votes = $row['permit_anon_votes'];
-		$permit_anon_proposals = $row['permit_anon_proposals'];
-		
-		if (!empty($bitlyhash)) 
-		{
-			$shorturl = BITLY_URL.$bitlyhash;
-		}
-		else
-		{
-			$longurl = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-			if ($hash = make_bitly_hash($longurl, $bitly_user, $bitly_key))
-			{
-				SetBitlyHash($question, $hash);
-				$shorturl = BITLY_URL.$hash;
-			}
-		}
-		
-		$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
-		if (!$lastmoveonTime)
-		{
-			$lastmoveonTime=strtotime( $row[6] );
-		}
-		$minimumtime= $row[7] ;
-
-		$timeelapsed=time()-$lastmoveonTime;
-		if ($timeelapsed>=$minimumtime)
-		{
-			$tomoveon=1;
-		}
-		else
-		{
-			$tomoveon=0;
-		}
-		$dayselapsed=(int)($timeelapsed/(60*60*24));
-		$timeelapsed=$timeelapsed-$dayselapsed*60*60*24;
-		$hourseselapsed=(int)($timeelapsed/(60*60));
-		$timeelapsed=$timeelapsed-$hourseselapsed*60*60;
-		$minuteselapsed=(int)($timeelapsed/60);
+		$tomoveon=1;
+	}
+	else
+	{
+		$tomoveon=0;
+	}
+	$dayselapsed=(int)($timeelapsed/(60*60*24));
+	$timeelapsed=$timeelapsed-$dayselapsed*60*60*24;
+	$hourseselapsed=(int)($timeelapsed/(60*60));
+	$timeelapsed=$timeelapsed-$hourseselapsed*60*60;
+	$minuteselapsed=(int)($timeelapsed/60);
 
 
-		$minimumdays=(int)($minimumtime/(60*60*24));
-		$minimumtime=$minimumtime-$minimumdays*60*60*24;
-		$minimumhours=(int)($minimumtime/(60*60));
-		$minimumtime=$minimumtime-$minimumhours*60*60;
-		$minimumminutes=(int)($minimumtime/60);
-		MakeQuestionMap($userid,$question,$room,$generation,$phase);
-		
-		echo '<div class="questionbox">';
-		
-		echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
+	$minimumdays=(int)($minimumtime/(60*60*24));
+	$minimumtime=$minimumtime-$minimumdays*60*60*24;
+	$minimumhours=(int)($minimumtime/(60*60));
+	$minimumtime=$minimumtime-$minimumhours*60*60;
+	$minimumminutes=(int)($minimumtime/60);
 
-		?>
-			<h2 id="question">
-			<form method="post" action="changeupdate.php">
-				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-				<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
-			<?php
-			echo  $title;
-		if ($userid) {
-			if ($subscribed==1)
-			{
-				?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>" /> <?php
-			}else{
-				?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>" /> <?php
-			}
-		}
+
+
+
+
+
+
+
+
+
+
+
+	echo "<br />";
+
+	if (($phase==0) && ($generation>1))
+	{
+		InsertMap($question,$generation-1);
+		/*
+		$graphsize = 'largegraph';
+		if ($filename = InsertMap2($question,$generation-1))
+		{
+			$filename .= '.svg';
 			?>
-			</form>
-			</h2>
-		<?php
-
-		echo "<br />";
-		
-		echo '<div id="question">' . $content . '</div>';
-		
-		echo "<br />";
-
-		$sql2 = "SELECT users.username, users.id FROM questions, users WHERE questions.id = ".$question." and users.id = questions.usercreatorid LIMIT 1 ";
-		$response2 = mysql_query($sql2);
-		while ($row2 = mysql_fetch_array($response2))
-		{
-			echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt'] . ' <a href="user.php?u=' . $row2[1] . '">'.$row2[0].'</a></cite></p>';
-			
-			 //echo '</div>';
-			 
-			 //echo '<div class="social-buttons">';
-			 echo '<table id="social-buttons"><tr><td>';
-			
-			// Only display twit button if shorturl found in DB or generated from bitly
-			if (!empty($shorturl))
-			{
-				if (false)
-				{
-					$retweetprefix = "RT @Vg2A";
-					$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
-					$tweetaddress = "http://twitter.com/home?status=$tweet";
-					echo "<a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a>";
-				}
-				else
-				{
-					set_log('Tweet Button lang = ' . $locale);
-					echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
-				}
-			}
-			
-			echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
-			
-			echo '</div>';//---extended questionbox
-			?>
-			
+			<script type="text/javascript">
+			$(document).ready(function() {
+				var svgfile = '<?= $filename; ?>';
+				$('#svggraph1').svg({loadURL: svgfile});
+			});
+			</script>
 			<?php
-			
-		}
+			echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
+		} */
+		
+		echo '<div id="paretofrontbox">';
 
-		if (($phase==0) && ($generation>1))
+		$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
+
+		echo '<h3>' . $VGA_CONTENT['prev_agree_txt'] . ' (<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">' . $VGA_CONTENT['history_link'] . '</a>)</h3>';
+		sort($VisibleProposalsGenerations);
+		
+		if(empty($VisibleProposalsGenerations)) echo "{$VGA_CONTENT['none_txt']}<br />";
+		
+		foreach($VisibleProposalsGenerations as $vpg)
 		{
-			InsertMap($question,$generation-1);
-			/*
-			$graphsize = 'largegraph';
-			if ($filename = InsertMap2($question,$generation-1))
-			{
-				$filename .= '.svg';
-				?>
-				<script type="text/javascript">
-				$(document).ready(function() {
-					var svgfile = '<?= $filename; ?>';
-					$('#svggraph1').svg({loadURL: svgfile});
-				});
-				</script>
-				<?php
-				echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
-			} */
+			$endorsersAgreement=Endorsers($question,$vpg);
+			if($generation==$vpg+1){echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
+			else		{	echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
 			
-			echo '<div id="paretofrontbox">';
-
-			$VisibleProposalsGenerations=PreviousAgreementsStillVisible($question,$generation);
-
-			echo '<h3>' . $VGA_CONTENT['prev_agree_txt'] . ' (<a href="vhq.php?' . $_SERVER['QUERY_STRING'] . '">' . $VGA_CONTENT['history_link'] . '</a>)</h3>';
-			sort($VisibleProposalsGenerations);
+			echo " {$VGA_CONTENT['agree_found_txt']} ".Count($endorsersAgreement)." people ";
+			foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
+			echo "</h4>";
 			
-			if(empty($VisibleProposalsGenerations)) echo "{$VGA_CONTENT['none_txt']}<br />";
-			
-			foreach($VisibleProposalsGenerations as $vpg)
-			{
-				$endorsersAgreement=Endorsers($question,$vpg);
-				if($generation==$vpg+1){echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">Last Generation</a> ';}
-				else		{	echo '<h4><a href="vg.php'.CreateGenerationURL($question,$vpg,$room).'">'.($generation-$vpg). ' Generations ago</a> ';}
-				
-				echo " {$VGA_CONTENT['agree_found_txt']} ".Count($endorsersAgreement)." people ";
-				foreach($endorsersAgreement as $ea)	{	echo '<img src="images/a_man.png">'; }
-				echo "</h4>";
-				
-				$ProposalsToSee=ParetoFront($question,$vpg);
-					foreach($ProposalsToSee as $p)
-					{
-						?><form method="get" action="npv.php" target="_blank">
-							<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
-								<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
-								<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-								<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
-								<?php	echo '</h3>';
-						WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
-					}
-					
-			}
-			$lastgeneration=$generation-1;
-			if (! in_array($lastgeneration,$VisibleProposalsGenerations))
-			{
-				echo "<h3>{$VGA_CONTENT['alt_props_txt']}</h3>";
-				echo "<p><i>{$VGA_CONTENT['pareto_txt']}</i></p>";
-
-				$ParetoFront=ParetoFront($question,$generation-1);
-				foreach ($ParetoFront as $p)
+			$ProposalsToSee=ParetoFront($question,$vpg);
+				foreach($ProposalsToSee as $p)
 				{
-						echo '<div class="paretoproposal">';
-					
-					?>
-					<form method="get" action="npv.php" target="_blank">
-					<h3>
-						<?php	echo WriteProposalPage($p,$room);?>	
+					?><form method="get" action="npv.php" target="_blank">
+						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-							<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>" />
-							</h3>
-							</form>
-					
-					<?php
-					WriteProposalOnlyContent($p,$question);
-					
-					$OriginalProposal=GetOriginalProposal($p);
-					$OPropGen=$OriginalProposal["generation"];
-
-					echo '<br />' . $VGA_CONTENT['written_by_txt'] . ': '.WriteUserVsReader(AuthorOfProposal($p),$userid);
-					if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
-					$endorsers=EndorsersToAProposal($p);
-					echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
-					foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
-					echo '</div>';
-					#}
+							<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
+							<?php	echo '</h3>';
+					WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
 				}
-				echo '</div>';
-			}
-			
+				
 		}
+		$lastgeneration=$generation-1;
+		if (! in_array($lastgeneration,$VisibleProposalsGenerations))
+		{
+			echo "<h3>{$VGA_CONTENT['alt_props_txt']}</h3>";
+			echo "<p><i>{$VGA_CONTENT['pareto_txt']}</i></p>";
+
+			$ParetoFront=ParetoFront($question,$generation-1);
+			foreach ($ParetoFront as $p)
+			{
+					echo '<div class="paretoproposal">';
+				
+				?>
+				<form method="get" action="npv.php" target="_blank">
+				<h3>
+					<?php	echo WriteProposalPage($p,$room);?>	
+						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
+						<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+						<input type="submit" name="submit" title="<?=$VGA_CONTENT['prop_pres_title']?>" id="submit" value="<?=$VGA_CONTENT['mutate_button']?>" />
+						</h3>
+						</form>
+				
+				<?php
+				WriteProposalOnlyContent($p,$question);
+				
+				$OriginalProposal=GetOriginalProposal($p);
+				$OPropGen=$OriginalProposal["generation"];
+
+				echo '<br />' . $VGA_CONTENT['written_by_txt'] . ': '.WriteUserVsReader(AuthorOfProposal($p),$userid);
+				if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
+				$endorsers=EndorsersToAProposal($p);
+				echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
+				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
+				echo '</div>';
+				#}
+			}
+			echo '</div>';
+		}		
+		
 		
 		echo '<div id="actionbox">';
 		echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
@@ -293,12 +204,6 @@ if ($userid) {
 	$NProposals=CountProposals($question,$generation);
 	echo "<p>{$VGA_CONTENT['num_authors_txt']}: ".count(AuthorsOfNewProposals($question,$generation))."</p>";
 	echo "<p>{$VGA_CONTENT['num_props_txt']}: ".$NProposals."</p>";
-#	echo "<p>Number of proposals written by you: ".."</p>";
-#	echo "<p>Number of proposals inherited from the past geeration: ".."</p>";
-#	echo "<p>Number of new proposals written by others: ".."</p>";
-
-
-
 
 		}
 		if ( $phase==1)

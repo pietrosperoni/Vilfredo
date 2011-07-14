@@ -51,68 +51,137 @@ $(".foottip a").tooltip({
 
 		foreach ($WhereHaveWeMet as $room)
 		{
+			$urlquery = CreateRoomURL($room);
 			if($room)
 			{
-				echo " Room= ".$room.";  <br />";
+				echo '<a href="viewquestions.php'.$urlquery.'">'.$room.'</a>; ';				
 			}
 			else
 			{
-				echo " The Common Room;<br />";
+				echo '<a href="viewquestions.php'.$urlquery.'">The Common Room</a>; ';								
 			}
 		}
 	}
 
-	echo '<h3>'. $user . ' has asked the following questions:</h3>';
+	echo '</br>Note: You can only see activity that happened in rooms you have participated in</br>';
 	
 	// **
 	// Set user access filter
 	// **
 	$user_access = GetUserAccessFilter($uid);
 
-	$sql = "SELECT questions.id, questions.question, questions.roundid, questions.roundid, questions.title, questions.room FROM questions WHERE questions.usercreatorid = " . $uid .  $user_access . " ORDER BY  questions.id DESC ";
-
-	$response = mysql_query($sql);
-
-
-	while ($row = mysql_fetch_array($response))
-	{
-		$questionid = $row[0];
-		$questiontext = $row[1];
-		$generation = $row[2];
-		$phase = $row[3];
-		$title = $row[4];
-		$room=$row[5];
-
-		$urlquery = CreateQuestionURL($questionid, $room);
-
-		echo '<fieldset class="foottip">';
-		echo '<p><a title="This is a new question. Be the first to suggest an answer!" href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $questionid . '" >' . $title . '</a></p>';
-		echo '<div class="invisible" id="footnote' . $row[0] . '"><br/>QUESTION: '.$questiontext.'.<br/>Generation:'.$generation.'</div>';
-		echo '</fieldset>';
-	}
-
 	echo '</div">';
 	echo '</div">';
 
-	echo '<h3>'. $user . ' endorses the following proposals:</h3>';
-
-	#$sql = "SELECT endorse.userid, endorse.proposalid, proposals.blurb, proposals.id, proposals.roundid, proposals.experimentid FROM endorse, proposals WHERE endorse.userid = ".$uid." AND proposals.id = endorse.proposalid ORDER BY proposals.experimentid DESC, proposals.roundid DESC ";
-	
-	$sql = "SELECT endorse.userid, endorse.proposalid, proposals.blurb, proposals.id, proposals.roundid, proposals.experimentid FROM endorse, proposals, questions WHERE endorse.userid = ".$uid." AND proposals.id = endorse.proposalid AND proposals.experimentid = questions.id " . $user_access . " ORDER BY proposals.experimentid DESC, proposals.roundid DESC ";
-
-	$response = mysql_query($sql);
-
-
-	while ($row = mysql_fetch_array($response))
+	foreach ($WhereHaveWeMet as $r)
 	{
-		$proposal = $row[2];
-		$proposalid = $row[1];
+		echo '<h2><center>';
+		$urlquery = CreateRoomURL($r);
+		if($r)
+		{
+			echo 'Room: <a href="viewquestions.php'.$urlquery.'">'.$r.'</a>; ';				
+		}
+		else
+		{
+			echo '<a href="viewquestions.php'.$urlquery.'">The Common Room</a>; ';								
+		}
+		echo '</center></h2>';
+		
+		
+		
+		echo '<h3><center>Questions asked by '.$user.' ';
+		echo '</center></h3>';
+		
+		
+		
+		$questions=QuestionsAskedInRoom($uid,$r);
+		if($questions)
+		{
+			foreach($questions as $q)
+			{
+				echo '<table border=1 width="100%"><tr><td width="50%">';
 
-		echo '<p class="endorsed"><a href="viewproposal.php?p=' . $proposalid . '">' . $proposal . '</a></p>';
-		echo $row[5];
-		echo '.';
-		echo $row[4];
+				$lastgen=GetQuestionGeneration($q);
+				if($lastgen>1)
+				{
+					$g=1;
+					echo "<table border=1><tr>";
+					echo "<td></td>";
 
+					while($g<$lastgen)
+					{
+						echo "<td>Gen $g</td>";
+						$g++;
+					}
+					echo "</tr><tr>";
+
+					$g=1;
+					echo '<td >';
+					echo WriteUserVsReaderInQuestion($uid,$userid,$q,$r);
+					echo '</td >';
+
+					while($g<$lastgen)
+					{
+						echo ShowActivity($uid,$q,$g);
+						$g++;
+					}
+					echo "</tr></table>";
+					}
+				echo '</td><td width="50%">';
+				echo WriteQuestion($q,$userid);
+				echo "</td></tr></table>";
+			}	
+		}
+		else
+		{
+			echo "<p>None</p>";
+		}
+		
+		echo '<h3><center> Questions Participated in';
+		echo '</center></h3>';
+		
+		
+		
+		$questions=ActivityInRoom($uid,$r);	
+		if($questions)
+		{
+			foreach($questions as $q)
+			{
+				echo '<table border=1 width="100%"><tr><td width="50%">';
+				$lastgen=GetQuestionGeneration($q);
+				if($lastgen>1)
+				{
+					$g=1;
+					echo "<table border=1><tr>";
+					echo "<td></td>";
+
+					while($g<$lastgen)
+					{
+						echo "<td>Gen $g</td>";
+						$g++;
+					}
+					echo "</tr><tr>";
+					$g=1;
+					echo '<td >';
+					echo WriteUserVsReaderInQuestion($uid,$userid,$q,$r);
+					echo '</td >';
+
+					while($g<$lastgen)
+					{
+						echo ShowActivity($uid,$q,$g);
+						$g++;
+					}
+					echo "</tr></table>";
+				}
+				echo '</td><td width="50%">';
+				echo WriteQuestion($q,$userid);
+				echo "</td></tr></table>";		
+			}
+		}
+		else
+		{
+			echo "<p>None</p>";	
+		}
 	}
 
 	// echo "<a href=logout.php>Logout</a>";

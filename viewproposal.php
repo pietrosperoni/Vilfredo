@@ -18,111 +18,77 @@ include('header.php');
 	}
 	
 	$proposal = $_GET[QUERY_KEY_PROPOSAL];
+	
+	$question=GetProposalsQuestion($proposal);
+	WriteQuestionInfo($question,$userid);
 
-	$sql = "SELECT  questions.question, questions.roundid, questions.phase, proposals.blurb, proposals.roundid, questions.id, questions.room, questions.title, proposals.abstract, proposals.usercreatorid FROM proposals, questions WHERE proposals.id = " . $proposal . " and proposals.experimentid = questions.id";
+	$QuestionInfo=GetQuestion($question);
+	$title=$QuestionInfo['title'];
+	$content=$QuestionInfo['question'];
+	$room=$QuestionInfo['room'];
+	$phase=$QuestionInfo['phase'];
+	$generation=$QuestionInfo['roundid'];
+	$author=$QuestionInfo['usercreatorid'];
 
-	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	$ProposalInfo=GetProposal($proposal);
+	$proposaltext=$ProposalInfo['blurb'];
+	$proposalround=$ProposalInfo['roundid'];
+	$proposalabstract=$ProposalInfo['abstract'];
+	$proposalauthor=$ProposalInfo['usercreatorid'];
+	
+
+	$Disabled="DISABLED";
+	$Tootip="{$VGA_CONTENT['wait_to_write_tooltip']}";
+	if($phase==0)	
 	{
-		$questiontext=$row[0];
-		$questionround=$row[1];
-		$questionphase=$row[2];
-		$proposaltext=$row[3];
-		$proposalround=$row[4];
-		$questionid=$row[5];
-		$room=$row[6];
-		$questiontitle=$row[7];
-		$proposalabstract=$row[8];
-		$author=$row[9];
-		
-		MakeQuestionMap($userid,$questionid,$room,$questionround,$questionphase);
-		
-		
-		$urlquery = CreateQuestionURL($questionid, $room);
-
-		echo '<h1 id="question">Proposal</h1>';
-
-		echo '<h2 id="question">Question</h2>';
-
-		echo '<h4 id="question">"<a href="viewquestion.php' . $urlquery . '">' . $questiontitle . '</a>"</h4>';
-		echo '<div id="question">' . $questiontext . '</div>';		
-		echo 'now on Generation ' . $questionround . '<br>';
-		
-		$Disabled="DISABLED";
-		$Tootip="It is only permitted to propose during the writing phase. Please wait until the next writing phase to propose something";
-		if($questionphase==0)	
-		{
-			$Disabled="";
-			$Tootip="Click here to either re-propose this proposal, or propose an alternative proposal inspired by this one. The form will automatically be filled with this proposal.";
-		}
-		
-		?>
-			<form method="get" action="npv.php" target="_blank">
-		<?php	echo '<h3>'.WriteProposalPage($proposal,$room)." ";?>	
-				<input type="hidden" name="p" id="p" value="<?php echo $proposal; ?>" />
-				<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
-				<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
-				<?php	echo '</h3>';
-		WriteProposalOnlyContent($proposal,$question);#,$generation,$room,$userid);
-		echo '<h2>History of the Proposal</h2>';
-		$OriginalProposal=GetOriginalProposal($proposal);
-		$OPropID=$OriginalProposal["proposalid"];
-		$OPropGen=$OriginalProposal["generation"];
-#		echo "The Original Proposal was ";
-#		$urlquery = CreateProposalURL($OPropID, $room);
-#		echo '<a href="viewproposal.php'.$urlquery.'">'.$OPropID.'</a>';
-#		echo "proposed on generation ".$OPropGen.". <br>";
-		
-		echo "The proposal was written by ";
-		echo WriteUserVsReader($author,$userid);
-		echo "in ".WriteGenerationPage($questionid,$OPropGen,$room).".<br>";
-
-		$ProposalToStudy=$OPropID;
-		$GenerationToStudy=$OPropGen;
-		while($ProposalToStudy)
-		{
-			if ($questionround<=$GenerationToStudy){break;}			
-			echo '<h4>'.WriteGenerationPage($questionid,$GenerationToStudy,$room).'</h4>';
-			echo '<table border="1" class="historytable">';
-			echo '<tr><td>';
-			WriteEndorsersToAProposal($ProposalToStudy,$userid);
-			echo '<br />';
-			
-			echo WriteProposalRelation($ProposalToStudy,$questionid,$GenerationToStudy,$userid,$room);
-			$ProposalToMap=$ProposalToStudy;
-			$ProposalToStudy=GetProposalDaughter($ProposalToStudy);			
-			$GenerationToStudy+=1;					
-			echo '</td><td>';
-			InsertMap($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap);
-			/*	
-			$mapno = $GenerationToStudy - 1;
-			$mapid = 'svggraph' . $mapno;
-			$graphsize = 'smallgraph';
-			if ($filename = InsertMap2($questionid,$GenerationToStudy-1,0,"S",$ProposalToMap))
-			{
-				$filename .= '.svg';
-				?>
-				<script type="text/javascript">
-				$(document).ready(function() {
-					var svgfile = '<?= $filename; ?>';
-					$('#' + '<?=$mapid?>').svg({loadURL: svgfile});
-				});
-				</script>
-			<?php
-			}
-			echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
-			*/
-			echo '</td></tr></table>';
-		}
-		
+		$Disabled="";
+		$Tootip="{$VGA_CONTENT['reprop_this_title']}";
 	}
-/*
-}
-else
-{
-		header("Location: login.php");
-}*/
 
+
+	echo '<h1 id="question">Proposal</h1>';
+
+	?>
+		<form method="get" action="npv.php" target="_blank">
+	<?php	echo '<h3>'.WriteProposalPage($proposal,$room)." ";?>	
+			<input type="hidden" name="p" id="p" value="<?php echo $proposal; ?>" />
+			<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
+			<input type="submit" name="submit" title="This proposal is already present, but you can click here to modify the text and propose an alternative" id="submit" value="Mutate" /></form>
+			<?php	echo '</h3>';
+	WriteProposalOnlyContent($proposal,$question);#,$generation,$room,$userid);
+	echo '<h2>History of the Proposal</h2>';
+	$OriginalProposal=GetOriginalProposal($proposal);
+	$OPropID=$OriginalProposal["proposalid"];
+	$OPropGen=$OriginalProposal["generation"];
+	#		echo "The Original Proposal was ";
+	#		$urlquery = CreateProposalURL($OPropID, $room);
+	#		echo '<a href="viewproposal.php'.$urlquery.'">'.$OPropID.'</a>';
+	#		echo "proposed on generation ".$OPropGen.". <br>";
+
+	echo "The proposal was written by ";
+	echo WriteUserVsReader($proposalauthor,$userid);
+	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";
+
+	$ProposalToStudy=$OPropID;
+	$GenerationToStudy=$OPropGen;
+	
+	while($ProposalToStudy)
+	{		
+		if ($generation<=$GenerationToStudy){break;}
+		echo '<h4>'.WriteGenerationPage($question,$GenerationToStudy,$room).'</h4>';
+		echo '<table border="1" class="historytable">';
+		echo '<tr><td>';
+		WriteEndorsersToAProposal($ProposalToStudy,$userid);
+		echo '<br />';
+
+		echo WriteProposalRelation($ProposalToStudy,$question,$GenerationToStudy,$userid,$room);
+		$ProposalToMap=$ProposalToStudy;
+		$ProposalToStudy=GetProposalDaughter($ProposalToStudy);			
+		$GenerationToStudy++;					
+		echo '</td><td>';
+		InsertMap($question,$GenerationToStudy-1,0,"S",$ProposalToMap);
+		echo '</td></tr></table>';
+	}
 include('footer.php');
 
 ?>

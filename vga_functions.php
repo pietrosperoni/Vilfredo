@@ -947,6 +947,19 @@ function CreateNewQuestionURL()
         
         return  $question_url;
 }
+
+function CreateRoomURL($room)
+{
+	$question_url = '';
+	// Add room id if not empty
+	if (!empty($room)) 
+	{
+		$question_url .= "?" . QUERY_KEY_ROOM . "=".$room;
+	}        
+	return  $question_url;
+}
+
+
 function CreateNewRoomURL()
 {
 	$question_url = '';
@@ -972,6 +985,27 @@ function CreateQuestionURL($question, $room="")
 
 	return $question_url;
 }
+
+function CreateUserInQuestionURL($question, $user,$room="")
+{
+	if (!isset($question) or empty($question))
+             error("Question parameter not set!!!");
+	if (!isset($user) or empty($user))
+	           error("User parameter not set!!!");
+
+	$UserInQuestion_url = "?" . QUERY_KEY_QUESTION . "=".$question;
+
+    $UserInQuestion_url .= "&" . QUERY_KEY_USER . "=".$user;
+#    $UserInQuestion_url .= "&u=".$user;
+
+	// Add room id if not empty
+	if (!empty($room))
+            $UserInQuestion_url .= "&" . QUERY_KEY_ROOM . "=".$room;
+
+	return $UserInQuestion_url;
+}
+
+
 
 function CreateProposalURL($proposal, $room="")
 {
@@ -1770,6 +1804,21 @@ function GetQuestion($question)
 	return $info;
 }
 
+function GetProposal($proposal)
+{
+	 $sql="SELECT *
+	     FROM proposals
+	     WHERE id='$proposal'";
+
+	$result = mysql_query($sql) or die(mysql_error());
+	$info = mysql_fetch_assoc($result);
+
+	return $info;
+}
+
+
+
+
 // Returns empty string if no room set,
 // or room id as a string
 function GetRoom($question)
@@ -2552,6 +2601,31 @@ function GetEndorsements($userid, $proposals, $question, $generation)
 	return $endorsements;
 }
 
+
+function GetFirstAncestor($p)
+{
+	
+	$sql = "SELECT source from proposals WHERE id = $p";
+		
+	$response = mysql_query($sql);
+		
+	if (!$response)
+	{
+		handle_db_error($response);
+		log_error("GetFirstAncestor(): MySQL error: " . mysql_error());
+		return false;
+	}
+	$info=mysql_fetch_assoc($response);
+	$source = $info['source'];
+	if ($source)
+	{
+		return GetFirstAncestor($source);
+	}
+
+	return $p;
+}
+
+
 function GetAncestors($source)
 {
 	$ancestors = array();
@@ -2627,6 +2701,7 @@ function hasUserEndorsed($user, $question, $generation)
 	}
 }
 
+
 function CountEndorsersToAProposal($proposal)
 {
 	$sql = "SELECT DISTINCT userid FROM endorse WHERE proposalid = ".$proposal." ";
@@ -2646,13 +2721,16 @@ function EndorsersToAProposal($proposal)
 	return array_unique($endorsers);
 
 }
+
+
+
+
 function ProposalsToAnEndorser($user,$question,$generation)
 {
 	$proposals=array();	
 	$sql = "SELECT DISTINCT endorse.proposalid 
 	FROM proposals, endorse 
 	WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.id = endorse.proposalid and endorse.userid= ".$user." ";
-	
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -2697,6 +2775,8 @@ function CountEndorsers($question,$generation)
 	return $n;
 }
 
+
+
 function ProposalsInGeneration($question,$generation)
 {
 	$proposals=array();
@@ -2733,6 +2813,40 @@ function AuthorOfProposal($proposal)
 	return $author;
 }
 
+function ProposalsOfAnAuthorWrittenInAGeneration($user,$question,$generation)
+{
+	$proposals=array();
+	$sql = "SELECT id FROM proposals WHERE usercreatorid=$user and roundid = $generation and experimentid = $question and source=0  ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$proposals[]=$row[0];
+	}
+	return $proposals;
+}
+function ProposalsOfAnAuthorActiveInAGeneration($user,$question,$generation)
+{
+	$proposals=array();
+	$sql = "SELECT id FROM proposals WHERE usercreatorid=$user and roundid = $generation and experimentid = $question ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$proposals[]=$row[0];
+	}
+	return $proposals;
+}
+
+function ProposalsOfAnAuthor($user,$question)
+{
+	$proposals=array();
+	$sql = "SELECT id FROM proposals WHERE usercreatorid=$user and experimentid = $question ";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$proposals[]=$row[0];
+	}
+	return $proposals;
+}
 
 
 function AuthorsOfNewProposals($question,$generation)
@@ -2747,6 +2861,40 @@ function AuthorsOfNewProposals($question,$generation)
 	}
 	return array_unique($authors);
 }
+function QuestionsAskedInRoom($userid,$room)
+{
+	$questions=array();
+	$sql = 'SELECT questions.id  FROM questions WHERE questions.usercreatorid = '.$userid.'   AND questions.room = "'.$room.'" ';
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$questions[]=$row[0];
+	}
+	return array_unique($questions);
+}
+
+function ActivityInRoom($userid,$room)
+{
+	$questions=array();
+	
+	$sql = 'SELECT questions.id  FROM questions, proposals WHERE proposals.usercreatorid = '.$userid.' AND proposals.experimentid = questions.id   AND questions.room = "'.$room.'" ';
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$questions[]=$row[0];
+	}
+
+	$sql = 'SELECT questions.id  FROM questions, proposals, endorse WHERE endorse.userid = ".$userid." AND endorse.proposalid=proposals.id AND proposals.experimentid = questions.id AND questions.room = "'.$room.'" ';
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$questions[]=$row[0];
+	}
+	
+	return array_unique($questions);
+	
+}
+
 
 function RoomsUsed($userid)
 {
@@ -3102,6 +3250,40 @@ function WriteUser($user)
 	return $answer;
 }
 
+function WriteUserVsReaderInQuestion($user,$reader,$question,$room)
+{
+	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	if (!$row)
+	{
+		$answer='DELETED USER';
+	}
+	while ($row)
+	{
+		$urlquery = CreateUserInQuestionURL($question, $user,$room);
+		
+		$answer='<a href="uq.php'.$urlquery.'">' . $row[0] . '</a> ';
+		if ($row[1]=="")
+		{
+#		$answer= $answer.'<sup><img src="images/noemail.jpg" height=12 title="the user does not receives emails updates"></sup>';
+		}
+		else
+		{
+		$answer= $answer.'<sup><img src="images/email.png" height=12 title="' . getVGAContent('receives_emails_title') . '"></sup>';
+		}
+
+
+		if($reader==$user)
+		{
+			$answer='<b>'.$answer.'</b>';
+		}
+		$row = mysql_fetch_array($response);
+	}
+	
+	return $answer;
+}
+
 function WriteUserVsReader($user,$reader)
 {
 	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
@@ -3327,9 +3509,14 @@ function WriteProposalRelation2($proposal,$question,$generation,$userid,$room)
 
 function WriteProposalNumber($proposal,$room)
 {
+	
 	$answer="";
-	$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
-	$answer.='<a href="viewproposal.php'.$urlquery.'" title="'.SafeStringProposal($proposal).'">'.$proposal.'</a>';
+	$OriginalPData=GetOriginalProposal($proposal);
+	$OriginalP=$OriginalPData['proposalid'];
+	$urlquery = CreateProposalURL($OriginalP, $room);
+	
+	#$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
+	$answer.='<a href="viewproposal.php'.$urlquery.'" title="'.SafeStringProposal($proposal).'">'.$OriginalP.'</a>';
 	$answer.=" ";
 	return $answer;
 }
@@ -5140,6 +5327,10 @@ function WriteBundle($BundleName,$BundleContent,$room,$details,$detailsTable,$hi
 	$answer.=$BundleName.' [shape=plaintext '.$details.' fontsize=11 label=<<TABLE BORDER="0" '.$detailsTable.' CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR><TR>';
 	foreach ($BundleContent as $p)
 	{
+		$OriginalPData=GetOriginalProposal($p);
+		$OriginalP=$OriginalPData['proposalid'];
+		$urlquery = CreateProposalURL($OriginalP, $room);
+		
 		$urlquery = CreateProposalURL($p, $room);
 		$urlquery=str_replace ( "&" , "&amp;" , $urlquery );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
 
@@ -5150,7 +5341,8 @@ function WriteBundle($BundleName,$BundleContent,$room,$details,$detailsTable,$hi
 		{
 			$ToAdd=' BGCOLOR="red" ';
 		}
-		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
+#		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
+		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';	
 	}
 	$answer.='</TR><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR></TABLE>>]';
 	$answer.="\n";
@@ -5376,7 +5568,12 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		
 		if(in_array ( $p, $pf ))
 		{
-			$urlquery = CreateProposalURL($p, $room);
+			
+			$OriginalPData=GetOriginalProposal($p);
+			$OriginalP=$OriginalPData['proposalid'];
+			$urlquery = CreateProposalURL($OriginalP, $room);
+			
+			#$urlquery = CreateProposalURL($p, $room);
 			
 			$endo=EndorsersToAProposal($p);
 			
@@ -5390,15 +5587,16 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			}
 			
 			
-			$buf.=$p.' [shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
 			
 			$buf.="\n";			
 		}
 		else
 		{	
-			$urlquery = CreateProposalURL($p, $room);
-			
-			$buf.=$p.' [shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			$OriginalPData=GetOriginalProposal($p);
+			$OriginalP=$OriginalPData['proposalid'];
+			$urlquery = CreateProposalURL($OriginalP, $room);
+			$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
 
 			$buf.="\n";
 		}
@@ -5452,7 +5650,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
 					{$color="red";}
 			}
-			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [color="'.$color.'"]';
+			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [ color="'.$color.'"]';
 			$buf.=" \n";
 		}
 	}
@@ -5575,6 +5773,8 @@ function MakeIntergenerationalGVMap($question,$size="11,5.5")  #,$highlightuser1
 	return $buf;
 }
 
+
+
 function isUserActiveInQuestion($userid, $question)
 {
 	$sql = "
@@ -5611,6 +5811,137 @@ function isUserActiveInQuestion($userid, $question)
 	}
 
 }
+
+function HasProposalBeenImposed($proposal,$question,$generation)#returns true if the only person that voted a proposal is the author.
+{
+	$endorsers=EndorsersToAProposal($proposal);
+	$NumberEndorsers=Count($endorsers);
+	
+	if ($NumberEndorsers==1)
+	{
+		$author=AuthorOfProposal($proposal);
+		if ($author==$endorsers[0])
+		{
+			if( Count(ProposalsToAnEndorser($author,$question,$generation))==1)
+			{
+				return true;							
+			}
+		}
+	}
+	return false;
+}
+
+function ImposedProposals($question,$generation)
+{
+	$ImposedProposals=array();
+	$proposals=ProposalsInGeneration($question,$generation);
+	foreach ($proposals as $p)
+	{
+		if (HasProposalBeenImposed($p,$question,$generation))
+		{
+			$ImposedProposals[]=$p;
+		}
+	}
+	return $ImposedProposals;
+}
+
+function ProposalNearlyWon($question,$generation) #a proposal has been damaged if it would have win if it wasn't for proposals that were imposed.
+{
+	$NearlyWinningProposals=array();
+	$ImposedProposals=ImposedProposals($question,$generation);
+	$NumberImposedProposals=Count($ImposedProposals);
+	if(!$NumberImposedProposals)
+	{
+		return $NearlyWinningProposals;
+	}
+
+	$ActiveProposals=ProposalsInGeneration($question,$generation);
+	$NumberVoters=Count(Endorsers($question,$generation));
+	$NumberVotersNecessary=$NumberVoters-$NumberImposedProposals;
+	$proposals=array_diff($ActiveProposals,$ImposedProposals);
+#	echo "generation = $generation, Necessary Numbers=$NumberVotersNecessary, Voters=$NumberVoters, Imposed=$NumberImposedProposals ";
+#	print_array($ImposedProposals);
+	
+#	print_array($proposals);
+
+	foreach ($proposals as $p)
+	{
+		
+		if (Count(EndorsersToAProposal($p))==$NumberVotersNecessary)
+		{
+			$NearlyWinningProposals[]=$p;
+		}
+	}
+	return $NearlyWinningProposals;
+}
+
+
+function ColourProposal($proposal,$question,$generation)
+{
+	$colour="#ffffff";
+	
+	$author=AuthorOfProposal($proposal);
+	$endorsers=EndorsersToAProposal($proposal);
+	$NumberEndorsers=Count($endorsers);
+	
+	$Voters=Endorsers($question,$generation);
+	$NumberVoters=Count($Voters);
+		
+	if(!$endorsers)
+	{
+#		$colour="#eeeeee";
+		return $colour;			
+	}
+	else
+	{
+		
+		if ($NumberEndorsers==1)
+		{
+			$endorser=$endorsers[0];
+			$ProposalsFromEndorser=ProposalsToAnEndorser($endorser,$question,$generation);
+#			echo " endorse=".$endorser;
+#			echo " question=".$question;
+#			echo " generation=".$generation;
+			
+#			print_array($ProposalsFromEndorser);
+			
+			if (Count($ProposalsFromEndorser)==1)
+			{
+				if ($author==$endorser)
+				{
+					$colour=" #C0D9AF";					
+					return $colour;			
+				}
+				else
+				{
+#					$colour="#0000ff";					
+					return $colour;								
+				}
+			}
+			
+		}
+		elseif($NumberVoters==$NumberEndorsers )
+		{
+			$colour="gold";#unanimity!					
+			return $colour;											
+		}
+		else
+		{
+#			echo "Proposal=$proposal;";
+			$Nearlywon=ProposalNearlyWon($question,$generation);
+#			print_array ( $Nearlywon);
+			if(in_array($proposal,$Nearlywon))
+			{
+				$colour="#FEF1B5";#near unanimity!					
+				return $colour;											
+			}
+		}
+	}	
+	return $colour;	
+	
+}
+
+
 
 
 function GetProposalsNoRedundant($question,$generation)
@@ -5654,6 +5985,98 @@ function GetProposalsNoRedundant($question,$generation)
 	return $proposalsStartingInGeneration;
 }
 
+function ShowActivity($user,$question,$generation)
+{
+	$activity="";
+	
+	if (in_array ( $user , Endorsers($question,$generation) ))
+	{
+		$proposalsendorsed=ProposalsToAnEndorser($user,$question,$generation);
+		if (count($proposalsendorsed)==1)
+		{
+			$p=$proposalsendorsed[0];
+			if 	(AuthorOfProposal($p)==$user)
+			{
+				$ancestorP=GetFirstAncestor($p);
+				if ($ancestorP==$p) #user voted only for its own proposal
+				{	
+					$activity= '<td style="background-image: url(images/stripesreadwriteownfrompast.png)"  ><center>'.$ancestorP.'</center></td>';	
+
+								#echo '<td style="background-image: url(images/stripesreadwriteown.png)"  ><center> </center></td>';
+				}
+				else #user voted only for its own proposal from the past
+				{	
+					$activity= '<td style="background-image: url(images/stripesreadwriteownfrompast.png)"  ><center>'.$ancestorP.'</center></td>';
+				}
+			}
+			else #user voted only for a single proposal but not own					
+			{	
+				$activity= '<td style="background-color:#C5E0FB;" ><center> </center></td>';								
+	#						echo '<td style="background-image: url(images/votesone_not_own.png)"  ><center> </center></td>';
+			}
+		}
+		else #user voted for multiple proposals	
+		{
+			if (in_array ( $user , AuthorsOfNewProposals($question,$generation) ))
+			{
+				$proposalsauthored=ProposalsOfAnAuthorActiveInAGeneration($user,$question,$generation);
+				if (array_diff($proposalsendorsed,$proposalsauthored))
+				{
+					#I voted for things that I did not propose
+					if (array_diff($proposalsauthored,$proposalsendorsed))
+					{
+
+						#I authored many thngs and voted for many, but the two elements are not the same
+						$activity= '<td style="background-image: url(images/stripesreadwrite.png)"  ><center> </center></td>';	
+						#I made a bit of unnecessary noise (proposals I did not support)
+					}
+					else
+					{
+
+						#I voted all the things that I author but I also voted for other things
+						$activity= '<td style="background-image: url(images/stripesreadwrite.png)"  ><center> </center></td>';	
+					}
+				}
+				else
+				{
+					if (array_diff($proposalsauthored,$proposalsendorsed))
+					{								
+						#echo '<td style="background-image: url(images/stripesreadwriteownfrompast.png)"  ><center> </center></td>';	
+						$activity= '<td style="background-image: url(images/stripesreadwriteownMany.png)"  ><center> </center></td>';	
+
+						#what I voted is a subset of what I authored 
+					}
+					else
+					{
+						#echo '<td style="background-image: url(images/stripesreadwriteownfrompast.png)"  ><center> </center></td>';	
+						$activity= '<td style="background-image: url(images/stripesreadwriteownMany.png)"  ><center> </center></td>';	
+
+						#I voted for exactly the things that I authored
+					}
+				}
+			}
+			else
+			{
+				$activity= '<td style="background-color:#C5E0FB;" ><center> </center></td>';								
+			}
+		}
+		#stripesreadwriteown.png
+	}
+	else
+	{
+		if (in_array ( $user , AuthorsOfNewProposals($question,$generation) ))
+		{
+			$activity= '<td style="background-color:#F5A9A9;" ><center> </center></td>';								
+		}
+		else
+		{
+			$activity= '<td style="background-color:white;" ><center> </center></td>';								
+		}
+	}
+	
+	
+	return $activity;
+}
 
 
 function MakeQuestionMap($userid,$question,$room,$generation,$phase)
@@ -5661,7 +6084,7 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 	
 	$urlquery = CreateQuestionURL($question, $room);
 
-	echo '<table border="1" class="questionmapContent" style="background-color:lightgrey;" >';
+	echo '<table border="2" class="questionmapContent" style="background-color:lightgrey; border-spacing: 0;" >';
 	echo '<tr>';
 	$generationPlusOne=$generation+1;
 	
@@ -5713,13 +6136,8 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 				$proposalsleft=true;				
 			}
 			
-			
-			
 			if ($p)
 			{			
-				
-				
-				
 				if ($g == $generation)
 				{
 					if (!$phase)
@@ -5729,23 +6147,43 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 					else
 					{
 						$urlquery = CreateQuestionURL($question, $room);
-						echo '<td colspan="'.$offset.'" style="background-color:white;" ><center><a href="" title="'.substr(SafeStringProposal($p), 0, 800).'">...</a></center></td>';						
+						echo '<td colspan="'.$offset.'" style="background-color:white;" ><center><a href="" title="'.substr(SafeStringProposal($p), 0, 800).'">...</a></center></td>';	
 					}
 				}
 				else
 				{
 					$urlquery = CreateProposalURL($p, $room);
 
-					#echo '<td colspan="'.$offset.'"><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'"  title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.' - '.$g.' - '.$ThisG.' - offset:'.$offset.' - '.$lp.' - '.$LastG.' </a></center></td>';				
-					echo '<td colspan="'.$offset.'" style="background-color:white;" ><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" 					title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.'</a></center></td>';				
-					#echo '<td colspan="'.$offset.'"><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" 			title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.'</a> - '.$offset.' - '.$value.'</center></td>';				
-					#echo '<td colspan="'.$offset.'"><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" 			title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.'</a> - '.$ThisG.' = '.$g.' - '.$offset.' - '.$nextG.' - '.$value.'</center></td>';				
-					#				$g=$GF+1;				
+					if ($offset==1)
+					{
+						$col=ColourProposal($p,$question,$g);
+						echo '<td style="background-color:'.$col.';" ><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" 					title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.'</a></center></td>';
+					}	
+					else
+					{
+						$o=0;
+						while ($o < $offset)
+						{
+							$col=ColourProposal($p,$question,$g+$o);
+							if ($o==0)
+							{
+								echo '<td style="background-color:'.$col.'; border-right: none; border-left: 2px solid ;"  ><center><a href="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" 	title="'.substr(SafeStringProposal($p), 0, 800).'">'.$p.'</a></center></td>';
+							}
+							elseif ($o==($offset-1))
+							{
+								echo '<td style="background-color:'.$col.'; border-left: none; border-right: 2px solid ;"  ></td>';
+							}
+							else
+							{
+								echo '<td style="background-color:'.$col.'; border-right: none; border-left: none;  "  ></td>';
+							}
+							$o++;
+							$p=GetProposalDaughter($p);
+						}
+					}				
+					
 					$g=$g+$offset;
 				}
-				
-					
-				
 			}
 			else
 			{
@@ -5755,9 +6193,25 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 			}
 		}
 		echo '</tr>';
+		if (!$proposalsleft)
+		{
+			$g2=1;
+			while($g2 < $generation+1)
+			{	
+				if ($proposalsStartingInGeneration[$g2])
+				{
+					$proposalsleft=true;
+					break;
+				}
+				$g2++;				
+			}
+		}
 	}
-	echo '</tr>';
+
 	echo '<tr>';
+
+
+	
 	echo '<td style="background-color:white;" colspan="'.$generationPlusOne.'"><center>PARTICIPANTS</center></td>';				
 	echo '</tr>';
 	echo '<tr>';
@@ -5772,51 +6226,30 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 		$participants=array_merge($participants,AuthorsOfNewProposals($question,$g));
 		$g=$g+1;
 	}
-		$participants=array_unique($participants);
+	$participants=array_unique($participants);
 	
 	#var_dump($participants);
 
 	foreach($participants as $u)
 	{
+#		echo "user=$u <br>";
+		
 		echo '<tr>';
 		
 		echo '<td >';
-		echo WriteUserVsReader($u,$userid);
-		echo '</td>';
-
+		echo WriteUserVsReaderInQuestion($u,$reader,$question,$room);
+		echo '</td >';
+		
 		$g=1;
 
 		while($g < $generation)
 		{
-			if (in_array ( $u , Endorsers($question,$g) ))
-			{
-				if (in_array ( $u , AuthorsOfNewProposals($question,$g) ))
-				{
-					#	echo '<td style="background-color:lightviolet;" ><center> </center></td>';	
-				#	echo '<td style="background-image: url(images/backgroundreadwrite22.png)"  ><center> </center></td>';	
-					echo '<td style="background-image: url(images/stripesreadwrite.png)"  ><center> </center></td>';	
-#					echo '<td style="background-image: url(images/readwrite.png) "  ><center> </center></td>';	
-					#echo '<td background="images/backgroundreadwrite.png" repeat> </td>';								
-				}#<img width=100% height=100% src="images/readwrite.png">
-				else
-				{
-					echo '<td style="background-color:#C5E0FB;" ><center> </center></td>';								
-				}
-				
-			}
-			else
-			{
-				if (in_array ( $u , AuthorsOfNewProposals($question,$g) ))
-				{
-					echo '<td style="background-color:#F5A9A9;" ><center> </center></td>';								
-
-				}
-				else
-				{
-					echo '<td style="background-color:white;" ><center> </center></td>';								
-				}
-			}
+#			echo "generation=$g <br>";
+#			echo "authors of new proposals=";
+#			print_array(AuthorsOfNewProposals($question,$g));
+			echo ShowActivity($u,$question,$g);
 			
+
 			$g=$g+1;
 		}
 		echo '<td style="background-color:white;" ></td>';								
@@ -5826,25 +6259,171 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 		
 	}
 	echo '<tr>';	
-	echo '<td style="background-color:white;" colspan="'.$generationPlusOne.'"><center>';				
-	echo '<table>';				
-	echo '<tr>';	
-	echo '<td style="background-color:#F5A9A9;" ><center>Authors';				
-	echo '</center></td>';				
-	echo '<td style="background-image: url(images/stripesreadwrite.png)" ><center>and';				
-	echo '</center></td>';				
 	
-	echo '<td style="background-color:#C5E0FB;"><center>Voters';				
-	echo '</center></td>';				
-	echo '</tr>';	
-	echo '</table>';		
-	echo '</center></td>';				
+	$col="#F5A9A9";
+	echo '<td style="background-color:'.$col.';"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >Authors</td>';				
+	echo '</tr>';
 
+	echo '<tr>';
+	$col="#C5E0FB";
+	echo '<td style="background-color:'.$col.';"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >Voters</td>';				
+	echo '</tr>';
 
-	echo '</tr>';	
+	echo '<tr>';		
+	echo '<td style="background-image: url(images/stripesreadwrite.png)"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >Authors who Voted</td>';				
+	echo '</tr>';
+	echo '<tr>';		
+	echo '<td style="background-image: url(images/stripesreadwriteownfrompast.png)"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >Authors who only voted their one proposal (proposal voted in black)</td>';				
+	echo '</tr>';
+	echo '<tr>';		
+	echo '<td style="background-image: url(images/stripesreadwriteownMany.png)"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >Authors who only voted their many proposal</td>';				
+	echo '</tr>';
+	
+	echo '<tr>';		
+	$col="gold";
+	echo '<td style="background-color:'.$col.';"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >proposal that reached Unanimity</td>';				
+	echo '</tr>';
+
+	echo '<tr>';
+	$col="#C0D9AF";
+	echo '<td style="background-color:'.$col.';"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >proposals imposed in the Pareto front by the author</td>';				
+	echo '</tr>';
+
+	echo '<tr>';		
+	$col="#FEF1B5";
+	echo '<td style="background-color:'.$col.';"></td>';				
+	echo '<td colspan="'.$generation.'" style="background-color:white;" >proposals that would have reached the unanimity if it wasn\'t for proposals imposed in the Pareto front by the author</td>';				
+	echo '</tr>';
+	
+	
+	
 	echo '</table>';	
 		
 }
+
+
+function GetProposalsQuestion($proposal)
+{
+	$sql = "SELECT proposals.experimentid FROM proposals WHERE proposals.id = " . $proposal . " ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	return $row[0];
+}
+
+
+
+
+function WriteQuestionInfo($question,$userid)
+{
+	$QuestionInfo=GetQuestion($question);
+	$title=$QuestionInfo['title'];
+	$content=$QuestionInfo['question'];
+	$room=$QuestionInfo['room'];
+	$phase=$QuestionInfo['phase'];
+	$generation=$QuestionInfo['roundid'];
+	$author=$QuestionInfo['usercreatorid'];
+	$bitlyhash = $row['bitlyhash'];
+	$shorturl = '';
+	$permit_anon_votes = $row['permit_anon_votes'];
+	$permit_anon_proposals = $row['permit_anon_proposals'];
+	
+	echo '<table width="100%" ><tr valign="top">';
+	echo '<td width="50%">';
+	echo '<div class="questionbox">';
+	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
+	?>
+		<h2 id="question">
+		<form method="post" action="changeupdate.php">
+			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+			<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
+		<?php
+		echo  $title;
+	if ($userid) {
+		if ($subscribed==1)
+		{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>unsubscribe" /> <?php
+		}else{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>subscribe" /> <?php
+		}
+	}
+		?>
+		</form>
+		</h2>
+	<?php
+	echo "<br />";
+	echo '<div id="question">' . $content . '</div>';
+	
+	
+	echo WriteUserVsReader($author,$userid);
+	
+	echo '<table id="social-buttons"><tr><td>';
+	
+	// Only display twit button if shorturl found in DB or generated from bitly
+	if (!empty($shorturl))
+	{
+		if (false)
+		{
+			$retweetprefix = "RT @Vg2A";
+			$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
+			$tweetaddress = "http://twitter.com/home?status=$tweet";
+			echo "<a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a>";
+		}
+		else
+		{
+			set_log('Tweet Button lang = ' . $locale);
+			echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
+		}
+	}
+	
+	echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
+	
+	
+	if($generation>2)
+	{
+		$graph=StudyQuestion($question);
+		echo "<img src='".$graph."'>";
+	}
+
+	
+	
+	echo '</div>';//---extended questionbox	
+	echo '</td>';
+	echo '<td width="50%">';		
+	MakeQuestionMap($userid,$question,$room,$generation,$phase);
+	echo '</td>';
+	echo '</tr>';
+	echo '</table>';
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #function GetQuestionCreator($question)
