@@ -1804,7 +1804,7 @@ function GetQuestion($question)
 	return $info;
 }
 
-function GetProposal($proposal)
+function GetProposalValues($proposal)
 {
 	 $sql="SELECT *
 	     FROM proposals

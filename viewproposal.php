@@ -30,7 +30,7 @@ include('header.php');
 	$generation=$QuestionInfo['roundid'];
 	$author=$QuestionInfo['usercreatorid'];
 
-	$ProposalInfo=GetProposal($proposal);
+	$ProposalInfo=GetProposalValues($proposal);
 	$proposaltext=$ProposalInfo['blurb'];
 	$proposalround=$ProposalInfo['roundid'];
 	$proposalabstract=$ProposalInfo['abstract'];
