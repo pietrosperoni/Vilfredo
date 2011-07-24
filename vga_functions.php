@@ -972,12 +972,26 @@ function CreateNewRoomURL()
 	return  $question_url;
 }
 
+// Should have been named CreateQuestionQuery
 function CreateQuestionURL($question, $room="")
 {
 	if (!isset($question) or empty($question))
              error("Question parameter not set!!!");
 
 	$question_url = "?" . QUERY_KEY_QUESTION . "=".$question;
+
+	// Add room id if not empty
+	if (!empty($room))
+            $question_url .= "&" . QUERY_KEY_ROOM . "=".$room;
+
+	return $question_url;
+}
+function CreateQuestionBubbleQuery($question, $room="")
+{
+	if (!isset($question) or empty($question))
+             error("Question parameter not set!!!");
+
+	$question_url = "?" . 'qb' . "=".$question;
 
 	// Add room id if not empty
 	if (!empty($room))
@@ -4323,6 +4337,41 @@ function json_encode2($a=false)
 	}
 }
 
+function InviteUserToBubbleQuestion($user,$question,$room,$userid)
+{
+    $question_url = CreateQuestionBubbleQuery($question,$room);
+
+    $sql = "SELECT username FROM users WHERE id = ".$userid;
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	$authorusername=$row['username'];
+
+	$sql = "SELECT title FROM questions_tv WHERE .id = ".$question;
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	$title=$row['title'];
+
+	$sql = "SELECT username, email FROM users WHERE id = ".$user;
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+	$to=$row['email'];
+	$username=$row['username'];
+
+	$subject="VgtA: Invitation for Question Bubble: ".$title;
+	$message='	Dear '.$username.'
+user '.$authorusername.' would like to invite you to participate in the Question Bubble:
+
+'.$title.'
+
+You can do this by going to the page
+'.SITE_DOMAIN.'/viewquestions.php'.$question_url.'
+
+If you would like not to receive any more invitations from '.$authorusername.' you can tell him directly.';
+
+		$message = wordwrap($message, 70,"\n",true);
+		mail($to,$subject, $message);
+		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
+}
 
 function InviteUserToQuestion($user,$question,$room,$userid)
 {
@@ -5811,6 +5860,45 @@ function isUserActiveInQuestion($userid, $question)
 	}
 
 }
+
+/*
+function isUserActiveInQuestion($userid, $question)
+{
+	$sql = "
+	SELECT COUNT(*) as author, 
+	(
+		SELECT COUNT(*) FROM proposals
+		WHERE experimentid = $question
+		AND usercreatorid = $userid
+	) AS props,
+	(
+		SELECT COUNT(*) FROM endorse e, proposals p
+		WHERE e.userid = $userid
+		AND e.proposalid = p.id
+		AND p.experimentid = $question
+	) AS votes
+	FROM questions
+	WHERE usercreatorid = $userid
+	AND id = $question
+	";
+
+	if ($result = mysql_query($sql))
+	{
+		$counts = mysql_fetch_assoc($result);
+		foreach ($counts as $count)
+		{
+			if ($count > 0) return true;
+		}
+		return false;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+
+}
+*/
 
 function HasProposalBeenImposed($proposal,$question,$generation)#returns true if the only person that voted a proposal is the author.
 {

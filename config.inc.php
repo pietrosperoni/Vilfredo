@@ -24,6 +24,8 @@ if (defined('LOG_DIRECTORY'))
 	define("LOG_FILE", LOG_DIRECTORY."vga.log");
 }
 
+ini_set('error_reporting', E_ALL & ~E_NOTICE);
+
 // Start session for login and redirects
 session_start();
 // ******************************************

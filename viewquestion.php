@@ -382,12 +382,13 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 <!-- </form> -->
 <script type="text/javascript">
 $(document).ready(function() {
-	function checklengths() {
+	function checklengths_v1() {
 		var abstract_txt = $("#abstract_rte").contents().find("body").text();
 		var proposal_txt = $("#content_rte").contents().find("body").text();
 		var abstract_length = abstract_txt.length;
 		var content_length = proposal_txt.length;
 		var title = $("#abstract_title");
+		var content_msg = $("#content_rte_chars_msg");
 	
 		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
 		{
@@ -400,10 +401,20 @@ $(document).ready(function() {
 	
 		if (content_length  > limit)
 		{
-			title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>:");
-			title.css("color", "red"); 
-			title.css("font-weight", "bold"); 
-			$("#content_rte_chars_msg").html("<?=$VGA_CONTENT['abstract_req_txt']?>");
+			if (abstract_length == 0)
+			{
+				title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>")
+					.css({"color": "red", "font-weight" : "bold"});
+				content_msg.html("<?=$VGA_CONTENT['abstract_req_txt']?>")
+					.css({'color' : 'red', 'font-weight' : 'bold'});
+			}
+			else
+			{
+				title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?> OK!")
+					.css({"color" : "green", "font-weight" : "bold"}); 
+				content_msg.html("Abstract OK!")
+					.css({'color' : 'green', 'font-weight' : 'bold'});
+			}
 		}
 		else if ( content_length  <= limit )
 		{
@@ -471,6 +482,7 @@ $(document).ready(function() {
 		var limit_abs = <?= empty($RTE_TextLimit_abstract) ? 'null' : $RTE_TextLimit_abstract; ?>;
 		var limit = <?= empty($RTE_TextLimit_content) ? 'null' : $RTE_TextLimit_content; ?>;
 		if (limit) {
+			$("#abstract_rte").data('maxabslength', limit_abs);
 			$("#content_rte").data('maxlength', limit);
 			$("#content_rte").data('callback', checklengths);
 			$("#abstract_rte").data('callback', checklengths);

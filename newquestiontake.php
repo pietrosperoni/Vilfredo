@@ -62,7 +62,13 @@ if ($userid)
 		else // Create new Bubble
 		{
 			$submitQuestion = submitQuestion($userid, $blurb, $title, $room);
-			header("Location: viewquestions.php?room=$room");
+			// Should now invite users to answer the new question bubble
+			//$newquestionid = mysql_insert_id();
+			//$urlquery = CreateQuestionURL($newquestionid, $room);
+			//header("Location: invitetoquestion.php".$urlquery);
+			
+			$roomparam = ($room == '') ? '' : '?room='.$room;
+			header("Location: viewquestions.php".$roomparam);
 		}
 	}
 	else

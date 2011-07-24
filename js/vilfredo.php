@@ -462,3 +462,67 @@ $(function() {
 		}
 	}); 
 });
+
+
+function checklengths() {
+		var limit = $("#content_rte").data('maxlength');
+		var limit_abs = $("#abstract_rte").data('maxabslength');
+		var abstract_txt = $("#abstract_rte").contents().find("body").text();
+		var proposal_txt = $("#content_rte").contents().find("body").text();
+		var abstract_length = abstract_txt.length;
+		var content_length = proposal_txt.length;
+		var title = $("#abstract_title");
+		var content_msg = $("#content_rte_chars_msg");
+	
+		if ((content_length  > 0 && content_length <= limit && abstract_length <= limit_abs) || (content_length  > 0 && abstract_length > 0 && abstract_length <= limit_abs))
+		{
+			$("#submit_p").removeAttr("disabled");
+		}
+		else 
+		{
+			$("#submit_p").attr("disabled");
+		}
+	
+		if (content_length  > limit)
+		{
+			if (abstract_length == 0)
+			{
+				title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?>")
+					.css({"color": "red", "font-weight" : "bold"});
+				content_msg.html("<?=$VGA_CONTENT['abstract_req_txt']?>")
+					.css({'color' : 'red', 'font-weight' : 'bold'});
+			}
+			else
+			{
+				title.html("<?=$VGA_CONTENT['abstract_req_ex_txt']?> OK!")
+					.css({"color" : "green", "font-weight" : "bold"}); 
+				content_msg.html("Abstract OK!")
+					.css({'color' : 'green', 'font-weight' : 'bold'});
+			}
+		}
+		else if ( content_length  <= limit )
+		{
+			title.html("<?=$VGA_CONTENT['abs_opt_link']?>");
+			title.css("color", "black"); 
+			title.css("font-weight", "normal"); 
+			$("#content_rte_chars_msg").html("");
+		}
+		// Set Abstract indicator
+		var abs_remaining = limit_abs - abstract_length;
+		var abs_indicator = $("#abstract_rte" + "_chars_remaining");
+		abs_indicator.text(abs_remaining);
+		if (abs_remaining < 0) {
+			abs_indicator.addClass("length_not_ok");
+		} else {
+			abs_indicator.removeClass("length_not_ok");
+		} 
+		// Set Proposal Content indicator
+		var prop_remaining = limit - content_length;
+		var prop_indicator = $("#content_rte" +"_chars_remaining");
+		prop_indicator.text(prop_remaining);
+		if (prop_remaining < 0 && abstract_length == 0) {
+			prop_indicator.addClass("length_not_ok");
+		} else {
+			prop_indicator.removeClass("length_not_ok");
+		}
+	}

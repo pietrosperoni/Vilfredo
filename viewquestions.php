@@ -6,10 +6,11 @@ $headcommands='
 <link rel="stylesheet" href="tabs.css" />
 
 <!-- <script src="js/jquery/jquery.js" type="text/javascript"></script> -->
-<script src="js/svg/jquery-1.4.2.min.js" type="text/javascript"></script>
+<!-- <script src="js/svg/jquery-1.4.2.min.js" type="text/javascript"></script> -->
+<script type="text/javascript" src="newbubbles/js/svg/jquery-1.4.2.min.js"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
-<script src="js/jquery/tooltip/jquery.tooltip.js" type="text/javascript"></script>
+<script src="js/jquery/tooltip/jquery.tooltip.bubbles.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
 <script src="js/jquery.tabs.min.js" type="text/javascript"></script>
 
@@ -19,7 +20,6 @@ $headcommands='
 <script type="text/javascript" src="newbubbles/js/json2.js"></script> 
 <script type="text/javascript" src="newbubbles/js/cookies/jquery.cookie.js"></script>
 
-<script type="text/javascript" src="newbubbles/velocityq.js"></script>
 
 <title>VgtA: Questions</title>
 ';
@@ -45,9 +45,11 @@ $("ul.tabs").tabs("div.panel");
 
 $('#bubbletab').click(function() {
 	$.cookie('btab', 'b', {expires: cookieexpires});
+	$('#bubblepanel').addClass('showbubbles');
 });
 $('#questiontab').click(function() {
 	$.cookie('btab', null);
+	$('#bubblepanel').removeClass('showbubbles');
 });
 
 if ($.cookie('btab'))
@@ -560,29 +562,13 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 <div class="panel bubblepanel">
 	 <?php
 	 include('newbubbles/bubbles.config.php');
-	 include('newbubbles/viewbubblequestionstab.php');
+	 //include('newbubbles/viewbubblequestionstab.php');
+	 include('newbubbles/viewbubblebox.php');
 	 ?>
 	 </div><!-- panel -->
 	 </div><!-- panels -->
-	 
-	 
-<script type="text/javascript">
-$(function() {
-	// setup ul.tabs
-	//$("ul.tabs").tabs("div.panel");
-});
-</script>
 
 
-<?php
-	// echo "<a href=logout.php>Logout</a>";  tip: 'tooltip',
-/*
-}
-else
-{
-		DoLogin();
-}*/
-?>
 	<div class="clear"></div>
 <?php
 		include('footer.php');

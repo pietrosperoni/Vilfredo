@@ -50,11 +50,20 @@ ul.tabs a.current {
 /* tab pane */
 .panes div {
 	display:none;
-	border:1px solid #b45f04;
-	border-width:0 1px 1px 1px;
+	border: solid #b45f04;
+	border-width:0px 1px 1px 1px;
 	min-height:150px;
 	padding:15px 20px;
 	background-color:#ddd;	
+}
+
+.bubblepanel {
+	border:0px solid #B45F04;
+}
+
+.bubblepanel.showbubbles {
+	border: none;
+	border-top:1px solid #B45F04;
 }
 
 /* #bubbletab {
