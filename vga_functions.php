@@ -991,7 +991,7 @@ function CreateQuestionBubbleQuery($question, $room="")
 	if (!isset($question) or empty($question))
              error("Question parameter not set!!!");
 
-	$question_url = "?" . 'qb' . "=".$question;
+	$question_url = "?" . QUERY_KEY_QUESTION_BUBBLE . "=".$question;
 
 	// Add room id if not empty
 	if (!empty($room))
@@ -6465,7 +6465,7 @@ function WriteQuestionInfo($question,$userid)
 		}
 		else
 		{
-			set_log('Tweet Button lang = ' . $locale);
+			//set_log('Tweet Button lang = ' . $locale);
 			echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
 		}
 	}

@@ -61,12 +61,17 @@ if ($userid)
 		}
 		else // Create new Bubble
 		{
-			$submitQuestion = submitQuestion($userid, $blurb, $title, $room);
+			$submitQuestion = submitQuestionWithoutGridUpdate($userid, $blurb, $title, $room);
 			// Should now invite users to answer the new question bubble
-			//$newquestionid = mysql_insert_id();
-			//$urlquery = CreateQuestionURL($newquestionid, $room);
-			//header("Location: invitetoquestion.php".$urlquery);
+			$newquestionid = mysql_insert_id();
+			set_log(__FILE__.' New question id = '.$newquestionid);
 			
+			updateQGrid($room);
+			
+			//$urlquery = CreateQuestionBubbleQuery($newquestionid, $room);
+			//set_log(__FILE__.' New question urlquery = '.$urlquery);
+			//header("Location: invitetobubblequestion.php".$urlquery);
+			//exit;
 			$roomparam = ($room == '') ? '' : '?room='.$room;
 			header("Location: viewquestions.php".$roomparam);
 		}

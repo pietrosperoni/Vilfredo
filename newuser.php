@@ -61,7 +61,6 @@ function registerfbuser()
 	VALUES ('$newuser', '', '$email', '$fbuserid', NOW(), NOW())";
 	
 	$add_member = mysql_query($insert);
-	$userid = mysql_insert_id();
 	
 	if (!$add_member)
 	{

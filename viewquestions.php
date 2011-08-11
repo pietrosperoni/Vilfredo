@@ -27,12 +27,18 @@ $headcommands='
 
 
 include('header.php');
+require_once 'velocity_time.php';
+
+$bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
+
 #$userid=isloggedin();
 //if ($userid)
 //{
 ?>
 <script type="text/javascript">
 var cookieexpires = 3; //days
+var bubbleurl = <?= $bubbleurl ?>;
+
 $(function() {
 $(".foottip a[tooltip]").tooltip({
 	bodyHandler: function() {
@@ -45,12 +51,17 @@ $("ul.tabs").tabs("div.panel");
 
 $('#bubbletab').click(function() {
 	$.cookie('btab', 'b', {expires: cookieexpires});
-	$('#bubblepanel').addClass('showbubbles');
+	$('#panel').svg('destroy');
+	$('#panel').svg({onLoad: systemInit});
 });
 $('#questiontab').click(function() {
 	$.cookie('btab', null);
-	$('#bubblepanel').removeClass('showbubbles');
 });
+
+if (bubbleurl)
+{
+	$.cookie('btab', 'b', {expires: cookieexpires});
+}
 
 if ($.cookie('btab'))
 {
@@ -554,21 +565,12 @@ echo '<div class="clearboth">&nbsp;</div>';
 	}
 	 echo '</div>';
 	 echo '</div>';
-	 echo '<div class="clearboth">&nbsp;</div>';
-	 
-	 //echo '</div>';
-	 ?>
-	 </div>
-	 <div class="panel bubblepanel">
-	 <?php
-	 include('newbubbles/bubbles.config.php');
-	 //include('newbubbles/viewbubblequestionstab.php');
-	 include('newbubbles/viewbubblebox.php');
-	 ?>
-	 </div><!-- panel -->
+	 echo '<div class="clearboth"></div>';
+	 ?></div><div class="panel"><?php
+include('newbubbles/bubbles.config.php');
+include('newbubbles/viewbubblebox.php');
+?></div><!-- panel -->
 	 </div><!-- panels -->
-
-
 	<div class="clear"></div>
 <?php
 		include('footer.php');

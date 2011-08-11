@@ -58,7 +58,9 @@ ul.tabs a.current {
 }
 
 .bubblepanel {
-	border:0px solid #B45F04;
+	border: 0;
+	margin: 0;
+	padding: 0;
 }
 
 .bubblepanel.showbubbles {

@@ -31,7 +31,6 @@ ob_start();
 require_once 'config.inc.php';
 
 // load phrases
-// load phrases
 //$common_lang_page = 'common';
 //$VGA_CONTENT[$common_lang_page] = loadLangXML($common_lang_page, $lang);
 //eg $VGA_CONTENT[$common_lang_page]['site_title_txt']
@@ -51,8 +50,8 @@ else
 	$_SESSION['locale'] = $locale;
 }
 
-set_log((int)isset($_GET["locale"]));
-set_log(locale);
+//set_log((int)isset($_GET["locale"]));
+//set_log(locale);
 
 //$locale = "it"; // For debugging
 putenv("LC_ALL=$locale");
