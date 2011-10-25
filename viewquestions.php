@@ -1,33 +1,52 @@
 <?php
 
-$headcommands='
+$svg_dir = 'svg-1.4.4';
+$bubblesdir = "newbubbles";
+
+$headcommands2='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
-<link rel="stylesheet" href="newbubbles/css/velocity.css" />
+<!-- <link rel="stylesheet" href="'.$bubblesdir.'/css/velocity.css" /> -->
+<!-- <link rel="stylesheet" href="'.$bubblesdir.'/css/questiontable.css" /> -->
+<link rel="stylesheet" href="'.$bubblesdir.'/js/tablesorter/themes/blue/style.css" />
 <link rel="stylesheet" href="tabs.css" />
 
-<!-- <script src="js/jquery/jquery.js" type="text/javascript"></script> -->
-<!-- <script src="js/svg/jquery-1.4.2.min.js" type="text/javascript"></script> -->
-<script type="text/javascript" src="newbubbles/js/svg/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery-1.6.2.js"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
-<script src="js/jquery/tooltip/jquery.tooltip.bubbles.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
 <script src="js/jquery.tabs.min.js" type="text/javascript"></script>
 
-<script type="text/javascript" src="newbubbles/js/svg/jquery.svg.js"></script>
-<script type="text/javascript" src="newbubbles/js/svg/jquery.svgdom.js"></script>
-<script type="text/javascript" src="newbubbles/js/svg/jquery.svganim.js"></script>
-<script type="text/javascript" src="newbubbles/js/json2.js"></script> 
-<script type="text/javascript" src="newbubbles/js/cookies/jquery.cookie.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svg.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svgdom.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svganim.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/json2.js"></script> 
+<script type="text/javascript" src="'.$bubblesdir.'/js/cookies/jquery.cookie.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/tooltip/jquery.tooltip.bubbles.js"></script> 
 
+<!-- <script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/jquery.tablesorter.js"></script> 
+<script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/jquery.metadata.js"></script>
+<script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/addons/pager/jquery.tablesorter.pager.js"></script> -->
 
 <title>VgtA: Questions</title>
 ';
 
+$headcommands='
+<link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
+<link rel="stylesheet" href="tabs.css" />
 
+<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery-1.6.2.js"></script>
+<script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
+<script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
+<script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
+<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
+
+<title>VgtA: Questions</title>
+';
 
 include('header.php');
-require_once 'velocity_time.php';
+
+//loginCookieTest();
+//exit;
 
 $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 
@@ -40,33 +59,40 @@ var cookieexpires = 3; //days
 var bubbleurl = <?= $bubbleurl ?>;
 
 $(function() {
-$(".foottip a[tooltip]").tooltip({
-	bodyHandler: function() {
-		return $($(this).attr("tooltip")).html();
-	},
-	showURL: false
-});
+	$(".foottip a[tooltip]").tooltip({
+		bodyHandler: function() {
+			return $($(this).attr("tooltip")).html();
+		},
+		showURL: false
+	});
 
-$("ul.tabs").tabs("div.panel");
+	$("ul.tabs").tabs("div.panel");
 
-$('#bubbletab').click(function() {
-	$.cookie('btab', 'b', {expires: cookieexpires});
-	$('#panel').svg('destroy');
-	$('#panel').svg({onLoad: systemInit});
-});
-$('#questiontab').click(function() {
-	$.cookie('btab', null);
-});
+	$('#bubbletab').click(function() {
+		$.cookie('btab', 'b', {expires: cookieexpires});
+		$('#bubblebox').fadeIn(1, function() {
+			panelwidth = $('#bubblebox').innerWidth();
+			panelheight = $('#bubblebox').innerHeight();
+			var svg = $('#panel').svg('get');
+			if (svg != null)
+			{
+				svg.configure({width: panelwidth, height: panelheight}, true);
+			}
+		});		
+	});
+	$('#questiontab').click(function() {
+		$.cookie('btab', null);
+	});
 
-if (bubbleurl)
-{
-	$.cookie('btab', 'b', {expires: cookieexpires});
-}
+	if (bubbleurl)
+	{
+		$.cookie('btab', 'b', {expires: cookieexpires});
+	}
 
-if ($.cookie('btab'))
-{
-	$('#bubbletab').click();
-}
+	if ($.cookie('btab'))
+	{
+		$('#bubbletab').click();
+	}
 
 });
 </script>
@@ -567,8 +593,8 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 echo '</div>';
 	 echo '<div class="clearboth"></div>';
 	 ?></div><div class="panel"><?php
-include('newbubbles/bubbles.config.php');
-include('newbubbles/viewbubblebox.php');
+require_once 'priv/bubbles.config.php';
+require_once ''.$bubblesdir.'/viewbubblebox.php';
 ?></div><!-- panel -->
 	 </div><!-- panels -->
 	<div class="clear"></div>

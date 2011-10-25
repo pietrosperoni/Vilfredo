@@ -66,19 +66,16 @@ define("QUERY_KEY_ROOM", "room");
 define("QUERY_KEY_PROPOSAL", "p");
 define("QUERY_KEY_GENERATION", "g");
 define("QUERY_KEY_QUESTION_BUBBLE", "qb");
+define("COOKIE_KEY_QUESTION_BUBBLE", "qb");
 define("RANDOM_ROOM_CODE_LENGTH", 16);
 //
 define("USER_LOGIN_ID", 'vilfredo_user_id');
 define("USER_LOGIN_MODE", 'vilfredo_login_mode');
 //
-define('ONE_YEAR', 3600*24*365);
-define('TWO_DAYS', 3600*24*2);
-define('ONE_HOUR', 3600);
-define('FIVE_MINUTES', 300);
 
 if (!defined('COOKIE_LIFETIME'))
 {
-	define('COOKIE_LIFETIME', TWO_DAYS);
+	define('COOKIE_LIFETIME', 3600*24*2);
 }
 //
 // Get rid off this

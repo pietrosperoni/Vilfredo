@@ -2187,6 +2187,7 @@ function vga_cookie_login()
 	//unsetcookies();
 	if (isset($_COOKIE[VGA_PL]))
 	{		
+		//set_log('cookie found');
 		$clean = array();
     		$mysql = array();
     		$now = time();
@@ -2195,7 +2196,7 @@ function vga_cookie_login()
 		list($identifier, $token) = explode(':', $_COOKIE[VGA_PL]);
 		if (ctype_alnum($identifier) && ctype_alnum($token))
 		{
-			$clean['identifier'] = $identifier;
+			$clean['identifier'] = (int)$identifier;
 			$clean['token'] = $token;
 		}
 		else
@@ -2203,28 +2204,35 @@ function vga_cookie_login()
 			return false;
 		}
 				
-		$mysql['identifier'] = mysql_real_escape_string($clean['identifier']);
+		$mysql['identifier'] = $clean['identifier'];
 		$mysql['token'] = mysql_real_escape_string($clean['token']);
 		
 		 $sql = "SELECT userid, token, timeout		
 		            FROM   user_persist_tokens
-            		    WHERE  userid = '{$mysql['identifier']}' AND token = '{$mysql['token']}'";
+            		    WHERE  userid = {$mysql['identifier']} AND token = '{$mysql['token']}'";
+            		    
+            	//set_log($sql);
+            	//set_log('Identifier = '.$mysql['identifier']);
+            	//set_log('Token = '.$mysql['token']);
 	
 		$result = mysql_query($sql);
 		
 		if (!$result)
 		{
 			handle_db_error($result, $sql);
+			set_log('cookie table lookup failed');
 			return false;
 		}
 		
 		if ($row = mysql_fetch_assoc($result))
 		{
-			if ($now > $row['timeout'])
+			//set_log('cookie entry found');
+			if ($now > (int)$row['timeout'])
 			{
 				// cookie expired - delete it
 				//set_log('Invalid cookie: expired');
 				setcookie(VGA_PL, 'DELETED', $past);
+				//set_log('Deleting expired cookie from table');
 				delete_vga_cookie_entry($mysql['identifier'] , $mysql['token']);
 				return false;
 			}
@@ -2237,6 +2245,9 @@ function vga_cookie_login()
 				// return userid
 				return $clean['identifier'];
 			}
+		}
+		else{
+			//set_log('no cookie entry found');
 		}
 		
 		// invalid token - ignore it and return false
@@ -2320,6 +2331,7 @@ function vga_cookie_logout()
 		}
 		else
 		{
+			//set_log(__FUNCTION__.' :  '.VGA_PL.' cookie contained non-alphanumeric characters. Ignoring it.');
 			return false;
 		}
 		
@@ -2352,6 +2364,8 @@ function setpersistantcookie($userid)
 	$expire = time() + COOKIE_LIFETIME;
 	
 	//set_log("setpersistantcookie(): $userid:$token");
+	//set_log('Now = ' . time());
+	//set_log('cookie lifetime = ' . COOKIE_LIFETIME);
 
 	$sql = "INSERT INTO user_persist_tokens (userid, token, timeout)
 		VALUES ($userid, '$token', $expire)";
@@ -2360,7 +2374,7 @@ function setpersistantcookie($userid)
 
 	if ($add_ptoken)
 	{
-		//set_log("setting cookie:  $userid:$token");
+		//set_log("setting cookie: " . VGA_PL . "$userid:$token");
 		setcookie(VGA_PL, "$userid:$token", $expire);
 	}
 	else
@@ -2369,24 +2383,32 @@ function setpersistantcookie($userid)
 	}
 }
 
+// Previously replaced token. Now keeping token and just extending expirey time
 function resetpersistantcookie($userid, $old_token)
 {	
-	$new_token = generateTOKEN();
+	//$new_token = generateTOKEN();
 	$expire = time() + COOKIE_LIFETIME;
 
 	//set_log("resetpersistantcookie(): $userid:$old_token => $new_token");
 
-	$sql = "UPDATE user_persist_tokens SET 
+	$sql_old = "UPDATE user_persist_tokens SET 
 		token = '$new_token',
 		timeout = $expire 
 		WHERE userid = $userid AND token = '$old_token'";
 
+	$sql = "UPDATE user_persist_tokens SET 
+			timeout = $expire 
+			WHERE userid = $userid AND token = '$old_token'";
+
+	
+	//set_log(__FUNCTION__.' '.$sql);
 	$update_ptoken = mysql_query($sql);
 
 	if ($update_ptoken)
 	{
-		//set_log("updating cookie:  $userid:$new_token");
-		setcookie(VGA_PL, "$userid:$new_token", $expire);
+		set_log("updating cookie:  $userid:$old_token");
+		//setcookie(VGA_PL, "$userid:$new_token", $expire);
+		setcookie(VGA_PL, "$userid:$old_token", $expire);
 	}
 	else
 	{
@@ -6483,9 +6505,12 @@ function WriteQuestionInfo($question,$userid)
 	
 	echo '</div>';//---extended questionbox	
 	echo '</td>';
+	
+	if($generation>1){
 	echo '<td width="50%">';		
 	MakeQuestionMap($userid,$question,$room,$generation,$phase);
 	echo '</td>';
+	}
 	echo '</tr>';
 	echo '</table>';
 	

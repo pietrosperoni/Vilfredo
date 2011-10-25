@@ -178,6 +178,7 @@ function login_user()
 			if (isset($_POST['remember']) && $_POST['remember'] == 'on')
 			{
 				//***
+				set_log('Setting persistant cookie...');
 				setpersistantcookie($info['id']);
 				//***
 				//set_log('Setting old style cookies');
