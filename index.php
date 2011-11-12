@@ -1,5 +1,6 @@
 <?php
 header("Location: viewquestions.php");
+exit;
 
 include('header.php');
 

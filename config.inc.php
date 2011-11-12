@@ -5,6 +5,7 @@ require_once "priv/config.domain.php";
 require_once "priv/dbdata.php";
 require_once "priv/sys.php";
 require_once "priv/social.php";
+require_once 'priv/bubbles.config.php';
 
 require_once 'process_input.php';
 require_once 'graphs.php';
@@ -72,7 +73,10 @@ define("RANDOM_ROOM_CODE_LENGTH", 16);
 define("USER_LOGIN_ID", 'vilfredo_user_id');
 define("USER_LOGIN_MODE", 'vilfredo_login_mode');
 //
-
+if (!defined('PWD_RESET_LIFETIME'))
+{
+	define('PWD_RESET_LIFETIME', 3600*24*2);
+}
 if (!defined('COOKIE_LIFETIME'))
 {
 	define('COOKIE_LIFETIME', 3600*24*2);

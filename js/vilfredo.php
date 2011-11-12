@@ -14,6 +14,23 @@ else
 ?>
 $(function() {
 	$.ajaxSetup({cache: false});
+	
+	/*$(document).ajaxStart(function(){
+		log('ajax start event caught');
+		var loading = $("#loading");
+		if (loading.length)
+		{ 
+			loading.show();
+		}
+	});
+	$(document).ajaxStop(function(){
+		log('ajax stop event caught');
+		var loading = $("#loading");
+		if (loading.length)
+		{ 
+			loading.hide();
+		}
+	});*/
 
 	$("#abstract_panel").accordion({
 		collapsible: true,
@@ -168,6 +185,12 @@ $(function() {
 				}
 			}
 		});
+	}
+	
+	function log(msg)
+	{
+		//if (console && console.log) console.log(msg);
+		if (typeof console != 'undefined') console.log(msg);
 	}
 	
 	var doFBConnect = function() {
@@ -438,7 +461,8 @@ $(function() {
 					$(this).hide();
 				});
 			}, 250);
-			$(user_dialog).bind('fbuserauthorized', doFBLogin);
+			
+			user_dialog.bind('fbuserauthorized', doFBLogin);
 			user_dialog.dialog({
 				modal: true,
 				position: 'top',

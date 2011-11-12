@@ -4,7 +4,7 @@
 				<p><em><?=$VGA_CONTENT['madeby_txt']?> <a href="http://turnfront.com/">Chris</a>, <a href="http://pietrosperoni.it/">Pietro</a> &amp; Derek.</em></p>
 			</div>
 			
-			<?php echo facebook_fbconnect_init_js(); ?>
+			<?php echo facebook_fbconnect_init_js(DISPLAY_FACEBOOK_LOGIN); ?>
 			
 		</body>
 	</html>

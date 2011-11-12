@@ -33,19 +33,13 @@ else
 		else
 		{*/
 			$registered = register_user();
-			$m = get_messages();
 			$error_message = get_message_string();
 			clear_messages();
-			//$error_message = $m['error'][0];
 		//}
 	}
 	
 	if ($registered)
 	{
-		$userid = mysql_insert_id();
-		// start a user session
-		$_SESSION[USER_LOGIN_ID] = $userid;
-		$_SESSION[USER_LOGIN_MODE] = 'VGA';
 		//then redirect them to the members area
 		if (isset($_SESSION['request']) && !empty($_SESSION['request']))
 		{

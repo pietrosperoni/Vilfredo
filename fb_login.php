@@ -13,4 +13,8 @@ if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 	
 	header("Location: viewquestions.php");
 }  
+else
+{
+	header("Location: login.php");
+}
 ?>

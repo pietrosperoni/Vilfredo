@@ -43,7 +43,7 @@ $headcommands='
 <title>VgtA: Questions</title>
 ';
 
-include('header.php');
+require_once('header.php');
 
 //loginCookieTest();
 //exit;

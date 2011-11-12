@@ -1,6 +1,8 @@
 <?php
 include('header.php');
 
+//print_array($_SESSION['messages']);
+
 #if (isloggedin())
 if ($userid)
 {
@@ -17,8 +19,8 @@ else
 	{ // if form has been submitted
 
 		$logged_in = login_user();
-		$m = get_messages();
-		$error_message = $m['error'][0];
+		$error_message = get_message_string();
+		clear_messages();
 	}
 	
 	if (!$logged_in)
@@ -27,7 +29,7 @@ else
 	// if they are not logged in
 	?>
 	
-	<p><span class="errorMessage"><?php echo $error_message; ?></span></p>
+	<p><span class="errorMessage"><?= $error_message ?></span></p>
 	<div class="login_sector">
 	<form action="<?php echo $_SERVER['PHP_SELF']?>" method="post">
 		<table border="0">
@@ -40,7 +42,7 @@ else
 			<td><?=$VGA_CONTENT['username_label']?></td>
 			<td>
 				<input type="hidden" name="user_login_action">
-				<input type="text" name="username" maxlength="40">
+				<input type="text" name="username" maxlength="40" value="<?=$_POST['username']?>">
 			</td>
 		</tr>
 		<tr>
@@ -62,6 +64,7 @@ else
 		</tr>
 		</table>
 	</form>
+	<a href="recover.php?resetpwd=1">Forgotten your password?</a>
 	</div>
 	
 	<div class="login_sector_soc">

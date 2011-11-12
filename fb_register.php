@@ -6,6 +6,21 @@ if ($userid)
 	$redirect = getpostloginredirectlink();
 	header("Location: " . $redirect);
 }
+elseif ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+{
+	if ($userid)
+	{
+		$_SESSION[USER_LOGIN_ID] = $userid;
+		$_SESSION[USER_LOGIN_MODE] = 'FB';
+		// log time
+		setlogintime($userid);
+	}
+	
+	//header("Location: viewquestions.php");
+	$redirect = getpostloginredirectlink();
+	header("Location: " . $redirect);
+	exit;
+} 
 elseif(!$FACEBOOK_ID)
 {
 	header("Location: login.php");
@@ -28,21 +43,15 @@ else
 		else
 		{
 			$registered = fb_register_user();
-			$m = get_messages();
-			$error_message = $m['error'][0];
+			$error_message = get_message_string();
+			clear_messages();
 		}
 	}
 	
 	if ($registered)
 	{
 		//then redirect them to the members area
-		$location = "viewquestions.php";
-		if (isset($_SESSION['request'] )) 
-		{
-			// Now send the user to his desired page
-			$location = $_SESSION['request'];
-			unset($_SESSION['request']);
-		}
+		$location = getpostloginredirectlink();
 		?>
 
 		<h1>Registered</h1>

@@ -31,6 +31,35 @@ _HTML_;
 return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
 
+function facebook_login_button_refresh_2_plugin($display=true) 
+{
+global $FACEBOOK_ID;
+global $VGA_CONTENT;
+
+if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+{
+	$goto = 'plugin_fb_login.php';
+	$button_txt = $VGA_CONTENT['fb_login_button'];
+}
+else
+{
+	$goto = 'plugin_fb_register.php';
+	$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
+}
+
+$str = <<<_HTML_
+{$VGA_CONTENT['or_use_fb_label']} <br/><br/>
+
+<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+
+<script type="text/javascript">
+function refresh_page() {
+	  window.location = "$goto";}
+</script>
+_HTML_;
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+
 function facebook_login_button_refresh_2($display=true) 
 {
 

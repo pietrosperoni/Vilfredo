@@ -924,6 +924,15 @@ td#content_rte_chars_remaining.length_ok
 	display: none;
 }
 
+.user {
+	font-weight: bold;
+	color: blue;
+}
+
+.form_buttons {
+	padding-top: 10px;
+}
+
 div.feedback {
 	margin: 0;
 	margin-left: 200px;

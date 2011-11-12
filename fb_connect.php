@@ -22,8 +22,8 @@ else
 		else
 		{
 			$connected = fb_connect_user();
-			$m = get_messages();
-			$error_message = $m['error'][0];
+			$error_message = get_message_string();
+			clear_messages();
 		}
 	}
 

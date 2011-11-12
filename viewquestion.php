@@ -85,16 +85,6 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$minimumminutes=(int)($minimumtime/60);
 
 
-
-
-
-
-
-
-
-
-
-
 	echo "<br />";
 
 	if (($phase==0) && ($generation>1))

@@ -855,9 +855,19 @@ function set_message($message_type, $message)
     $_SESSION['messages'][$message_type][] = $message;
 }
 
-function get_messages($message_type='error')
+function get_messages_old($message_type='error')
 {
     $messages_array = $_SESSION['messages'][$message_type];
+    return $messages_array;
+}
+function get_messages($message_type='error')
+{
+    $messages_array = array();
+    if (isset($_SESSION['messages'][$message_type]))
+    {
+    	$messages_array = $_SESSION['messages'][$message_type];
+    	unset($_SESSION['messages'][$message_type]);
+    }
     return $messages_array;
 }
 
@@ -1966,24 +1976,6 @@ function fb_user_logout()
 	}
 }
 
-// Workaround to detect invalid Facebook session
-function get_current_facebook_userid($fb)
-{
-	try 
-	{
-		// Test the current Facebook session with API call
-		$fb->api_client->users_isAppUser();
-		// Session valid, so get Facebook ID
-		$fb_uid = $fb->get_loggedin_user();
-		return $fb_uid;
-	} 
-	catch (FacebookRestClientException $e) 
-	{
-		// Exception thrown, session invalid
-		return null;
-	}
-}
-
 function getCurrentUser()
 {            
 	return IsAuthenticated();
@@ -2231,7 +2223,7 @@ function vga_cookie_login()
 			{
 				// cookie expired - delete it
 				//set_log('Invalid cookie: expired');
-				setcookie(VGA_PL, 'DELETED', $past);
+				setcookie(VGA_PL, 'DELETED', $past, '/');
 				//set_log('Deleting expired cookie from table');
 				delete_vga_cookie_entry($mysql['identifier'] , $mysql['token']);
 				return false;
@@ -2338,7 +2330,7 @@ function vga_cookie_logout()
 		//set_log('log out: deleting cookie: user ' . $clean['identifier']);
 		
 		// delete cookie
-		setcookie(VGA_PL, 'DELETED', $past);
+		setcookie(VGA_PL, 'DELETED', $past, '/');
 		
 		$mysql['identifier'] = mysql_real_escape_string($clean['identifier']);
 		$mysql['token'] = mysql_real_escape_string($clean['token']);
@@ -2355,6 +2347,62 @@ function vga_cookie_logout()
 		// no cookie found
 		//set_log("vga_cookie_logout(): no cookie found");
 		return true;
+	}
+}
+
+
+function getUserFromEmail($email)
+{
+	if (!empty($email))
+	{
+		$sql = sprintf("SELECT * FROM users 
+			    WHERE  email = '%s'",
+			mysql_real_escape_string($email));
+
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		if (mysql_num_rows($result) > 0) {
+			$user = mysql_fetch_assoc($result);
+			return $user;
+		}
+		return false;
+	}
+	else
+	{
+		return false;
+	}
+}
+function getUserFromUsername($username)
+{
+	if (!empty($username))
+	{
+		$sql = sprintf("SELECT * FROM users 
+			    WHERE  username = '%s'",
+			mysql_real_escape_string($username));
+
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		if (mysql_num_rows($result) > 0) {
+			$user = mysql_fetch_assoc($result);
+			return $user;
+		}
+		return false;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -2375,7 +2423,7 @@ function setpersistantcookie($userid)
 	if ($add_ptoken)
 	{
 		//set_log("setting cookie: " . VGA_PL . "$userid:$token");
-		setcookie(VGA_PL, "$userid:$token", $expire);
+		setcookie(VGA_PL, "$userid:$token", $expire, '/');
 	}
 	else
 	{
@@ -2408,7 +2456,7 @@ function resetpersistantcookie($userid, $old_token)
 	{
 		set_log("updating cookie:  $userid:$old_token");
 		//setcookie(VGA_PL, "$userid:$new_token", $expire);
-		setcookie(VGA_PL, "$userid:$old_token", $expire);
+		setcookie(VGA_PL, "$userid:$old_token", $expire, '/');
 	}
 	else
 	{
@@ -2462,6 +2510,25 @@ function fb_getuserdetails($fb_uid)
 	else 
 		return false;
 }
+
+// Workaround to detect invalid Facebook session
+function get_current_facebook_userid($fb)
+{
+	try 
+	{
+		// Test the current Facebook session with API call
+		$fb->api_client->users_isAppUser();
+		// Session valid, so get Facebook ID
+		$fb_uid = $fb->get_loggedin_user();
+		return $fb_uid;
+	} 
+	catch (FacebookRestClientException $e) 
+	{
+		// Exception thrown, session invalid
+		return null;
+	}
+}
+
 
 // Return user details of connected account
 function getuserdetails($userid)
