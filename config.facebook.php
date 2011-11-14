@@ -2,6 +2,47 @@
 //******************************************
 //
 // Code snippets to enable Facebook Connect 
+//                          V2
+//
+//****************************************
+function facebook_fbconnect_init_NEW_js($display=true)
+{
+	global $facebook_key, $fb;
+	$domain = SITE_DOMAIN;
+
+/* HEREDOC Set output string containing javascript */
+	$str = <<<_HTML_
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : $facebook_key, // App ID
+      channelURL : $domain.'/channel.html', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      oauth      : true, // enable OAuth 2.0
+      xfbml      : true  // parse XFBML
+    });
+
+    // Additional initialization code here
+  };
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     d.getElementsByTagName('head')[0].appendChild(js);
+   }(document));
+</script>
+_HTML_;
+/* HEREDOC */
+	
+	return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+//******************************************
+//
+// Code snippets to enable Facebook Connect 
 //
 //****************************************
 function facebook_fbconnect_init_js($display=true) {
