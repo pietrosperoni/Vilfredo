@@ -3,33 +3,6 @@
 $svg_dir = 'svg-1.4.4';
 $bubblesdir = "newbubbles";
 
-$headcommands2='
-<link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
-<!-- <link rel="stylesheet" href="'.$bubblesdir.'/css/velocity.css" /> -->
-<!-- <link rel="stylesheet" href="'.$bubblesdir.'/css/questiontable.css" /> -->
-<link rel="stylesheet" href="'.$bubblesdir.'/js/tablesorter/themes/blue/style.css" />
-<link rel="stylesheet" href="tabs.css" />
-
-<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery-1.6.2.js"></script>
-<script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
-<script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
-<script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
-<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
-
-<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svg.js"></script>
-<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svgdom.js"></script>
-<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery.svganim.js"></script>
-<script type="text/javascript" src="'.$bubblesdir.'/js/json2.js"></script> 
-<script type="text/javascript" src="'.$bubblesdir.'/js/cookies/jquery.cookie.js"></script>
-<script type="text/javascript" src="'.$bubblesdir.'/js/tooltip/jquery.tooltip.bubbles.js"></script> 
-
-<!-- <script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/jquery.tablesorter.js"></script> 
-<script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/jquery.metadata.js"></script>
-<script type="text/javascript" src="'.$bubblesdir.'/js/tablesorter/addons/pager/jquery.tablesorter.pager.js"></script> -->
-
-<title>VgtA: Questions</title>
-';
-
 $headcommands='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
 <link rel="stylesheet" href="tabs.css" />
