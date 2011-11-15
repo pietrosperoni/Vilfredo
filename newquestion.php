@@ -21,8 +21,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.php"></script>
-<script type="text/javascript" src="newbubbles/js/cookies/jquery.cookie.js"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>';
 
 include('header.php');
 
@@ -101,7 +100,7 @@ $week_and_a_half = $VGA_CONTENT['week and a half'];
       </h3>
       
       
-  
+  <script type="text/javascript" src="<?=BUBBLES_DIR?>/js/cookies/jquery.cookie.js"></script>
  
  <script type="text/javascript">
  var cookieexpires = 3; //days

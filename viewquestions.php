@@ -1,7 +1,7 @@
 <?php
 
 $svg_dir = 'svg-1.4.4';
-$bubblesdir = "newbubbles";
+$bubblesdir = "bubbles";
 
 $headcommands='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
@@ -566,8 +566,7 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 echo '</div>';
 	 echo '<div class="clearboth"></div>';
 	 ?></div><div class="panel"><?php
-require_once 'priv/bubbles.config.php';
-require_once ''.$bubblesdir.'/viewbubblebox.php';
+require_once BUBBLES_DIR.'/viewbubblebox.php';
 ?></div><!-- panel -->
 	 </div><!-- panels -->
 	<div class="clear"></div>
