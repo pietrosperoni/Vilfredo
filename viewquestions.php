@@ -1,25 +1,15 @@
 <?php
 
-$svg_dir = 'svg-1.4.4';
-$bubblesdir = "bubbles";
-
 $headcommands='
 <link rel="stylesheet" href="js/jquery/tooltip/jquery.tooltip.css" />
 <link rel="stylesheet" href="tabs.css" />
 
-<script type="text/javascript" src="'.$bubblesdir.'/js/'.$svg_dir.'/jquery-1.6.2.js"></script>
-<script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
-<script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
-<script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
-<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
-
-<title>VgtA: Questions</title>
-';
+<title>VgtA: Questions</title>';
 
 require_once('header.php');
 
-//loginCookieTest();
-//exit;
+$svg_dir = BUBBLES_SVG;
+$bubblesdir = BUBBLES_DIR;
 
 $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 
@@ -27,6 +17,12 @@ $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 //if ($userid)
 //{
 ?>
+<script type="text/javascript" src="<?=BUBBLES_DIR?>/js/<?=BUBBLES_SVG?>/jquery-1.6.2.js"></script>
+<script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
+<script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
+<script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
+<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
+
 <script type="text/javascript">
 var cookieexpires = 3; //days
 var bubbleurl = <?= $bubbleurl ?>;
@@ -51,10 +47,16 @@ $(function() {
 			{
 				svg.configure({width: panelwidth, height: panelheight}, true);
 			}
-		});		
+		});
+		enableRefreshTimer();
 	});
 	$('#questiontab').click(function() {
+		if (isRefreshing())
+		{
+			return;
+		}
 		$.cookie('btab', null);
+		disableRefreshTimer();
 	});
 
 	if (bubbleurl)
