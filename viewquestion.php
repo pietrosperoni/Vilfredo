@@ -44,7 +44,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$question = $_GET[QUERY_KEY_QUESTION];
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-
+	
 	WriteQuestionInfo($question,$userid);
 
 	$QuestionInfo=GetQuestion($question);
@@ -372,7 +372,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 <!-- </form> -->
 <script type="text/javascript">
 $(document).ready(function() {
-	function checklengths_v1() {
+	function checklengths() {
 		var abstract_txt = $("#abstract_rte").contents().find("body").text();
 		var proposal_txt = $("#content_rte").contents().find("body").text();
 		var abstract_length = abstract_txt.length;
@@ -432,7 +432,7 @@ $(document).ready(function() {
 			prop_indicator.removeClass("length_not_ok");
 		}
 	}
-	/* var checklength = function (len) {
+	 var checklength = function (len) {
 		var title = $("#abstract_title");
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
@@ -461,7 +461,7 @@ $(document).ready(function() {
 			title.css("font-weight", "normal");
 			$("#content_rte_chars_msg").html("");
 		}
-	} */
+	} 
  
 	try{
 		$("#content_rte").jqrte();
@@ -474,8 +474,8 @@ $(document).ready(function() {
 		if (limit) {
 			$("#abstract_rte").data('maxabslength', limit_abs);
 			$("#content_rte").data('maxlength', limit);
-			$("#content_rte").data('callback', checklengths);
-			$("#abstract_rte").data('callback', checklengths);
+			$("#content_rte").data('callback', checklength);
+			$("#abstract_rte").data('callback', checklength);
 		}
 	}
 	catch(e){}

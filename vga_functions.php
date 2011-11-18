@@ -6530,6 +6530,10 @@ function GetProposalsQuestion($proposal)
 
 function WriteQuestionInfo($question,$userid)
 {
+	global $bitly_user, $bitly_key;
+	
+	set_log(__FUNCTION__.' called');
+	
 	$QuestionInfo=GetQuestion($question);
 	$title=$QuestionInfo['title'];
 	$content=$QuestionInfo['question'];
@@ -6541,6 +6545,20 @@ function WriteQuestionInfo($question,$userid)
 	$shorturl = '';
 	$permit_anon_votes = $row['permit_anon_votes'];
 	$permit_anon_proposals = $row['permit_anon_proposals'];
+	
+	if (!empty($bitlyhash)) 
+	{
+		$shorturl = BITLY_URL.$bitlyhash;
+	}
+	else
+	{
+		$longurl = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		if ($hash = make_bitly_hash($longurl, $bitly_user, $bitly_key))
+		{
+			SetBitlyHash($question, $hash);
+			$shorturl = BITLY_URL.$hash;
+		}
+	}
 	
 	echo '<table width="100%" ><tr valign="top">';
 	echo '<td width="50%">';
