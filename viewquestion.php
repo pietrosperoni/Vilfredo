@@ -175,9 +175,10 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			}
 			echo '</div>';
 		}		
-		
-		
-		echo '<div id="actionbox">';
+	}
+
+	//****** PASTE HERE
+	echo '<div id="actionbox">';
 		echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
 		if ( $phase==0)
 		{
@@ -199,12 +200,11 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		if ( $phase==1)
 		{
 			echo "{$VGA_CONTENT['eval_phase_txt']}</h3>";
-//			echo "<i>The list of proposals that follow should <br/>(a) give the possibility to endorse all of them, and <br/>(b)be all and only the proposals of this generation plus the winning proposals of the previous generation</i><br/><br/>";
-			echo "<p>{$VGA_CONTENT['click_all_txt']}</p>";
-
-		}
+	//			echo "<i>The list of proposals that follow should <br/>(a) give the possibility to endorse all of them, and <br/>(b)be all and only the proposals of this generation plus the winning proposals of the previous generation</i><br/><br/>";
+				echo "<p>{$VGA_CONTENT['click_all_txt']}</p>";
+	
 	}
-
+	//*****
 
 	if ( $userid and $phase==0 and $userid==$creatorid and $tomoveon==1)
 	{
