@@ -90,7 +90,7 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['captch_req_label']?></td>
 					<td>
-						<?php echo recaptcha_get_html($recaptcha_public_key, $recaptcha_error); ?>
+						<?php echo recaptcha_get_html($recaptcha_public_key); ?>
 					</td>
 				</tr>
 				<tr>

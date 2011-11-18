@@ -2351,6 +2351,37 @@ function vga_cookie_logout()
 }
 
 
+function isEmailRegistered($email)
+{
+	if (!empty($email))
+	{
+		$sql = sprintf("SELECT username FROM users 
+			    WHERE  email = '%s'",
+			mysql_real_escape_string($email));
+			
+		set_log($sql);
+
+		$result = mysql_query($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		if (mysql_num_rows($result) > 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
 function getUserFromEmail($email)
 {
 	if (!empty($email))

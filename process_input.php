@@ -46,6 +46,13 @@ function register_user()
 			$errors = true;
 			//return false;
 		}
+		
+		if (isEmailRegistered($_POST['email']))
+		{
+			$msg = "The email address you entered is already registered. You can reset your password from the login page.";
+			set_message("error", $msg);
+			$errors = true;
+		}
 	}
 
 	// checks if the username is in use
