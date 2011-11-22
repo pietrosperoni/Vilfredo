@@ -77,6 +77,10 @@ if (!defined('PWD_RESET_LIFETIME'))
 {
 	define('PWD_RESET_LIFETIME', 3600*24*2);
 }
+if (!defined('CHECK_EMAIL_LIFETIME'))
+{
+	define('CHECK_EMAIL_LIFETIME', 3600*24*2);
+}
 if (!defined('COOKIE_LIFETIME'))
 {
 	define('COOKIE_LIFETIME', 3600*24*2);

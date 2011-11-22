@@ -3420,9 +3420,12 @@ function WriteUserVsReaderInQuestion($user,$reader,$question,$room)
 
 function WriteUserVsReader($user,$reader)
 {
+	global $VGA_CONTENT;
+	
 	$sql = "SELECT  users.username, users.email FROM users WHERE  users.id = " .$user. " ";
 	$response = mysql_query($sql);
 	$row = mysql_fetch_array($response);
+	
 	if (!$row)
 	{
 		$answer='DELETED USER';
@@ -3439,6 +3442,7 @@ function WriteUserVsReader($user,$reader)
 		$answer= $answer.'<sup><img src="images/email.png" height=12 title="' . getVGAContent('receives_emails_title') . '"></sup>';
 		}
 
+		set_log($answer);
 
 		if($reader==$user)
 		{
@@ -5300,8 +5304,15 @@ function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlight
 
 #$ShowNSupporters=true,$ShowAllEndorsments=false,$size="7.5,10",$bundles=true,$highlightuser1=0)
 
-
 function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+{
+#	echo "highlightproposal1 in MapName=".$highlightproposal1;
+	
+	$room=GetQuestionRoom($question);
+	return "map/map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
+}
+
+function MapName_1($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 {
 #	echo "highlightproposal1 in MapName=".$highlightproposal1;
 	
@@ -5535,8 +5546,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$buf.=$title;
 	$buf.='" {';
 	$buf.="\n";
-	$buf.='size="'.$size.'"';
-	$buf.="\n";
+	//$buf.='size="'.$size.'"';
+	//$buf.="\n";
 	$proposals=GetProposalsInGeneration($question,$generation);
 	$endorsers=Endorsers($question,$generation);
 	$authors=array_merge(AuthorsOfInheritedProposals($question,$generation),AuthorsOfNewProposals($question,$generation));
@@ -6292,7 +6303,7 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 	
 	$urlquery = CreateQuestionURL($question, $room);
 
-	echo '<table border="2" class="questionmapContent" style="background-color:lightgrey; border-spacing: 0;" >';
+	echo '<table border="2" class="questionmapContent" >';
 	echo '<tr>';
 	$generationPlusOne=$generation+1;
 	
@@ -6509,13 +6520,10 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 	echo '<td style="background-color:'.$col.';"></td>';				
 	echo '<td colspan="'.$generation.'" style="background-color:white;" >proposals that would have reached the unanimity if it wasn\'t for proposals imposed in the Pareto front by the author</td>';				
 	echo '</tr>';
-	
-	
-	
+
 	echo '</table>';	
 		
 }
-
 
 function GetProposalsQuestion($proposal)
 {
@@ -6525,14 +6533,9 @@ function GetProposalsQuestion($proposal)
 	return $row[0];
 }
 
-
-
-
 function WriteQuestionInfo($question,$userid)
 {
 	global $bitly_user, $bitly_key;
-	
-	set_log(__FUNCTION__.' called');
 	
 	$QuestionInfo=GetQuestion($question);
 	$title=$QuestionInfo['title'];
@@ -6610,14 +6613,11 @@ function WriteQuestionInfo($question,$userid)
 	
 	echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
 	
-	
 	if($generation>2)
 	{
 		$graph=StudyQuestion($question);
 		echo "<img src='".$graph."'>";
 	}
-
-	
 	
 	echo '</div>';//---extended questionbox	
 	echo '</td>';
@@ -6629,8 +6629,6 @@ function WriteQuestionInfo($question,$userid)
 	}
 	echo '</tr>';
 	echo '</table>';
-	
-	
 	
 }
 

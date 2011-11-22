@@ -31,6 +31,25 @@ $(function() {
 			loading.hide();
 		}
 	});*/
+	
+	$('#show_table_link').click(function(event) {
+		if ($('#questionmap').is(':visible'))
+		{
+			$('#show_table_link span').html('Show Voting History Table');
+			$('#questionmap').slideUp(1000);
+		}
+		else
+		{
+			$('#show_table_link span').html('Hide Voting History Table');
+			$('#questionmap').slideDown(1000);
+		}
+	});
+	$("#show_table_link").mouseenter(function(event){
+		$(this).addClass("over");
+	});
+	$("#show_table_link").mouseleave(function(event){
+		$(this).removeClass("over");
+	});
 
 	$("#abstract_panel").accordion({
 		collapsible: true,

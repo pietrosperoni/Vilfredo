@@ -207,7 +207,7 @@
   'login_button' => 'Login',
   'register_button' => 'Register',
   'connect_button' => 'Connect',
-  'username_ok_txt' => 'Username available: Accept?',
+  'username_ok_txt' => 'Username available: Accept? (Click accept box)',
   'show_abs_only_txt' => 'show abstract only',
   'fb_or_login_button' => 'Or Log in with Facebook',
   'splash_txt' => 'Please log in or register',

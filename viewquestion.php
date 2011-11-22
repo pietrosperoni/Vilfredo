@@ -45,7 +45,107 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
 	
-	WriteQuestionInfo($question,$userid);
+	//WriteQuestionInfo($question,$userid);
+	
+	
+	//****
+	$QuestionInfo=GetQuestion($question);
+	$title=$QuestionInfo['title'];
+	$content=$QuestionInfo['question'];
+	$room=$QuestionInfo['room'];
+	$phase=$QuestionInfo['phase'];
+	$generation=$QuestionInfo['roundid'];
+	$author=$QuestionInfo['usercreatorid'];
+	$bitlyhash = $row['bitlyhash'];
+	$shorturl = '';
+	$permit_anon_votes = $row['permit_anon_votes'];
+	$permit_anon_proposals = $row['permit_anon_proposals'];
+
+	if (!empty($bitlyhash)) 
+	{
+		$shorturl = BITLY_URL.$bitlyhash;
+	}
+	else
+	{
+		$longurl = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		if ($hash = make_bitly_hash($longurl, $bitly_user, $bitly_key))
+		{
+			SetBitlyHash($question, $hash);
+			$shorturl = BITLY_URL.$hash;
+		}
+	}
+
+	echo '<div class="questionbox">';
+	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
+	?>
+		<h2 id="question">
+		<form method="post" action="changeupdate.php">
+			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+			<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
+		<?php
+		echo  $title;
+	if ($userid) {
+		if ($subscribed==1)
+		{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>unsubscribe" /> <?php
+		}else{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>subscribe" /> <?php
+		}
+	}
+		?>
+		</form>
+		</h2>
+	<?php
+	echo "<br />";
+	echo '<div id="question">' . $content . '</div>';
+
+
+	//echo WriteUserVsReader($author,$userid);
+	echo "<br />";
+	$author = WriteUserVsReader($author,$userid);
+	echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt']. ' ' . $author . '</cite></p>';
+
+	echo '<table id="social-buttons"><tr><td>';
+
+	// Only display twit button if shorturl found in DB or generated from bitly
+	if (!empty($shorturl))
+	{
+		if (false)
+		{
+			$retweetprefix = "RT @Vg2A";
+			$tweet = urlencode($retweetprefix." ".$title." ".$shorturl);
+			$tweetaddress = "http://twitter.com/home?status=$tweet";
+			echo "<a class=\"tweet\" href=\"$tweetaddress\"><span>{$VGA_CONTENT['tweet_link']}</span></a>";
+		}
+		else
+		{
+			//set_log('Tweet Button lang = ' . $locale);
+			echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
+		}
+	}
+
+	echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
+
+	if($generation>2)
+	{
+		$graph=StudyQuestion($question);
+		echo "<img src='".$graph."'>";
+	}
+
+	echo '</div>';//---extended questionbox	
+
+	if($generation>1)
+	{		
+		//echo '<div class="elementcontainer">'; 
+		
+		echo '<p><span id="show_table_link" class="question_panel_link"><span>Show Voting History Table</span> <img src="images/voting.gif" width="30" height="20" alt="" /></span></p>';
+		
+		echo '<div id="questionmap">';
+		MakeQuestionMap($userid,$question,$room,$generation,$phase);
+		echo '</div> <!-- questionmap -->';	
+		
+		//echo '</div> <!-- elementcontainer -->';	
+	}
 
 	$QuestionInfo=GetQuestion($question);
 	$title=$QuestionInfo['title'];
@@ -89,7 +189,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	if (($phase==0) && ($generation>1))
 	{
-		InsertMap($question,$generation-1);
+		InsertMap($question,$generation-1, 0, 'M');
 		/*
 		$graphsize = 'largegraph';
 		if ($filename = InsertMap2($question,$generation-1))
@@ -176,6 +276,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			echo '</div>';
 		}		
 	}
+	
+	echo '</div>';  //MISSING DIV ?
 
 	//****** PASTE HERE
 	echo '<div id="actionbox">';

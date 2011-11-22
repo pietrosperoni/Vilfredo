@@ -456,9 +456,51 @@ table#social-buttons {
 .questionbox {
 	background-color:#ffffcb; 
 	border:2px solid #B45F04;
-	/*padding:10px 15px 10px 15px;*/
 	padding:10px 15px 0 15px;
 	margin:30px 3px 10px 3px;
+}
+
+#questionmap {
+	display: none;
+	background-color:#ffffcb; 
+	border:2px solid #B45F04;
+	padding:10px 15px 10px 15px;
+	margin:30px 3px 10px 3px;
+}
+
+.questionmapContent {
+	background-color:lightgrey; 
+	border-spacing: 0;
+}
+
+.question_panel_link {
+	width: 90px;
+	height: 50px;
+	margin-left: 3px;
+	text-align: center;
+	font-weight: 200;
+	font-size: 1em;
+	padding: 3px;
+	cursor: pointer;
+	background-color: #d0f5a9;
+	border: 1px solid #484; 
+	font-size: 1.1em;
+}
+.question_panel_link.over {
+	background-color: yellow;
+}
+
+.question_panel_link img {
+	padding:0;
+	margin: 0;
+	border: 0;
+	vertical-align: middle;
+	margin-left: 5px;
+	margin-bottom: 5px;	
+}
+
+#question-map table {
+	width: 95%;
 }
 
 #paretofrontbox {
@@ -1118,8 +1160,6 @@ a.tweet span.vert {
 	font-size: 1em;
 	line-height: 1.5em;
 }
-
-
 
 .emptycell {
 	border: 0;
