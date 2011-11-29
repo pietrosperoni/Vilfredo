@@ -189,22 +189,33 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	if (($phase==0) && ($generation>1))
 	{
-		InsertMap($question,$generation-1, 0, 'M');
+		echo '<div class = "container_large">';
+		
+		InsertMap($question,$generation-1, 0, 'M');		
 		/*
-		$graphsize = 'largegraph';
+		$graphsize = 'mediumgraph';
 		if ($filename = InsertMap2($question,$generation-1))
 		{
 			$filename .= '.svg';
 			?>
 			<script type="text/javascript">
-			$(document).ready(function() {
-				var svgfile = '<?= $filename; ?>';
-				$('#svggraph1').svg({loadURL: svgfile});
-			});
+			
+				function loadDone() {
+					//alert('loaded');
+				}
+
+				$(document).ready(function() {
+					var svgfile = '<?= $filename; ?>';
+					$('#svggraph1').svg({loadURL: svgfile, onLoad: loadDone});
+					//var svg_graph = $('#svggraph1').svg('get');  
+					//resetSize(svg_graph);  
+				});
 			</script>
 			<?php
 			echo '<div id="svggraph1" class="' . $graphsize . '"></div>';
-		} */
+		}*/ 
+		
+		echo '</div>';
 		
 		echo '<div id="paretofrontbox">';
 
@@ -473,7 +484,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 <!-- </form> -->
 <script type="text/javascript">
-$(document).ready(function() {
+$(document).ready(function() {	
 	function checklengths() {
 		var abstract_txt = $("#abstract_rte").contents().find("body").text();
 		var proposal_txt = $("#content_rte").contents().find("body").text();

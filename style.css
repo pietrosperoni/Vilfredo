@@ -460,6 +460,12 @@ table#social-buttons {
 	margin:30px 3px 10px 3px;
 }
 
+.container_large {
+	background-color:#ffffff; 
+	padding:10px 15px 10px 15px;
+	margin:30px 3px 10px 3px;
+}
+
 #questionmap {
 	display: none;
 	background-color:#ffffcb; 
@@ -480,11 +486,13 @@ table#social-buttons {
 	text-align: center;
 	font-weight: 200;
 	font-size: 1em;
-	padding: 3px;
+	padding: 4px 10px 4px 10px;
 	cursor: pointer;
 	background-color: #d0f5a9;
 	border: 1px solid #484; 
 	font-size: 1.1em;
+	-moz-border-radius: 1.5em;
+	border-radius: 1.5em;
 }
 .question_panel_link.over {
 	background-color: yellow;
@@ -1164,7 +1172,5 @@ a.tweet span.vert {
 .emptycell {
 	border: 0;
 }
-
-
 
 
