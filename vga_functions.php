@@ -3442,8 +3442,6 @@ function WriteUserVsReader($user,$reader)
 		$answer= $answer.'<sup><img src="images/email.png" height=12 title="' . getVGAContent('receives_emails_title') . '"></sup>';
 		}
 
-		set_log($answer);
-
 		if($reader==$user)
 		{
 			$answer='<b>'.$answer.'</b>';
