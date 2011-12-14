@@ -8,6 +8,8 @@ $headcommands='
 
 require_once('header.php');
 
+set_log('viewquestions.php USERID = '.$userid);
+
 $svg_dir = BUBBLES_SVG;
 $bubblesdir = BUBBLES_DIR;
 
@@ -48,6 +50,7 @@ $(function() {
 				svg.configure({width: panelwidth, height: panelheight}, true);
 			}
 		});
+		setnodesize();
 		enableRefreshTimer();
 	});
 	$('#questiontab').click(function() {
@@ -573,5 +576,12 @@ require_once BUBBLES_DIR.'/viewbubblebox.php';
 	 </div><!-- panels -->
 	<div class="clear"></div>
 <?php
-		include('footer.php');
+
+if (!$userid)
+{
+	set_log('Not logged in - storing request');
+	SetRequest();
+}
+
+include('footer.php');
 ?>

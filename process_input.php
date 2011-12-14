@@ -269,7 +269,9 @@ function login_user()
 				//setcookie(COOKIE_USER, $_POST['username'], $expire);
 				//setcookie(COOKIE_PASSWORD, $_POST['pass'], $expire);
 			}
-
+			
+			return true;
+			/*
 			//then redirect them to the members area
 			if (isset($_SESSION['request']) && !empty($_SESSION['request']))
 			{
@@ -281,6 +283,7 @@ function login_user()
 			else {
 				header("Location: viewquestions.php");
 			}
+			*/
 		}
 	}
 }

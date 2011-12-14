@@ -21,6 +21,10 @@ include('header.php');
 	
 	$_SESSION['logout'] = true;
 	
-	header("Location: login.php");
+	
+	$redirect = getpostloginredirectlink();
+	header("Location: " . $redirect);
+	
+	//header("Location: login.php");
 
 ?> 

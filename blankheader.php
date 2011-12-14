@@ -1,6 +1,6 @@
 <?php
 // Start output buffer
-//ob_start();
+ob_start();
 // ******************************************	
 // 	Load System Serttings
 require_once 'config.inc.php';
@@ -27,3 +27,12 @@ setlocale(LC_ALL, $locale);
 // Get user ID if logged in
 $userid=isloggedin();
 ?>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
+	<meta http-equiv="expires" content="Thu, 16 Mar 2000 11:00:00 GMT" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<link rel="stylesheet" type="text/css" href="../style.css" media="screen, print" >
+</head>

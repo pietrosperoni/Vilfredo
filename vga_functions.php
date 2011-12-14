@@ -1553,7 +1553,7 @@ function FormatRoomId($room)
 	{
 		$room = trim($room);
 		$room = strip_tags($room);
-		$room = ereg_replace("[^A-Za-z0-9_[:space:]]", "", $room );
+		//$room = ereg_replace("[^A-Za-z0-9_@.-[:space:]]", "", $room );
 		$room = str_replace(" ", "_", $room);
 	}
 	return $room;
@@ -1882,21 +1882,6 @@ function display_logout_link()
 	return '<a href="logout.php">Logout</a>';
 }
 
-function getpostloginredirectlink()
-{
-	if (isset($_SESSION['request'] )) 
-	{
-		// Now send the user to his desired page
-		$request = $_SESSION['request'];
-		unset($_SESSION['request']);
-		return $request;
-	}
-	else 
-	{
-		return "viewquestions.php";
-	}
-}
-
 function make_URI_absolute($loc)
 {
 	$host  = $_SERVER['HTTP_HOST'];
@@ -1926,6 +1911,7 @@ function GetRequestString()
 	return array_pop(explode('/', $_SERVER[REQUEST_URI]));
 }
 
+
 function GetRequest($location="viewquestions.php")
 {
 	//then redirect them to the members area
@@ -1940,31 +1926,36 @@ function GetRequest($location="viewquestions.php")
 		header("Location: ".$location);
 	}
 }
-
-function SetRequest($location="viewquestions.php")
+function SetRequest()
 {
-	if (DEBUG) {
+	// Store user's request for after login
+	$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
+	//set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
+}
+function UnsetRequest()
+{
+	unset($_SESSION['request']);
+}
+function getpostloginredirectlink()
+{
+	if (isset($_SESSION['request'] )) 
+	{
+		// Now send the user to his desired page
+		$request = $_SESSION['request'];
 		unset($_SESSION['request']);
-		header("Location: ".$location);
+		return $request;
 	}
-	else {
-		// Store user's request for after login
-		$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
-		header("Location: ".$location);
+	else 
+	{
+		return "viewquestions.php";
 	}
 }
 
 function DoLogin()
 {
-	if (DEBUG) {
-		unset($_SESSION['request']);
-		header("Location: login.php");
-	}
-	else {
-		// Store user's request for after login
-		$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
-		header("Location: login.php");
-	}
+	// Store user's request for after login
+	$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
+	header("Location: login.php");
 }
 
 function fb_user_logout()
@@ -1984,15 +1975,31 @@ function getCurrentUser()
 // Salt Generator
 function generate_salt()
 { 
-     // Declare $salt
      $salt = '';
 
-     // And create it with random chars
+     // Create salt with random chars
      for ($i = 0; $i < 3; $i++)
      { 
           $salt .= chr(rand(35, 126)); 
      } 
           return $salt;
+}
+
+function unsetcookie($cookie_id, $domain_cookie = false)
+{
+	set_log(__FUNCTION__.' :: Cookie '.$cookie_id.' = '.$_COOKIE[$cookie_id]);
+	
+	$past = time() - TWO_DAYS;
+	if ($domain_cookie)
+	{
+		set_log('$domain_cookie TRUE');
+		setcookie($cookie_id, 'DELETED', $past, '/');
+	}
+	else
+	{
+		set_log('$domain_cookie FALSE');
+		setcookie($cookie_id, 'DELETED', $past);
+	}
 }
 
 function unsetcookies()
@@ -2441,10 +2448,6 @@ function setpersistantcookie($userid)
 {	
 	$token = generateTOKEN();
 	$expire = time() + COOKIE_LIFETIME;
-	
-	//set_log("setpersistantcookie(): $userid:$token");
-	//set_log('Now = ' . time());
-	//set_log('cookie lifetime = ' . COOKIE_LIFETIME);
 
 	$sql = "INSERT INTO user_persist_tokens (userid, token, timeout)
 		VALUES ($userid, '$token', $expire)";

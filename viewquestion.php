@@ -822,9 +822,12 @@ if ($userid) {
 	// echo "<a href=logout.php>Logout</a>";
 //}
 //else
-//{
-//		DoLogin();
-//}
+
+if (!$userid)
+{
+	set_log('Not logged in - storing request');
+	SetRequest();
+}
 
 include('footer.php');
 

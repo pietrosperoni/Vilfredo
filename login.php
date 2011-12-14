@@ -23,7 +23,15 @@ else
 		clear_messages();
 	}
 	
-	if (!$logged_in)
+	if ($logged_in)
+	{
+		$redirect = getpostloginredirectlink();
+		//set_log(__FILE__.' :: getpostloginredirectlink = '.$redirect);
+		header("Location: " . $redirect);
+		exit;
+	}
+	
+	else
 	{
 
 	// if they are not logged in
