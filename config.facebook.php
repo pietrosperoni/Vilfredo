@@ -131,6 +131,37 @@ _HTML_;
 return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
 }
 
+function facebook_login_header_button_refresh($display=true) 
+{
+
+global $FACEBOOK_ID;
+global $VGA_CONTENT;
+
+$button_txt = $VGA_CONTENT['fb_login_button'];
+
+if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+{
+	$goto = 'fb_login.php';
+	//$button_txt = $VGA_CONTENT['fb_login_button'];
+}
+else
+{
+	$goto = 'fb_register.php';
+	//$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
+}
+
+$str = <<<_HTML_
+
+<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+
+<script type="text/javascript">
+function refresh_page() {
+	  window.location = "$goto";}
+</script>
+_HTML_;
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+
 function facebook_login_button_refresh($goto, $display=true) {
 $str = <<<_HTML_
 Or <b>login</b> with Facebook:<br/><br/>

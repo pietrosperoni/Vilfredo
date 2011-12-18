@@ -155,6 +155,7 @@ echo '<div id="content_page">';
 		?>
 			<li><a href="login.php"><?=$VGA_CONTENT['login_link']?></a></li>
 			<li><a href="register.php"><?=$VGA_CONTENT['register_link']?></a></li>
+			<li><?php echo facebook_login_header_button_refresh(DISPLAY_FACEBOOK_LOGIN); ?></li>
 		<?php 
 		}		
 		?>
