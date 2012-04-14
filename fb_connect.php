@@ -14,7 +14,8 @@ else
 	{
 		if ($_POST['submit'] == "Cancel")
 		{
-			$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
+			//$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
+			$fb->api("/me", "DELETE");
 			$FACEBOOK_ID = null;
 			header("Location: login.php");
 			exit;

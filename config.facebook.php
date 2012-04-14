@@ -2,50 +2,48 @@
 //******************************************
 //
 // Code snippets to enable Facebook Connect 
-//                          V2
+//                          V3
 //
 //****************************************
-function facebook_fbconnect_init_NEW_js($display=true)
+function facebook_fbconnect_init_js($display=true)
 {
 	global $facebook_key, $fb;
-	$domain = SITE_DOMAIN;
 
 /* HEREDOC Set output string containing javascript */
-	$str = <<<_HTML_
+$str = <<<_HTML_
 <div id="fb-root"></div>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : $facebook_key, // App ID
-      channelURL : $domain.'/channel.html', // Channel File
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      oauth      : true, // enable OAuth 2.0
-      xfbml      : true  // parse XFBML
-    });
-
-    // Additional initialization code here
-  };
-
-  // Load the SDK Asynchronously
-  (function(d){
-     var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     d.getElementsByTagName('head')[0].appendChild(js);
-   }(document));
-</script>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId: '$facebook_key',
+          cookie: true,
+          xfbml: true,
+          oauth: true
+        });
+        FB.Event.subscribe('auth.login', function(response) {
+          window.location.reload();
+        });
+        FB.Event.subscribe('auth.logout', function(response) {
+          window.location.reload();        });
+      };
+      (function() {
+        var e = document.createElement('script'); e.async = true;
+        e.src = document.location.protocol +
+          '//connect.facebook.net/en_US/all.js';
+        document.getElementById('fb-root').appendChild(e);
+      }());
+    </script>
 _HTML_;
 /* HEREDOC */
 	
-	return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
 }
 //******************************************
 //
 // Code snippets to enable Facebook Connect 
-//
+//				V1
 //****************************************
-function facebook_fbconnect_init_js($display=true) {
+function facebook_fbconnect_init_js_off($display=true) {
 global $facebook_key, $fb;
 
 $str = <<<_HTML_
@@ -62,7 +60,7 @@ function facebook_connect_for_dialog($display=true) {
 global $VGA_CONTENT;
 
 $str = <<<_HTML_
-<fb:login-button v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
+<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
 
 <script type="text/javascript">
 function update_dialog() {
@@ -76,22 +74,21 @@ function facebook_login_button_refresh_2_plugin($display=true)
 {
 global $FACEBOOK_ID;
 global $VGA_CONTENT;
+$button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 {
 	$goto = 'plugin_fb_login.php';
-	$button_txt = $VGA_CONTENT['fb_login_button'];
 }
 else
 {
 	$goto = 'plugin_fb_register.php';
-	$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
 }
 
 $str = <<<_HTML_
 {$VGA_CONTENT['or_use_fb_label']} <br/><br/>
 
-<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -106,22 +103,21 @@ function facebook_login_button_refresh_2($display=true)
 
 global $FACEBOOK_ID;
 global $VGA_CONTENT;
+$button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 {
 	$goto = 'fb_login.php';
-	$button_txt = $VGA_CONTENT['fb_login_button'];
 }
 else
 {
 	$goto = 'fb_register.php';
-	$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
 }
 
 $str = <<<_HTML_
 {$VGA_CONTENT['or_use_fb_label']} <br/><br/>
 
-<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -136,23 +132,20 @@ function facebook_login_header_button_refresh($display=true)
 
 global $FACEBOOK_ID;
 global $VGA_CONTENT;
-
 $button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
 {
 	$goto = 'fb_login.php';
-	//$button_txt = $VGA_CONTENT['fb_login_button'];
 }
 else
 {
 	$goto = 'fb_register.php';
-	//$button_txt = $button_txt = $VGA_CONTENT['fb_connect_button'];
 }
 
 $str = <<<_HTML_
 
-<fb:login-button v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="email,user_groups" v="2" scope="email,user_groups" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -166,7 +159,7 @@ function facebook_login_button_refresh($goto, $display=true) {
 $str = <<<_HTML_
 Or <b>login</b> with Facebook:<br/><br/>
 
-<fb:login-button v="2" size="medium" onlogin="refresh_page();">Connect with Facebook</fb:login-button>
+<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">Connect with Facebook</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {

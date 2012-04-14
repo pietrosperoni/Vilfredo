@@ -2562,6 +2562,24 @@ function get_current_facebook_userid($fb)
 		return null;
 	}
 }
+// Workaround to detect invalid Facebook session
+function get_current_facebook_userid_v3($fb)
+{
+	try 
+	{
+		// Test the current Facebook session with API call
+		$user_profile = $fb->api('/me'); // Change this to smaller request
+		// Session valid, so get Facebook ID
+		$fb_uid = $fb->getUser();
+		return $fb_uid;
+	} 
+	catch (FacebookApiException $e) 
+	{
+		// Exception thrown, session invalid
+		return null;
+	}
+}
+
 
 
 // Return user details of connected account

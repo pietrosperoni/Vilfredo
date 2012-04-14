@@ -38,7 +38,6 @@ $(".foottip a").tooltip({
 
 	echo '<h2>' . $user . '</h2>';
 
-
 	echo '<div id="leftfloatbox">';
 	echo '<div id="endorsingbox2">';
 

@@ -26,8 +26,12 @@ else
 	$firstName = "";
 	if ($FACEBOOK_ID)
 	{
-		$user_details=$fb->api_client->users_getInfo($FACEBOOK_ID, array('first_name'));  
-		$firstName=$user_details[0]['first_name'];
+		//$user_details=$fb->api_client->users_getInfo($FACEBOOK_ID, array('first_name'));  
+		//$firstName=$user_details[0]['first_name'];
+		
+		// V3
+		$user_details = $fb->api('/me');
+		$firstName=$user_details['first_name'];
 	}
 
 	$register =<<< _HTML_

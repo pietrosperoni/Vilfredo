@@ -35,7 +35,8 @@ else
 	{
 		if ($_POST['submit'] == "Cancel")
 		{
-			$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
+			//$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
+			$fb->api("/me", "DELETE");
 			$FACEBOOK_ID = null;
 			header("Location: login.php");
 			exit;
@@ -73,11 +74,20 @@ else
 		<?php
 		$firstName = "";
 		$email = "";
+		
 		if ($FACEBOOK_ID)
 		{
+			/*
 			$user_details=$fb->api_client->users_getInfo($FACEBOOK_ID, array('first_name', 'email'));  
 			$firstName=$user_details[0]['first_name'];
 			$email=$user_details[0]['email'];
+			*/
+			
+			// V3
+			$user_details = $fb->api('/me');
+			//var_dump($user_details);
+			$firstName=$user_details['first_name'];
+			$email=$user_details['email'];
 		}
 
 		?>

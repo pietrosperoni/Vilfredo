@@ -39,10 +39,16 @@ mysql_select_db($dbname) or die(mysql_error());
 // FACEBOOK CONNECT
 //******************************************
 require_once 'config.facebook.php';
-require_once 'lib/facebook/php/facebook.php';
-//require_once 'lib/facebook_v2/php/facebook.php';
+//require_once 'lib/facebook/php/facebook.php';
+require_once 'lib/facebook_v3/src/facebook.php';
 
-$fb = new Facebook($facebook_key, $facebook_secret);
+//$fb = new Facebook($facebook_key, $facebook_secret);
+
+// V3
+$fb = new Facebook(array(
+  'appId'  => $facebook_key,
+  'secret' => $facebook_secret,
+));
 
 /*
 	If $FACEBOOK_ID != NULL then current user is Facebook Authroized
@@ -50,7 +56,7 @@ $fb = new Facebook($facebook_key, $facebook_secret);
 $FACEBOOK_ID = null;
 if (USE_FACEBOOK_CONNECT)
 {
-	$FACEBOOK_ID = get_current_facebook_userid($fb);
+	$FACEBOOK_ID = get_current_facebook_userid_v3($fb);
 }
 //******************************************/
 define("COOKIE_USER", "ID_my_site");
