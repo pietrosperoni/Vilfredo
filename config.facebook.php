@@ -5,9 +5,12 @@
 //                          V3
 //
 //****************************************
+
+$facebook_permissions = "user_groups";
+
 function facebook_fbconnect_init_js($display=true)
 {
-	global $facebook_key, $fb;
+	global $facebook_key, $fb, $facebook_permissions;
 
 /* HEREDOC Set output string containing javascript */
 $str = <<<_HTML_
@@ -16,6 +19,7 @@ $str = <<<_HTML_
       window.fbAsyncInit = function() {
         FB.init({
           appId: '$facebook_key',
+		  channelUrl: 'localhost/vilfredo/channel.html',
           cookie: true,
           xfbml: true,
           oauth: true
@@ -44,7 +48,7 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 //				V1
 //****************************************
 function facebook_fbconnect_init_js_off($display=true) {
-global $facebook_key, $fb;
+global $facebook_key, $fb, $facebook_permissions;
 
 $str = <<<_HTML_
 <script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"></script>
@@ -56,11 +60,72 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
 
 // Display Facebook Connect button
-function facebook_connect_for_dialog($display=true) {
-global $VGA_CONTENT;
+/*
+function facebook_connect_for_dialog_v3($display=true) {
+global $VGA_CONTENT, $facebook_permissions, $fb;
+$loginUrl = ""; 
+$link = ""; 
+$str = "";
+
+try 
+{
+	$loginUrl = $fb->getLoginUrl(array( "display" => "popup", "scope" => $facebook_permissions, "onlogin" => "update_dialog()"));
+}
+catch (FacebookApiException $e) 
+{
+    log_error($e);
+}
+
+if (!empty($loginUrl)) 
+{
+	$link = '<span id="fb_button">';
+	$link .= '<a href="'.$loginUrl.'">Login with Facebook</a>';
+	$link .= '</span>';
 
 $str = <<<_HTML_
-<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
+$link
+
+<script type="text/javascript">
+function update_dialog() {
+	$.event.trigger('fbuserauthorized');}
+</script>
+_HTML_;
+
+}
+return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
+}
+*/
+
+function facebook_connect_for_dialog_v3($display=true) {
+global $VGA_CONTENT, $facebook_permissions;
+
+$str = <<<_HTML_
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
+
+<script type="text/javascript">
+function update_dialog() {
+	$.event.trigger('fbuserauthorized');
+}
+function parsed_done() {
+	if (typeof console != 'undefined') console.log("Login button parsed...");
+}
+</script>
+
+<script>
+FB.XFBML.parse(document.getElementById('fb_button'), parsed_done());
+</script>
+_HTML_;
+return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
+}
+
+
+function facebook_connect_for_dialog($display=true) {
+global $VGA_CONTENT, $facebook_permissions;
+
+$str = <<<_HTML_
+<div id="fb_button">
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="update_dialog();">{$VGA_CONTENT['fb_or_login_button']}</fb:login-button>
+</div>
 
 <script type="text/javascript">
 function update_dialog() {
@@ -72,8 +137,7 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 
 function facebook_login_button_refresh_2_plugin($display=true) 
 {
-global $FACEBOOK_ID;
-global $VGA_CONTENT;
+global $FACEBOOK_ID, $VGA_CONTENT, $facebook_permissions;
 $button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
@@ -88,7 +152,7 @@ else
 $str = <<<_HTML_
 {$VGA_CONTENT['or_use_fb_label']} <br/><br/>
 
-<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -101,8 +165,7 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 function facebook_login_button_refresh_2($display=true) 
 {
 
-global $FACEBOOK_ID;
-global $VGA_CONTENT;
+global $FACEBOOK_ID, $VGA_CONTENT, $facebook_permissions;
 $button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
@@ -117,7 +180,7 @@ else
 $str = <<<_HTML_
 {$VGA_CONTENT['or_use_fb_label']} <br/><br/>
 
-<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -130,8 +193,7 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 function facebook_login_header_button_refresh($display=true) 
 {
 
-global $FACEBOOK_ID;
-global $VGA_CONTENT;
+global $FACEBOOK_ID, $VGA_CONTENT, $facebook_permissions;
 $button_txt = $VGA_CONTENT['fb_login_button'];
 
 if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
@@ -145,7 +207,7 @@ else
 
 $str = <<<_HTML_
 
-<fb:login-button scope="email,user_groups" v="2" scope="email,user_groups" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {
@@ -156,10 +218,13 @@ return (USE_FACEBOOK_CONNECT && $display) ? $str : '';
 }
 
 function facebook_login_button_refresh($goto, $display=true) {
+
+global $facebook_permissions;
+
 $str = <<<_HTML_
 Or <b>login</b> with Facebook:<br/><br/>
 
-<fb:login-button scope="email,user_groups" v="2" size="medium" onlogin="refresh_page();">Connect with Facebook</fb:login-button>
+<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="refresh_page();">Connect with Facebook</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {

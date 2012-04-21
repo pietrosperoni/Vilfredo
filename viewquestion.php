@@ -56,10 +56,10 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$phase=$QuestionInfo['phase'];
 	$generation=$QuestionInfo['roundid'];
 	$author=$QuestionInfo['usercreatorid'];
-	$bitlyhash = $row['bitlyhash'];
+	$bitlyhash = $QuestionInfo['bitlyhash'];
 	$shorturl = '';
-	$permit_anon_votes = $row['permit_anon_votes'];
-	$permit_anon_proposals = $row['permit_anon_proposals'];
+	$permit_anon_votes = $QuestionInfo['permit_anon_votes'];
+	$permit_anon_proposals = $QuestionInfo['permit_anon_proposals'];
 
 	if (!empty($bitlyhash)) 
 	{
@@ -74,6 +74,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$shorturl = BITLY_URL.$hash;
 		}
 	}
+	set_log('$shorturl = ' . $shorturl);
 
 	echo '<div class="questionbox">';
 	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";

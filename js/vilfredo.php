@@ -471,6 +471,13 @@ $(function() {
 		else
 		{
 			user_dialog = $('<div id="dialog"><div id="loading"></div><p id="msg" class="message"></p><div id="data"></div></div>');
+		
+			/*
+			$.get("js/popup.html", function(data){
+				user_dialog = data;
+				console.log("Popup dialog loaded");
+			});*/
+			
 			setTimeout(function() {
 				$('#loading').show();
 				$("#loading").ajaxStart(function(){
@@ -481,6 +488,7 @@ $(function() {
 				});
 			}, 250);
 			
+			//user_dialog = $(user_dialog);
 			user_dialog.bind('fbuserauthorized', doFBLogin);
 			user_dialog.dialog({
 				modal: true,
