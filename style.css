@@ -388,6 +388,13 @@ h1 img {
 	margin-bottom: 5px;
 }
 
+#langs_plugin img {
+	padding: 0;
+	margin: 0;
+	border: 0;
+	vertical-align: middle;
+}
+
 #langs {
 	float: right;
 }
