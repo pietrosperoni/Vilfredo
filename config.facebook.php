@@ -6,7 +6,8 @@
 //
 //****************************************
 
-$facebook_permissions = "user_groups";
+$facebook_permissions = "user_groups,friends_groups";
+// friends_groups
 
 function facebook_fbconnect_init_js($display=true)
 {
