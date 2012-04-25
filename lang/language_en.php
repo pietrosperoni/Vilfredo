@@ -330,4 +330,12 @@
   'write_something_txt' => 'You must write <i>something!!!</i>',
   'edit_submitted_txt' => 'Your edit was submitted! Thanks!',
   'ans_submitted_txt' => 'Your answer was submitted! Thanks!',
+  'select_txt' => 'Select',
+  'text_txt' => 'Text',
+  'no_props_to_edit_txt' => '<p>User has no proposals for this question available for editing</p>',
+  'problem_txt' => 'Sorry, there was a problem!',
+  'type_something_txt' => 'You must type <i>something</i>!',
+  'no_duplicates_txt' => 'Copies must not have identical content!',
+  'is_duplicate_txt' => 'Sorry, your proposal is a identical to one or more current proposals!',
+  'retrieve_canges_err_txt' => 'Could not retrieve changes!',
 ); ?>
