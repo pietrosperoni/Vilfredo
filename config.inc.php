@@ -50,6 +50,8 @@ $fb = new Facebook(array(
   'secret' => $facebook_secret,
 ));
 
+$facebookapp = FALSE;
+
 /*
 	If $FACEBOOK_ID != NULL then current user is Facebook Authroized
 */

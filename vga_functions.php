@@ -2117,7 +2117,72 @@ function isloggedin()
 			setlogintime($userid);
 		}
 		return $userid;
-	}*/
+	}
+	*/
+	// Else return false so the user can be redirected to the login page
+	else
+	{
+		return false;
+	}
+}
+function fbloggedin()
+{
+	global $FACEBOOK_ID;
+
+	// First check if user has a current login session
+        $userid = IsAuthenticated();
+	if ($userid)
+	{
+		// verify facebook session
+		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
+		{
+		 	if (is_null($FACEBOOK_ID))
+		 	{
+		 		//fb_user_logout();
+		 		user_logout();
+		 		return false;
+		 	}
+		}
+		//$userid = isadminonly($userid);
+		return $userid;
+	}
+	// Check if logging in
+	elseif (isset($_POST['user_login_action']))
+	{
+		return false;
+	}
+	// Check if logging out
+	elseif (isset($_SESSION['logout']))
+	{
+			unset($_SESSION['logout']);
+			return false;
+	}
+	// Check of user has opted for permenant login
+	elseif ($userid = vga_cookie_login())
+	{
+		//$userid = isadminonly($userid);
+		if ($userid)
+		{
+			$_SESSION[USER_LOGIN_ID] = $userid;
+			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
+			// log time
+			setlogintime($userid);
+		}
+		return $userid;
+	}
+	// Finally check if a current Facebook session is available for a connected account
+	elseif ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+	{
+		//$userid = isadminonly($userid);
+		if ($userid)
+		{
+			$_SESSION[USER_LOGIN_ID] = $userid;
+			$_SESSION[USER_LOGIN_MODE] = 'FB';
+			// log time
+			setlogintime($userid);
+		}
+		return $userid;
+	}
 	// Else return false so the user can be redirected to the login page
 	else
 	{
@@ -2568,7 +2633,7 @@ function get_current_facebook_userid_v3($fb)
 	try 
 	{
 		// Test the current Facebook session with API call
-		$user_profile = $fb->api('/me'); // Change this to smaller request
+		$user_profile = $fb->api('/me'); // Change this to smaller request: append ?fields=id
 		// Session valid, so get Facebook ID
 		$fb_uid = $fb->getUser();
 		return $fb_uid;
