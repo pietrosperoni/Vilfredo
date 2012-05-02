@@ -2064,7 +2064,7 @@ function isloggedin()
 	global $FACEBOOK_ID;
 
 	// First check if user has a current login session
-        $userid = IsAuthenticated();
+    $userid = IsAuthenticated();
 	if ($userid)
 	{
 		// verify facebook session
@@ -2098,7 +2098,7 @@ function isloggedin()
 		if ($userid)
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
-			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
+			$_SESSION[USER_LOGIN_MODE] = 'VGA'; //VGAP
 			// log time
 			setlogintime($userid);
 		}
@@ -2129,63 +2129,30 @@ function fbloggedin()
 {
 	global $FACEBOOK_ID;
 
-	// First check if user has a current login session
-        $userid = IsAuthenticated();
-	if ($userid)
+	if ($FACEBOOK_ID != null)
 	{
-		// verify facebook session
-		if ($_SESSION[USER_LOGIN_MODE] == 'FB')
-		{
-		 	if (is_null($FACEBOOK_ID))
-		 	{
-		 		//fb_user_logout();
-		 		user_logout();
-		 		return false;
-		 	}
-		}
-		//$userid = isadminonly($userid);
-		return $userid;
-	}
-	// Check if logging in
-	elseif (isset($_POST['user_login_action']))
-	{
-		return false;
-	}
-	// Check if logging out
-	elseif (isset($_SESSION['logout']))
-	{
-			unset($_SESSION['logout']);
-			return false;
-	}
-	// Check of user has opted for permenant login
-	elseif ($userid = vga_cookie_login())
-	{
-		//$userid = isadminonly($userid);
-		if ($userid)
-		{
-			$_SESSION[USER_LOGIN_ID] = $userid;
-			$_SESSION[USER_LOGIN_MODE] = 'VGAP';
-			// log time
-			setlogintime($userid);
-		}
-		return $userid;
-	}
-	// Finally check if a current Facebook session is available for a connected account
-	elseif ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
-	{
-		//$userid = isadminonly($userid);
+		$userid = fb_isconnected($FACEBOOK_ID);
+		
 		if ($userid)
 		{
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'FB';
 			// log time
 			setlogintime($userid);
+			return $userid;
 		}
-		return $userid;
+		else
+		{
+			$_SESSION['FACEBOOK_APP'] = TRUE;
+			set_log(__FUNCTION__." Facebook user vga userid not found, going to plugin_fb_register");
+			header("Location: plugin_fb_register.php");
+			exit;
+		}
 	}
-	// Else return false so the user can be redirected to the login page
 	else
-	{
+	{	
+		//echo("<script> top.location.href='" . $facebook_canvas_auth_link . "'</script>");
+		//exit;
 		return false;
 	}
 }
@@ -2641,6 +2608,20 @@ function get_current_facebook_userid_v3($fb)
 	catch (FacebookApiException $e) 
 	{
 		// Exception thrown, session invalid
+		return null;
+	}
+}
+function get_current_facebook_userid_v3_profile($fb)
+{
+	try 
+	{
+		$fb_user_profile = $fb->api('/me');
+		return $fb_user_profile;
+	} 
+	catch (FacebookApiException $e) 
+	{
+		// Exception thrown, session invalid
+		set_log(__FUNCTION__." exception thrown!");
 		return null;
 	}
 }

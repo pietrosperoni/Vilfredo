@@ -6,8 +6,10 @@
 //
 //****************************************
 
-$facebook_permissions = "user_groups,friends_groups";
-// friends_groups
+// Set Facebook permissions
+$facebook_permissions = "user_groups,friends_groups,email"; // read_stream
+// Set Facebook authorization link for canvas page
+$facebook_canvas_auth_link = "https://www.facebook.com/dialog/oauth?client_id=$facebook_key&redirect_uri=$facebook_canvas&scope=$facebook_permissions";
 
 function facebook_fbconnect_init_js($display=true)
 {

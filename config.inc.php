@@ -39,27 +39,62 @@ mysql_select_db($dbname) or die(mysql_error());
 // FACEBOOK CONNECT
 //******************************************
 require_once 'config.facebook.php';
-//require_once 'lib/facebook/php/facebook.php';
 require_once 'lib/facebook_v3/src/facebook.php';
-
-//$fb = new Facebook($facebook_key, $facebook_secret);
 
 // V3
 $fb = new Facebook(array(
   'appId'  => $facebook_key,
-  'secret' => $facebook_secret,
+  'secret' => $facebook_secret
+  //'cookie' => true
 ));
-
-$facebookapp = FALSE;
-
 /*
 	If $FACEBOOK_ID != NULL then current user is Facebook Authroized
 */
 $FACEBOOK_ID = null;
+$FACEBOOK_USER_PROFILE = null;
+
 if (USE_FACEBOOK_CONNECT)
 {
-	$FACEBOOK_ID = get_current_facebook_userid_v3($fb);
+	// Get User ID
+	$FACEBOOK_ID = $fb->getUser();
+	
+	// Get user profile - if session valid
+	if ($FACEBOOK_ID) 
+	{
+		try 
+		{
+			$FACEBOOK_USER_PROFILE = $fb->api('/me');
+			//set_log("Facebook ID = ".$FACEBOOK_ID);
+			//set_log("FB Profile locale = ".$FACEBOOK_USER_PROFILE['locale']);
+		} 
+		catch (FacebookApiException $e) 
+		{
+			//set_log("FB Profile locale not set");
+			//set_log($e);
+			$FACEBOOK_ID = null;
+		}
+	}
+	else
+	{
+		//set_log('$FACEBOOK_ID not set');
+	}
 }
+
+/*
+if (USE_FACEBOOK_CONNECT)
+{
+	$FACEBOOK_USER_PROFILE = get_current_facebook_userid_v3_profile($fb);
+	if (!is_null($FACEBOOK_USER_PROFILE))
+	{
+		$FACEBOOK_ID = $FACEBOOK_USER_PROFILE['id'];
+		set_log("Facebook ID = ".$FACEBOOK_ID);
+		set_log("FB Profile locale = ".$FACEBOOK_USER_PROFILE['locale']);
+	}
+	else
+	{
+		set_log("FB Profile locale not set");
+	}
+}*/
 //******************************************/
 define("COOKIE_USER", "ID_my_site");
 define("COOKIE_PASSWORD", "Key_my_site");
