@@ -24,10 +24,12 @@ if ($FACEBOOK_USER_PROFILE && isset($FACEBOOK_USER_PROFILE["locale"]))
 	if ( $fb_locale == 'en' or $fb_locale == 'it' )
 	{
 		$_SESSION['locale'] = $fb_locale;
+		$locale = $fb_locale;
 	}
 	else
 	{
 		$_SESSION['locale'] = "en";
+		$locale = $fb_locale;
 	}
 }
 else
