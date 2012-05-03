@@ -327,6 +327,27 @@ function getLanguage($language = 'en',  $altfile=null)
 	return 'lang/' . $filename . '_' . $language . '.php';
 }
 
+function getPluginLanguage($language = 'en',  $altfile=null)
+{
+	$default_language = 'en';
+	
+	if ($language != 'en' and $language != 'it')
+	{
+		$language = $default_language;
+	}
+	
+	if (!empty($altfile))
+	{
+		$filename = $altfile;
+	}
+	else
+	{
+		$filename = 'language';
+	}
+	
+	return '../lang/' . $filename . '_' . $language . '.php';
+}
+
 // Returns preferred language from client or default
 function fetch_preferred_language_from_client()
 {
