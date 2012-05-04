@@ -103,8 +103,10 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	//echo WriteUserVsReader($author,$userid);
 	echo "<br />";
-	$author = WriteUserVsReader($author,$userid);
-	echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt']. ' ' . $author . '</cite></p>';
+#	$author = WriteUserVsReader($author,$userid);
+#	echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt']. ' ' . $author . '</cite></p>';
+	$authorstring = WriteUserVsReader($author,$userid);
+	echo '<p id="author"><cite>' . $VGA_CONTENT['cite_txt']. ' ' . $authorstring . '</cite></p>';
 
 	echo '<table id="social-buttons"><tr><td>';
 
@@ -320,7 +322,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	}
 	//*****
 
-	if ( $userid and $phase==0 and $userid==$creatorid and $tomoveon==1)
+#	if ( $userid and $phase==0 and $userid==$creatorid and $tomoveon==1) #creatorid was wrong so the button never appeared
+	if ( $userid and $phase==0 and $userid==$author and $tomoveon==1)
 	{
 		if ($generation==1)
 		{
@@ -368,7 +371,9 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		if ($minimumminutes){ echo $minimumminutes." minutes ";}
 		echo "{$VGA_CONTENT['time_passed_txt']} </p>";
 
-		if ($userid and $nEndorsers>1 and $userid==$creatorid and $tomoveon==1)
+
+#		if ($userid and $nEndorsers>1 and $userid==$creatorid and $tomoveon==1) #creatorid was wrong so the button never appeared
+		if ($userid and $nEndorsers>1 and $userid==$author and $tomoveon==1) 
 		{
 			?>
 			<form method="post" action="moveontowriting.php">
