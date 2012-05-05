@@ -55,9 +55,9 @@ else
 		$location = getpostloginredirectlink();
 		?>
 
-		<h1>Registered</h1>
-		<p>Thank you, you have registered - you may now use Vilfredo!</p>
-		<p><a href="<?php echo $location; ?>">Click to continue</a></p>
+		<h1><?=$VGA_CONTENT['registered_txt']?></h1>
+		<p><?=$VGA_CONTENT['welcome_register_txt']?></p>
+		<p><a href="<?php echo $location; ?>"><?=$VGA_CONTENT['click_cont_txt']?></a></p>
 		<?php
 	}
 	else
@@ -65,11 +65,11 @@ else
 		?>
 		<!-- Greet the currently logged-in user! --> 
 		<?php echo facebook_profile_pic(); ?>
-		<p>Hello <?php echo facebook_username(); ?>!</p>
+		<p><?=$VGA_CONTENT['greeting_txt']?> <?php echo facebook_username(); ?>!</p>
 		
-		<p><strong>Already have a Vilfredo account?</strong> <a href="fb_connect.php">Click here to connect your account to Facebook.</a></p>
+		<p><strong><?=$VGA_CONTENT['have_account_quest_txt']?></strong> <a href="fb_connect.php"><?=$VGA_CONTENT['click_connect_link']?></a></p>
 		
-		<p>Otherwise, please select a username.</p>
+		<p><?=$VGA_CONTENT['otherwise_choose_txt']?></p>
 		
 		<?php
 		$firstName = "";
@@ -96,13 +96,13 @@ else
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 	<table border="0">
 		<tr>
-			<td>Username: (note this will be published on the site, so don't use your email address, unless you want that to be public and potentially taken by spiders)</td>
+			<td><?=$VGA_CONTENT['user_caution_txt']?></td>
 			<td>
 				<input type="text" value="<?php echo $firstName; ?>" name="username" maxlength="60">
 			</td>
 		</tr>
 		<tr>
-			<td>Email:</td>
+			<td><?=$VGA_CONTENT['email_label']?></td>
 			<td>
 				<input type="text" name="email" value="<?php echo $email; ?>" maxlength="60">
 			</td>
@@ -115,7 +115,7 @@ else
 		</tr>
 	</table>
 </form>
-		<p><b>Note:</b> the email is needed to receive updates on the questions you are working on. <br/>But you will be able to chose, for each question, if you want to be updated. You may add this later if you wish.</p> 
+		<p><?=$VGA_CONTENT['email_exp_txt']?></p> 
 		<?php
 	}
 }

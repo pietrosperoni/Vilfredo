@@ -32,8 +32,8 @@ else
 	{
 		$location = getpostloginredirectlink();
 	?>	
-		<h2>OK. Your Facebook account has been connected to Vilfredo.</h2>
-		<p><a href="<?php echo $location; ?>">Click to continue</a></p>
+		<h2><?=$VGA_CONTENT['connected_ok_txt']?></h2>
+		<p><a href="<?php echo $location; ?>"><?=$VGA_CONTENT['click_cont_txt']?></a></p>
 	<?php
 	}
 
@@ -41,24 +41,21 @@ else
 	?>
 	<!-- Greet the currently logged-in user! --> 
 	<?php echo facebook_profile_pic(); ?>
-	<p>Hello <?php echo facebook_username(); ?>!</p>
+	<p><?=$VGA_CONTENT['greeting_txt']?> <?php echo facebook_username(); ?>!</p>
 
-	<p>Link to existing account or create new ? <a href="fb_register.php">Create new account using Facebook Connect</a></p>
+	<p><?=$VGA_CONTENT['link_or_connect_txt']?> <a href="fb_register.php"><?=$VGA_CONTENT['new_account_via_facebook_link']?></a></p>
 	<br/>
-	<p>
-	Link to an existing account by entering your username/password below. This will let us connect your Facebook Identity to your 
-	identity on our site, so that you don't loose any data you've stored here.</p>
-	<p>You will only have to do this one time.</p>
+	<?=$VGA_CONTENT['link_account_txt']?>
 	<p><span class="errorMessage"><?php echo $error_message; ?></span></p>
 	<div class = "login_fields">
 	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 	<fieldset>
-	<label for="username">Username</label>
+	<label for="username"><?=$VGA_CONTENT['username_label']?></label>
 	<input class="text ui-widget-content ui-corner-all" type="text" id="username" name="username"><br />
-	<label for="pass">Password</label>
+	<label for="pass"><?=$VGA_CONTENT['password_label']?></label>
 	<input type="password" name="pass"><br />
-	<input type="submit" name="submit" value="Cancel">
-	<input type="submit" value="Connect" name="submit">
+	<input type="submit" name="submit" value="<?=$VGA_CONTENT['cancel_button']?>">
+	<input type="submit" value="<?=$VGA_CONTENT['connect_button']?>" name="submit">
 	</fieldset>
 	</form>
 	<div>

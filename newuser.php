@@ -114,7 +114,7 @@ function registeruser()
 		//if the name exists it gives an error
 		if ($check2 != 0) 
 		{
-			set_log($VGA_CONTENT['already_reg_txt']);
+			//set_log($VGA_CONTENT['already_reg_txt']);
 			echo $VGA_CONTENT['already_reg_txt'];
 			exit();
 		}

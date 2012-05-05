@@ -141,7 +141,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	{		
 		//echo '<div class="elementcontainer">'; 
 		
-		echo '<p><span id="show_table_link" class="question_panel_link"><span>Show Voting History Table</span> <img src="images/voting.gif" width="30" height="20" alt="" /></span></p>';
+		echo '<p><span id="show_table_link" class="question_panel_link"><span>'.VGA_CONTENT['show_hist_table_txt'].'</span> <img src="images/voting.gif" width="30" height="20" alt="" /></span></p>';
 		
 		echo '<div id="questionmap">';
 		MakeQuestionMap($userid,$question,$room,$generation,$phase);

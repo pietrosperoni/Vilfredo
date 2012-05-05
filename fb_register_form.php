@@ -35,19 +35,19 @@ else
 	}
 
 	$register =<<< _HTML_
-	<div id="register" title="Vilfredo Register">
+	<div id="register" title="<?=$VGA_CONTENT['vga_reg_title']?>">
 	$pic
-	<p>Hello <strong>$user!</strong></p>
+	<p><?=$VGA_CONTENT['greeting_txt']?> <strong>$user!</strong></p>
 	
-	<p><strong>Already have a Vilfredo account?</strong> <a id="fbconnect" href="#">Connect your accounts</a></p>
+	<p><strong><?=$VGA_CONTENT['have_account_quest_txt']?></strong> <a id="fbconnect" href="#"><?=$VGA_CONTENT['connect_accs_link']?></a></p>
 
-	<p>Otherwise, please select a username.</p>
+	<p><?=$VGA_CONTENT['otherwise_choose_txt']?></p>
 		<form action="#" method="post">
 		<fieldset>
-			<label for="username">Choose a User Name</label>
+			<label for="username"><?=$VGA_CONTENT['choose_username_label']?></label>
 			<input class="text ui-widget-content ui-corner-all" type="text" name="username" id="username" value="$firstName" maxlength="60">
 		<div class="reg_form">
-			<label for="email">Email</label>
+			<label for="email"><?=$VGA_CONTENT['email_label']?></label>
 			<input class="text ui-widget-content ui-corner-all" type="text" name="email" id="email" maxlength="60">
 			<input type="hidden" name="usernameok" id="usernameok" value="">
 			<input type="hidden" name="fbuserid" id="fbuserid" value="$FACEBOOK_ID">

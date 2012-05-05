@@ -35,12 +35,12 @@ $(function() {
 	$('#show_table_link').click(function(event) {
 		if ($('#questionmap').is(':visible'))
 		{
-			$('#show_table_link span').html('Show Voting History Table');
+			$('#show_table_link span').html('<?=$VGA_CONTENT['show_hist_table_txt']?>');
 			$('#questionmap').slideUp(1000);
 		}
 		else
 		{
-			$('#show_table_link span').html('Hide Voting History Table');
+			$('#show_table_link span').html('<?=$VGA_CONTENT['hide_hist_table_txt']?>');
 			$('#questionmap').slideDown(1000);
 		}
 	});

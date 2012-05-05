@@ -3,13 +3,13 @@ require_once 'config.inc.php';
 	
 if (empty($_POST['username']) || empty($_POST['pass'] ))
 {
-	echo 'Please enter a username and password';
+	echo $VGA_CONTENT['enter_user_pwd_txt'];
 	exit();
 }
 
 if (empty($_POST['fbuserid'] ))
 {
-	echo 'There was a problem accessing your Facebook ID';
+	echo $VGA_CONTENT['fbid_prob_txt'];
 	exit();
 }
 
@@ -31,7 +31,10 @@ if (!$check)
 //Gives error if user dosen't exist
 if (mysql_num_rows($check) == 0) 
 {
-	echo "User $username not registered";
+	//echo "User $username not registered";
+	$format = $VGA_CONTENT['user_not_reg_txt'];
+	$str = sprintf($format, $username);
+	echo $str;
 	exit();
 }
 
@@ -44,7 +47,10 @@ $password = encryptPWD($password);
 //gives error if the password is wrong
 if ($password != $info['password']) 
 {
-	echo "Incorrect password for $username";
+	//echo "Incorrect password for $username";
+	$format = $VGA_CONTENT['wrong_user_pwd_txt'];
+	$str = sprintf($format, $username);
+	echo $str;
 	exit();
 }
 else
