@@ -318,7 +318,7 @@
   'delete_prop_fail_txt' => 'There was a problem deleting your proposal.',
   'props_deleted_txt' => 'Proposals deleted',
   'submit_err_txt' => 'Sorry, there was a problem submitting your feedback.',
-  'cannot_edit_prop_txt' => 'Sorry, this proposal has received votes and cannot now be edited',
+  'cannot_edit_prop_txt' => 'Sorry, this proposal has received votes by other users and cannot now be edited',
   'log_read_error_txt' => 'There was a problem logging the read action.',
   'some_error_txt' => 'Sorry, there was a problem. Please try again.',
   'vote_removed_txt' => 'Your vote was removed from this proposal',
