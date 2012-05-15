@@ -44,14 +44,15 @@ require_once 'lib/facebook_v3/src/facebook.php';
 // V3
 $fb = new Facebook(array(
   'appId'  => $facebook_key,
-  'secret' => $facebook_secret
-  //'cookie' => true
+  'secret' => $facebook_secret,
+  'cookie' => true
 ));
 /*
 	If $FACEBOOK_ID != NULL then current user is Facebook Authroized
 */
 $FACEBOOK_ID = null;
 $FACEBOOK_USER_PROFILE = null;
+
 
 if (USE_FACEBOOK_CONNECT)
 {
@@ -70,7 +71,7 @@ if (USE_FACEBOOK_CONNECT)
 		catch (FacebookApiException $e) 
 		{
 			//set_log("FB Profile locale not set");
-			//set_log($e);
+			set_log("Error fetching user profile: ".$e);
 			$FACEBOOK_ID = null;
 		}
 	}

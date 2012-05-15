@@ -1,4 +1,80 @@
 <?php
+/*
+	Facebook functions *****************
+*/
+//function publishOnFacebook($question, $userid, $blurb, $pid)
+/*
+$params = array(
+	"question" => 45,
+	"proposal" => 12,
+	"blurb" => "",
+	"user" =>
+);
+*/
+function publishOnFacebook($params=NULL)
+{	
+	global $FACEBOOK_ID, $fb;
+	
+	if (!$FACEBOOK_ID || !$fb)
+	{
+		set_log(__FUNCTION__.' $FACEBOOK_ID or $fb not set');
+		return false;
+	}
+	
+	$room = "";
+	$url = "http://derek2.pietrosperoni.it/viewquestions.php";
+	$bubbleurl = ($room != '') ? "$url?qb=$question&room=$room" : "$url?bq=$question";
+	$blurb = "If we all buy helicopters we could fly to Greece for the summer.";
+	$message = "I think helicopters are cool.";
+	
+	$default_params = array(
+           'message' => $message,
+           'link'    => $bubbleurl,
+           'picture' => 'http://derek2.pietrosperoni.it/images/bubble.gif',
+           'name'    => 'New Proposal Bubble',
+           'description'=> $blurb
+    );
+
+	if ($params && is_array($params))
+	{
+		$fb_params = array_merge($default_params, $params);
+	}
+	
+	try {
+       $publishStream = $fb->api("/$FACEBOOK_ID/feed", 'post', $fb_params);
+    } catch (FacebookApiException $e) {
+        set_log(__FUNCTION__." ".$e);
+    }
+}
+
+function publishOnFacebookTest($question, $userid, $blurb, $pid)
+{	
+	if (!$FACEBOOK_ID || !$fb)
+	{
+		return false;
+	}
+	
+	$room = "";
+	$bubbleurl = ($room != '') ? "http://derek2.pietrosperoni.it/viewquestions.php?qb=$question&room=$room" : "http://derek2.pietrosperoni.it/viewquestions.php?bq=$question";
+	$blurb = "If we all buy helicopters we could fly to Greece for the summer.";
+	$message = "I think helicopters are cool.";
+	
+	try {
+       $publishStream = $fb->api("/$FACEBOOK_ID/feed", 'post', array(
+           'message' => $message,
+           'link'    => $bubbleurl,
+           'picture' => 'http://derek2.pietrosperoni.it/images/bubble.gif',
+           'name'    => 'New Proposal Bubble',
+           'description'=> $blurb
+           )
+       );
+    } catch (FacebookApiException $e) {
+        set_log(__FUNCTION__." ".$e);
+    }
+}
+
+//	Facebook functions end *******************
+	
 // Vilfredo Fuctions - previously in header.php
 //**************************************
 // ******************************************/
@@ -874,6 +950,7 @@ function messages_set($message_type=false)
 function set_message($message_type, $message)
 {
     $_SESSION['messages'][$message_type][] = $message;
+	set_log('Signup up message set: '.$message);
 }
 
 function get_messages_old($message_type='error')
@@ -2148,7 +2225,7 @@ function isloggedin()
 }
 function fbloggedin()
 {
-	global $FACEBOOK_ID;
+	global $FACEBOOK_ID, $fb;
 
 	if ($FACEBOOK_ID != null)
 	{
@@ -2156,6 +2233,7 @@ function fbloggedin()
 		
 		if ($userid)
 		{
+			checkForPageRedirect();
 			$_SESSION[USER_LOGIN_ID] = $userid;
 			$_SESSION[USER_LOGIN_MODE] = 'FB';
 			// log time
@@ -2165,7 +2243,6 @@ function fbloggedin()
 		else
 		{
 			$_SESSION['FACEBOOK_APP'] = TRUE;
-			set_log(__FUNCTION__." Facebook user vga userid not found, going to plugin_fb_register");
 			header("Location: plugin_fb_register.php");
 			exit;
 		}
@@ -2175,6 +2252,27 @@ function fbloggedin()
 		//echo("<script> top.location.href='" . $facebook_canvas_auth_link . "'</script>");
 		//exit;
 		return false;
+	}
+}
+
+function checkForPageRedirect()
+{
+	set_log(__FUNCTION__." called...");
+	if (isset($_SESSION['FACEBOOK_PAGE_LINK']))
+	{
+		set_log("Redirecting to Page URL {$_SESSION['FACEBOOK_PAGE_LINK']}");
+		$page_url = $_SESSION['FACEBOOK_PAGE_LINK'];
+		unset($_SESSION['FACEBOOK_PAGE_LINK']);
+		?>
+		<script type="text/javascript">
+		    var page_url = '<?= $page_url ?>';
+			gotoURL(page_url);
+		</script>
+		<?php
+	}
+	else
+	{
+		return;
 	}
 }
 
@@ -2708,7 +2806,8 @@ address format and the domain exists.
 */
 function validEmail($email)
 {
-   $isValid = true;
+  // set_log("Validating email address $email");
+	$isValid = true;
    $atIndex = strrpos($email, "@");
    if (is_bool($atIndex) && !$atIndex)
    {
@@ -2766,6 +2865,7 @@ function validEmail($email)
       {
          // domain not found in DNS
          $isValid = false;
+		set_log(__FUNCTION__." $email: domain not found in DNS");
       }
    }
    return $isValid;
@@ -4262,6 +4362,12 @@ function make_bitly_hash($url, $login, $appkey, $format='xml', $history=1, $vers
 	$response = curl_exec($ch);
 	curl_close($ch);
 
+	if ($response === FALSE)
+	{
+		log_error("make_bitly_hash did not return a result!");
+		return false;
+	}
+	
 	//parse depending on desired format
 	if(strtolower($format) == 'json') 
 	{

@@ -314,8 +314,9 @@ function fb_register_user()
 		$EmailIsValid=validEmail($_POST['email']);
 		if (!$EmailIsValid)
 		{
-			$msg = "{$VGA_CONTENT['email_err_txt']}";
+			$msg = $VGA_CONTENT['email_err_txt'];
 			set_message("error", $msg);
+			//set_log(__FUNCTION__." - Invalid email address: ".$_POST['email']);
 			return false;
 		}
 	}

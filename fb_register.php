@@ -37,6 +37,7 @@ else
 		{
 			//$fb->api_client->auth_revokeAuthorization($FACEBOOK_ID);
 			//$fb->api("/me", "DELETE");  // ???
+			$fb->api("/me?method=delete");
 			$FACEBOOK_ID = null;
 			header("Location: login.php");
 			exit;

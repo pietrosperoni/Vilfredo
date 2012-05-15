@@ -6,11 +6,11 @@ $id = (int) $_GET['id'];
 if (isset($_POST['submitted'])) { 
 foreach($_POST AS $key => $value) { $_POST[$key] = mysql_real_escape_string($value); } 
 
-$sql = "UPDATE `vga_content` SET  `text` = '{$_POST['text']}', `it` =  '{$_POST['it']}'   WHERE `id` = '$id' "; 
+$sql = "UPDATE `vga_content_new` SET  `text` = '{$_POST['text']}', `it` =  '{$_POST['it']}'   WHERE `id` = '$id' "; 
 mysql_query($sql) or die(mysql_error()); 
 echo (mysql_affected_rows()) ? "Translation saved.<br />" : "Nothing changed. <br />"; 
 } 
-$row = mysql_fetch_array ( mysql_query("SELECT * FROM `vga_content` WHERE `id` = '$id' ")); 
+$row = mysql_fetch_array ( mysql_query("SELECT * FROM `vga_content_new` WHERE `id` = '$id' ")); 
 ?>
 <p><a href='list_trans.php'>Back To Listing</a></p>
 <form action='' method='POST'> 

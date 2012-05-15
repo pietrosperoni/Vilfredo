@@ -90,8 +90,8 @@ $room_param = CreateNewQuestionURL();
 
 <!-- the tabs -->
 <ul class="tabs">
-	<li><a id="questiontab" href="">Vilfredo Questions</a></li>
-	<li><a id="bubbletab" href="">Bubbles</a></li>
+	<li><a id="questiontab" href=""><?=$VGA_CONTENT['vga_questions_tab']?></a></li>
+	<li><a id="bubbletab" href=""><?=$VGA_CONTENT['vga_bubbles_tab']?></a></li>
 </ul>
 
 <div class="panels">

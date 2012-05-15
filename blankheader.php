@@ -4,6 +4,21 @@ ob_start();
 // ******************************************	
 // 	Load System Serttings
 require_once 'config.inc.php';
+?>
+<script type="text/javascript">
+	function gotomainsite()
+	{
+		top.window.location='<?= SITE_DOMAIN ?>';
+	}
+	function gotoURL(url)
+	{
+		url = typeof url !== 'undefined' ? url : '<?= SITE_DOMAIN ?>';
+	    //console.log("Redirect to "+url);
+		top.window.location = url;
+	}
+</script>
+<?php
+
 
 if (isset($_GET["locale"]) and ($_GET["locale"] == 'en' or $_GET["locale"] == 'it' ))
 {

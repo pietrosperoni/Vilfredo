@@ -18,7 +18,8 @@ if ($verified)
 		if (empty($info['password']))
 		{	// Delete Facebook-only account
 			set_trace("Deleting Facebook-only account", $dotrace);
-			$sql = "DELETE FROM users WHERE fb_userid = $fb_userid";
+			//$sql = "DELETE FROM users WHERE fb_userid = $fb_userid";
+			$sql = "UPDATE users SET active = 0 WHERE fb_userid = $fb_userid";
 		}
 		else 
 		{	// Unconnect accounts
