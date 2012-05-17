@@ -378,4 +378,5 @@
   'authorize_bubbles_app_txt' => 'If you wish to authorize the Bubbles Facebook App please click the link below',
   'goto_main_site_txt' => 'Otherwise, you can click the link below to go to the main bubbles site',
   'goto_main_site_link' => 'Take me to the main site',
+  'char_count_label' => 'Characters left:',
 ); ?>

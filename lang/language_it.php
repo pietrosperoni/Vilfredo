@@ -380,4 +380,5 @@ Ma sono un insieme rappresentativo di tutti i partecipanti.',
   'authorize_bubbles_app_txt' => 'Se desideri autorizzare l\'applicazione Le Bolle di Vilfredo, per favore clicca sul link sottostante',
   'goto_main_site_txt' => 'Altrimenti puoi cliccare sul link sottostante per andare al sito principale delle bolle di Vilfredo',
   'goto_main_site_link' => 'Vai al sito principale',
+  'char_count_label' => 'Caratteri rimanenti:',
 ); ?>
