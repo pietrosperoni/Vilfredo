@@ -21,11 +21,6 @@ require_once 'config.inc.php';
 
 //$canvas_page = urlencode("http://apps.facebook.com/test_vga/");
 $canvas_page = urlencode("http://apps.facebook.com/vilfredo/");
-//$canvas_page = urlencode("http://facebook.com/pages/null/365839056784908/app_179697104018");
-//$canvas_page = urlencode("http://derek2.pietrosperoni.it");
-//$canvas_page = urlencode("http://www.facebook.com/pages/null/365839056784908/app_179697104018");
-//$canvas_page = urlencode("http://facebook.com/pages/null/351090528288864/app_179697104018");
-//$canvas_page = urlencode("https://www.facebook.com/TestvilleCouncil/app_179697104018");
 
 set_log("***************** facebookheader called *********************");
 
@@ -83,32 +78,6 @@ if (!$FACEBOOK_ID)
 		exit;
 	}
 }
-
-//'http://www.facebook.com/TestvilleCouncil/app_179697104018';
-/*
-if (isset($_SESSION['FACEBOOK_PAGE_LINK']))
-{
-	set_log("Redirecting to Page URL {$_SESSION['FACEBOOK_PAGE_LINK']}");
-	$page_url = $_SESSION['FACEBOOK_PAGE_LINK'];
-	unset($_SESSION['FACEBOOK_PAGE_LINK']);
-	?>
-	<script type="text/javascript">
-	    var page_url = '<?= $page_url ?>';
-		gotoURL(page_url);
-	</script>
-	<?php
-}
-*/
-
-
-/*
-if (!$FACEBOOK_ID)
-{
-	$authorize = "https://www.facebook.com/dialog/oauth?client_id=$facebook_key&redirect_uri=$canvas_page&scope=$facebook_permissions";
-	echo("<script> top.location.href='" . $authorize . "'</script>");
-	exit;
-}
-*/
 
 if ($FACEBOOK_USER_PROFILE && isset($FACEBOOK_USER_PROFILE["locale"]))
 {
