@@ -322,7 +322,7 @@
   'log_read_error_txt' => 'There was a problem logging the read action.',
   'some_error_txt' => 'Sorry, there was a problem. Please try again.',
   'vote_removed_txt' => 'Your vote was removed from this proposal',
-  'vote_added_txt' => 'Your vote was added to the votes on proposal',
+  'vote_added_txt' => 'Your vote was added to this proposal',
   'delete_props_fail_txt' => 'There was a problem deleting your proposals.',
   'prop_deleted_txt' => 'Proposal deleted',
   'no_edit_props_txt' => 'User has no proposals for this question available for editing',
