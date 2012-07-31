@@ -897,6 +897,12 @@ function HaveSameElements($a,$b) #considering two arrays as sets, do they have t
 function set_log($msg)
 {
 	$timestamp = date("D M j G:i:s T Y");
+	
+	if (is_array($msg))
+	{
+		$msg = print_r($msg, true);
+	}
+	
 	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
 }
 
@@ -2088,15 +2094,16 @@ function unsetcookie($cookie_id, $domain_cookie = false)
 	set_log(__FUNCTION__.' :: Cookie '.$cookie_id.' = '.$_COOKIE[$cookie_id]);
 	
 	$past = time() - TWO_DAYS;
+	$value = 'DELETED'; //NULL
 	if ($domain_cookie)
 	{
 		set_log('$domain_cookie TRUE');
-		setcookie($cookie_id, 'DELETED', $past, '/');
+		setcookie($cookie_id, $value, $past, '/');
 	}
 	else
 	{
 		set_log('$domain_cookie FALSE');
-		setcookie($cookie_id, 'DELETED', $past);
+		setcookie($cookie_id, $value, $past);
 	}
 }
 
@@ -2227,7 +2234,7 @@ function fbloggedin()
 {
 	global $FACEBOOK_ID, $fb;
 
-	if ($FACEBOOK_ID != null)
+	if ($FACEBOOK_ID)
 	{
 		$userid = fb_isconnected($FACEBOOK_ID);
 		
@@ -2249,8 +2256,6 @@ function fbloggedin()
 	}
 	else
 	{	
-		//echo("<script> top.location.href='" . $facebook_canvas_auth_link . "'</script>");
-		//exit;
 		return false;
 	}
 }
@@ -2272,6 +2277,7 @@ function checkForPageRedirect()
 	}
 	else
 	{
+		set_log(__FUNCTION__." : FACEBOOK_PAGE_LINK session var not set");
 		return;
 	}
 }
@@ -2666,7 +2672,13 @@ function fb_isconnected($fb_uid)
 	if ($fb_uid)
 	{
 		$sql = "SELECT id FROM users WHERE fb_userid = '$fb_uid'";
-		$response = mysql_query($sql) or die(mysql_error());
+		$response = mysql_query($sql);
+		
+		if (!$response)
+		{
+			handle_db_error($response);
+			return false;
+		}
 
 		if (mysql_num_rows($response) > 0)
 		{
@@ -2688,7 +2700,13 @@ function fb_isconnected($fb_uid)
 function fb_getuserdetails($fb_uid)
 {
 	$sql = "SELECT * FROM users WHERE fb_userid = '$fb_uid'";
-	$response = mysql_query($sql) or die(mysql_error());
+	$response = mysql_query($sql);
+	
+	if (!$response)
+	{
+		handle_db_error($response);
+		return false;
+	}
 	
 	if (mysql_num_rows($response) > 0)
 		return mysql_fetch_assoc($response);

@@ -124,7 +124,7 @@
   'anon_props_txt' => 'Anonymous users can <strong>create proposals</strong>.',
   'display_full_title' => 'Click here to display the full proposal text',
   'abstract_txt' => 'Abstract',
-  'view_full_txt_link' => 'view full text',
+  'view_full_txt_link' => 'View Full Text',
   'props_you_wrote_txt' => 'Proposals You have written:',
   'in_txt' => 'in',
   'must_register_txt' => '<strong>Note:</strong> You must register to activate the submit button:',

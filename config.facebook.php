@@ -11,9 +11,79 @@ $facebook_permissions = "user_groups,friends_groups,email"; // read_stream
 // Set Facebook authorization link for canvas page
 $facebook_canvas_auth_link = "https://www.facebook.com/dialog/oauth?client_id=$facebook_key&redirect_uri=$facebook_canvas&scope=$facebook_permissions";
 
+
+
 function facebook_fbconnect_init_js($display=true)
 {
 	global $facebook_key, $fb, $facebook_permissions;
+
+//channelUrl: 'localhost/vilfredo/channel.html',
+$site_domain = SITE_DOMAIN;
+
+$channel_url = '//' . $_SERVER['HTTP_HOST'] . '/channel.html';
+set_log("Site Domain: " . SITE_DOMAIN);
+if ($_SERVER['HTTP_HOST'] != 'localhost') {
+$str = <<<_HTML_
+<div id="fb-root"></div>
+ <script>
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId: '$facebook_key',
+			channelUrl: '$channel_url',
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+          });
+          // Additional initialization code here
+        };
+        // Load the SDK Asynchronously
+        (function(d){
+           var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = "//connect.facebook.net/en_US/all.js";
+           ref.parentNode.insertBefore(js, ref);
+         }(document));
+      </script>
+_HTML_;
+}
+else {
+$str = <<<_HTML_
+<div id="fb-root"></div>
+ <script>
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId: '$facebook_key',
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+          });
+          // Additional initialization code here
+        };
+        // Load the SDK Asynchronously
+        (function(d){
+           var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = "//connect.facebook.net/en_US/all.js";
+           ref.parentNode.insertBefore(js, ref);
+         }(document));
+      </script>
+_HTML_;
+}
+	
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+
+
+function facebook_fbconnect_init_js_V1($display=true)
+{
+	global $facebook_key, $fb, $facebook_permissions;
+
+//channelUrl: 'localhost/vilfredo/channel.html',
+$site_domain = SITE_DOMAIN;
+
+$channel_url = '//' . $_SERVER['HTTP_HOST'] . '/channel.html';
 
 /* HEREDOC Set output string containing javascript */
 $str = <<<_HTML_
@@ -22,7 +92,7 @@ $str = <<<_HTML_
       window.fbAsyncInit = function() {
         FB.init({
           appId: '$facebook_key',
-		  channelUrl: 'localhost/vilfredo/channel.html',
+		  channelUrl: '$channel_url',
           cookie: true,
           xfbml: true,
           oauth: true

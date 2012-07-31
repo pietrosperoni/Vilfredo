@@ -66,6 +66,10 @@ body {
 	margin-left:0;
 }
 
+.left {
+	float: left;
+}
+
 #footer {
 	margin-top:20px;
 	border-top:2px solid #000000;
