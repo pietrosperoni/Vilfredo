@@ -4,6 +4,10 @@ js/work
 new
 js/jquery/tooltip/demo
 temp
+map
+remote
+remote_live
+logs
 rss
 *.orig
 vga current
