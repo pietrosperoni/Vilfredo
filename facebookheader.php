@@ -24,6 +24,7 @@ set_log("***************** facebookheader called *********************");
 $canvas_page = $vga_facebook['canvas'];
 $FACEBOOK_PAGE_ID = NULL;
 $FACEBOOK_PAGE = NULL;
+$FACEBOOK_PAGE_ADMIN = NULL;
 $fb_page_app_link = NULL;
 
 // Get signed request (should always be present within Facebook)
@@ -34,6 +35,7 @@ if (isset($FB_REQUEST['page']))
 {
 	$FACEBOOK_PAGE = $FB_REQUEST['page'];
 	$FACEBOOK_PAGE_ID = $FB_REQUEST['page']['id'];
+	$FACEBOOK_PAGE_ADMIN = $FB_REQUEST['page']['admin'];
 	set_log("Called from Page $FACEBOOK_PAGE_ID");
 	//print_r($FB_REQUEST);
 	//echo "<br/><br/><br/>";
