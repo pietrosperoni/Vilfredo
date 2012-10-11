@@ -7,7 +7,7 @@ require_once "priv/config.domain.php";
 require_once "priv/dbdata.php";
 require_once "priv/sys.php";
 require_once "priv/social.php";
-require_once 'priv/bubbles.config.php';
+#require_once 'priv/bubbles.config.php';
 
 require_once 'process_input.php';
 require_once 'graphs.php';
