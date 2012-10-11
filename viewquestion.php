@@ -88,9 +88,9 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	if ($userid) {
 		if ($subscribed==1)
 		{
-			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>unsubscribe" /> <?php
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>" /> <?php
 		}else{
-			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>subscribe" /> <?php
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>" /> <?php
 		}
 	}
 		?>
@@ -157,13 +157,13 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$phase=$QuestionInfo['phase'];
 	$generation=$QuestionInfo['roundid'];
 	$author=$QuestionInfo['usercreatorid'];
+	$minimumtime= $QuestionInfo['minimumtime'] ;
 
 	$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 	if (!$lastmoveonTime)
 	{
 		$lastmoveonTime=strtotime( $row[6] );
 	}
-	$minimumtime= $row[7] ;
 
 	$timeelapsed=time()-$lastmoveonTime;
 	if ($timeelapsed>=$minimumtime)

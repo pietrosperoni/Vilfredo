@@ -571,7 +571,7 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 echo '</div>';
 	 echo '<div class="clearboth"></div>';
 	 ?></div><div class="panel"><?php
-require_once BUBBLES_DIR.'/viewbubblebox.php';
+# require_once BUBBLES_DIR.'/viewbubblebox.php'; #This is commented for the NO Bubble version
 ?></div><!-- panel -->
 	 </div><!-- panels -->
 	<div class="clear"></div>
