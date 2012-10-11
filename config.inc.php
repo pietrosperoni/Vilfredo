@@ -1,4 +1,6 @@
 <?php
+// Start session for login and redirects
+session_start();
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
 require_once "priv/config.domain.php";
@@ -27,8 +29,7 @@ if (defined('LOG_DIRECTORY'))
 
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
-// Start session for login and redirects
-session_start();
+
 // ******************************************
 // Connects to the Database
 mysql_connect($dbaddress, $dbusername, $dbpassword) or die(mysql_error());
