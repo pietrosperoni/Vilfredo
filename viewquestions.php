@@ -57,8 +57,6 @@ $room_param = CreateNewQuestionURL();
 <div class="panel">
 <div class="centerbox">
 
-<div class="newquestionbox">
-<h2><?=$VGA_CONTENT['new_quest_txt']?></h2>
 
 <?php
 	
@@ -94,8 +92,8 @@ $room_param = CreateNewQuestionURL();
 		{
 			if (!$newquestionswritten)
 			{
-				//echo '<div class="newquestionbox">';
-				//echo "<h2>{$VGA_CONTENT['new_quest_txt']}</h2><p>";
+				echo '<div class="newquestionbox">';
+				echo "<h2>{$VGA_CONTENT['new_quest_txt']}</h2><p>";
 			}
 
 			$newquestionswritten=$newquestionswritten+1;
@@ -122,15 +120,15 @@ $room_param = CreateNewQuestionURL();
 			}
 			echo '</p>';
 		}
-	}
-	if (!$newquestionswritten)
-	{
-		//echo '</div>';
 		
-		echo '<p>No New Vilfredo Questions for this Room</p>';
+	}
+	if ($newquestionswritten)
+	{
+		echo '</div>'; // New questions box
+		
+#		echo '<p>No New Vilfredo Questions for this Room</p>';
 	}
 	
-	echo '</div>'; // New questions box
 
 	echo '</div><!-- centerbox -->';
 	echo '<div class="clearboth">&nbsp;</div>';
