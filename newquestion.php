@@ -59,12 +59,6 @@ var roomId = <?php echo "'$randomID'" ?>;
 	<p><?=$VGA_CONTENT['new_quest_exp_txt']?></p><p><code>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</code></p>
 
 
-	<div id="choosequestiontype">
-	<h3>Select Type of Question</h3>
-	<p><input id="vgaqtype" type = "radio" value="question" name ="questiontype" title="" /> Create a Vilfredo Open Question</p>
-	<p><input id="vgabtype" type = "radio" value="bubble" name ="questiontype" title=""  /> Create a Question Bubble (New)</p>
-	</div>
-
 
 	<p id="bubblequestionintro" class="quest-type-intro" style="display:none;">Bubble questions should be Open Questions looking for a number of Proposed Solutions.</p>
 	

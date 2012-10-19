@@ -23,7 +23,6 @@ $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
-<script src="js/jquery.tabs.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 var cookieexpires = 3; //days
@@ -36,41 +35,6 @@ $(function() {
 		},
 		showURL: false
 	});
-
-	$("ul.tabs").tabs("div.panel");
-
-	$('#bubbletab').click(function() {
-		$.cookie('btab', 'b', {expires: cookieexpires});
-		$('#bubblebox').fadeIn(1, function() {
-			panelwidth = $('#bubblebox').innerWidth();
-			panelheight = $('#bubblebox').innerHeight();
-			var svg = $('#panel').svg('get');
-			if (svg != null)
-			{
-				svg.configure({width: panelwidth, height: panelheight}, true);
-			}
-		});
-		setnodesize();
-		enableRefreshTimer();
-	});
-	$('#questiontab').click(function() {
-		if (isRefreshing())
-		{
-			return;
-		}
-		$.cookie('btab', null);
-		disableRefreshTimer();
-	});
-
-	if (bubbleurl)
-	{
-		$.cookie('btab', 'b', {expires: cookieexpires});
-	}
-
-	if ($.cookie('btab'))
-	{
-		$('#bubbletab').click();
-	}
 
 });
 </script>
@@ -88,11 +52,6 @@ $room_param = CreateNewQuestionURL();
 <div class="clearboth">&nbsp;</div>
 </div>
 
-<!-- the tabs -->
-<ul class="tabs">
-	<li><a id="questiontab" href=""><?=$VGA_CONTENT['vga_questions_tab']?></a></li>
-	<li><a id="bubbletab" href=""><?=$VGA_CONTENT['vga_bubbles_tab']?></a></li>
-</ul>
 
 <div class="panels">
 <div class="panel">
@@ -570,9 +529,7 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 echo '</div>';
 	 echo '</div>';
 	 echo '<div class="clearboth"></div>';
-	 ?></div><div class="panel"><?php
-# require_once BUBBLES_DIR.'/viewbubblebox.php'; #This is commented for the NO Bubble version
-?></div><!-- panel -->
+	 ?></div>
 	 </div><!-- panels -->
 	<div class="clear"></div>
 <?php
