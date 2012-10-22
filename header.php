@@ -115,7 +115,7 @@ echo '<div id="content_page">';
 	<div id="header">
 		<div id="top-pics">
 			<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto">
-			<img src="images/pareto.png" width="95" height="126" id="paretoimg" alt="Illustration of Pereto"/></a>
+			<img src="images/pareto.png" width="95" height="126" id="paretoimg" alt="Illustration of Pareto"/></a>
 			<img src="images/athens.png" width="194" height="120" id="athens" alt="Illustration of the Greek forum"/><!-- <img src="images/titleimg.png" id="titleimg" width="462" height="97" alt="<?=$VGA_CONTENT['site_title_txt']?>"/> -->
 			<div id="vilfredo_title">
 				<img src="images/vilfredo_title_s.png" width="206" height="40" alt="<?=$VGA_CONTENT['site_title_txt']?>"/>

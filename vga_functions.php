@@ -3272,6 +3272,21 @@ function RoomsUsed($userid)
 	return array_unique($rooms);
 }
 
+function IsSubscribed($question,$userid)
+{
+	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_array($response);
+
+	if ($row)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+
+
 
 function WhereHaveWeMet($RoomsUser1,$RoomsUser2)
 {
@@ -6792,6 +6807,7 @@ function WriteQuestionInfo($question,$userid)
 		}else{
 			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>subscribe" /> <?php
 		}
+		
 	}
 		?>
 		</form>

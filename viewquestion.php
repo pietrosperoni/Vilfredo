@@ -60,6 +60,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$shorturl = '';
 	$permit_anon_votes = $QuestionInfo['permit_anon_votes'];
 	$permit_anon_proposals = $QuestionInfo['permit_anon_proposals'];
+		
+	$subscribed=IsSubscribed($question,$userid);
 
 	if (!empty($bitlyhash)) 
 	{
@@ -786,13 +788,13 @@ if ($userid) {
 	
 	<?php
 	if($subscribed or !$userid or !isUserActiveInQuestion($userid, $question))	
-	{echo " checked ";}
-	else	{echo " ";}
+		{echo " checked ";}
+	else	
+		{echo " ";}
 	?>
 	
 	/>		
 	</td></tr>
-	
 	
 	
 	<tr><td colspan="2">&nbsp;</td><td>
@@ -809,6 +811,7 @@ if ($userid) {
 	</table>
 	</form>
 	<?php
+		#echo "subscribed=".$subscribed;
 
 		}
 		else
