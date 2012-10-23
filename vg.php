@@ -70,12 +70,14 @@ echo '<h2><a href="vhq.php' .CreateQuestionURL($question, $room). '">' . $VGA_CO
 if ($generation>0)
 {
 	
+	InsertMap($question,$generation,$userid,"L",0);
+	
 	echo '<div id="paretofrontbox">';
 	echo "<h3>{$VGA_CONTENT['pareto_front_txt']}</h3>";
 	$ParetoFront=ParetoFront($question,$generation);
 	$proposals=GetProposalsInGeneration($question,$generation);
 	$NonParetoProposals=array_diff($proposals,$ParetoFront);
-	
+						
 	foreach ($ParetoFront as $p)
 	{
 		echo '<div class="paretoproposal">';

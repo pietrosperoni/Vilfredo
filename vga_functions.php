@@ -6775,6 +6775,8 @@ function WriteQuestionInfo($question,$userid)
 	$permit_anon_votes = $row['permit_anon_votes'];
 	$permit_anon_proposals = $row['permit_anon_proposals'];
 	
+	$subscribed=IsSubscribed($question,$userid);
+	
 	if (!empty($bitlyhash)) 
 	{
 		$shorturl = BITLY_URL.$bitlyhash;
