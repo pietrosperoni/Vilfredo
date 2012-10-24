@@ -6587,12 +6587,12 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase)
 				{
 					if (!$phase)
 					{
-						echo '<td colspan="'.$offset.'" style="background-color:white;" ><center>#?</center></td>';										
+						#echo '<td colspan="'.$offset.'" style="background-color:white;" ><center>#?</center></td>';										
 					}
 					else
 					{
-						$urlquery = CreateQuestionURL($question, $room);
-						echo '<td colspan="'.$offset.'" style="background-color:white;" ><center><a href="" title="'.substr(SafeStringProposal($p), 0, 800).'">...</a></center></td>';	
+						#$urlquery = CreateQuestionURL($question, $room);
+						#echo '<td colspan="'.$offset.'" style="background-color:white;" ><center><a href="" title="'.substr(SafeStringProposal($p), 0, 800).'">...</a></center></td>';	
 					}
 				}
 				else
