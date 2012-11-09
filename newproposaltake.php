@@ -17,8 +17,8 @@ if ($is_anon and $userid)//DEBUG START
 $blurb = $_POST['blurb'];
 $abstract = $_POST['abstract'];
 
-$abstract = trim(strip_tags($abstract));
-$blurb = trim(strip_tags($blurb));
+$abstract = trim($abstract);
+$blurb = trim($blurb);
 
 if (!IsQuestionWriting($question))
 {
