@@ -47,6 +47,8 @@ $whenfrom=GetProposalGeneration($proposal);
 $whofrom=GetProposalAuthor($proposal);
 $generationNow=GetQuestionGeneration($question_id);
 
+
+
 // Check if question is in the writing state before allowing new proposal version
 if (!$is_writing)
 {
@@ -76,6 +78,10 @@ else
 		$question = $row['experimentid'];
 		$abstract = $row['abstract'];
 		$permit_anon_proposals = $row['permit_anon_proposals'];
+		
+		$subscribed=IsSubscribed($question,$userid);
+		
+		
 		?>
 		<div id="actionbox">
 			<h2><?=$VGA_CONTENT['prop_ans_txt']?></h2>
@@ -172,6 +178,19 @@ try{
 			
 				</div> <!-- proposal_RTE -->
 				</div> <!-- editor_panel -->
+				<!--translate-->
+				</br></br><p>subscribe to question<?=$VGA_CONTENT['subscribe_to_question_txt']?>
+				<input type = "Checkbox" name="subscribe" id="subscribe" title="Receives exciting and unexpected emails every time the question goes from one generation to the other<?=$VGA_CONTENT['suscribe_to_question_title']?>" 
+
+				<?php
+				if($subscribed or !$userid or !isUserActiveInQuestion($userid, $question))	
+					{echo " checked ";}
+				else	
+					{echo " ";}		
+				?>
+				/>
+				</p>
+				
 				
 			<!-- </form> -->
 			<script type="text/javascript">
