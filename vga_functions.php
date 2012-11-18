@@ -6524,7 +6524,7 @@ function ShowActivity($user,$question,$generation)
 }
 
 
-function MakeQuestionMap($userid,$question,$room,$generation,$phase)
+function MakeQuestionMap($userid,$question,$room,$generation,$phase) #the table
 {
 	
 	$urlquery = CreateQuestionURL($question, $room);
