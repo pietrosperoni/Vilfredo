@@ -159,7 +159,7 @@ echo '<div id="content_page">';
 		<?php 
 		}		
 		?>
-			<li><a href="feedback.php">Feedback</a></li>
+			<li><a href="http://bubblingaround.com/viewquestions.php?qb=1&amp;room=Vilfredo">Feedback</a></li>
 		</ul>
 	</div> <!-- header -->
 
