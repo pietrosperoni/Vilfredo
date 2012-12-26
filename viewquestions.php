@@ -19,9 +19,10 @@ $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 //if ($userid)
 //{
 ?>
-<script type="text/javascript" src="<?=BUBBLES_DIR?>/js/<?=BUBBLES_SVG?>/jquery-1.6.2.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.min.js"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
+<script src="js/jquery/tooltip/jquery.tooltip.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
 
 <script type="text/javascript">
