@@ -39,6 +39,58 @@ function clean_input_array($input)
 	return $input;
 }
 
+function GetEscapedPostParamStripTags($key)
+{
+	return strip_tags(GetEscapedPostParam($key));
+}
+
+function hasTags($str)
+{
+	return strcmp($str, strip_tags($str));
+}
+
+function GetEscapedPostParam($key)
+{
+	$val = trim($_POST[$key]);
+	if (get_magic_quotes_gpc())
+		$val = stripslashes($key);
+	return $val;
+}
+
+function GetEscapedGetParam($key)
+{
+	$val = trim($_GET[$key]);
+	if (get_magic_quotes_gpc())
+		$val = stripslashes($key);
+	return $val;
+}
+
+function GetMySQLEscapedPostParam($key)
+{
+	$param = mysql_real_escape_string(GetEscapedPostParam($key));
+	return $param;
+}
+
+function GetMySQLEscapedGetParam($key)
+{
+	$param = mysql_real_escape_string(GetEscapedGetParam($key));
+	return $param;
+}
+function GetMySQLEscapedString($str)
+{
+	$str = mysql_real_escape_string($str);
+	return $str;
+}
+function checkMaxStringLength($str, $maxlen)
+{
+	return strlen($str) <= $maxlen;
+}
+function checkMinStringLength($str, $minlen)
+{
+	return strlen($str) >= $minlen;
+}
+
+/*
 function GetEscapedPostParam($key)
 {
 	if (empty($_POST[$key]))
@@ -62,6 +114,7 @@ function GetEscapedGetParam($key)
 	}
 	return $param;
 }
+*/
 
 function boolString($bValue = false) {                      
 	// returns string

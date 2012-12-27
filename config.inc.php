@@ -29,6 +29,9 @@ if (defined('LOG_DIRECTORY'))
 
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
+define("MAX_LEN_ROOM", 20);
+define("MIN_LEN_ROOM", 2);
+
 
 // ******************************************
 // Connects to the Database

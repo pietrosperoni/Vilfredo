@@ -1746,6 +1746,12 @@ function HasQuestionAccess()
             return false;
 
 	$room_id = GetQuestionRoom($question);
+	
+	// no question found
+	if ($room_id === false) 
+	{
+		return false;
+	}
 
 	if (isset($_GET[QUERY_KEY_ROOM]))
 		$room_param = $_GET[QUERY_KEY_ROOM];
@@ -1758,7 +1764,7 @@ function HasQuestionAccess()
 	//if(strcasecmp($room_param, $room_id) == 0)
 		return true;
 	else
-        	return false;
+        return false;
 }
 
 
@@ -1858,21 +1864,28 @@ function GetProposalRoom($proposal)
 
 function GetQuestionRoom($question)
 {
-	 $sql="SELECT room
-	     FROM questions
-	     WHERE id='$question'";
+	 $sql="SELECT `room`
+	     FROM `questions`
+	     WHERE `id` = $question";
 
-	$result = mysql_query($sql) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-
-	return $row['room'];
+	$result = mysql_query($sql);
+	
+	if ($result)
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['room'];
+	}
+	else
+	{
+		return false;
+	}
 }
 
 function GetQuestionGeneration($question)
 {
-	 $sql="SELECT roundid
-	     FROM questions
-	     WHERE id='$question'";
+	 $sql="SELECT `roundid`
+	     FROM `questions`
+	     WHERE `id` = $question";
 
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_assoc($result);

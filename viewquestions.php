@@ -13,8 +13,6 @@ set_log('viewquestions.php USERID = '.$userid);
 $svg_dir = BUBBLES_SVG;
 $bubblesdir = BUBBLES_DIR;
 
-$bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
-
 #$userid=isloggedin();
 //if ($userid)
 //{
@@ -27,7 +25,6 @@ $bubbleurl = (int)isset($_GET[QUERY_KEY_QUESTION_BUBBLE]);
 
 <script type="text/javascript">
 var cookieexpires = 3; //days
-var bubbleurl = <?= $bubbleurl ?>;
 
 $(function() {
 	$(".foottip a[tooltip]").tooltip({

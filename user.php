@@ -27,7 +27,10 @@ $(".foottip a").tooltip({
 });
 </script>
 <?php
-
+	if ( !isset($_GET['u']) || !is_numeric($_GET['u']) )
+	{
+		header("Location: viewquestions.php");
+	}
 
 	$uid = $_GET['u'];
 

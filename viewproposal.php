@@ -11,6 +11,13 @@ include('header.php');
 #$userid=isloggedin();
 //if ($userid)
 //{
+	
+	// sanitize url
+	if ( !isset($_GET[QUERY_KEY_PROPOSAL]) || !is_numeric($_GET[QUERY_KEY_PROPOSAL]) )
+	{
+		header("Location: viewquestions.php");
+	}
+	
 	// Check if user has room access.
 	if (!HasProposalAccess())
 	{

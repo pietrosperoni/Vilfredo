@@ -49,6 +49,21 @@ $(".foottip a").tooltip({
 </script>
 <?php
 
+// sanitize url
+if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
+{
+	header("Location: viewquestions.php");
+}
+
+if ( !isset($_GET['u']) || !is_numeric($_GET['u']) )
+{
+	header("Location: viewquestions.php");
+}
+
+if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM)) )
+{
+	header("Location: viewquestions.php");
+}
 
 $uid = $_GET['u'];
 
