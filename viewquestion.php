@@ -39,7 +39,6 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	// sanitize url
 	if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
 	{
-		set_log("Query parameter ".QUERY_KEY_QUESTION." bad");
 		header("Location: viewquestions.php");
 	}
 	
@@ -51,7 +50,6 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	// Check if user has room access.
 	if (!HasQuestionAccess())
 	{
-		set_log("No room access");
 		header("Location: viewquestions.php");
 	}
 	
