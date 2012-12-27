@@ -7,6 +7,7 @@ require_once "priv/config.domain.php";
 require_once "priv/dbdata.php";
 require_once "priv/sys.php";
 require_once "priv/social.php";
+require_once 'lib/phpass-0.3/PasswordHash.php';
 #require_once 'priv/bubbles.config.php';
 
 require_once 'process_input.php';
@@ -29,6 +30,8 @@ if (defined('LOG_DIRECTORY'))
 
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
 
+define("MAX_LEN_EMAIL", 60);
+define("MAX_LEN_USERNAME", 60);
 define("MAX_LEN_ROOM", 20);
 define("MIN_LEN_ROOM", 2);
 

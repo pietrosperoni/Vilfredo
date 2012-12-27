@@ -32,10 +32,18 @@ $(".foottip a").tooltip({
 		header("Location: viewquestions.php");
 	}
 
-	$uid = $_GET['u'];
+	$uid = (int)$_GET['u'];
 
-	$sql = "SELECT users.username FROM users WHERE users.id = " . $uid;
+	$sql = "SELECT `username` FROM `users` WHERE `id` = $uid";
+	set_log($sql);
 	$response = mysql_query($sql);
+	
+	if (!$response || !mysql_num_rows($response))
+	{
+		echo "Ooops, there was a problem. User with that id doesn't exist.";
+		exit;
+	}
+	
 	$user = mysql_fetch_array($response);
 	$user = $user[0];
 
@@ -65,7 +73,7 @@ $(".foottip a").tooltip({
 		}
 	}
 
-	echo '</br>Note: You can only see activity that happened in rooms you have participated in</br>';
+	echo '<br/>Note: You can only see activity that happened in rooms you have participated in<br/>';
 	
 	// **
 	// Set user access filter
