@@ -73,7 +73,7 @@ if (USE_FACEBOOK_CONNECT)
 	{
 		try 
 		{
-			$FACEBOOK_USER_PROFILE = $fb->api('/me');
+			$FACEBOOK_USER_PROFILE = $fb->api('/'.$FACEBOOK_ID);
 			//set_log("Facebook ID = ".$FACEBOOK_ID);
 			//set_log("FB Profile locale = ".$FACEBOOK_USER_PROFILE['locale']);
 		} 
