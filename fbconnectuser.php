@@ -14,7 +14,6 @@ if (empty($_POST['fbuserid'] ))
 }
 
 $username = GetEscapedPostParam('username');
-$password = GetEscapedPostParam('pass');
 $fb_userid = GetEscapedPostParam('fbuserid');
 
 // checks it against the database
@@ -42,10 +41,12 @@ $info = mysql_fetch_assoc($check);
 
 $userid = $info['id'];
 
-$password = encryptPWD($password);
+$password = GetEscapedPostParam('pass');
+//$password = encryptPWD($password);
 
 //gives error if the password is wrong
-if ($password != $info['password']) 
+//if ($password != $info['password']) 
+if (!checkUserPassword($info['id'], $password, $info['password']))
 {
 	//echo "Incorrect password for $username";
 	$format = $VGA_CONTENT['wrong_user_pwd_txt'];
@@ -55,7 +56,6 @@ if ($password != $info['password'])
 }
 else
 {
-	
 	// Add FB User ID to user record	
 	$sql = "UPDATE users SET fb_userid = '$fb_userid' WHERE id = $userid";
 

@@ -21,7 +21,7 @@ function facebook_fbconnect_init_js($display=true)
 $site_domain = SITE_DOMAIN;
 
 $channel_url = '//' . $_SERVER['HTTP_HOST'] . '/channel.html';
-set_log("Site Domain: " . SITE_DOMAIN);
+//set_log("Site Domain: " . SITE_DOMAIN);
 if ($_SERVER['HTTP_HOST'] != 'localhost') {
 $str = <<<_HTML_
 <div id="fb-root"></div>

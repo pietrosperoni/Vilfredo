@@ -65,9 +65,9 @@ if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMa
 	header("Location: viewquestions.php");
 }
 
-$uid = $_GET['u'];
+$uid = (int)$_GET['u'];
 
-$question = $_GET[QUERY_KEY_QUESTION];
+$question = (int)$_GET[QUERY_KEY_QUESTION];
 
 $room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
 

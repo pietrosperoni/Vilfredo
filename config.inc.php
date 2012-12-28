@@ -34,6 +34,8 @@ define("MAX_LEN_EMAIL", 60);
 define("MAX_LEN_USERNAME", 60);
 define("MAX_LEN_ROOM", 20);
 define("MIN_LEN_ROOM", 2);
+define("MAX_LEN_PASSWORD", 60);
+define("MIN_LEN_PASSWORD", 6);
 
 
 // ******************************************

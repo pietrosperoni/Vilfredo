@@ -17,75 +17,101 @@ function register_user()
 		set_message("error", $msg);
 		$errors = true;
 	}
+	
+	$username = GetEscapedPostParam('username');
+	$email = GetEscapedPostParam('email');
+	$pass = GetEscapedPostParam('pass');
+	$pass2 = GetEscapedPostParam('pass2');
 
 	//This makes sure they did not leave any fields blank
-	if (!$_POST['username'] | !$_POST['pass'] | !$_POST['pass2'] | !$_POST['email']) 
+	if (!$username || !$pass || !$pass2 || !$email) 
 	{
 		$msg = "{$VGA_CONTENT['req_flds_err_txt']}";
 		set_message("error", $msg);
 		$errors = true;
 		return false;
 	}
-
-	$UsernameIsEmail=validEmail($_POST['username']);
-	if ($UsernameIsEmail)
+	
+	if (hasTags($username) || hasTags($pass) || hasTags($pass2) || hasTags($email)) 
+	{
+		$msg = "Your form contains invalid characters.";
+		set_message("error", $msg);
+		$errors = true;
+		unset($_POST);
+		return false;
+	}
+	
+	if ($pass != $_POST['pass']) 
+	{
+		$msg = "Passwords cannot begin or end with spaces.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+	
+	// Check field lengths
+	/*
+	define("MAX_LEN_EMAIL", 60);
+	define("MAX_LEN_USERNAME", 60);
+	define("MAX_LEN_PASSWORD", 70);
+	define("MIN_LEN_PASSWORD", 6);
+	*/
+	if (!checkMaxStringLength($username, MAX_LEN_USERNAME))
+	{
+		$msg = "Your username should be less than ".MAX_LEN_USERNAME." characters.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+	if (!checkMaxStringLength($email, MAX_LEN_EMAIL))
+	{
+		$msg = "Your email should be less than ".MAX_LEN_EMAIL." characters.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+	if (!checkMaxStringLength($pass, MAX_LEN_PASSWORD))
+	{
+		$msg = "Your password should be less than ".MAX_LEN_PASSWORD." characters.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+	if (!checkMinStringLength($pass, MIN_LEN_PASSWORD))
+	{
+		$msg = "Your password should be at least ".MIN_LEN_PASSWORD." characters.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+	
+	if (validEmail($username))
 	{
 		$msg = "{$VGA_CONTENT['useremail_err_txt']}";
 		set_message("error", $msg);
 		$errors = true;
-		//return false;
 	}
 
-	if ($_POST['email'] ) 
+	if (!validEmail($email))
 	{
-		$EmailIsValid=validEmail($_POST['email']);
-		if (!$EmailIsValid)
-		{
-			$msg = "{$VGA_CONTENT['email_err_txt']}";
-			set_message("error", $msg);
-			$errors = true;
-			//return false;
-		}
-		
-		if (isEmailRegistered($_POST['email']))
-		{
-			$msg = "The email address you entered is already registered. You can reset your password from the login page.";
-			set_message("error", $msg);
-			$errors = true;
-		}
-	}
-
-	// checks if the username is in use
-	if (!get_magic_quotes_gpc()) 
-	{
-		$_POST['username'] = addslashes($_POST['username']);
-	}
-	$usercheck = $_POST['username'];
-	$check = mysql_query("SELECT username FROM users WHERE username = '$usercheck'");
-	
-	if (!$check)
-	{
-		handle_db_error($check);
-		$msg = "{$VGA_CONTENT['sys_err_txt']}";
+		$msg = "{$VGA_CONTENT['email_err_txt']}";
 		set_message("error", $msg);
 		$errors = true;
-		//return false;
 	}
 	
-	$check2 = mysql_num_rows($check);
-
+	if (isEmailRegistered($email))
+	{
+		$msg = "The email address you entered is already registered. If you have forgotten your password you can reset your password from the login page.";
+		set_message("error", $msg);
+		$errors = true;
+	}
+		
 	//if the name exists it gives an error
-	if ($check2 != 0) 
+	if (isUsernameRegistered($username)) 
 	{
 		$format = "{$VGA_CONTENT['user_unav_err_txt']}";
-		$msg = sprintf($format, $_POST['username']);
+		$msg = sprintf($format, $username);
 		set_message("error", $msg);
 		$errors = true;
-		//return false;
 	}
 
 	// this makes sure both passwords entered match
-	if ($_POST['pass'] != $_POST['pass2']) 
+	if ($pass != $pass2) 
 	{
 		$msg = "{$VGA_CONTENT['pwds_err_txt']}";
 		set_message("error", $msg);
@@ -100,16 +126,15 @@ function register_user()
 	}
 
 	// here we encrypt the password and add slashes if needed
-	$_POST['pass'] = encryptPWD($_POST['pass']);
-	if (!get_magic_quotes_gpc()) 
-	{
-		$_POST['pass'] = addslashes($_POST['pass']);
-		$_POST['username'] = addslashes($_POST['username']);
-		$_POST['email'] = addslashes($_POST['email']);
-	}
+	$username = GetMySQLEscapedString($username);
+	$email = GetMySQLEscapedString($email);
+	//$password = encryptPWD($password);
+	$password = encryptUserPassword($pass);
 
 	// now we insert it into the database
-	$insert = "INSERT INTO users (username, password, email, registered, lastlogin) VALUES ('".$_POST['username']."', '".$_POST['pass']."', '".$_POST['email']."', NOW(), NOW())";
+	$insert = "INSERT INTO `users` (`username`, `password`, `email`, `registered`, `lastlogin`) 
+		VALUES ('$username', '$password', '$email', NOW(), NOW())";
+	
 	$add_member = mysql_query($insert);
 	
 	if (!$add_member)
@@ -136,6 +161,8 @@ function login_user_noredirect()
 	global $FACEBOOK_ID;
 	global $VGA_CONTENT;
 	
+	set_log(__FUNCTION__);
+	
 	// makes sure they filled it in
 	if(empty($_POST['username']) || empty($_POST['pass'])) 
 	{
@@ -143,9 +170,9 @@ function login_user_noredirect()
 		set_message("error", $msg);
 		return false;
 	}
-	
+	$usercheck = GetMySQLEscapedPostParam("username");
 	// checks it against the database
-	$sql = "SELECT * FROM users WHERE username = '".$_POST['username']."'";
+	$sql = "SELECT * FROM `users` WHERE `username` = '$usercheck'";
 	$check = mysql_query($sql);
 	
 	//set_log($sql);
@@ -166,41 +193,43 @@ function login_user_noredirect()
 		set_message("error", $msg);
 		return false;
 	}
-	while($info = mysql_fetch_array( $check ))
-	{
-		$_POST['pass'] = stripslashes($_POST['pass']);
-		$info['password'] = stripslashes($info['password']);
-		$_POST['pass'] = encryptPWD($_POST['pass']);
-
-		//gives error if the password is wrong
-		if ($_POST['pass'] != $info['password']) 
-		{
-			$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
-			set_message("error", $msg);
-			return false;
-		}
-		else
-		{
-			// if login is ok then we start a user session
-			$_SESSION[USER_LOGIN_ID] = $info['id'];
-			$_SESSION[USER_LOGIN_MODE] = 'VGA';
 			
-			// Log time
-			setlogintime($info['id']);
-
-			// if Keep Logged In is checked then we add a cookie
-			if (isset($_POST['remember']) && $_POST['remember'] == 'on')
-			{
-				setpersistantcookie($info['id']);
-			}
-
-			return true;
-		}
+	$info = mysql_fetch_assoc( $check );
+	$password = GetEscapedPostParam('pass');
+	//$password = encryptPWD($password);
+	//gives error if the password is wrong
+	//if ($password != $info['password']) 
+	if (!checkUserPassword($info['id'], $password, $info['password']))
+	{
+		$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
+		set_message("error", $msg);
+		return false;
 	}
+	else
+	{
+		// if login is ok then we start a user session
+		$_SESSION[USER_LOGIN_ID] = $info['id'];
+		$_SESSION[USER_LOGIN_MODE] = 'VGA';
+		
+		// Log time
+		setlogintime($info['id']);
+
+		// if Keep Logged In is checked then we add a cookie
+		if (isset($_POST['remember']) && $_POST['remember'] == 'on')
+		{
+			setpersistantcookie($info['id']);
+		}
+
+		return true;
+	}
+
 }
 
 function login_user()
 {
+	//set_log(__FUNCTION__.":: Logging in user");
+	//set_log($_POST['username']);
+	
 	global $FACEBOOK_ID;
 	global $VGA_CONTENT;
 	
@@ -212,8 +241,10 @@ function login_user()
 		return false;
 	}
 	
+	$username = GetMySQLEscapedPostParam('username');
+	//set_log("Username = $username");
 	// checks it against the database
-	$sql = "SELECT * FROM users WHERE username = '".$_POST['username']."'";
+	$sql = "SELECT * FROM `users` WHERE `username` = '$username'";
 	$check = mysql_query($sql);
 	
 	//set_log($sql);
@@ -234,57 +265,35 @@ function login_user()
 		set_message("error", $msg);
 		return false;
 	}
-	while($info = mysql_fetch_array( $check ))
+
+	$info = mysql_fetch_assoc( $check );
+	$password = GetEscapedPostParam('pass');
+	//$password = encryptPWD($password);
+	//gives error if the password is wrong
+	//if ($password != $info['password']) 
+	if (!checkUserPassword($info['id'], $password, $info['password']))
 	{
-		$_POST['pass'] = stripslashes($_POST['pass']);
-		$info['password'] = stripslashes($info['password']);
-		$_POST['pass'] = encryptPWD($_POST['pass']);
+		$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
+		set_message("error", $msg);
+		return false;
+	}
+	else
+	{
+		// if login is ok then we start a user session
+		$_SESSION[USER_LOGIN_ID] = $info['id'];
+		$_SESSION[USER_LOGIN_MODE] = 'VGA';
+		
+		// Log time
+		setlogintime($info['id']);
 
-		//gives error if the password is wrong
-		if ($_POST['pass'] != $info['password']) 
+		// if Keep Logged In is checked then we add a cookie
+		if (isset($_POST['remember']) && $_POST['remember'] == 'on')
 		{
-			$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
-			set_message("error", $msg);
-			return false;
+			set_log('Setting persistant cookie...');
+			setpersistantcookie($info['id']);
 		}
-		else
-		{
-			// if login is ok then we start a user session
-			$_SESSION[USER_LOGIN_ID] = $info['id'];
-			$_SESSION[USER_LOGIN_MODE] = 'VGA';
-			
-			// Log time
-			setlogintime($info['id']);
-
-			// if Keep Logged In is checked then we add a cookie
-			if (isset($_POST['remember']) && $_POST['remember'] == 'on')
-			{
-				//***
-				set_log('Setting persistant cookie...');
-				setpersistantcookie($info['id']);
-				//***
-				//set_log('Setting old style cookies');
-				//$_POST['username'] = stripslashes($_POST['username']);
-				//$expire = time() + COOKIE_LIFETIME;
-				//setcookie(COOKIE_USER, $_POST['username'], $expire);
-				//setcookie(COOKIE_PASSWORD, $_POST['pass'], $expire);
-			}
-			
-			return true;
-			/*
-			//then redirect them to the members area
-			if (isset($_SESSION['request']) && !empty($_SESSION['request']))
-			{
-				// Now send the user to his desired page
-				$request = $_SESSION['request'];
-				unset($_SESSION['request']);
-				header("Location: " . $request);
-			}
-			else {
-				header("Location: viewquestions.php");
-			}
-			*/
-		}
+		
+		return true;
 	}
 }
 
@@ -311,7 +320,7 @@ function fb_register_user()
 
 	if ($_POST['email'] ) 
 	{
-		$EmailIsValid=validEmail($_POST['email']);
+		$EmailIsValid = validEmail($_POST['email']);
 		if (!$EmailIsValid)
 		{
 			$msg = $VGA_CONTENT['email_err_txt'];
@@ -322,11 +331,7 @@ function fb_register_user()
 	}
 
 	// checks if the username is in use
-	if (!get_magic_quotes_gpc()) 
-	{
-		$_POST['username'] = addslashes($_POST['username']);
-	}
-	$usercheck = $_POST['username'];
+	$usercheck = GetMySQLEscapedPostParam("username");
 	$check = mysql_query("SELECT username FROM users WHERE username = '$usercheck'");
 	
 	if (!$check)
@@ -347,15 +352,12 @@ function fb_register_user()
 		set_message("error", $msg);
 		return false;
 	}
-
-	if (!get_magic_quotes_gpc()) 
-	{
-		$_POST['username'] = addslashes($_POST['username']);
-		$_POST['email'] = addslashes($_POST['email']);
-	}
+	
+	$username = GetMySQLEscapedPostParam('username');
+	$email = GetMySQLEscapedPostParam('email');
 
 	// now we insert it into the database
-	$insert = "INSERT INTO users (username, password, email, fb_userid, registered, lastlogin) VALUES ('".$_POST['username']."', '', '".$_POST['email']."', '".$FACEBOOK_ID."', NOW(), NOW())";
+	$insert = "INSERT INTO `users` (`username`, `password`, `email`, `fb_userid`, `registered`, `lastlogin`) VALUES ('$username', '', '$email', '".$FACEBOOK_ID."', NOW(), NOW())";
 	$add_member = mysql_query($insert);
 	
 	if (!$add_member)
@@ -391,8 +393,8 @@ function fb_connect_user()
 	}
 
 	// checks it against the database
-	$username = $_POST['username'];
-	$check = mysql_query("SELECT * FROM users WHERE username = '$username'");
+	$username = GetMySQLEscapedPostParam('username');
+	$check = mysql_query("SELECT * FROM `users` WHERE `username` = '$username'");
 	if (!$check)
 	{
 		handle_db_error($check);
@@ -412,12 +414,11 @@ function fb_connect_user()
 
 	$info = mysql_fetch_assoc( $check );
 
-	$_POST['pass'] = stripslashes($_POST['pass']);
-	$info['password'] = stripslashes($info['password']);
-	$_POST['pass'] = encryptPWD($_POST['pass']);
-
+	$password = GetEscapedPostParam('pass');
+	//$password = encryptPWD($password);
 	//gives error if the password is wrong
-	if ($_POST['pass'] != $info['password']) 
+	//if ($password != $info['password']) 
+	if (!checkUserPassword($info['id'], $password, $info['password']))
 	{
 		$msg = "{$VGA_CONTENT['wrong_pwd_txt']}";
 		set_message("error", $msg);
@@ -429,7 +430,7 @@ function fb_connect_user()
 		$userid = $info['id'];
 		$fb_userid = $FACEBOOK_ID;
 
-		$sql = "UPDATE users SET fb_userid = '$fb_userid' WHERE id = $userid";
+		$sql = "UPDATE `users` SET `fb_userid` = '$fb_userid' WHERE `id` = $userid";
 
 		$result = mysql_query($sql);
 

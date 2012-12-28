@@ -58,9 +58,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	
 	//WriteQuestionInfo($question,$userid);
 	
+	$QuestionInfo = GetQuestion($question);
 	
-	//****
-	$QuestionInfo=GetQuestion($question);
+	if (!$QuestionInfo)
+	{
+		echo "Ooops, there was a problem. A question with that id does not exist.";
+		exit;
+	}
+	
 	$title=$QuestionInfo['title'];
 	$content=$QuestionInfo['question'];
 	$room=$QuestionInfo['room'];

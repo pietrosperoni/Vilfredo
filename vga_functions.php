@@ -2528,6 +2528,49 @@ function vga_cookie_logout()
 	}
 }
 
+function isUsernameRegistered($username)
+{
+	if (!empty($username))
+	{
+		$sql = sprintf("SELECT `username` FROM `users` 
+			    WHERE  `username` = '%s'",
+			mysql_real_escape_string($username));
+					
+		$result = mysql_query($sql);
+		
+		//printbr($sql);
+		
+		if (!$result)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		$duplicates = mysql_num_rows($result);
+		
+		//printbr("$duplicates duplicates");
+		
+		if ($duplicates === FALSE)
+		{
+			handle_db_error($result, $sql);
+			return false;
+		}
+		
+		if ($duplicates > 0) 
+		{
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
 
 function isEmailRegistered($email)
 {
@@ -2837,6 +2880,26 @@ Returns true if the email address has the email
 address format and the domain exists.
 */
 function validEmail($email)
+{
+	if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+	{
+		set_log(__FUNCTION__." $email failed filter");
+		return false;
+	}
+	// Check for domain in DNS
+	$atIndex = strrpos($email, "@");
+	$domain = substr($email, $atIndex+1);
+	if (!check_dnsrr($domain,"MX") && !check_dnsrr($domain,"A"))
+    {
+		set_log(__FUNCTION__." $email: domain not found in DNS");
+		return false;
+    }
+	else
+	{
+		return true;
+	}
+}
+function validEmail_OLD($email)
 {
   // set_log("Validating email address $email");
 	$isValid = true;

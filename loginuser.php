@@ -7,8 +7,7 @@ if (empty($_POST['username']) || empty($_POST['pass'] ))
 	exit();
 }
 
-$username = GetEscapedPostParam('username');
-$password = GetEscapedPostParam('pass');
+$username = GetMySQLEscapedPostParam('username');
 
 // checks it against the database
 $sql = "SELECT * FROM users WHERE username = '$username'";
@@ -29,10 +28,13 @@ if (mysql_num_rows($check) == 0)
 }
 
 $info = mysql_fetch_array( $check );
-$password = encryptPWD($password);
+
+$password = GetEscapedPostParam('pass');
+//$password = encryptPWD($password);
 
 //gives error if the password is wrong
-if ($password != $info['password']) 
+//if ($password != $info['password']) 
+if (!checkUserPassword($info['id'], $password, $info['password']))
 {
 	echo "Incorrect password for $username";
 	exit();

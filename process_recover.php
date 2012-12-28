@@ -19,7 +19,7 @@ function check_email()
 
 	 // generate reset code
 	 $token = set_recover_pwd_token($user['id']);
-	 if (!token)
+	 if (!$token)
 	 {
 		set_message("error", "Sorry, there was a system problem. Please wait while we sort it out. The email should arrive shortly.");
 		return false;
@@ -28,7 +28,7 @@ function check_email()
 	 // email user reset code
 	 $expires = time() + PWD_RESET_LIFETIME;
 	 $send_email = send_recover_email($user, $token, $expires);
-	 if (!send_email)
+	 if (!$send_email)
 	 {
 		set_message("error", "Sorry, there was a system problem. Please wait while we sort it out. The email should arrive shortly.");
 		return false;
@@ -184,13 +184,9 @@ function reset_user_password()
 	$userid = (int)$_SESSION['recoverid'];
 	$token = $_SESSION['recovertoken'];
 	
-	$password = $_POST['pass'];
-	
-	$password = encryptPWD($password);
-	if (!get_magic_quotes_gpc()) 
-	{
-		$password = addslashes($password);
-	}
+	$password = GetEscapedPostParam('pass');
+	//$password = encryptPWD($password);
+	$password = encryptUserPassword($password);
 	
 	$sql = "UPDATE users 
 		SET password = '$password'
@@ -253,6 +249,7 @@ function get_recover_pwd_token($userid, $token)
 function set_recover_pwd_token($userid)
 {	
 	$token = gen_uuid();
+	set_log("set_recover_pwd_token called... token = $token");
 	$expire = time() + PWD_RESET_LIFETIME;
 
 	$sql = "INSERT INTO pwd_reset (userid, token, timeout)
