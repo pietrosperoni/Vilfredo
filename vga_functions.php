@@ -3352,13 +3352,22 @@ function IsSubscribed($question,$userid)
 {
 	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
 	$response = mysql_query($sql);
-	$row = mysql_fetch_array($response);
-
-	if ($row)
+	if ($response)
 	{
-		return 1;
+		if (mysql_num_rows($response))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	return 0;
+	else
+	{
+		handle_db_error($response);
+		return 0;
+	}
 }
 
 
