@@ -3,6 +3,34 @@
 define("PWD_HASH_PREFIX", ""); #define the prefix for the password autentication
 define("ID_SALT", ""); #define the salt for the password autentication
 
+// NEW *********
+if (!function_exists('checkUserPassword')) 
+{
+	function checkUserPassword($userid, $password, $dbhash)
+	{
+		set_log(__FUNCTION__." in sys.php called....");
+		// Check against hash
+		if (encryptPWD($password) == $dbhash)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	};
+}
+
+if (!function_exists('encryptUserPassword')) 
+{
+	function encryptUserPassword($password)
+	{
+		set_log(__FUNCTION__." in sys.php called....");
+		return encryptPWD($password);
+	};
+}
+//**************
+
 function encryptPWD3($password, $prefix=PWD_HASH_PREFIX)
 {
 	return hash('sha256', $prefix . $password);
