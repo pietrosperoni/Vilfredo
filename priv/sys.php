@@ -8,7 +8,7 @@ if (!function_exists('checkUserPassword'))
 {
 	function checkUserPassword($userid, $password, $dbhash)
 	{
-		set_log(__FUNCTION__." in sys.php called....");
+		//set_log(__FUNCTION__." in sys.php called....");
 		// Check against hash
 		if (encryptPWD($password) == $dbhash)
 		{
@@ -25,7 +25,7 @@ if (!function_exists('encryptUserPassword'))
 {
 	function encryptUserPassword($password)
 	{
-		set_log(__FUNCTION__." in sys.php called....");
+		//set_log(__FUNCTION__." in sys.php called....");
 		return encryptPWD($password);
 	};
 }
