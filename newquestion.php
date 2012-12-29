@@ -120,20 +120,6 @@ $week_and_a_half = $VGA_CONTENT['week and a half'];
 		 }
    	});
    	
-   	if ($.cookie('btab'))
-	{
-		//$("input:radio[name=questiontype]").click();
-		//$("input:radio[value=question]").attr('checked', '');
-		//$("input:radio[value=bubble]").attr('checked', 'checked');
-		//$('input[name="questiontype"]').attr('checked', false);
-		//$('#vgaqtype').attr('checked', '');
-		$('#vgabtype').attr('checked', 'checked').click();
-	}
-	else
-	{
-		$('#vgaqtype').attr('checked', 'checked');
-		//$('#vgabtype').attr('checked', '');
-	}
  });
 </script>
 
