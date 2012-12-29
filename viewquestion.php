@@ -39,30 +39,33 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	// sanitize url
 	if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
 	{
-		header("Location: viewquestions.php");
+		header("Location: error_page.php");
+		exit;
 	}
 	
 	if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM)) )
 	{
-		header("Location: viewquestions.php");
+		header("Location: error_page.php");
+		exit;
 	}
+	
+	$question = (int)$_GET[QUERY_KEY_QUESTION];
+	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+	
+	//WriteQuestionInfo($question,$userid);
 	
 	// Check if user has room access.
 	if (!HasQuestionAccess())
 	{
 		header("Location: viewquestions.php");
+		exit;
 	}
-	
-	$question = $_GET[QUERY_KEY_QUESTION];
-	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
-	
-	//WriteQuestionInfo($question,$userid);
 	
 	$QuestionInfo = GetQuestion($question);
 	
 	if (!$QuestionInfo)
 	{
-		echo "Ooops, there was a problem. A question with that id does not exist.";
+		header("Location: error_page.php");
 		exit;
 	}
 	

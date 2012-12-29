@@ -4,7 +4,6 @@ include('header.php');
 #$userid=isloggedin();
 if ($userid)
 {
-
 	$userstoinvite = $_POST['users'];
 	if(!$userstoinvite){$userstoinvite=array();}
 	$question = $_POST['question'];

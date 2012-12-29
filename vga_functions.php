@@ -956,7 +956,6 @@ function messages_set($message_type=false)
 function set_message($message_type, $message)
 {
     $_SESSION['messages'][$message_type][] = $message;
-	set_log('Signup up message set: '.$message);
 }
 
 function get_messages_old($message_type='error')
@@ -1004,6 +1003,7 @@ function get_message_string_clr($message_type='error')
 	unset($_SESSION['messages']);
 	return implode("<br/>", $msg);
 }
+
 // ******************************************
 // VILFREDO ROOMS
 //
@@ -1737,16 +1737,16 @@ function remove_querystring_var($url, $key)
 
 function HasQuestionAccess()
 {
-	$question = "";
-	$room = "";
-
-	if (isset($_GET[QUERY_KEY_QUESTION]))
-             $question = $_GET[QUERY_KEY_QUESTION];
-	else
-            return false;
-
-	$room_id = GetQuestionRoom($question);
+	$question = fetchValidQuestionFromQuery();
+	$room = fetchValidRoomFromQuery();
 	
+	// Return false if bad query parameters passed
+	if ($question === false || $room === false)
+	{
+		return false;
+	}
+	
+	$room_id = GetQuestionRoom($question);
 	// no question found
 	if ($room_id === false) 
 	{
@@ -1933,16 +1933,43 @@ function IsQuestionWriting($question)
 	}
 }
 
+function GetProposal($proposal)
+{
+	 $sql = "SELECT *
+	     FROM `proposals`
+	     WHERE `id` = $proposal";
+
+	$result = mysql_query($sql);
+	
+	if ($result)
+	{
+		$info = mysql_fetch_assoc($result);
+		return $info;
+	}
+	else
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
+}
 function GetQuestion($question)
 {
-	 $sql="SELECT *
-	     FROM questions
-	     WHERE id='$question'";
+	 $sql = "SELECT *
+	     FROM `questions`
+	     WHERE `id` = $question";
 
-	$result = mysql_query($sql) or die(mysql_error());
-	$info = mysql_fetch_assoc($result);
-
-	return $info;
+	$result = mysql_query($sql);
+	
+	if ($result)
+	{
+		$info = mysql_fetch_assoc($result);
+		return $info;
+	}
+	else
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
 }
 
 function GetProposalValues($proposal)
@@ -3281,7 +3308,8 @@ function AuthorsOfNewProposals($question,$generation)
 function QuestionsAskedInRoom($userid,$room)
 {
 	$questions=array();
-	$sql = 'SELECT questions.id  FROM questions WHERE questions.usercreatorid = '.$userid.'   AND questions.room = "'.$room.'" ';
+	$sql = "SELECT `id` FROM `questions` WHERE `usercreatorid` = $userid AND `room` = '$room'";
+	
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -3294,14 +3322,20 @@ function ActivityInRoom($userid,$room)
 {
 	$questions=array();
 	
-	$sql = 'SELECT questions.id  FROM questions, proposals WHERE proposals.usercreatorid = '.$userid.' AND proposals.experimentid = questions.id   AND questions.room = "'.$room.'" ';
+	$sql = "SELECT questions.id FROM questions, proposals 
+		WHERE proposals.usercreatorid = $userid 
+		AND proposals.experimentid = questions.id AND questions.room = '$room'";
+		
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
 		$questions[]=$row[0];
 	}
 
-	$sql = 'SELECT questions.id  FROM questions, proposals, endorse WHERE endorse.userid = ".$userid." AND endorse.proposalid=proposals.id AND proposals.experimentid = questions.id AND questions.room = "'.$room.'" ';
+	$sql = "SELECT questions.id FROM questions, proposals, endorse 
+		WHERE endorse.userid = $userid AND endorse.proposalid=proposals.id 
+		AND proposals.experimentid = questions.id AND questions.room = '$room'";
+	
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
@@ -3316,7 +3350,7 @@ function ActivityInRoom($userid,$room)
 function RoomsUsed($userid)
 {
 	$rooms=array();
-	$sql = "SELECT questions.room  FROM questions WHERE questions.usercreatorid = ".$userid." ";
+	$sql = "SELECT room FROM questions WHERE usercreatorid = $userid";
 	#	echo $sql;
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
@@ -3350,7 +3384,7 @@ function RoomsUsed($userid)
 
 function IsSubscribed($question,$userid)
 {
-	$sql = "SELECT * FROM updates WHERE question = ".$question." AND  user = ".$userid." LIMIT 1 ";
+	$sql = "SELECT * FROM `updates` WHERE `question` = $question AND `user` = $userid LIMIT 1";
 	$response = mysql_query($sql);
 	if ($response)
 	{
@@ -6848,7 +6882,14 @@ function WriteQuestionInfo($question,$userid)
 {
 	global $bitly_user, $bitly_key;
 	
-	$QuestionInfo=GetQuestion($question);
+	$QuestionInfo = GetQuestion($question);
+	
+	if (!$QuestionInfo)
+	{
+		// no question found
+		return false;
+	}
+	
 	$title=$QuestionInfo['title'];
 	$content=$QuestionInfo['question'];
 	$room=$QuestionInfo['room'];

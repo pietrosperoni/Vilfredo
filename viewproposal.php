@@ -15,16 +15,18 @@ include('header.php');
 	// sanitize url
 	if ( !isset($_GET[QUERY_KEY_PROPOSAL]) || !is_numeric($_GET[QUERY_KEY_PROPOSAL]) )
 	{
-		header("Location: viewquestions.php");
+		header("Location: error_page.php");
+		exit;
 	}
 	
 	// Check if user has room access.
 	if (!HasProposalAccess())
 	{
 		header("Location: viewquestions.php");
+		exit;
 	}
 	
-	$proposal = $_GET[QUERY_KEY_PROPOSAL];
+	$proposal = (int)$_GET[QUERY_KEY_PROPOSAL];
 	
 	$question=GetProposalsQuestion($proposal);
 	WriteQuestionInfo($question,$userid);

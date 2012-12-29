@@ -29,18 +29,18 @@ $(".foottip a").tooltip({
 <?php
 	if ( !isset($_GET['u']) || !is_numeric($_GET['u']) )
 	{
-		header("Location: viewquestions.php");
+		header("Location: error_page.php");
+		exit;
 	}
-
+	
 	$uid = (int)$_GET['u'];
 
 	$sql = "SELECT `username` FROM `users` WHERE `id` = $uid";
-	set_log($sql);
 	$response = mysql_query($sql);
 	
 	if (!$response || !mysql_num_rows($response))
 	{
-		echo "Ooops, there was a problem. User with that id doesn't exist.";
+		header("Location: error_page.php");
 		exit;
 	}
 	

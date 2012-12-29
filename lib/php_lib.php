@@ -76,11 +76,6 @@ function GetMySQLEscapedGetParam($key)
 	$param = mysql_real_escape_string(GetEscapedGetParam($key));
 	return $param;
 }
-function GetMySQLEscapedString($str)
-{
-	$str = mysql_real_escape_string($str);
-	return $str;
-}
 function checkMaxStringLength($str, $maxlen)
 {
 	return strlen($str) <= $maxlen;
@@ -90,31 +85,53 @@ function checkMinStringLength($str, $minlen)
 	return strlen($str) >= $minlen;
 }
 
-/*
-function GetEscapedPostParam($key)
+function fetchValidIntValFromQueryWithKey($key)
 {
-	if (empty($_POST[$key]))
-		return '';
-	$param = $_POST[$key];
-	if (!get_magic_quotes_gpc()) 
+	if ( !isset($_GET[$key]) || !ctype_digit($_GET[$key]) )
 	{
-		$param = addslashes($param);
+		// Not valid, return false
+		return false;
 	}
-	return $param;
+	else
+	{
+		// Valid, return query value as int
+		return (int)$_GET[$key];
+	}
 }
-
-function GetEscapedGetParam($key)
+function fetchValidQuestionFromQuery()
 {
-	if (empty($_GET[$key]))
-		return '';
-	$param = $_GET[$key];
-	if (!get_magic_quotes_gpc()) 
+	if ( !isset($_GET[QUERY_KEY_QUESTION]) || !ctype_digit($_GET[QUERY_KEY_QUESTION]) )
 	{
-		$param = addslashes($param);
+		// Not valid, return false
+		return false;
 	}
-	return $param;
+	else
+	{
+		// Valid, return query value as int
+		return (int)$_GET[QUERY_KEY_QUESTION];
+	}
+}	
+function fetchValidRoomFromQuery()
+{
+	if ( !isset($_GET[QUERY_KEY_ROOM]) )
+	{
+		// Not set, return empty string
+		return "";
+	}
+	elseif ( isset($_GET[QUERY_KEY_ROOM]) && 
+		( hasTags($_GET[QUERY_KEY_ROOM]) 
+		|| !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM) 
+		|| !checkMinStringLength($_GET[QUERY_KEY_ROOM], MIN_LEN_ROOM) ) )
+	{
+		// Not valid, return false
+		return false;
+	}
+	else
+	{
+		// Valid, return query value
+		return GetEscapedGetParam(QUERY_KEY_ROOM);
+	}
 }
-*/
 
 function boolString($bValue = false) {                      
 	// returns string
@@ -146,6 +163,29 @@ function simplexml_merge (SimpleXMLElement &$xml1, SimpleXMLElement $xml2)
             $dom1->importNode($xpathQuery->item($i), true));
     }
     $xml1 = simplexml_import_dom($dom1);
+}
+
+// Errors
+function setError($err)
+{
+	$_SESSION['error'] = $err;
+}
+function getError($clear = true)
+{
+	$err = $_SESSION['error'];
+	if ($clear)
+	{
+		clearError();
+	}
+	return $err;
+}
+function clearError()
+{
+	unset($_SESSION['error']);
+}
+function isError()
+{
+	return isset($_SESSION['error']); 
 }
 
 function printbrx($str='', $lines=2, $quit=FALSE)
