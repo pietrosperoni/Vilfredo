@@ -5623,13 +5623,23 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 	return "map/map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
 }
 
-function MapName_1($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+#function MapName_1($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+#{
+##	echo "highlightproposal1 in MapName=".$highlightproposal1;
+#	
+#	$room=GetQuestionRoom($question);
+#	return "map/".$size."map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
+#}
+
+
+function DeleteGraph($question,$generation)
 {
-#	echo "highlightproposal1 in MapName=".$highlightproposal1;
-	
 	$room=GetQuestionRoom($question);
-	return "map/".$size."map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
+	$generation=(int)$generation;
+	$GeneralName="map/map_R".$room."_Q".$question."_G".$generation."_*.*";
+	system("rm ".$GeneralName); //WARNING THIS DELETES ALL THE FILES IN THE MAP FOLDER THAT HAVE THAT Q G AND R
 }
+
 
 function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 {
@@ -5777,6 +5787,8 @@ function NewEndorsersToAProposal($proposal,$proposals_covered)
 	}
 	return array_diff(EndorsersToAProposal($proposal), 	array_unique($VotersKnown));
 }
+
+
 
 
 
@@ -6118,7 +6130,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			
 			if( count( EndorsersToAProposal($pc) ) == 0 ) #an empty array is trivially dominated by everything. But that is so trivial that it simplifies the graph if we just do not show those lines. 
 			{
-				$color="lightgray";
+				#$color="lightgray";
+				$color="white";
 			}
 			
 			
