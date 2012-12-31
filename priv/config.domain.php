@@ -3,6 +3,12 @@
 // CONSTANTS
 //
 //******************************************
+//************** HASH SEEDS *****************
+// Used in sys.php
+define("PWD_HASH_PREFIX", "");
+define("ID_SALT", "");
+//*******************************************
+//
 // Set domain for email links
 define("SITE_DOMAIN", "http://" . $_SERVER['HTTP_HOST']);
 //
