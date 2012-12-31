@@ -12,7 +12,7 @@ case "MY_FACEBOOK_APP_1":
  $facebook_key="";
  $facebook_secret="";
  break;
-case "MY_FACEBOOK_APP_1":
+case "MY_FACEBOOK_APP_2":
  $facebook_key="";
  $facebook_secret="";
  break;
