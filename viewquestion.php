@@ -705,7 +705,13 @@ if ($userid) {
 			
 			if ($userhasvoted)
 			{
-				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div></div>";
+				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div>";
+				echo " </div>";
+				
+				InsertMap($question,$generation,$userid,"L",0);
+				echo "<div class=\"feedback\">";
+				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
+				
 			}
 			?>
 			<form method="post" action="endorse_or_not.php">

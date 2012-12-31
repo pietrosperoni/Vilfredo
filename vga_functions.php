@@ -4980,6 +4980,9 @@ function MoveOnToWriting($question)
 		$phase =	$row2[0];
 		$generation= $row2[1];
 	}
+	
+	DeleteGraph($question,$generation);
+	
 	if($phase==1)
 	{
 		$sql = "UPDATE questions 

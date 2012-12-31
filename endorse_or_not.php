@@ -63,6 +63,9 @@ while ($row2 = mysql_fetch_array($response2))
 {		
 	$roundid =	$row2[0];
 }
+
+DeleteGraph($question,$roundid);
+
 $nEndorsers=CountEndorsers($question,$roundid);
 
 $allproposals=array();	
@@ -110,6 +113,7 @@ foreach ($allproposals as $p)
 }
 
 $NEWnEndorsers=CountEndorsers($question,$roundid);
+DeleteGraph($question,$roundid);
 if(	$nEndorsers< $NEWnEndorsers)
 {
 	AwareAuthorOfNewEndorsement($question);
