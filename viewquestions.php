@@ -10,9 +10,6 @@ require_once('header.php');
 
 //set_log('viewquestions.php USERID = '.$userid);
 
-$svg_dir = BUBBLES_SVG;
-$bubblesdir = BUBBLES_DIR;
-
 #$userid=isloggedin();
 //if ($userid)
 //{

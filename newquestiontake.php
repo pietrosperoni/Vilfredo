@@ -1,6 +1,5 @@
 <?php
 include('header.php');
-include(BUBBLES_DIR.'/velocity_time.php');
 
 if ($userid)
 {

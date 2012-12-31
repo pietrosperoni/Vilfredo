@@ -92,38 +92,8 @@ $week_and_a_half = $VGA_CONTENT['week and a half'];
 */
       ?>      
       </h3>
-      
-      
-  <script type="text/javascript" src="<?=BUBBLES_DIR?>/js/cookies/jquery.cookie.js"></script>
- 
- <script type="text/javascript">
- var cookieexpires = 3; //days
-  $(function() {
- 	 $("input:radio[name=questiontype]").click(function() {
-		 if ($(this).val() == 'bubble')
-		 {
-		 	$.cookie('btab', 'b', {expires: cookieexpires});
-		 	$('#vgaquestionoptions').slideUp(1000);
-		 	$('#vgaquestionintro').fadeOut(1000, function() {
-		 		$('#bubblequestionintro').fadeIn(1000);
-		 	});
-		 	$('#choosequestiontype').css({'background-color' : '#3399FF', 'color' : 'white', 'background-image' : 'url(images/bubble-small.gif)'});
-		 }
-		 else
-		 {
-		 	$.cookie('btab', null);
-		 	$('#vgaquestionoptions').slideDown(1000);
-		 	$('#bubblequestionintro').fadeOut(1000, function() {
-				$('#vgaquestionintro').fadeIn(1000);
-		 	});
-		 	$('#choosequestiontype').css({'background-color' : '#cdffcc', 'color' : 'black', 'background-image' : 'url(images/pareto_fb.png)'});
-		 }
-   	});
-   	
- });
-</script>
+       
 
-      
     <div id="vgaquestionoptions">  
     
   <!--   <h3>Complete the Following Options for a VGA Open Question Only</h3> -->
