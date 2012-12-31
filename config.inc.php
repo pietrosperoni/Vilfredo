@@ -1,6 +1,11 @@
 <?php
 // Start session for login and redirects
 session_start();
+//*******************
+if (!is_dir("logs"))
+{
+	mkdir("logs", 0755);
+}
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
 require_once "priv/config.domain.php";
@@ -36,7 +41,6 @@ define("MAX_LEN_ROOM", 20);
 define("MIN_LEN_ROOM", 2);
 define("MAX_LEN_PASSWORD", 60);
 define("MIN_LEN_PASSWORD", 6);
-
 
 // ******************************************
 // Connects to the Database
