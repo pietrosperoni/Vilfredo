@@ -1,14 +1,8 @@
 <?php
-
-define("PWD_HASH_PREFIX", ""); #define the prefix for the password autentication
-define("ID_SALT", ""); #define the salt for the password autentication
-
-// NEW *********
 if (!function_exists('checkUserPassword')) 
 {
 	function checkUserPassword($userid, $password, $dbhash)
 	{
-		//set_log(__FUNCTION__." in sys.php called....");
 		// Check against hash
 		if (encryptPWD($password) == $dbhash)
 		{
@@ -25,15 +19,19 @@ if (!function_exists('encryptUserPassword'))
 {
 	function encryptUserPassword($password)
 	{
-		//set_log(__FUNCTION__." in sys.php called....");
 		return encryptPWD($password);
 	};
 }
-//**************
 
 function encryptPWD3($password, $prefix=PWD_HASH_PREFIX)
 {
 	return hash('sha256', $prefix . $password);
+}
+
+function createEmailVerificationKey($username, $email)
+{
+	$key = $username . $email  . date('mY');
+	return md5($key);
 }
 
 function encryptPWD2($password, $prefix=PWD_HASH_PREFIX)
@@ -56,33 +54,21 @@ function generateTOKEN()
 	return md5(uniqid(rand(), TRUE));
 }
 
-// NEW *********
-if (!function_exists('checkUserPassword')) 
+function gen_uuid($len=10)
 {
-	function checkUserPassword($userid, $password, $dbhash)
-	{
-		set_log(__FUNCTION__." in sys.php called....");
-		// Check against hash
-		if (encryptPWD($password) == $dbhash)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	};
-}
+    $hex = md5(ID_SALT . uniqid("", true));
 
-if (!function_exists('encryptUserPassword')) 
-{
-	function encryptUserPassword($password)
-	{
-		set_log(__FUNCTION__." in sys.php called....");
-		return encryptPWD($password);
-	};
+    $pack = pack('H*', $hex);
+
+    $uid = base64_encode($pack);        // max 22 chars
+
+    $uid = ereg_replace("[^A-Za-z0-9]", "", $uid);    // mixed case
+
+    while (strlen($uid)<$len)
+        $uid = $uid . gen_uuid(22);     // append until length achieved
+
+    return substr($uid, 0, $len);
 }
-//**************
 
 function generateIDENTIFIER($userid, $salt = ID_SALT)
 {
