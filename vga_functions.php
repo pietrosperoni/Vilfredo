@@ -6150,6 +6150,12 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 				$color="red";
 			}
 			
+			if( count( EndorsersToAProposal($pc) ) == 0 ) #an empty array is trivially dominated by everything. But that is so trivial that it simplifies the graph if we just do not show those lines. 
+			{
+				$color="lightgray";
+			}
+			
+			
 			if($highlightproposal1)
 			{			
 				if($highlightproposal1===$pc OR in_array($pc,$proposals_above[$highlightproposal1]))	{$color="red";}
