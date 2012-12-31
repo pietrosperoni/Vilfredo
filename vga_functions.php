@@ -5912,7 +5912,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$endorsers=Endorsers($question,$generation);
 	$authors=array_merge(AuthorsOfInheritedProposals($question,$generation),AuthorsOfNewProposals($question,$generation));
 	$pure_authors=array_diff($authors,$endorsers);
-	$pf=ParetoFront($question,$generation);
+	$pf=CalculateParetoFront($question,$generation);
+	#$pf=ParetoFront($question,$generation);
 	$room=GetQuestionRoom($question);
 	$Bundled=array();
 	
