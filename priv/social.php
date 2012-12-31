@@ -8,25 +8,37 @@
 
 switch (FACEBOOK_APPLICATION) #you probably will have several applications on facebook connected with your vilfredo. Here is where you chose which one is active
 {
-case "TEST VGA":
+case "MY_FACEBOOK_APP_1":
  $facebook_key="";
  $facebook_secret="";
  break;
-case "SURF VGA":
- $facebook_key="";
- $facebook_secret="";
- break;
-case "VILFREDO":
- $facebook_key="";
- $facebook_secret="";
- break;
-case "TEST VILFREDO":
+case "MY_FACEBOOK_APP_1":
  $facebook_key="";
  $facebook_secret="";
  break;
 default: 
- error('No Application defined.');
+ exit('No Application defined.');
 }
  
-
+switch (FACEBOOK_APPLICATION)
+{
+case "MY_FACEBOOK_APP_1":
+	$vga_facebook = array(
+		"key" => "",
+		"secret" => "",
+		"canvas" => urlencode(""),
+		"app_id" => ""
+	);
+	break;
+case "MY_FACEBOOK_APP_1":
+	$vga_facebook = array(
+		"key" => "",
+		"secret" => "",
+		"canvas" => urlencode(""),
+		"app_id" => ""
+	);
+	break;
+default: 
+	exit('No Application defined.');
+}
 ?>
