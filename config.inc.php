@@ -5,7 +5,7 @@ session_start();
 // DOMAIN SPECIFIC SETTINGS
 require_once "priv/config.domain.php";
 require_once "priv/dbdata.php";
-require_once "priv/sys.php";
+require_once "sys.php";
 require_once "priv/social.php";
 require_once 'lib/phpass-0.3/PasswordHash.php';
 #require_once 'priv/bubbles.config.php';

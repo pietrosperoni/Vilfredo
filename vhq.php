@@ -14,21 +14,30 @@ include('header.php');
 // sanitize url
 if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
 {
-	header("Location: viewquestions.php");
+	header("Location: error_page.php");
+	exit;
 }
 
 if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM)) )
 {
-	header("Location: viewquestions.php");
+	header("Location: error_page.php");
+	exit;
 }
 
-$question = $_GET[QUERY_KEY_QUESTION];
-
+$question = (int)$_GET[QUERY_KEY_QUESTION];
 $room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+
+
+$QuestionInfo = GetQuestion($question);
+
+if (!$QuestionInfo)
+{
+	header("Location: error_page.php");
+	exit;
+}
 
 WriteQuestionInfo($question,$userid);
 
-$QuestionInfo=GetQuestion($question);
 $title=$QuestionInfo['title'];
 $content=$QuestionInfo['question'];
 #	$room=$QuestionInfo['room'];

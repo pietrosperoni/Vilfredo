@@ -34,35 +34,40 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 // sanitize url
 if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
 {
-	header("Location: viewquestions.php");
+	header("Location: error_page.php");
+	exit;
 }
 
 if ( !isset($_GET[QUERY_KEY_GENERATION]) || !is_numeric($_GET[QUERY_KEY_GENERATION]) )
 {
-	header("Location: viewquestions.php");
+	header("Location: error_page.php");
+	exit;
 }
 
 if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM)) )
 {
-	header("Location: viewquestions.php");
+	header("Location: error_page.php");
+	exit;
 }
+
 
 if (!HasQuestionAccess())
 {
 	header("Location: viewquestions.php");
+	exit;
 }
 
-$question = $_GET[QUERY_KEY_QUESTION];
-$generation = $_GET[QUERY_KEY_GENERATION];
-
+$question = (int)$_GET[QUERY_KEY_QUESTION];
+$generation = (int)$_GET[QUERY_KEY_GENERATION];
 $room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+
 
 //$room = ucfirst($room);
 
 
 WriteQuestionInfo($question,$userid);
 
-$QuestionInfo=GetQuestion($question);
+$QuestionInfo = GetQuestion($question);
 $title=$QuestionInfo['title'];
 $content=$QuestionInfo['question'];
 $room=$QuestionInfo['room'];

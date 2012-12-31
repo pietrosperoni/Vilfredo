@@ -126,8 +126,8 @@ function register_user()
 	}
 
 	// here we encrypt the password and add slashes if needed
-	$username = GetMySQLEscapedString($username);
-	$email = GetMySQLEscapedString($email);
+	$username = mysql_real_escape_string($username);
+	$email = mysql_real_escape_string($email);
 	//$password = encryptPWD($password);
 	$password = encryptUserPassword($pass);
 
