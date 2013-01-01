@@ -3,7 +3,7 @@
 // Useful functions
 // ****************************************
 //
-// For cleaning POST & GET before input into DB
+// For cleaning POST & GET before input
 function clean_input_string($input)
 {
 	if (is_string($input))
@@ -132,7 +132,50 @@ function fetchValidRoomFromQuery()
 		return GetEscapedGetParam(QUERY_KEY_ROOM);
 	}
 }
-
+//
+function fetchValidIntValFromPostWithKey($key)
+{
+	if ( !isset($_POST[$key]) || !ctype_digit($_POST[$key]) )
+	{
+		// Not valid, return false
+		return false;
+	}
+	else
+	{
+		// Valid, return query value as int
+		return (int)$_POST[$key];
+	}
+}	
+function fetchValidRoomFromPostWithKey($key)
+{
+	if ( !isset($_POST[QUERY_KEY_ROOM]) )
+	{
+		// Not set, return empty string
+		return "";
+	}
+	elseif ( isset($_POST[QUERY_KEY_ROOM]) && 
+		( hasTags($_POST[QUERY_KEY_ROOM]) 
+		|| !checkMaxStringLength($_POST[QUERY_KEY_ROOM], MAX_LEN_ROOM) 
+		|| !checkMinStringLength($_POST[QUERY_KEY_ROOM], MIN_LEN_ROOM) ) )
+	{
+		// Not valid, return false
+		return false;
+	}
+	else
+	{
+		// Valid, return query value
+		return GetEscapedPostParam(QUERY_KEY_ROOM);
+	}
+}
+function generateRandomString($length) 
+{
+	$random = '';
+	for ($i = 0; $i < $length; $i++) 
+	{
+		$random .= chr(rand(ord('a'), ord('z')));
+	}
+	return $random;
+}
 function boolString($bValue = false) {                      
 	// returns string
 	return ($bValue ? 'true' : 'false');
