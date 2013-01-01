@@ -8,12 +8,16 @@ if (!is_dir("logs"))
 }
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
-require_once "priv/config.domain.php";
-require_once "priv/dbdata.php";
+@include "priv.php";
+if (!defined("PRIV"))
+{
+	define("PRIV", "priv");
+}
+require_once PRIV."/config.domain.php";
+require_once PRIV."/dbdata.php";
 require_once "sys.php";
-require_once "priv/social.php";
+require_once PRIV."/social.php";
 require_once 'lib/phpass-0.3/PasswordHash.php';
-#require_once 'priv/bubbles.config.php';
 
 require_once 'process_input.php';
 require_once 'graphs.php';
@@ -33,14 +37,12 @@ if (defined('LOG_DIRECTORY'))
 	define("LOG_FILE", LOG_DIRECTORY."vga.log");
 }
 
-ini_set('error_reporting', E_ALL & ~E_NOTICE);
-
 define("MAX_LEN_EMAIL", 60);
-define("MAX_LEN_USERNAME", 60);
-define("MAX_LEN_ROOM", 20);
-define("MIN_LEN_ROOM", 2);
+define("MAX_LEN_USERNAME", 50);
 define("MAX_LEN_PASSWORD", 60);
 define("MIN_LEN_PASSWORD", 6);
+define("MAX_LEN_ROOM", 20);
+define("MIN_LEN_ROOM", 2);
 
 // ******************************************
 // Connects to the Database
