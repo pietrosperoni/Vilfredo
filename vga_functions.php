@@ -3180,7 +3180,7 @@ function ProposalsToAnEndorser($user,$question,$generation)
 	{
 		array_push($proposals,$row[0]);
 	}
-	return $proposals;
+	return array_unique($proposals);
 }
 
 
@@ -5827,15 +5827,15 @@ function NewEndorsersToAProposal($proposal,$proposals_covered)
 
 
 
-
+//this takes a list of ALL the proposals and combines the one that have been voted by the same people. And then returns 
+//an array of the combined proposals
 
 function CombineProposals($proposals)
 {
 	$Combined2Proposals=array();
 	$Proposals2Combined=array();
 	sort($proposals);
-	foreach ($proposals as $p)	{$Proposals2Combined[$p]=$p;}
-		
+	foreach ($proposals as $p)	{$Proposals2Combined[$p]=$p;} //starts by making a dictionary that makes each proposal linked to itself
 	foreach ($proposals as $p)
 	{
 		if ($Proposals2Combined[$p]!=$p){continue;}#we have already done this bundle
@@ -5844,7 +5844,7 @@ function CombineProposals($proposals)
 			if ($p>=$q OR $Proposals2Combined[$q]!=$q){continue;}	#we have already done this bundle
 			if(HaveSameElements(EndorsersToAProposal($p),EndorsersToAProposal($q)))			
 			{
-				$Proposals2Combined[$q]=$Proposals2Combined[$p];#if P is already part of a bundle it will point to its lowest member, if not we point q to p (which is lower)
+				$Proposals2Combined[$q]=$Proposals2Combined[$p];#if P is already part of a bundle it will point to its lowest member, if not we point q to p (which is <)
 				$Combined2Proposals[$Proposals2Combined[$p]]=array();
 			}
 		}
@@ -5856,9 +5856,78 @@ function CombineProposals($proposals)
 	}
 	return $Combined2Proposals;
 }
+//this takes a list of ALL the users participating in a voting and combines the one that have  voted for the same proposals. And then returns 
+//an array of the combined users
+function CombineUsers($users,$question,$generation)
+{
+	$Combined2Users=array();
+	$Users2Combined=array();
+	sort($users);
+	foreach ($users as $u)	{$Users2Combined[$u]=$u;} //starts by making a dictionary that makes each proposal linked to itself
+	foreach ($users as $u)
+	{
+		if ($Users2Combined[$u]!=$u){continue;}#we have already done this bundle
+		foreach ($users as $v)
+		{
+			if ($u>=$v OR $Users2Combined[$v]!=$v){continue;}	#we have already done this bundle
+			if(HaveSameElements(ProposalsToAnEndorser($u,$question,$generation),ProposalsToAnEndorser($v,$question,$generation)))		
+			{
+				$Users2Combined[$v]=$Users2Combined[$u];#if U is already part of a bundle it will point to its lowest member, if not we point v to u (which is lower)
+				$Combined2Users[$Users2Combined[$u]]=array();
+			}
+		}
+	}
+	foreach ($users as $u)
+	{	
+		if($Users2Combined[$u]!=$u)		
+			{array_push($Combined2Users[$Users2Combined[$u]],$u);}
+	}
+	
+	return $Combined2Users;
+}
 
 
-function WriteBundle($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightproposal1=0)
+function WriteBundledUsers($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightuser1=0)
+{
+	$answer="";
+	$color="black";
+	$peripheries=0;
+	$BundleSize=sizeof($BundleContent);	
+	
+	#$buf.='"'.WriteUserName($BundleName).'" ';
+	
+	$answer.='"'.WriteUserName($BundleName).'" '.' [shape=plaintext '.$details.' fontsize=11 label=<<TABLE BORDER="0" '.$detailsTable.' CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">';
+#	$answer.='"'.WriteUserName($BundleName).'" '.' [shape=plaintext '.$details.' fontsize=11 label=<<TABLE BORDER="0" '.$detailsTable.' CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR><TR>';
+#	$answer.=$BundleName.' [shape=plaintext '.$details.' fontsize=11 label=<<TABLE BORDER="0" '.$detailsTable.' CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR><TR>';
+
+	if (in_array($highlightuser1,$BundleContent))
+	{
+		$u=$highlightuser1;
+		$urlquery=$u;
+		$tooltip=WriteUserName($u);
+		$tooltip=str_replace ( "&" , "&amp;" , $tooltip );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+		$ToAdd='';
+		$ToAdd=' BGCOLOR="red" '; #WE WRITE THE HIGHLIGHTED USER BEFORE; AND ON A DIFFERENT COLOR
+		$answer.='<TR><TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/user.php?u='.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.WriteUserName($u).'</TD></TR>';	
+	}
+	foreach ($BundleContent as $u)
+	{
+		if ($highlightuser1==$u){continue;} #THIS HAS ALREADY BEEN WRITTEN
+		$urlquery=$u;
+		$tooltip=WriteUserName($u);
+		$tooltip=str_replace ( "&" , "&amp;" , $tooltip );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+		$ToAdd='';
+		$answer.='<TR><TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/user.php?u='.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.WriteUserName($u).'</TD></TR>';	
+	}
+#	$answer.='</TR><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR></TABLE>>]';
+	$answer.='</TABLE>>]';
+	$answer.="\n";
+	return $answer;
+}
+
+
+
+function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightproposal1=0)
 {
 	$answer="";
 	$color="black";
@@ -5889,8 +5958,6 @@ function WriteBundle($BundleName,$BundleContent,$room,$details,$detailsTable,$hi
 	return $answer;
 }
 
-
-
 #Possible Values for $ShowNSupporters=true /false
 #$size="7.5,10
 #10,16.18
@@ -5915,7 +5982,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$pf=CalculateParetoFront($question,$generation);
 	#$pf=ParetoFront($question,$generation);
 	$room=GetQuestionRoom($question);
-	$Bundled=array();
+	$BundledProposals=array();
+	$BundledUsers=array();
 	
 	foreach ($proposals as $p)
 	{
@@ -5933,13 +6001,14 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	{
 		$Levels=FindLevels($proposals_covered,$proposals);
 	}
+	
 	if($bundles)	
 	{
 		$Combined2Proposals=CombineProposals($proposals);
 		$keys=array_keys($Combined2Proposals);
 		foreach($keys as $kc2p)
 		{
-			$Bundled=array_merge($Bundled,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
+			$BundledProposals=array_merge($BundledProposals,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
 			array_push($Combined2Proposals[$kc2p],$kc2p);
 		}
 	}
@@ -5947,6 +6016,22 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	{
 		$Combined2Proposals=array();
 	}
+	
+	if($bundles)	
+	{
+		$Combined2Users=CombineUsers($endorsers,$question,$generation);
+		$keys=array_keys($Combined2Users);
+		foreach($keys as $kc2u)
+		{
+			$BundledUsers=array_merge($BundledUsers,$Combined2Users[$kc2u]);#Bundled elements don't need to be drawn
+			array_push($Combined2Users[$kc2u],$kc2u);
+		}
+	}
+	else  	
+	{
+		$Combined2Users=array();
+	}
+		
 	$LevelsKeys=array_keys($Levels);#print_r($LevelsKeys);
 	foreach ($LevelsKeys as $l)
 	{	
@@ -5978,8 +6063,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		$buf.='{rank=same; "'.$l.'" ';			
 		foreach ($Levels[$l] as $p)
 		{
-			if(in_array($p,$Bundled)){	continue;}
-			$buf.=" ".$p." ";			
+			if(in_array($p,$BundledProposals)){	continue;}
+			$buf.=" ".$p." ";
 		}		
 		$buf.="}\n";					
 	}
@@ -5987,39 +6072,73 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$buf.="{rank=same; Voters ";
 	foreach ($endorsers as $e)
 	{
-		$buf.='"'.WriteUserName($e).'" ';					
+		if(in_array($e,$BundledUsers))
+			{continue;}
+		$buf.='"'.WriteUserName($e).'" ';				
 	}
 	$buf.="}\n";					
 	
-	foreach ($endorsers as $e)
+	$keys=array_keys($Combined2Users);
+	foreach ($keys as $kc2u)
 	{
-		$color="lightpink3";		
+		$detailsTable='  ';				
+		
+		$color="black";		
 		$fillcolor="lightpink3";
-		$peripheries=1;
+		$peripheries=0;
 
 		if($highlightproposal1)
 		{		
 			if(in_array($e,EndorsersToAProposal($highlightproposal1)))		
 			{
 				$color="red";
-				$peripheries=2;						
+				$peripheries=1;						
+			}
+		}
+		if($highlightuser1===$e)
+		{
+			$color="black";
+#			$peripheries=1;			
+		}
+		
+		$detailsTable=' BGCOLOR="lightpink3" ';	
+		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
+		#$details=' style=filled color='.$color.' peripheries='.$peripheries.' ';
+		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1);
+	}
+
+	foreach ($endorsers as $e)
+	{
+		if(in_array($e,$BundledUsers)){	continue;}
+		if(in_array($e,array_keys($Combined2Users))){	continue;}
+		
+#		$detailsTable='  ';				
+
+		$color="lightpink3";		
+		$fillcolor="lightpink3";
+		$peripheries=0;
+
+		if($highlightproposal1)
+		{		
+			if(in_array($e,EndorsersToAProposal($highlightproposal1)))		
+			{
+				$color="red";
+				$peripheries=1;						
 			}
 		}
 		if($highlightuser1===$e)
 		{
 			$color="red";
-			$peripheries=2;			
+			$peripheries=1;			
 		}
+
+#		$detailsTable=' BGCOLOR="lightpink3" ';	
+		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
+
 		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
 		$buf.="\n";					
 	}
-	
-	#$buf.='{rank=same; "Authors who did not vote" ';		
-	#foreach ($pure_authors as $pa)
-	#{
-#		$buf.='"'.WriteUserName($pa).'" ';					
-#	}
-#	$buf.="}\n";					
+
 	$keys=array_keys($Combined2Proposals);
 	foreach($keys as $kc2p)	
 	{  
@@ -6072,12 +6191,12 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			$details=' fillcolor=white color='.$color.' peripheries='.$peripheries.' ';						
 		}
 		
-		$buf.=WriteBundle($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1);
+		$buf.=WriteBundledProposals($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1);
 	}
 	
 	foreach ($proposals as $p)
 	{
-		if(in_array($p,$Bundled)){	continue;}
+		if(in_array($p,$BundledProposals)){	continue;}
 		if(in_array($p,array_keys($Combined2Proposals))){	continue;}
 		$color="black";
 		$peripheries=1;
@@ -6146,12 +6265,8 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	foreach ($proposals as $p)
 	{
 		$pcolor="black";
-		if(in_array($p,$Bundled)){continue;}
+		if(in_array($p,$BundledProposals)){continue;}
 		$pcs=$proposals_covered[$p];
-		
-		#if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1])) 			{$pcolor="red";}		
-#		print_r($proposals_below[$highlightproposal1]);
-#		echo "highlightproposal1=",$highlightproposal1;
 		if($highlightproposal1)
 		{
 			if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
@@ -6160,7 +6275,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		foreach ($pcs as $pc)
 		{
 			$color=$pcolor;
-			if(in_array($pc,$Bundled)){	continue;}
+			if(in_array($pc,$BundledProposals)){	continue;}
 			if(in_array($highlightuser1,EndorsersToAProposal($pc)))
 			{
 				$color="red";
@@ -6184,15 +6299,23 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	
 	foreach ($proposals as $p)
 	{
-		if(in_array($p,$Bundled)){continue;}
+		if(in_array($p,$BundledProposals)){continue;}
 		
 		if($ShowAllEndorsments)	{$endorserstothis=EndorsersToAProposal($p);			}
 		else{$endorserstothis=NewEndorsersToAProposal($p,$proposals_covered);}
 
 		foreach ($endorserstothis as $e)
 		{
-			$color="blue";
-			if($highlightuser1==$e){$color="red";	}
+			if(in_array($e,$BundledUsers)){	continue;}
+			$color="blue";			
+			if($highlightuser1===$e)
+				{$color="red";	}
+			$keys=array_keys($Combined2Proposals);
+			if(in_array($e,$keys))
+				{
+					if(in_array($highlightuser1,$Combined2Users[$e]))
+						{$color="red";	}
+				}
 			if ($highlightproposal1>0)
 			{
 				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
