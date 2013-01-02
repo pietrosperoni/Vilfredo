@@ -12,6 +12,11 @@ body {
 	width: 100%;
 }
 
+.fb_iframe_widget iframe {
+	position: relative; 
+	top: -5px;
+}
+
 .navbar {
 	margin: 0;
 	padding: 0;
