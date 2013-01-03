@@ -8,7 +8,18 @@ if (!is_dir("logs"))
 }
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
-@include "priv.php";
+
+// Look in current directory then above root for priv.php
+if (realpath($_SERVER["DOCUMENT_ROOT"] . "priv.php"))
+{
+	include "priv.php";
+}
+elseif ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
+{
+	include $privfile;
+}
+
+//@include "priv.php";
 if (!defined("PRIV"))
 {
 	define("PRIV", "priv");
@@ -35,6 +46,7 @@ if (defined('LOG_DIRECTORY'))
 
 	define("ERROR_FILE", LOG_DIRECTORY."vga_error.log");
 	define("LOG_FILE", LOG_DIRECTORY."vga.log");
+	define("BAD_INPUT_LOG", LOG_DIRECTORY."bad_input.log");
 }
 
 define("MAX_LEN_EMAIL", 60);
