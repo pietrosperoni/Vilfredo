@@ -5391,14 +5391,14 @@ function WhoDominatesWho($proposal1,$proposal2)
 function CalculateKeyPlayers($question,$generation)
 {	
 	$paretofront=ParetoFront($question,$generation); //this uses the PF stored
-	return CalculateKeyPlayers($question,$generation,$paretofront);
+	return CalculateKeyPlayersKnowingPF($question,$generation,$paretofront);
 }
 function CalculateKeyPlayersInteractive($question,$generation)
 {	
 	$paretofront=CalculateParetoFront($question,$generation); //this recalculates each time the PF
-	return CalculateKeyPlayers($question,$generation,$paretofront);
+	return CalculateKeyPlayersKnowingPF($question,$generation,$paretofront);
 }
-function CalculateKeyPlayers($question,$generation,$paretofront) //you should never use this directly. Instead use the one above. Unless you already have the PF.
+function CalculateKeyPlayersKnowingPF($question,$generation,$paretofront) //you should never use this directly. Instead use the one above. Unless you already have the PF.
 {	
 	$users=Endorsers($question,$generation);//	$LightProposals=array();
 	$CouldDominate=array();
