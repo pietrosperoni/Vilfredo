@@ -10,7 +10,7 @@ if (!is_dir("logs"))
 // DOMAIN SPECIFIC SETTINGS
 
 // Look in current directory then above root for priv.php
-if (realpath($_SERVER["DOCUMENT_ROOT"] . "priv.php"))
+if (realpath($_SERVER["DOCUMENT_ROOT"] . "/priv.php"))
 {
 	include "priv.php";
 }
