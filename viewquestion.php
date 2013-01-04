@@ -712,6 +712,54 @@ if ($userid) {
 				echo " </div>";
 				
 				InsertMap($question,$generation,$userid,"L",0);
+				
+				$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
+				if (count($ProposalsCouldDominate) > 0)
+				{
+					$KeyPlayers=array_keys($ProposalsCouldDominate);
+					if (in_array($userid,$KeyPlayers))
+					{
+						echo '<p>';						
+						foreach ($ProposalsCouldDominate[$userid] as $PCD)
+						{
+							$keyPlayer = WriteUserVsReader($userid,$userid);
+							$proposalNumber = WriteProposalNumber($PCD,$room);
+							$format = $VGA_CONTENT['key_player_exp_txt'];
+							echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
+							echo '<br/>';
+						}
+						echo '</p>';
+					}					
+				}
+				
+				$proposals=GetProposalsInGeneration($question,$generation);
+				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
+				$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
+				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
+
+				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
+				{
+					echo "<div class=\"feedback\">By voting You have changed the results. Without you ";
+					if (sizeof($ParetoFrontPlus))
+					{
+						foreach ($ParetoFrontPlus as $p)	
+							{echo WriteProposalNumber($p,$room);}						
+						echo "would have been in the Pareto Front.";						
+					}
+					if (sizeof($ParetoFrontPlus) AND sizeof($ParetoFrontMinus))
+					{
+						echo " While without you ";						
+					}					
+					if (sizeof($ParetoFrontMinus))
+					{
+						foreach ($ParetoFrontMinus as $p)	
+							{echo WriteProposalNumber($p,$room);}						
+						echo "would NOT have been in the Pareto Front.";
+					}
+					echo "<br /><br /></div>";						
+				}
+				
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
 				
