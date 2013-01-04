@@ -4985,7 +4985,7 @@ function InviteKeyPlayerToRewriteProposal($proposal,$room)
 	
 	'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'
 
-	You can also try our experimental new link (do not  hold your breath that it will work) which should send you directly to a page with 
+	You can also try our new link which will send you directly to a page with 
 	an edit box and the proposal inside, so you can just change it, and submit it
 	'.SITE_DOMAIN.'/npv.php'.$urlquery.'
 	
@@ -5079,6 +5079,7 @@ function ParetoFront($question,$generation)
 //A function, that let you recalculate what the pareto front for a particular generation
 //it is not that useful since we store that information
 //so it is only useful the first time or to check if the pareto front is the same
+//or when we need to recalculate it every time during interactive voting
 //   ********************************************/
 function CalculateParetoFront($question,$generation)
 {
@@ -5388,8 +5389,17 @@ function WhoDominatesWho($proposal1,$proposal2)
 //   This function finds the key players and returns the list of them 
 //****************************************************/
 function CalculateKeyPlayers($question,$generation)
-{	//$keyPlayers=array();
-	$paretofront=ParetoFront($question,$generation);
+{	
+	$paretofront=ParetoFront($question,$generation); //this uses the PF stored
+	return CalculateKeyPlayers($question,$generation,$paretofront);
+}
+function CalculateKeyPlayersInteractive($question,$generation)
+{	
+	$paretofront=CalculateParetoFront($question,$generation); //this recalculates each time the PF
+	return CalculateKeyPlayers($question,$generation,$paretofront);
+}
+function CalculateKeyPlayers($question,$generation,$paretofront) //you should never use this directly. Instead use the one above. Unless you already have the PF.
+{	
 	$users=Endorsers($question,$generation);//	$LightProposals=array();
 	$CouldDominate=array();
 	foreach ($users as $user)
@@ -5408,7 +5418,6 @@ function CalculateKeyPlayers($question,$generation)
 	}
 	return $CouldDominate;//now we need to visualise the information and 
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////This function takes two proposals, and returns 0 if neither dominates the other because they have different users
