@@ -8,12 +8,27 @@ if (!is_dir("logs"))
 }
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
-require_once "priv/config.domain.php";
-require_once "priv/dbdata.php";
+
+// Look in current directory then above root for priv.php
+if (realpath($_SERVER["DOCUMENT_ROOT"] . "priv.php"))
+{
+	include "priv.php";
+}
+elseif ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
+{
+	include $privfile;
+}
+
+//@include "priv.php";
+if (!defined("PRIV"))
+{
+	define("PRIV", "priv");
+}
+require_once PRIV."/config.domain.php";
+require_once PRIV."/dbdata.php";
 require_once "sys.php";
-require_once "priv/social.php";
+require_once PRIV."/social.php";
 require_once 'lib/phpass-0.3/PasswordHash.php';
-#require_once 'priv/bubbles.config.php';
 
 require_once 'process_input.php';
 require_once 'graphs.php';
@@ -31,16 +46,15 @@ if (defined('LOG_DIRECTORY'))
 
 	define("ERROR_FILE", LOG_DIRECTORY."vga_error.log");
 	define("LOG_FILE", LOG_DIRECTORY."vga.log");
+	define("BAD_INPUT_LOG", LOG_DIRECTORY."bad_input.log");
 }
 
-ini_set('error_reporting', E_ALL & ~E_NOTICE);
-
 define("MAX_LEN_EMAIL", 60);
-define("MAX_LEN_USERNAME", 60);
-define("MAX_LEN_ROOM", 20);
-define("MIN_LEN_ROOM", 2);
+define("MAX_LEN_USERNAME", 50);
 define("MAX_LEN_PASSWORD", 60);
 define("MIN_LEN_PASSWORD", 6);
+define("MAX_LEN_ROOM", 20);
+define("MIN_LEN_ROOM", 2);
 
 // ******************************************
 // Connects to the Database

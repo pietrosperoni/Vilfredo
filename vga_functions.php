@@ -3384,6 +3384,10 @@ function RoomsUsed($userid)
 
 function IsSubscribed($question,$userid)
 {
+	if (!$userid)
+	{
+		return 0;
+	}
 	$sql = "SELECT * FROM `updates` WHERE `question` = $question AND `user` = $userid LIMIT 1";
 	$response = mysql_query($sql);
 	if ($response)
@@ -3783,7 +3787,7 @@ function WriteUserVsReader($user,$reader)
 		$answer= $answer.'<sup><img src="images/email.png" height=12 title="' . getVGAContent('receives_emails_title') . '"></sup>';
 		}
 
-		if($reader==$user)
+		if($user && $reader==$user)
 		{
 			$answer='<b>'.$answer.'</b>';
 		}
@@ -3793,6 +3797,10 @@ function WriteUserVsReader($user,$reader)
 	return $answer;
 }
 
+// Parameters don't match up function call from viewquestion.php
+//	
+//	WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
+//
 function WriteProposalOnlyContent($p,$question)#,$generation,$room,$userid)
 {
 #	$OriginalProposal=GetOriginalProposal($p);
@@ -6797,7 +6805,7 @@ function ShowActivity($user,$question,$generation)
 	return $activity;
 }
 
-
+// Doesn't use $userid paramter
 function MakeQuestionMap($userid,$question,$room,$generation,$phase) #the table
 {
 	
@@ -7024,7 +7032,7 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase) #the table
 	echo '</table>';	
 		
 }
-
+//tohere
 function GetProposalsQuestion($proposal)
 {
 	$sql = "SELECT proposals.experimentid FROM proposals WHERE proposals.id = " . $proposal . " ";
