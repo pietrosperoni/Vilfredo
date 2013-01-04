@@ -1,0 +1,4 @@
+<FilesMatch "\.(log|ini|htaccess)$">
+order allow,deny
+deny from all
+</FilesMatch>
