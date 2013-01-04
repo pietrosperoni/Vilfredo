@@ -8,18 +8,21 @@ if (!is_dir("logs"))
 }
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
+//******************************************/
 
-// Look in current directory then above root for priv.php
+#define("TEST_LIVE", TRUE); //test the live site
 
-if (is_file("priv.php"))
-{
-	include "priv.php";
-}
-elseif ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
+// Look above document root then in current directory for priv.php
+if ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
 {
 	include $privfile;
 }
+elseif (is_file("priv.php"))
+{
+	include "priv.php";
+}
 
+// else use the default priv directory
 if (!defined("PRIV"))
 {
 	define("PRIV", "priv");
