@@ -713,22 +713,23 @@ if ($userid) {
 				
 				InsertMap($question,$generation,$userid,"L",0);
 				
-				$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
+				$ProposalsCouldDominate=CalculateKeyPlayersInteractive($question,$generation);
 				if (count($ProposalsCouldDominate) > 0)
 				{
 					$KeyPlayers=array_keys($ProposalsCouldDominate);
 					if (in_array($userid,$KeyPlayers))
 					{
-						echo '<p>';						
+						echo 'div class=\"feedback\"><p>You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal ';						
 						foreach ($ProposalsCouldDominate[$userid] as $PCD)
 						{
-							$keyPlayer = WriteUserVsReader($userid,$userid);
+							
+							#$keyPlayer = WriteUserVsReader($userid,$userid);
 							$proposalNumber = WriteProposalNumber($PCD,$room);
-							$format = $VGA_CONTENT['key_player_exp_txt'];
-							echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
-							echo '<br/>';
+							#$format = $VGA_CONTENT['key_player_exp_txt'];
+							#echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
+							echo ' '.$proposalNumber.', ';
 						}
-						echo '</p>';
+						echo 'and consider if you could vote it.</p></div>';
 					}					
 				}
 				
