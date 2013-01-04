@@ -20,7 +20,6 @@ elseif ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
 	include $privfile;
 }
 
-//@include "priv.php";
 if (!defined("PRIV"))
 {
 	define("PRIV", "priv");
