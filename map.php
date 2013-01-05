@@ -1,9 +1,9 @@
 <?php
 include('header.php');
 
-if (isloggedin())
-{
-?>
+#if (isloggedin())
+#{
+#?>
 
 <h2>Online democracy</h2>
 
@@ -24,11 +24,11 @@ if (isloggedin())
 
 #echo WriteQuestion(52);
 
-}
-else
-{
-		DoLogin();
-}
+#}
+#else
+#{
+#		DoLogin();
+#}
 
 include('footer.php');
 

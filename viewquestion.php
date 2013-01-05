@@ -719,7 +719,7 @@ if ($userid) {
 					$KeyPlayers=array_keys($ProposalsCouldDominate);
 					if (in_array($userid,$KeyPlayers))
 					{
-						echo 'div class=\"feedback\"><p>You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal ';						
+						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
 						foreach ($ProposalsCouldDominate[$userid] as $PCD)
 						{
 							
@@ -727,9 +727,9 @@ if ($userid) {
 							$proposalNumber = WriteProposalNumber($PCD,$room);
 							#$format = $VGA_CONTENT['key_player_exp_txt'];
 							#echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
-							echo ' '.$proposalNumber.', ';
+							echo " ".$proposalNumber.", ";
 						}
-						echo 'and consider if you could vote it.</p></div>';
+						echo "and consider if you could vote it.</div>";
 					}					
 				}
 				
@@ -741,7 +741,7 @@ if ($userid) {
 
 				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
 				{
-					echo "<div class=\"feedback\">By voting You have changed the results. Without you ";
+					echo "<div class=\"feedback\">By voting You have changed the results.<br>Without you ";
 					if (sizeof($ParetoFrontPlus))
 					{
 						foreach ($ParetoFrontPlus as $p)	
@@ -750,7 +750,7 @@ if ($userid) {
 					}
 					if (sizeof($ParetoFrontPlus) AND sizeof($ParetoFrontMinus))
 					{
-						echo " While without you ";						
+						echo "<br>While without you ";						
 					}					
 					if (sizeof($ParetoFrontMinus))
 					{
@@ -758,7 +758,7 @@ if ($userid) {
 							{echo WriteProposalNumber($p,$room);}						
 						echo "would NOT have been in the Pareto Front.";
 					}
-					echo "<br /><br /></div>";						
+					echo "</div>";						
 				}
 				
 				echo "<div class=\"feedback\">";
