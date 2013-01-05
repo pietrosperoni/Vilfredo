@@ -76,8 +76,9 @@ $rss_link = CreateRSSLink();
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
 	<title><?=$VGA_CONTENT['site_title_txt']?></title>
-	<meta http-equiv="expires" content="Thu, 16 Mar 2000 11:00:00 GMT" />
-	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
 	<!--[if IE8]>
 	<meta http-equiv="X-UA-Compatible" content="IE=7" />
 	<![endif]-->
