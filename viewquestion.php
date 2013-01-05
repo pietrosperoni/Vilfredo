@@ -215,7 +215,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	{
 		echo '<div class = "container_large">';
 		
-		InsertMap($question,$generation-1, 0, 'M');		
+		InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
 		/*
 		$graphsize = 'mediumgraph';
 		if ($filename = InsertMap2($question,$generation-1))
@@ -711,7 +711,7 @@ if ($userid) {
 				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div>";
 				echo " </div>";
 				
-				InsertMap($question,$generation,$userid,"L",0);
+				InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
 				$ProposalsCouldDominate=CalculateKeyPlayersInteractive($question,$generation);
 				if (count($ProposalsCouldDominate) > 0)
@@ -724,7 +724,7 @@ if ($userid) {
 						{
 							
 							#$keyPlayer = WriteUserVsReader($userid,$userid);
-							$proposalNumber = WriteProposalNumber($PCD,$room);
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
 							#$format = $VGA_CONTENT['key_player_exp_txt'];
 							#echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
 							echo " ".$proposalNumber.", ";
@@ -745,7 +745,8 @@ if ($userid) {
 					if (sizeof($ParetoFrontPlus))
 					{
 						foreach ($ParetoFrontPlus as $p)	
-							{echo WriteProposalNumber($p,$room);}						
+							#{echo WriteProposalNumber($p,$room);}						
+							{echo WriteProposalNumberInternalLink($p,$room);}						
 						echo "would have been in the Pareto Front.";						
 					}
 					if (sizeof($ParetoFrontPlus) AND sizeof($ParetoFrontMinus))
@@ -755,7 +756,8 @@ if ($userid) {
 					if (sizeof($ParetoFrontMinus))
 					{
 						foreach ($ParetoFrontMinus as $p)	
-							{echo WriteProposalNumber($p,$room);}						
+							{echo WriteProposalNumberInternalLink($p,$room);}						
+							#{echo WriteProposalNumber($p,$room);}						
 						echo "would NOT have been in the Pareto Front.";
 					}
 					echo "</div>";						
@@ -809,13 +811,17 @@ if ($userid) {
 						echo '</br>';
 					}
 				}
-				else{ echo '&nbsp;'; }
+				else{ 
+					$proposal = $row['id'];
+					echo '&nbsp;'; }
 				echo '</td>';
 				
 				echo '<td>';
 				echo '<div class="paretoproposal">';
+				$originalname=GetOriginalProposal($proposal);
+				#print_r($originalname[proposalid]);
 				if (!empty($row['abstract'])) {
-					echo '<div class="paretoabstract">';
+					echo '<div class="paretoabstract"><a name="proposal'.$originalname['proposalid'].'"></a>';
 					echo display_fulltext_link();
 					echo '<h3>' . $VGA_CONTENT['prop_abstract_txt'] . '</h3>';
 					echo $row['abstract'] ;
@@ -826,7 +832,7 @@ if ($userid) {
 					echo '</div>';
 				}
 				else {
-					echo '<div class="paretofulltext">';
+					echo '<div class="paretofulltext"><a name="proposal'.$originalname['proposalid'].'"></a>';
 					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'] ;
 					echo '</div>';

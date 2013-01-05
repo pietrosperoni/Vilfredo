@@ -1149,6 +1149,18 @@ function CreateProposalURL($proposal, $room="")
 	return $proposal_url;
 }
 
+function CreateInternalProposalURL($proposal)
+{
+	if (!isset($proposal) or empty($proposal))
+             error("Question proposal not set!!!");
+
+	$proposal_url = "#proposal".$proposal;
+
+	return $proposal_url;
+}
+
+
+
 function CreateGenerationURL($question,$generation,$room)
 {
 	#$room=GetQuestionRoom($question);
@@ -3994,7 +4006,6 @@ function WriteProposalRelation2($proposal,$question,$generation,$userid,$room)
 
 function WriteProposalNumber($proposal,$room)
 {
-	
 	$answer="";
 	$OriginalPData=GetOriginalProposal($proposal);
 	$OriginalP=$OriginalPData['proposalid'];
@@ -4002,6 +4013,19 @@ function WriteProposalNumber($proposal,$room)
 	
 	#$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
 	$answer.='<a href="viewproposal.php'.$urlquery.'" title="'.SafeStringProposal($proposal).'">'.$OriginalP.'</a>';
+	$answer.=" ";
+	return $answer;
+}
+
+function WriteProposalNumberInternalLink($proposal,$room)
+{
+	$answer="";
+	$OriginalPData=GetOriginalProposal($proposal);
+	$OriginalP=$OriginalPData['proposalid'];
+	$urlquery = CreateProposalURL($OriginalP, $room);
+	
+	#$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
+	$answer.='<a href="#proposal'.$OriginalP.'" title="'.SafeStringProposal($proposal).'">'.$OriginalP.'</a>';
 	$answer.=" ";
 	return $answer;
 }
@@ -5587,7 +5611,7 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 ////////////////FUNCTIONS TO DRAW THE GRAPHVIZ MAP///////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-function InsertMap3($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function InsertMap3($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 	switch ($size)
 	{
@@ -5604,9 +5628,9 @@ function InsertMap3($question,$generation,$highlightuser1=0,$size="L",$highlight
 			$graphsize = 'largegraph';
 	}
 	//$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
-	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 }
-function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (!USE_GRAPHVIZ_MAPS)
@@ -5614,9 +5638,9 @@ function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlight
 		return false;
 	}
 	
-	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks=false);
 	//set_log(__FUNCTION__ . $filename);
-	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 	if ($svgfile)
 	{
 		return $filename;
@@ -5628,12 +5652,12 @@ function InsertMap2($question,$generation,$highlightuser1=0,$size="L",$highlight
 }
 
 #$size="L"/Middle/Small = "11,5.5"=1100 550 
-function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
 	{
-		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 		if ($svgfile)
 		{
 			$buf='<center><embed src="'.$svgfile.'" ';
@@ -5647,12 +5671,12 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 	}
 	return;
 }
-function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
 	{
-		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1);
+		$svgfile=WriteGraphVizMap($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 		if ($svgfile)
 		{
 			$buf='<center><embed src="'.$svgfile.'" ';
@@ -5669,7 +5693,7 @@ function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlight
 
 #$ShowNSupporters=true,$ShowAllEndorsments=false,$size="7.5,10",$bundles=true,$highlightuser1=0)
 
-function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in MapName=".$highlightproposal1;
 	
@@ -5695,11 +5719,11 @@ function DeleteGraph($question,$generation)
 }
 
 
-function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
+function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
 	
-	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1);
+	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 	if($size=="L")     { $sz="11,5.5";	}
 	elseif($size=="M") { $sz= "8,4";	}
 	elseif($size=="S") { $sz= "6,3";    }
@@ -5718,7 +5742,9 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 		}
 	}
 	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMap($question,$generation,$highlightuser1,$highlightproposal1,$sz);
+	$buf=MakeGraphVizMap($question,$generation,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$ShowNSupporters=*/true,/*$ShowAllEndorsments=*/false,/*$bundles=*/true,/*$InternalLinks=*/$InternalLinks);
+
+	
 	if ($MapFile) {
 		fputs($MapFile,$buf);
 		fclose($MapFile);
@@ -5944,7 +5970,7 @@ function WriteBundledUsers($BundleName,$BundleContent,$room,$details,$detailsTab
 
 
 
-function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightproposal1=0)
+function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightproposal1=0,$InternalLinks)
 {
 	$answer="";
 	$color="black";
@@ -5955,7 +5981,7 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 	{
 		$OriginalPData=GetOriginalProposal($p);
 		$OriginalP=$OriginalPData['proposalid'];
-		$urlquery = CreateProposalURL($OriginalP, $room);
+		#$urlquery = CreateProposalURL($OriginalP, $room);
 		
 		$urlquery = CreateProposalURL($p, $room);
 		$urlquery=str_replace ( "&" , "&amp;" , $urlquery );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
@@ -5967,8 +5993,17 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 		{
 			$ToAdd=' BGCOLOR="red" ';
 		}
-#		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
-		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';	
+		
+		if($InternalLinks==true)
+		{	
+			$urlquery=CreateInternalProposalURL($OriginalP);
+			$answer.='<TD '.$ToAdd.' HREF="'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
+		}else{
+	#		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
+			$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';			
+		}
+		
+		
 	}
 	$answer.='</TR><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR></TABLE>>]';
 	$answer.="\n";
@@ -5978,7 +6013,7 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 #Possible Values for $ShowNSupporters=true /false
 #$size="7.5,10
 #10,16.18
-function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true)
+function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false)
 {
 	$proposals_below=array();
 	$proposals_above=array();
@@ -6208,7 +6243,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			$details=' fillcolor=white color='.$color.' peripheries='.$peripheries.' ';						
 		}
 		
-		$buf.=WriteBundledProposals($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1);
+		$buf.=WriteBundledProposals($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1,$InternalLinks);
 	}
 	
 	foreach ($proposals as $p)
@@ -6248,7 +6283,6 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
-			$urlquery = CreateProposalURL($OriginalP, $room);
 			
 			#$urlquery = CreateProposalURL($p, $room);
 			
@@ -6263,18 +6297,34 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 				$fillcolor='"lightblue" ';								
 			}
 			
-			
-			$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
-			
+			if ($InternalLinks==true)
+			{	
+				$urlquery=CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
+			}
+			else
+			{
+				$urlquery = CreateProposalURL($OriginalP, $room);
+#				$urlquery = "pluto";
+				
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			}
 			$buf.="\n";			
 		}
 		else
 		{	
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
-			$urlquery = CreateProposalURL($OriginalP, $room);
-			$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
-
+			if ($InternalLinks==true)
+			{
+				$urlquery = CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
+			}else{
+				
+				$urlquery = CreateProposalURL($OriginalP, $room);
+#				$urlquery = "pippo";
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+			}
 			$buf.="\n";
 		}
 	}
