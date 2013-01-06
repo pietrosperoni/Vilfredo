@@ -95,7 +95,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$shorturl = BITLY_URL.$hash;
 		}
 	}
-	set_log('$shorturl = ' . $shorturl);
+	//set_log('$shorturl = ' . $shorturl);
 
 	echo '<div class="questionbox">';
 	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";

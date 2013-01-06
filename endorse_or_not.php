@@ -113,7 +113,7 @@ foreach ($allproposals as $p)
 }
 
 $NEWnEndorsers=CountEndorsers($question,$roundid);
-DeleteGraph($question,$roundid);
+//DeleteGraph($question,$roundid);
 if(	$nEndorsers< $NEWnEndorsers)
 {
 	AwareAuthorOfNewEndorsement($question);

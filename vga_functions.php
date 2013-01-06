@@ -5712,10 +5712,43 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 
 function DeleteGraph($question,$generation)
 {
+	//set_log(__FUNCTION__." called.....");
 	$room=GetQuestionRoom($question);
 	$generation=(int)$generation;
 	$GeneralName="map/map_R".$room."_Q".$question."_G".$generation."_*.*";
-	system("rm ".$GeneralName); //WARNING THIS DELETES ALL THE FILES IN THE MAP FOLDER THAT HAVE THAT Q G AND R
+	//system("rm ".$GeneralName); 
+	//WARNING THIS DELETES ALL THE FILES IN THE MAP FOLDER THAT HAVE THAT Q G AND R
+	$graphfiles = glob($GeneralName);
+	//set_log($graphfiles);
+	if ($graphfiles === false)
+	{
+		set_log(__FUNCTION__.":: There was an error finding the graph files to delete");
+		return false;
+	}
+	//elseif (is_array($graphfiles) && count($graphfiles))
+	else
+	{
+		if (count($graphfiles) == 0)
+		{
+			set_log(__FUNCTION__.":: No files found");
+			return true;
+		}
+		
+		$noerrors = true;
+		foreach($graphfiles as $f) 
+		{
+		    //set_log(__FUNCTION__.":: attempting to delete ".$f);
+			if (unlink($f) === false)
+			{
+				$noerrors = false;
+			}
+		}
+		if (!$noerrors)
+		{
+			set_log(__FUNCTION__.":: There was an error deleting the graph files");
+		}
+		return $noerrors;
+	}
 }
 
 
