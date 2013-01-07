@@ -894,7 +894,7 @@ function HaveSameElements($a,$b) #considering two arrays as sets, do they have t
 	return false;
 }
 
-function set_log($msg)
+function set_log($msg, $dest=LOG_FILE)
 {
 	$timestamp = date("D M j G:i:s T Y");
 	
@@ -903,7 +903,7 @@ function set_log($msg)
 		$msg = print_r($msg, true);
 	}
 	
-	error_log("set_log: $msg $timestamp \n", 3, LOG_FILE);
+	error_log("set_log: $msg $timestamp \n", 3, $dest);
 }
 
 function printdberror($sql="")
@@ -2077,17 +2077,22 @@ function GetRequest($location="viewquestions.php")
 		$request = $_SESSION['request'];
 		unset($_SESSION['request']);
 		header("Location: " . $request);
+		exit;
 	}
 	else {
 		header("Location: ".$location);
+		exit;
 	}
 }
 function SetRequest()
 {
 	// Store user's request for after login
-	$request = $_SERVER[REQUEST_URI];
-	$_SESSION['request'] = array_pop(explode('/', $request));
-	//set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
+	$arr = explode('/', $_SERVER['REQUEST_URI']);
+	$request = array_pop($arr);
+	
+	//$request = $_SERVER['REQUEST_URI'];
+	//$_SESSION['request'] = array_pop(explode('/', $request));
+	set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
 }
 function UnsetRequest()
 {
@@ -2772,7 +2777,7 @@ function fb_isconnected($fb_uid)
 		
 		if (!$response)
 		{
-			handle_db_error($response);
+			handle_db_error($response, $sql);
 			return false;
 		}
 
@@ -2800,7 +2805,7 @@ function fb_getuserdetails($fb_uid)
 	
 	if (!$response)
 	{
-		handle_db_error($response);
+		handle_db_error($response, $sql);
 		return false;
 	}
 	
@@ -3036,8 +3041,8 @@ function GetEndorsements($userid, $proposals, $question, $generation)
 
 			if (!$response)
 			{
-				handle_db_error($response);
-				log_error("GetEndorsements(): MySQL error: " . mysql_error());
+				handle_db_error($response, $sql);
+				//log_error("GetEndorsements(): MySQL error: " . mysql_error());
 				return false;
 			}
 
@@ -3067,8 +3072,8 @@ function GetFirstAncestor($p)
 		
 	if (!$response)
 	{
-		handle_db_error($response);
-		log_error("GetFirstAncestor(): MySQL error: " . mysql_error());
+		handle_db_error($response, $sql);
+		//log_error("GetFirstAncestor(): MySQL error: " . mysql_error());
 		return false;
 	}
 	$info=mysql_fetch_assoc($response);
@@ -3100,8 +3105,8 @@ function GetAncestors($source)
 		
 		if (!$response)
 		{
-			handle_db_error($response);
-			log_error("GetAncestors(): MySQL error: " . mysql_error());
+			handle_db_error($response, $sql);
+			//log_error("GetAncestors(): MySQL error: " . mysql_error());
 			return false;
 		}
 		
@@ -3415,7 +3420,7 @@ function IsSubscribed($question,$userid)
 	}
 	else
 	{
-		handle_db_error($response);
+		handle_db_error($response, $sql);
 		return 0;
 	}
 }
@@ -5224,7 +5229,7 @@ function StoreParetoFront($question,$generation,$paretofront)
 			$add_pareto_to_nextgen = mysql_query($sql);
 			if (!$add_pareto_to_nextgen)
 			{
-				handle_db_error($add_pareto_to_nextgen);
+				handle_db_error($add_pareto_to_nextgen, $sql);
 			}
 			
 		}
