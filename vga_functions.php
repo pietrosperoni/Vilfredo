@@ -5149,6 +5149,73 @@ function CalculateParetoFront($question,$generation)
 	return $paretofront;
 }
 
+
+#this should
+function ReturnProposalsEndorsersArray($question,$generation)
+{
+	$proposalslist=array();
+	$proposals=array();
+	$sql = "SELECT id FROM proposals 
+		WHERE experimentid = $question AND roundid = $generation";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$p=$row[0];
+		$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$p." ";
+		$response1 = mysql_query($sql1);
+		$endorsers=array();
+		while ($row1 = mysql_fetch_array($response1))	{ array_push($endorsers,$row1[0]);}
+		$proposals[$p]=$endorsers;
+	}
+	print_r ($proposals);
+	return $proposals;
+}
+
+#this calcultates the Pareto Front in a group of proposals, without changing the DB
+#NOTE this does not take a list of proposals, but an array, with the keys the proposals, and for each key the value being the endorsers that supported it.
+
+
+
+function CalculateParetoFrontFromProposals($proposals) 
+{
+	$dominated=array();
+	$done=array(); //the list of the proposals already considered
+	foreach ($proposals as $p1)
+	{
+		array_push($done,$p1);
+		foreach ($proposals as $p2)
+		{
+			if (in_array($p2,$done)) { continue;}
+			$dominating=WhoDominatesWho($p1,$p2);
+			if ($dominating==$p1)
+			{
+				array_push($dominated,$p2);
+				#$sql = "UPDATE proposals SET dominatedby = ".$p1." WHERE id = ".$p2;
+				#mysql_query($sql);
+				continue;
+			}
+			elseif ($dominating==$p2)
+			{
+				array_push($dominated,$p1);
+				#$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1;
+				#mysql_query($sql);
+				break;
+			}
+		}
+	}
+	$paretofront=array_diff($proposals,$dominated);
+	return $paretofront;
+}
+
+
+
+
+
+
+
+
+
+
 //  ********************************************/
 //Given a proposal this function finds all the proposal that dominates it or that are dominated by it
 //   ********************************************/
