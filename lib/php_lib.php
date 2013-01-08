@@ -39,6 +39,16 @@ function clean_input_array($input)
 	return $input;
 }
 
+// Define optional input handler
+if (!function_exists('input_handler'))
+{
+	set_log("Function input_handler not defined-->setting dummy function");
+	function input_handler($value, $desc="")
+	{
+		// Handle Input
+	};
+}
+
 function GetEscapedPostParamStripTags($key)
 {
 	return strip_tags(GetEscapedPostParam($key));
@@ -89,6 +99,7 @@ function fetchValidIntValFromQueryWithKey($key)
 {
 	if ( !isset($_GET[$key]) || !ctype_digit($_GET[$key]) )
 	{
+		input_handler($_GET[$key], "$key from Query");
 		// Not valid, return false
 		return false;
 	}
@@ -102,6 +113,7 @@ function fetchValidQuestionFromQuery()
 {
 	if ( !isset($_GET[QUERY_KEY_QUESTION]) || !ctype_digit($_GET[QUERY_KEY_QUESTION]) )
 	{
+		input_handler($_GET[QUERY_KEY_QUESTION], 'Query Question');
 		// Not valid, return false
 		return false;
 	}
@@ -109,6 +121,17 @@ function fetchValidQuestionFromQuery()
 	{
 		// Valid, return query value as int
 		return (int)$_GET[QUERY_KEY_QUESTION];
+	}
+}
+function describeUserLoginStatus()
+{
+	if (isset($_SESSION[USER_LOGIN_ID]))
+	{
+		return "User {$_SESSION[USER_LOGIN_ID]}";
+	}
+	else
+	{
+		return "External User";
 	}
 }	
 function fetchValidRoomFromQuery()
@@ -119,10 +142,11 @@ function fetchValidRoomFromQuery()
 		return "";
 	}
 	elseif ( isset($_GET[QUERY_KEY_ROOM]) && 
-		( hasTags($_GET[QUERY_KEY_ROOM]) 
+		( hasTags($_GET[QUERY_KEY_ROOM]) || preg_match('/\s/',$_GET[QUERY_KEY_ROOM])
 		|| !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM) 
 		|| !checkMinStringLength($_GET[QUERY_KEY_ROOM], MIN_LEN_ROOM) ) )
 	{
+		input_handler($_GET[QUERY_KEY_ROOM], 'Query Room');
 		// Not valid, return false
 		return false;
 	}
@@ -146,6 +170,17 @@ function fetchValidIntValFromPostWithKey($key)
 		return (int)$_POST[$key];
 	}
 }	
+function fetchValidQuestionFromPost()
+{
+	if ( !isset($_POST[QUERY_KEY_QUESTION]) || !ctype_digit($_POST[QUERY_KEY_QUESTION]) )
+	{
+		return false;
+	}
+	else
+	{
+		return (int)$_POST[QUERY_KEY_QUESTION];
+	}
+}
 function fetchValidRoomFromPostWithKey($key)
 {
 	if ( !isset($_POST[QUERY_KEY_ROOM]) )
@@ -167,15 +202,7 @@ function fetchValidRoomFromPostWithKey($key)
 		return GetEscapedPostParam(QUERY_KEY_ROOM);
 	}
 }
-function generateRandomString($length) 
-{
-	$random = '';
-	for ($i = 0; $i < $length; $i++) 
-	{
-		$random .= chr(rand(ord('a'), ord('z')));
-	}
-	return $random;
-}
+
 function boolString($bValue = false) {                      
 	// returns string
 	return ($bValue ? 'true' : 'false');

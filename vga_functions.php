@@ -903,7 +903,7 @@ function set_log($msg, $dest=LOG_FILE)
 		$msg = print_r($msg, true);
 	}
 	
-	error_log("set_log: $msg $timestamp \n", 3, $dest);
+	error_log("set_log [$timestamp]: $msg \n", 3, $dest);
 }
 
 function printdberror($sql="")
