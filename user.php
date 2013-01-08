@@ -27,13 +27,14 @@ $(".foottip a").tooltip({
 });
 </script>
 <?php
-	if ( !isset($_GET['u']) || !is_numeric($_GET['u']) )
+	$uid = fetchValidIntValFromQueryWithKey('u');
+
+	// Return false if bad query parameters passed
+	if ($uid === false)
 	{
 		header("Location: error_page.php");
 		exit;
 	}
-	
-	$uid = (int)$_GET['u'];
 
 	$sql = "SELECT `username` FROM `users` WHERE `id` = $uid";
 	$response = mysql_query($sql);

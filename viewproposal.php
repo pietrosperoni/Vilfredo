@@ -11,9 +11,11 @@ include('header.php');
 #$userid=isloggedin();
 //if ($userid)
 //{
-	
 	// sanitize url
-	if ( !isset($_GET[QUERY_KEY_PROPOSAL]) || !is_numeric($_GET[QUERY_KEY_PROPOSAL]) )
+	$proposal = fetchValidIntValFromQueryWithKey(QUERY_KEY_PROPOSAL);
+
+	// Return false if bad query parameters passed
+	if ($proposal === false)
 	{
 		header("Location: error_page.php");
 		exit;
@@ -25,9 +27,7 @@ include('header.php');
 		header("Location: viewquestions.php");
 		exit;
 	}
-	
-	$proposal = (int)$_GET[QUERY_KEY_PROPOSAL];
-	
+		
 	$question=GetProposalsQuestion($proposal);
 	WriteQuestionInfo($question,$userid);
 
