@@ -6,14 +6,21 @@ function getLabel($key,$language){
    return $label[$language][$key];
 }
 
-$headcommands='
+$headcommands='';
+include('header.php');
+?>
+
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
 <link type="text/css" href="js/jquery/RichTextEditor/css/jqpopup.css" rel="Stylesheet">
 <link rel="stylesheet" href="js/jquery/RichTextEditor/css/jqcp.css" type="text/css">
-<!-- <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script> -->
-<!-- <script type="text/javascript" src="js/jquery-1.4.2.js"></script> -->
+<!--
 <script type="text/javascript" src="js/jquery-1.6.min.js"></script>
 <script type="text/javascript" src="js/svg/jquery.svg.min.js"></script>
+-->
+<script type="text/javascript" src="js/<?=SVG_DIR?>/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="js/<?=SVG_DIR?>/jquery.svg.min.js"></script>
+<script type="text/javascript" src="js/<?=SVG_DIR?>/jquery.svgdom.min.js"></script>
+<script type="text/javascript" src="js/<?=SVG_DIR?>/jquery.svganim.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
@@ -21,12 +28,8 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqrte.min.js"></script>
-<script type="text/javascript" src="js/vilfredo.php"></script>';
+<script type="text/javascript" src="js/vilfredo.php"></script>
 
-
-include('header.php');
-
-?>
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
@@ -35,22 +38,16 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 //if ($userid)
 //{
-
 	// sanitize url
-	if ( !isset($_GET[QUERY_KEY_QUESTION]) || !is_numeric($_GET[QUERY_KEY_QUESTION]) )
+	$question = fetchValidQuestionFromQuery();
+	$room = fetchValidRoomFromQuery();
+	
+	// Return false if bad query parameters passed
+	if ($question === false || $room === false)
 	{
 		header("Location: error_page.php");
 		exit;
 	}
-	
-	if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMaxStringLength($_GET[QUERY_KEY_ROOM], MAX_LEN_ROOM)) )
-	{
-		header("Location: error_page.php");
-		exit;
-	}
-	
-	$question = (int)$_GET[QUERY_KEY_QUESTION];
-	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
 	
 	//WriteQuestionInfo($question,$userid);
 	
@@ -223,16 +220,9 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$filename .= '.svg';
 			?>
 			<script type="text/javascript">
-			
-				function loadDone() {
-					//alert('loaded');
-				}
-
-				$(document).ready(function() {
-					var svgfile = '<?= $filename; ?>';
-					$('#svggraph1').svg({loadURL: svgfile, onLoad: loadDone});
-					//var svg_graph = $('#svggraph1').svg('get');  
-					//resetSize(svg_graph);  
+				$(function() {
+					var svgfile = '<?=$filename?>';
+					$('#svggraph1').svg({loadURL: svgfile, onLoad: initGraph});
 				});
 			</script>
 			<?php
