@@ -144,7 +144,7 @@ else
 	// Add mutated proposal $newpropid to proposal_relations table
 	if (isset($_POST['mutate']) and isset($_POST['origpid']))
 	{
-		$frompid = (int)mysql_real_escape_string($_POST['origpid']);
+		$frompid = (int)$_POST['origpid'];
 		
 		if ($frompid)
 		{
