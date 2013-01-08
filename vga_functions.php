@@ -5696,9 +5696,10 @@ function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlight
 function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in MapName=".$highlightproposal1;
-	
 	$room=GetQuestionRoom($question);
-	return "map/map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1;
+	if ($InternalLinks)	{ $internal="here"; }
+	else			{ $internal="there"; }
+	return "map/map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal;
 }
 
 #function MapName_1($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
