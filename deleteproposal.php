@@ -32,13 +32,16 @@ $headcommands='
 
 include('header.php');
 
-
 #$userid=isloggedin();
 #if (isAdmin($userid))
 if ($userid)
 {	
-	
-	$proposal = $_POST['p'];
+	$proposal = fetchValidIntValFromPostWithKey('p');
+	if ($proposal === false)
+	{
+		header("Location: error_page.php");
+		exit;
+	}
 	
 	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract FROM proposals, questions WHERE proposals.id = ".$proposal." and proposals.experimentid = questions.id and questions.roundid = proposals.roundid and questions.phase = 0  ";
 	$response = mysql_query($sql);

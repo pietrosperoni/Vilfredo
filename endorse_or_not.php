@@ -3,6 +3,13 @@ include('header.php');
 
 $question = $_POST['question'];
 
+$question = fetchValidQuestionFromPost();
+if ($question === false)
+{
+	header("Location: error_page.php");
+	exit;
+}
+
 if (IsQuestionWriting($question))
 {
 	//set_message("user", "Sorry, question $question now in writing stage.");
