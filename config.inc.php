@@ -52,6 +52,8 @@ if (defined('LOG_DIRECTORY'))
 	define("BAD_INPUT_LOG", LOG_DIRECTORY."bad_input.log");
 }
 
+define("SVG_DIR", "svg-1.4.4");
+
 define("MAX_LEN_EMAIL", 60);
 define("MAX_LEN_USERNAME", 50);
 define("MAX_LEN_PASSWORD", 60);
