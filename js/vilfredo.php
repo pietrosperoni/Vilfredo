@@ -515,6 +515,18 @@ $(function() {
 });
 
 
+// SVG Graphs
+function initGraph(svg) {
+	setSize(svg);
+}
+function setGraphSize(svg, width, height) 
+{
+	gwidth = width || $(svg._container).innerWidth();
+	gheight = height || $(svg._container).innerHeight();
+	svg.configure({width: gwidth, height: gheight});
+}
+
+
 function checklengths() {
 		var limit = $("#content_rte").data('maxlength');
 		var limit_abs = $("#abstract_rte").data('maxabslength');
