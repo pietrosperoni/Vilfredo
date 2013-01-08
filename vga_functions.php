@@ -5730,35 +5730,24 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	elseif($size=="S") { $sz= "6,3";    }
 	elseif($size=="XS"){ $sz= "4,2";    }
 	
-	if (file_exists ( $filename.".svg"))
-	{
-		return $filename.".svg";
-	}
+	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
 	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
 	{
 		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))
-		{
-			return $filename.".svg";
-		}
+		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 	}
 	$MapFile = fopen($filename.".dot", "w+");
 	$buf=MakeGraphVizMap($question,$generation,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$ShowNSupporters=*/true,/*$ShowAllEndorsments=*/false,/*$bundles=*/true,/*$InternalLinks=*/$InternalLinks);
-
 	
-	if ($MapFile) {
+	if ($MapFile) 
+	{
 		fputs($MapFile,$buf);
 		fclose($MapFile);
 		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))
-		{
-			return $filename.".svg";
-		}
-		return;
-	} else {
-		echo "<br /><b>Error creating map file, please check write permissions.</b><br />";
-		return;
-	}	
+		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+	}
+	else { echo "<br /><b>Error creating map file, please check write permissions.</b><br />";}	
+	return;
 }
 
 function FindLevels($proposals_covered,$proposals)
