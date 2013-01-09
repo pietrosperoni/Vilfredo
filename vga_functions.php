@@ -5150,7 +5150,8 @@ function CalculateParetoFront($question,$generation)
 }
 
 
-#this should
+#this should return as a single array all the proposals in a generation, with their relative endorsers.
+#eventually we want to store this information as a single command with serialize()
 function ReturnProposalsEndorsersArray($question,$generation)
 {
 	$proposalslist=array();
@@ -5161,15 +5162,23 @@ function ReturnProposalsEndorsersArray($question,$generation)
 	while ($row = mysql_fetch_array($response))
 	{
 		$p=$row[0];
-		$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$p." ";
+		#$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$p." ";
+		$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = $p ";
 		$response1 = mysql_query($sql1);
 		$endorsers=array();
 		while ($row1 = mysql_fetch_array($response1))	{ array_push($endorsers,$row1[0]);}
 		$proposals[$p]=$endorsers;
 	}
-	print_r ($proposals);
 	return $proposals;
 }
+
+
+#	print_r(array_flip($prop3));
+
+
+
+
+
 
 #this calcultates the Pareto Front in a group of proposals, without changing the DB
 #NOTE this does not take a list of proposals, but an array, with the keys the proposals, and for each key the value being the endorsers that supported it.
@@ -5180,32 +5189,32 @@ function CalculateParetoFrontFromProposals($proposals)
 {
 	$dominated=array();
 	$done=array(); //the list of the proposals already considered
-	foreach ($proposals as $p1)
+	$proposalsID=array_keys($proposals);
+	foreach ($proposalsID as $p1)
 	{
 		array_push($done,$p1);
-		foreach ($proposals as $p2)
+		foreach ($proposalsID as $p2)
 		{
 			if (in_array($p2,$done)) { continue;}
-			$dominating=WhoDominatesWho($p1,$p2);
+			#$dominating=WhoDominatesWho($p1,$p2);
+			$dominating=WhoDominatesWhoFromArray(array_intersect_key($proposals, array_flip(array($p1, $p2))));
+			
 			if ($dominating==$p1)
 			{
 				array_push($dominated,$p2);
-				#$sql = "UPDATE proposals SET dominatedby = ".$p1." WHERE id = ".$p2;
-				#mysql_query($sql);
 				continue;
 			}
 			elseif ($dominating==$p2)
 			{
 				array_push($dominated,$p1);
-				#$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1;
-				#mysql_query($sql);
 				break;
 			}
 		}
 	}
-	$paretofront=array_diff($proposals,$dominated);
+	$paretofront=array_diff($proposalsID,$dominated);
 	return $paretofront;
 }
+
 
 
 
@@ -5226,13 +5235,11 @@ function CalculateProposalsRelationTo($proposal,$question,$generation)
 	$dominating=array();
 	$RelatedProposals=array();
 	$sql = "SELECT id FROM proposals WHERE experimentid = $question AND roundid = $generation";
-#	echo $sql;
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
 		array_push($proposals,$row[0]);
 	}
-	
 	foreach ($proposals as $p)
 	{
 		if ($proposal==$p) 
@@ -5262,13 +5269,8 @@ function CalculateProposalsRelationTo($proposal,$question,$generation)
 //  ********************************************/
 function StoreParetoFront($question,$generation,$paretofront)
 {
-	
-	
-	
 	foreach ($paretofront as $p)
-	{
-		
-		
+	{		
 		$sql = "SELECT * FROM proposals WHERE id = ".$p." LIMIT 1";
 		$response = mysql_query($sql);
 
@@ -5467,6 +5469,50 @@ function WhoDominatesWho($proposal1,$proposal2)
 		}
 	}
 }
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////This function takes two proposals, Each proposal being an array of the form and returns 0 if neither dominates the other because they have different users
+/////////////////returns -1 if neither dominates the other because they have the same users
+/////////////////returns the id of the dominating proposal if one dominates the other
+function WhoDominatesWhoFromArray($proposals)
+{
+	$keyproposals=array_keys($proposals);
+	
+	if (count($keyproposals)!=2 )
+	{
+		return -1;
+	}
+	$proposal1=$keyproposals[0];
+	$proposal2=$keyproposals[1];
+	
+	$users1=$proposals[$proposal1];
+	$users2=$proposals[$proposal2];
+	
+	$Users1minus2=array_diff($users1,$users2);
+	$Users2minus1=array_diff($users2,$users1);
+	if (count($Users1minus2))
+	{
+		if (count($Users2minus1))
+		{
+			return 0; //neither dominates the other.
+		}
+		else
+		{
+			return $proposal1;
+		}
+	}
+	else
+	{
+		if (count($Users2minus1))
+		{
+			return $proposal2;
+		}
+		else
+		{
+			return -1; #They have the same endorsers
+		}
+	}
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -5509,6 +5555,49 @@ function CalculateKeyPlayersKnowingPF($question,$generation,$paretofront) //you 
 	}
 	return $CouldDominate;//now we need to visualise the information and 
 }
+
+function extractEndorsers($proposalsEndorsers)
+{
+	$endorsers=array();
+	foreach($proposalsEndorsers as $es)
+	{
+		$endorsers=array_merge($endorsers,$es);	
+	}
+	return array_unique($endorsers);
+}
+
+
+function CalculateKeyPlayersfromArrayInteractive($proposalsEndorsers)
+{
+	$paretofront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+	return CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$paretofront);
+}
+
+function CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$paretofront)
+{
+	$users=extractEndorsers($proposalsEndorsers);
+	$CouldDominate=array();
+	foreach ($users as $user)
+	{
+		#$paretofrontexcluding=CalculateParetoFrontExcluding($paretofront,$user);
+		$paretofrontexcluding=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$user);
+		if ($paretofrontexcluding!=$paretofront)
+		{	//			array_push($keyPlayers,$user);
+			$Diff1=array_diff($paretofront,$paretofrontexcluding); //proposals that are in the pareto front because of X //			$LightProposals[$user]=$Diff1;
+			$CouldDominate[$user]=array();
+			foreach ($Diff1 as $p)
+			{
+				#$CouldDominate[$user]=array_merge($CouldDominate[$user],WhoDominatesThisExcluding($p,$paretofront,$user));
+				#$temp=WhoDominatesThisExcluding($p,$paretofront,$user);
+				$temp=WhoDominatesThisFromArrayExcluding($p,$paretofront,$user,$proposalsEndorsers);
+				$CouldDominate[$user]=array_merge($CouldDominate[$user],$temp);
+			}
+			$CouldDominate[$user]=array_unique($CouldDominate[$user]);
+		}
+	}
+	return $CouldDominate;//now we need to visualise the information and 	
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////This function takes two proposals, and returns 0 if neither dominates the other because they have different users
@@ -5583,12 +5672,22 @@ function WhoDominatesWhoExcluding($proposal1,$proposal2,$userExcluded)
 }
 
 
+function WhoDominatesWhoFromArrayExcluding($proposals,$userExcluded)
+{
+	$proposalsexcluding=$proposals;
+	foreach(array_keys($proposals) as $p)
+	{
+		$proposalsexcluding[$p]=array_diff($proposalsexcluding[$p],array($userExcluded));
+	}
+	return WhoDominatesWhoFromArray($proposalsexcluding) ;	
+}
+
+
 // ****************************************************/
 // How would shrink a Pareto Front if a particular User did not participate?
 // This function is useful to find the key playes
 // People whos absence would change the Pareto Front are KeyPeople
 // ****************************************************/
-
 function CalculateParetoFrontExcluding($paretofront,$userExcluded)
 {
 	$dominated=array();
@@ -5619,7 +5718,6 @@ function CalculateParetoFrontExcluding($paretofront,$userExcluded)
 // This function is useful to find the key playes
 // People whos absence would change the Pareto Front are KeyPeople
 // ****************************************************/
-
 function CalculateFullParetoFrontExcluding($proposals,$userExcluded)
 {
 	$dominated=array();
@@ -5646,6 +5744,15 @@ function CalculateFullParetoFrontExcluding($proposals,$userExcluded)
 	return array_diff($proposals,$dominated);
 }
 
+function CalculateFullParetoFrontExcludingFromArray($proposals,$userExcluded)
+{
+	$proposalsexcluding=$proposals;
+	foreach(array_keys($proposals) as $p)
+	{
+		$proposalsexcluding[$p]=array_diff($proposalsexcluding[$p],array($userExcluded));
+	}
+	return CalculateParetoFrontFromProposals($proposalsexcluding) ;	
+}
 
 
 
@@ -5668,6 +5775,23 @@ function WhoDominatesThisExcluding($proposalToBeDominate,$paretofront,$userExclu
 		{
 			array_push($couldDominate,$dominating);
 		}
+	}
+	return $couldDominate;
+}
+
+function WhoDominatesThisFromArrayExcluding($proposalToBeDominate,$paretofront,$user,$proposalsEndorsers)
+{
+	$couldDominate=array();
+	foreach ($paretofront as $p1)
+	{
+		if($p1==$proposalToBeDominate)		
+			{continue;}
+			
+		#function WhoDominatesWhoFromArrayExcluding($proposals,$userExcluded)
+		#$dominating=WhoDominatesWhoExcluding($p1,$proposalToBeDominate,$userExcluded);
+		$ProposalsToCompare=array_intersect_key($proposalsEndorsers, array_flip(array($p1, $proposalToBeDominate)));
+		$dominating=WhoDominatesWhoFromArrayExcluding($ProposalsToCompare,$user);
+		if ($dominating==$p1)	{ array_push($couldDominate,$dominating);}
 	}
 	return $couldDominate;
 }

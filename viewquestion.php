@@ -713,7 +713,22 @@ if ($userid) {
 				
 				InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
+				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
+				
+				
+								
 				$ProposalsCouldDominate=CalculateKeyPlayersInteractive($question,$generation);
+				$ProposalsCouldDominate2=CalculateKeyPlayersfromArrayInteractive($proposalsEndorsers);
+				echo"<br>";
+				echo"<br>ProposalsCouldDominate=";
+				print_r($ProposalsCouldDominate);
+				echo"<br>";
+				echo"<br>ProposalsCouldDominate2 with the new method=";
+				print_r($ProposalsCouldDominate2);
+				echo"<br>";
+				echo"<br>";
+				
+				
 				if (count($ProposalsCouldDominate) > 0)
 				{
 					$KeyPlayers=array_keys($ProposalsCouldDominate);
@@ -733,9 +748,14 @@ if ($userid) {
 					}					
 				}
 				
-				$proposals=GetProposalsInGeneration($question,$generation);
-				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
-				$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+				
+			
+#				$proposals=GetProposalsInGeneration($question,$generation);				
+#				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
+				$PFE=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$userid);
+								
 				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
 				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
 
@@ -823,17 +843,17 @@ if ($userid) {
 				if (!empty($row['abstract'])) {
 					echo '<div class="paretoabstract"><a name="proposal'.$originalname['proposalid'].'"></a>';
 					echo display_fulltext_link();
-					echo '<h3>' . $VGA_CONTENT['prop_abstract_txt'] . '</h3>';
+					echo '<h3>'.$originalname['proposalid'] .': '. $VGA_CONTENT['prop_abstract_txt'] .'</h3>';
 					echo $row['abstract'] ;
 					echo '</div>';
 					echo '<div class="paretotext">';
-					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
+					echo '<h3>'. $VGA_CONTENT['proposal_txt'] .'</h3>';
 					echo $row['blurb'];
 					echo '</div>';
 				}
 				else {
 					echo '<div class="paretofulltext"><a name="proposal'.$originalname['proposalid'].'"></a>';
-					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
+					echo '<h3>'.$originalname['proposalid'] .': ' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
