@@ -16,6 +16,13 @@ function clean_input_string($input)
 	}
 }
 
+function showArray($arr)
+{
+	echo "<pre>";
+	print_r($arr);
+	echo "</pre>";
+}
+
 function clean_input_array($input)
 {
 	if (!is_array($input))

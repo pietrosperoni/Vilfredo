@@ -3,6 +3,12 @@ include('header.php');
 
 if ($userid)
 {
+	if (hasTags($_POST['title']) || hasTags($_POST['room_id']))
+	{
+		header("Location: error_page.php");
+		exit;
+	}
+	
 	$minimumtime=(int)$_POST['minimumtime'];
 	$maximumtime=(int)$_POST['maximumtime'];
 	
@@ -13,19 +19,12 @@ if ($userid)
 	$room = '';
 	// Alpha-numeric characters and underscores only.
 	$room = FormatRoomId($_POST['room_id']);
+	$title = GetMySQLEscapedPostParam('title');
+	$blurb = GetMySQLEscapedPostParam('question');
 	
-	$title = strip_tags($_POST['title']);
+	$mysql = array();
+	$mysql['room'] = mysql_real_escape_string($room);
 	
-	if (!get_magic_quotes_gpc())
-	{
-		$blurb = addslashes($_POST['question']);
-		$title = addslashes($title);
-	}
-	else
-	{
-		$blurb = $_POST['question'];
-	}
-
 	//*** Filter user HTML input
 	//$htmlpurifierconfig = HTMLPurifier_Config::createDefault();
 	//$htmlpurifierconfig->set('HTML.Doctype', 'HTML 4.01 Transitional');
@@ -40,7 +39,7 @@ if ($userid)
 	if($blurb and $title)
 	{
 		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
-		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '$room', $permit_anon_votes, $permit_anon_proposals)";
+		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '{$mysql['room']}', $permit_anon_votes, $permit_anon_proposals)";
 
 		if (!mysql_query($sql))
 		{

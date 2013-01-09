@@ -27,12 +27,13 @@ if (!defined("PRIV"))
 {
 	define("PRIV", "priv");
 }
+
 require_once PRIV."/config.domain.php";
 require_once PRIV."/dbdata.php";
-require_once "sys.php";
 require_once PRIV."/social.php";
-require_once 'lib/phpass-0.3/PasswordHash.php';
 
+require_once 'lib/phpass-0.3/PasswordHash.php';
+require_once "sys.php";
 require_once 'process_input.php';
 require_once 'graphs.php';
 require_once 'vga_functions.php';

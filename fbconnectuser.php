@@ -13,8 +13,8 @@ if (empty($_POST['fbuserid'] ))
 	exit();
 }
 
-$username = GetEscapedPostParam('username');
-$fb_userid = GetEscapedPostParam('fbuserid');
+$username = GetMySQLEscapedPostParam('username');
+$fb_userid = GetMySQLEscapedPostParam('fbuserid');
 
 // checks it against the database
 $sql = "SELECT * FROM users WHERE username = '$username'";
@@ -30,7 +30,6 @@ if (!$check)
 //Gives error if user dosen't exist
 if (mysql_num_rows($check) == 0) 
 {
-	//echo "User $username not registered";
 	$format = $VGA_CONTENT['user_not_reg_txt'];
 	$str = sprintf($format, $username);
 	echo $str;
@@ -38,14 +37,10 @@ if (mysql_num_rows($check) == 0)
 }
 
 $info = mysql_fetch_assoc($check);
-
 $userid = $info['id'];
-
-$password = GetEscapedPostParam('pass');
-//$password = encryptPWD($password);
+$password = $_POST['pass'];
 
 //gives error if the password is wrong
-//if ($password != $info['password']) 
 if (!checkUserPassword($info['id'], $password, $info['password']))
 {
 	//echo "Incorrect password for $username";
@@ -57,7 +52,7 @@ if (!checkUserPassword($info['id'], $password, $info['password']))
 else
 {
 	// Add FB User ID to user record	
-	$sql = "UPDATE users SET fb_userid = '$fb_userid' WHERE id = $userid";
+	$sql = "UPDATE `users` SET `fb_userid` = '$fb_userid' WHERE `id` = $userid";
 
 	$result = mysql_query($sql);
 
