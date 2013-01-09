@@ -85,7 +85,7 @@ else
 			*/
 			
 			// V3
-			$user_details = $fb->api('/me');
+			$user_details = $fb->api("/$FACEBOOK_ID");
 			//var_dump($user_details);
 			$firstName=$user_details['first_name'];
 			$email=$user_details['email'];
