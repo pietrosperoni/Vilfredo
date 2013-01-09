@@ -168,6 +168,7 @@ function fetchValidIntValFromPostWithKey($key)
 {
 	if ( !isset($_POST[$key]) || !ctype_digit($_POST[$key]) )
 	{
+		input_handler($_POST[$key], "Post Variable $key");
 		// Not valid, return false
 		return false;
 	}
@@ -181,6 +182,7 @@ function fetchValidQuestionFromPost()
 {
 	if ( !isset($_POST[QUERY_KEY_QUESTION]) || !ctype_digit($_POST[QUERY_KEY_QUESTION]) )
 	{
+		input_handler($_POST[QUERY_KEY_QUESTION], 'Post Question');
 		return false;
 	}
 	else

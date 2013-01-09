@@ -1,16 +1,12 @@
 <?php
 include('header.php');
 
-$question = (int)$_POST['question'];
-
-/*
-$question = fetchValidQuestionFromPost();
+$question = fetchValidIntValFromPostWithKey('question');
 if ($question === false)
 {
-	set_log
 	header("Location: error_page.php");
 	exit;
-}*/
+}
 
 if (IsQuestionWriting($question))
 {
