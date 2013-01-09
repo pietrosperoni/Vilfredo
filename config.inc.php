@@ -98,8 +98,6 @@ if (USE_FACEBOOK_CONNECT)
 		try 
 		{
 			$FACEBOOK_USER_PROFILE = $fb->api('/'.$FACEBOOK_ID);
-			//set_log("Facebook ID = ".$FACEBOOK_ID);
-			//set_log("FB Profile locale = ".$FACEBOOK_USER_PROFILE['locale']);
 		} 
 		catch (FacebookApiException $e) 
 		{
@@ -114,21 +112,6 @@ if (USE_FACEBOOK_CONNECT)
 	}
 }
 
-/*
-if (USE_FACEBOOK_CONNECT)
-{
-	$FACEBOOK_USER_PROFILE = get_current_facebook_userid_v3_profile($fb);
-	if (!is_null($FACEBOOK_USER_PROFILE))
-	{
-		$FACEBOOK_ID = $FACEBOOK_USER_PROFILE['id'];
-		set_log("Facebook ID = ".$FACEBOOK_ID);
-		set_log("FB Profile locale = ".$FACEBOOK_USER_PROFILE['locale']);
-	}
-	else
-	{
-		set_log("FB Profile locale not set");
-	}
-}*/
 //******************************************/
 define("COOKIE_USER", "ID_my_site");
 define("COOKIE_PASSWORD", "Key_my_site");
