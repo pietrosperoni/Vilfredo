@@ -714,51 +714,13 @@ if ($userid) {
 				InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
 				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
-				
-				
-								
-				$ProposalsCouldDominate=CalculateKeyPlayersInteractive($question,$generation);
-				$ProposalsCouldDominate2=CalculateKeyPlayersfromArrayInteractive($proposalsEndorsers);
-				echo"<br>";
-				echo"<br>ProposalsCouldDominate=";
-				print_r($ProposalsCouldDominate);
-				echo"<br>";
-				echo"<br>ProposalsCouldDominate2 with the new method=";
-				print_r($ProposalsCouldDominate2);
-				echo"<br>";
-				echo"<br>";
-				
-				
-				if (count($ProposalsCouldDominate) > 0)
-				{
-					$KeyPlayers=array_keys($ProposalsCouldDominate);
-					if (in_array($userid,$KeyPlayers))
-					{
-						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
-						foreach ($ProposalsCouldDominate[$userid] as $PCD)
-						{
-							
-							#$keyPlayer = WriteUserVsReader($userid,$userid);
-							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-							#$format = $VGA_CONTENT['key_player_exp_txt'];
-							#echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
-							echo " ".$proposalNumber.", ";
-						}
-						echo "and consider if you could vote it.</div>";
-					}					
-				}
-				
-				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				
-			
-#				$proposals=GetProposalsInGeneration($question,$generation);				
-#				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
 				$PFE=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$userid);
-								
+				
 				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
 				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
-
+				
 				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
 				{
 					echo "<div class=\"feedback\">By voting You have changed the results.<br>Without you ";
@@ -782,6 +744,29 @@ if ($userid) {
 					}
 					echo "</div>";						
 				}
+				
+				if (sizeof($ParetoFrontMinus))
+				{
+					$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcludingKnowingDiff($proposalsEndorsers,$ParetoFront,$userid,$ParetoFrontMinus);
+					#$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$ParetoFront,$userid);
+					if (count($HomeWork) > 0)
+					{
+						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
+						foreach ($HomeWork as $PCD)
+						{
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+							echo " ".$proposalNumber.", ";
+						}
+						echo "and consider if you could vote it.</div>";					
+					}	
+					else
+					{
+						echo "ATTENTION PARETO FRONT MINUS WITHOUT BEING A KEY PLAYER???";						
+					}				
+				}
+				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+#				$proposals=GetProposalsInGeneration($question,$generation);				
+#				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
 				
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";

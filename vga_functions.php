@@ -5556,6 +5556,9 @@ function CalculateKeyPlayersKnowingPF($question,$generation,$paretofront) //you 
 	return $CouldDominate;//now we need to visualise the information and 
 }
 
+
+#it extracts from the array the endorses
+
 function extractEndorsers($proposalsEndorsers)
 {
 	$endorsers=array();
@@ -5566,37 +5569,78 @@ function extractEndorsers($proposalsEndorsers)
 	return array_unique($endorsers);
 }
 
-
+//Calculate the key players having the proposals in the array proposals endorsers
 function CalculateKeyPlayersfromArrayInteractive($proposalsEndorsers)
 {
 	$paretofront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 	return CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$paretofront);
 }
 
+//Calculate the key players having the proposals in the array proposals endorsers
+//and knowing the pareto front
 function CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$paretofront)
 {
 	$users=extractEndorsers($proposalsEndorsers);
 	$CouldDominate=array();
 	foreach ($users as $user)
 	{
-		#$paretofrontexcluding=CalculateParetoFrontExcluding($paretofront,$user);
-		$paretofrontexcluding=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$user);
-		if ($paretofrontexcluding!=$paretofront)
-		{	//			array_push($keyPlayers,$user);
-			$Diff1=array_diff($paretofront,$paretofrontexcluding); //proposals that are in the pareto front because of X //			$LightProposals[$user]=$Diff1;
-			$CouldDominate[$user]=array();
-			foreach ($Diff1 as $p)
-			{
-				#$CouldDominate[$user]=array_merge($CouldDominate[$user],WhoDominatesThisExcluding($p,$paretofront,$user));
-				#$temp=WhoDominatesThisExcluding($p,$paretofront,$user);
-				$temp=WhoDominatesThisFromArrayExcluding($p,$paretofront,$user,$proposalsEndorsers);
-				$CouldDominate[$user]=array_merge($CouldDominate[$user],$temp);
-			}
-			$CouldDominate[$user]=array_unique($CouldDominate[$user]);
+		$CouldDominateThisUser=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$paretofront,$user);
+		if (count($CouldDominateThisUser)>0)
+		{
+			$CouldDominate[$user]=$CouldDominateThisUser;
 		}
 	}
 	return $CouldDominate;//now we need to visualise the information and 	
 }
+//function CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$paretofront,$user)
+//{
+//	$CouldDominateThisUser=array();
+//	$paretofrontexcluding=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$user);
+//	if ($paretofrontexcluding!=$paretofront)
+//	{
+//		$Diff1=array_diff($paretofront,$paretofrontexcluding); //proposals that are in the pareto front because of X //	
+//		foreach ($Diff1 as $p)
+//		{
+//			$temp=WhoDominatesThisFromArrayExcluding($p,$paretofront,$user,$proposalsEndorsers);
+//			$CouldDominateThisUser=array_merge($CouldDominateThisUser,$temp);
+//		}
+//		$CouldDominateThisUser=array_unique($CouldDominateThisUser);
+//	}
+//	return $CouldDominateThisUser;//now we need to visualise the information and 	
+//}
+
+//Calculate the key players having the proposals in the array proposals endorsers
+//and knowing the pareto front
+//just for one user
+
+function CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$paretofront,$user)
+{
+	$paretofrontexcluding=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$user);
+	if ($paretofrontexcluding!=$paretofront)
+	{
+		$Diff1=array_diff($paretofront,$paretofrontexcluding); //proposals that are in the pareto front because of X //	
+		return CalculateKeyPlayersKnowingPFfromArrayInteractiveExcludingKnowingDiff($proposalsEndorsers,$paretofront,$user,$Diff1);
+	}
+	return array();
+}
+
+//Calculate the key players having the proposals in the array proposals endorsers
+//and knowing the pareto front
+//just for one user
+//and knowing the diff
+
+function CalculateKeyPlayersKnowingPFfromArrayInteractiveExcludingKnowingDiff($proposalsEndorsers,$paretofront,$user,$Diff1)
+{
+	$CouldDominateThisUser=array();
+	foreach ($Diff1 as $p)
+	{
+		$temp=WhoDominatesThisFromArrayExcluding($p,$paretofront,$user,$proposalsEndorsers);
+		$CouldDominateThisUser=array_merge($CouldDominateThisUser,$temp);
+	}
+	$CouldDominateThisUser=array_unique($CouldDominateThisUser);
+	return $CouldDominateThisUser;//now we need to visualise the information and 	
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////
