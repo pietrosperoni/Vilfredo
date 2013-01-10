@@ -703,32 +703,14 @@ if ($userid) {
 				
 				InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
-				$ProposalsCouldDominate=CalculateKeyPlayersInteractive($question,$generation);
-				if (count($ProposalsCouldDominate) > 0)
-				{
-					$KeyPlayers=array_keys($ProposalsCouldDominate);
-					if (in_array($userid,$KeyPlayers))
-					{
-						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
-						foreach ($ProposalsCouldDominate[$userid] as $PCD)
-						{
-							
-							#$keyPlayer = WriteUserVsReader($userid,$userid);
-							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-							#$format = $VGA_CONTENT['key_player_exp_txt'];
-							#echo sprintf($format, $keyPlayer, $proposalNumber, $generation);
-							echo " ".$proposalNumber.", ";
-						}
-						echo "and consider if you could vote it.</div>";
-					}					
-				}
+				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
+				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				
-				$proposals=GetProposalsInGeneration($question,$generation);
-				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
-				$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+				$PFE=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$userid);
+				
 				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
 				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
-
+				
 				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
 				{
 					echo "<div class=\"feedback\">By voting You have changed the results.<br>Without you ";
@@ -752,6 +734,29 @@ if ($userid) {
 					}
 					echo "</div>";						
 				}
+				
+				if (sizeof($ParetoFrontMinus))
+				{
+					$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcludingKnowingDiff($proposalsEndorsers,$ParetoFront,$userid,$ParetoFrontMinus);
+					#$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$ParetoFront,$userid);
+					if (count($HomeWork) > 0)
+					{
+						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
+						foreach ($HomeWork as $PCD)
+						{
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+							echo " ".$proposalNumber.", ";
+						}
+						echo "and consider if you could vote it.</div>";					
+					}	
+					else
+					{
+						echo "ATTENTION PARETO FRONT MINUS WITHOUT BEING A KEY PLAYER???";						
+					}				
+				}
+				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
+#				$proposals=GetProposalsInGeneration($question,$generation);				
+#				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
 				
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
@@ -813,17 +818,17 @@ if ($userid) {
 				if (!empty($row['abstract'])) {
 					echo '<div class="paretoabstract"><a name="proposal'.$originalname['proposalid'].'"></a>';
 					echo display_fulltext_link();
-					echo '<h3>' . $VGA_CONTENT['prop_abstract_txt'] . '</h3>';
+					echo '<h3>'.$originalname['proposalid'] .': '. $VGA_CONTENT['prop_abstract_txt'] .'</h3>';
 					echo $row['abstract'] ;
 					echo '</div>';
 					echo '<div class="paretotext">';
-					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
+					echo '<h3>'. $VGA_CONTENT['proposal_txt'] .'</h3>';
 					echo $row['blurb'];
 					echo '</div>';
 				}
 				else {
 					echo '<div class="paretofulltext"><a name="proposal'.$originalname['proposalid'].'"></a>';
-					echo '<h3>' . $VGA_CONTENT['proposal_txt'] . '</h3>';
+					echo '<h3>'.$originalname['proposalid'] .': ' . $VGA_CONTENT['proposal_txt'] . '</h3>';
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
