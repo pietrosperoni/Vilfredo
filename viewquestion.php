@@ -711,10 +711,17 @@ if ($userid) {
 				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div>";
 				echo " </div>";
 				
-				InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
 				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+
+				#InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
+				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
+				#$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+				#InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
+				echo "<br>";
+				echo "<br>";
+
 				
 				$PFE=CalculateFullParetoFrontExcludingFromArray($proposalsEndorsers,$userid);
 				
