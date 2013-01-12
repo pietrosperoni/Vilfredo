@@ -54,6 +54,33 @@ $author=$QuestionInfo['usercreatorid'];
 	{
 		header("Location: index.php");
 	}
+
+echo "<table>";
+$g=$generation-1;
+$questionData=array();//we store all the data at the beginning. What need do we have to extract it again?
+$questionData["proposalsEndorsers"]=array();
+$questionData["ParetoFront"]=array();
+while($g>0)
+{
+	$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$g); 
+	$questionData[$g]=$proposalsEndorsers;
+	
+	$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+	$questionData["proposalsEndorsers"][$g]=$proposalsEndorsers;
+	$questionData["ParetoFront"][$g]=$ParetoFront;
+	
+#	InsertMapFromArray($question,$g,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/false);
+	echo "<tr><td>";
+	echo $g;
+	echo "</td><td>";
+	$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+	InsertMapFromArray($question,$g,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,/*$InternalLinks=*/false);
+	echo "</td></tr>";
+	$g=$g-1;
+}	
+echo "</table>";
+	
+	
 	
 
 	$Disabled="DISABLED";
@@ -73,6 +100,8 @@ $author=$QuestionInfo['usercreatorid'];
 	$response = mysql_query($sql);
 	if ($response)
 	{
+		
+		
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
 		echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
