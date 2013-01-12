@@ -716,9 +716,14 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 
 				#InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
+				
+				echo "<table><tr><td>";
 				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
-				#$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-				#InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
+				echo "</td><td>";
+				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+				InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+				echo "</td></tr></table>";
+				
 				echo "<br>";
 				echo "<br>";
 
