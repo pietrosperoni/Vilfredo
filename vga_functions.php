@@ -6005,6 +6005,9 @@ function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlight
 
 #$ShowNSupporters=true,$ShowAllEndorsments=false,$size="7.5,10",$bundles=true,$highlightuser1=0)
 
+
+
+
 function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in MapName=".$highlightproposal1;
@@ -6013,6 +6016,19 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 	else			{ $internal="there"; }
 	return "map/map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal;
 }
+
+
+function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks)
+{
+	$room=GetQuestionRoom($question);
+	if ($InternalLinks)	{ $internal="here"; }
+	else			{ $internal="there"; }
+	return "map/".md5("map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.serialize($proposalsEndorsers));	
+}
+
+
+
+
 
 #function MapName_1($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0)
 #{
@@ -6100,7 +6116,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 {
 #	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
 	
-	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
+	$filename=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 	if($size=="L")     { $sz="11,5.5";	}
 	elseif($size=="M") { $sz= "8,4";	}
 	elseif($size=="S") { $sz= "6,3";    }
@@ -6113,7 +6129,6 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 	}
 	$MapFile = fopen($filename.".dot", "w+");
-	echo "I am down here";
 	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$ShowNSupporters=*/true,/*$ShowAllEndorsments=*/false,/*$bundles=*/true,/*$InternalLinks=*/$InternalLinks);
 	
 	if ($MapFile) 
@@ -6889,12 +6904,6 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 #10,16.18
 function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false)
 {
-	echo "<br>";
-	echo "<br>from inside";
-	echo "<br>";
-	print_r($proposalsEndorsers);
-	echo "<br>";
-	echo "<br>";
 	
 	$proposals_below=array();
 	$proposals_above=array();
@@ -7035,16 +7044,16 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		if($highlightproposal1)
 		{		
 			#if(in_array($e,EndorsersToAProposal($highlightproposal1)))		
-			if(in_array($e,$proposalsEndorsers[$highlightproposal1]))
+			if(in_array($kc2u,$proposalsEndorsers[$highlightproposal1]))
 			{
 				$color="red";
 				$peripheries=1;						
 			}
 		}
-		if($highlightuser1===$e)
+		if($highlightuser1===$kc2u) #bundles which have highlighted user inside do not have a line around
 		{
 			$color="black";
-#			$peripheries=1;			
+	#		$peripheries=1;			
 		}
 		
 		$detailsTable=' BGCOLOR="lightpink3" ';	
@@ -7227,7 +7236,8 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	foreach ($proposals as $p)
 	{
 		$pcolor="black";
-		if(in_array($p,$BundledProposals)){continue;}
+		if(in_array($p,$BundledProposals))
+			{continue;}
 		$pcs=$proposals_covered[$p];
 		if($highlightproposal1)
 		{
@@ -7252,8 +7262,10 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 			
 			if($highlightproposal1)
 			{			
-				if($highlightproposal1===$pc OR in_array($pc,$proposals_above[$highlightproposal1]))	{$color="red";}
+				if($highlightproposal1===$pc OR in_array($pc,$proposals_above[$highlightproposal1]))	
+					{$color="red";}
 			}
+			
 			$buf.=' '.$pc.' -> '.$p.' [color="'.$color.'"]';	
 			$buf.=" \n";					
 		}		
@@ -7275,15 +7287,17 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		foreach ($endorserstothis as $e)
 		{
 			if(in_array($e,$BundledUsers)){	continue;}
-			$color="blue";			
-			if($highlightuser1===$e)
+			$color="blue";
+			if($highlightuser1==$e)
 				{$color="red";	}
-			$keys=array_keys($Combined2Proposals);
+			$keys=array_keys($Combined2Users);
 			if(in_array($e,$keys))
+			{
+				if(in_array($highlightuser1,$Combined2Users[$e]))
 				{
-					if(in_array($highlightuser1,$Combined2Users[$e]))
-						{$color="red";	}
+					$color="red";	
 				}
+			}
 			if ($highlightproposal1>0)
 			{
 				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
@@ -8097,5 +8111,4 @@ function WriteQuestionInfo($question,$userid)
 
 #function Endorsers($question,$generation)
 #AuthorsOfNewProposals($question,$generation)
-
 ?>
