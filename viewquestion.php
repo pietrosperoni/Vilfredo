@@ -213,9 +213,15 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	if (($phase==0) && ($generation>1))
 	{
+		$pastgeneration=$generation-1;
+		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$pastgeneration); 
+		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+				
 		echo '<div class = "container_large">';
+		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
 		
-		InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
+		//InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
 		/*
 		$graphsize = 'mediumgraph';
 		if ($filename = InsertMap2($question,$generation-1))
@@ -717,12 +723,12 @@ if ($userid) {
 
 				#InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
 				
-				echo "<table><tr><td>";
+				#echo "<table><tr><td>";
 				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
-				echo "</td><td>";
-				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-				InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
-				echo "</td></tr></table>";
+				#echo "</td><td>";
+				#$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+				#InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+				#echo "</td></tr></table>";
 				
 				echo "<br>";
 				echo "<br>";
