@@ -7784,7 +7784,7 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase) #the table
 		$g=$g+1;
 	}
 	$urlquery=CreateGenerationURL($question,$g,$room);
-	echo '<td style="background-color:white;">Now</td>';
+	echo '<td style="background-color:white;" width="32">Now</td>';
 
 	echo '</tr>';
 
