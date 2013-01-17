@@ -49,7 +49,7 @@ $author=$QuestionInfo['usercreatorid'];
 		header("Location: index.php");
 	}
 
-echo "<table>";
+#echo "<table>";
 $g=$generation-1;
 $questionData=array();//we store all the data at the beginning. What need do we have to extract it again?
 $questionData["proposalsEndorsers"]=array();
@@ -57,22 +57,20 @@ $questionData["ParetoFront"]=array();
 while($g>0)
 {
 	$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$g); 
-	$questionData[$g]=$proposalsEndorsers;
-	
 	$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 	$questionData["proposalsEndorsers"][$g]=$proposalsEndorsers;
-	$questionData["ParetoFront"][$g]=$ParetoFront;
-	
-#	InsertMapFromArray($question,$g,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/false);
-	echo "<tr><td>";
-	echo $g;
-	echo "</td><td>";
-	$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-	InsertMapFromArray($question,$g,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,/*$InternalLinks=*/false);
-	echo "</td></tr>";
+	$questionData["ParetoFront"][$g]=$ParetoFront;	
 	$g=$g-1;
 }	
-echo "</table>";
+
+
+#while($g>0)
+#{
+#	$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$g); 
+#	$questionData[$g]=$proposalsEndorsers;
+	
+#	$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+
 	
 	
 	
@@ -98,13 +96,14 @@ echo "</table>";
 		
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
-		echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
+		#echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
 		$genshowing=$generation;
 		$i = 0;
 		while ($row = mysql_fetch_array($response))
 		{
 			if ($row[3]!=$genshowing)
 			{
+				
 				$genshowing=$row[3];
 				WriteGraphVizMap($question,$genshowing);
 				
@@ -159,7 +158,12 @@ echo "</table>";
 				echo '</td></tr>';
 				
 				echo '<tr><td colspan="1" class="genhist">';
-				InsertMap($question,$genshowing,$userid,"M");
+
+				$proposalsEndorsers=$questionData["proposalsEndorsers"][$genshowing];
+				$ParetoFront=$questionData["ParetoFront"][$genshowing];
+				InsertMapFromArray($question,$g,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/false);
+				
+#				InsertMap($question,$genshowing,$userid,"M");
 				/*
 				$mapid = 'svggraph' . $genshowing;
 				$graphsize = 'mediumgraph';
@@ -178,41 +182,16 @@ echo "</table>";
 				echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
 				*/
 				echo '</td>';
+
+				echo '<td colspan="4">';
+				#echo drawVanDerWallSets($question,$genshowing,$endorsers,$PreviousAuthors,$proposers);
 				
-				$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
-
-				$NVoters=count($endorsers); #P
-				$NOldAuthors=count($PreviousAuthors);#O
-				$NAuthors=count($proposers); #A
-
-				$IntersectionAP=array_intersect($endorsers,$proposers);
-				$IntersectionPO=array_intersect($endorsers,$PreviousAuthors);
-				$IntersectionAO=array_intersect($proposers,$PreviousAuthors);
+				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+				InsertMapFromArray($question,$genshowing,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,/*$InternalLinks=*/false);
 				
-				$SizeIntersectionAP=count($IntersectionAP);
-				$SizeIntersectionAO=count($IntersectionAO);
-				$SizeIntersectionPO=count($IntersectionPO);
-				
-				$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
-				$SizeIntersectionAPO=count($IntersectionAPO);
-
-#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,00FF00&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
-#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
-
-				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
-
-				echo '<td colspan="4"><img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
-#				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
-#				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
-#				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
-#								
-#				echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
-#				echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
-#				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
-#				echo " ".$SizeIntersectionAPO." Full Intersection: ".implode(", ",$IntersectionAPO)."<br />";
-
 				echo '</td></tr>';
+				echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
+				
 			}
 
 

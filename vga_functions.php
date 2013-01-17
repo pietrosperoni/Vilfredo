@@ -5893,6 +5893,50 @@ function WhoDominatesThisFromArrayExcluding($proposalToBeDominate,$paretofront,$
 }
 
 
+
+
+
+function drawVanDerWallSets($question,$genshowing,$endorsers,$PreviousAuthors,$proposers)
+{
+	$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
+
+	$NVoters=count($endorsers); #P
+	$NOldAuthors=count($PreviousAuthors);#O
+	$NAuthors=count($proposers); #A
+
+	$IntersectionAP=array_intersect($endorsers,$proposers);
+	$IntersectionPO=array_intersect($endorsers,$PreviousAuthors);
+	$IntersectionAO=array_intersect($proposers,$PreviousAuthors);
+		
+	$SizeIntersectionAP=count($IntersectionAP);
+	$SizeIntersectionAO=count($IntersectionAO);
+	$SizeIntersectionPO=count($IntersectionPO);
+		
+	$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
+	$SizeIntersectionAPO=count($IntersectionAPO);
+
+	$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,00FF00&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
+
+	$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
+
+	return '<img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
+	#echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
+	#echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
+	#echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
+	#								
+	#echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
+	#echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
+	#echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
+	#echo " ".$SizeIntersectionAPO." Full Intersection: ".implode(", ",$IntersectionAPO)."<br />";
+}
+			
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 ////////////////FUNCTIONS TO DRAW THE GRAPHVIZ MAP///////////////////////////////////
@@ -7778,7 +7822,7 @@ function MakeQuestionMap($userid,$question,$room,$generation,$phase) #the table
 		$g=$g+1;
 	}
 	$urlquery=CreateGenerationURL($question,$g,$room);
-	echo '<td style="background-color:white;">Now</td>';
+	echo '<td style="background-color:white;" width="32">Now</td>';
 
 	echo '</tr>';
 
