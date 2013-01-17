@@ -102,13 +102,14 @@ while($g>0)
 		
 		echo '<div id="historybox">';
 		echo '<table border="1" class="historytable">';
-		echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
+		#echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
 		$genshowing=$generation;
 		$i = 0;
 		while ($row = mysql_fetch_array($response))
 		{
 			if ($row[3]!=$genshowing)
 			{
+				
 				$genshowing=$row[3];
 				WriteGraphVizMap($question,$genshowing);
 				
@@ -195,6 +196,8 @@ while($g>0)
 				InsertMapFromArray($question,$genshowing,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,/*$InternalLinks=*/false);
 				
 				echo '</td></tr>';
+				echo '<tr><th><strong>' . $VGA_CONTENT['proposal_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['author_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['endorsers_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['result_txt'] . '</strong></th><th><strong>' . $VGA_CONTENT['you_txt'] . '</strong></th></tr>';
+				
 			}
 
 
