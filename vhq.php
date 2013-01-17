@@ -187,48 +187,13 @@ while($g>0)
 				echo '<div id="' . $mapid . '" class="'.$graphsize.'"></div>';
 				*/
 				echo '</td>';
-				
-				#$PreviousAuthors=AuthorsOfInheritedProposals($question,$genshowing);
-
-				#$NVoters=count($endorsers); #P
-				#$NOldAuthors=count($PreviousAuthors);#O
-				#$NAuthors=count($proposers); #A
-
-				#$IntersectionAP=array_intersect($endorsers,$proposers);
-				#$IntersectionPO=array_intersect($endorsers,$PreviousAuthors);
-				#$IntersectionAO=array_intersect($proposers,$PreviousAuthors);
-				
-				#$SizeIntersectionAP=count($IntersectionAP);
-				#$SizeIntersectionAO=count($IntersectionAO);
-				#$SizeIntersectionPO=count($IntersectionPO);
-				
-				#$IntersectionAPO=array_intersect($endorsers,$proposers,$PreviousAuthors);
-				#$SizeIntersectionAPO=count($IntersectionAPO);
-
-#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,FDD017&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
-#				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=300x150&chd=t:".$NAuthors.",".$NVoters.","."0".",".$SizeIntersectionAP.","."0".","."0".","."0"."&chco=FF0000,0000FF,FFFFFF&chdl=Authors|Voters|&chtt=Authors+Vs+Voters+Relationship";
-
-				$VenGraph="http://chart.apis.google.com/chart?cht=v&chs=350x150&chd=t:".$NAuthors.",".$NVoters.",".$NOldAuthors.",".$SizeIntersectionAP.",".$SizeIntersectionAO.",".$SizeIntersectionPO.",".$SizeIntersectionAPO."&chco=FF0000,0000FF,00FF00&chdl=".$NAuthors." Authors|".$NVoters." Voters|".$NOldAuthors." Inherited Authors&chtt=Authors+Vs+Voters+Relationship";
-
-				$ToolTipGraph=" ".$NAuthors." Authors, ".$NVoters." Voters, ".$NOldAuthors." Inherited Authors, Author ? Voters= ".$SizeIntersectionAP.", Author ? Inherited Authors= ".$SizeIntersectionAO.", Voters ? Inherited Authors= ".$SizeIntersectionPO.", Authors ? Voters ? Inherited Authors= ".$SizeIntersectionAPO." ";
 
 				echo '<td colspan="4">';
-
-				#echo '<img Title="'.$ToolTipGraph.'" src="'.$VenGraph.'">';
-				
+				#echo drawVanDerWallSets($question,$genshowing,$endorsers,$PreviousAuthors,$proposers);
 				
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				InsertMapFromArray($question,$genshowing,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,/*$InternalLinks=*/false);
 				
-#				echo "<br /> ".$NAuthors." Authors: ".implode(", ",$proposers)."<br />";
-#				echo " ".$NVoters." Voters:".implode(", ",$endorsers)."<br />";
-#				echo " ".$NOldAuthors." Inherited:".implode(", ",$PreviousAuthors)."<br />";
-#								
-#				echo " ".$SizeIntersectionAP." Authors Intersection Voters: ".implode(", ",$IntersectionAP)."<br />";
-#				echo " ".$SizeIntersectionAO." Authors Intersection Inherited: ".implode(", ",$IntersectionAO)."<br />";
-#				echo " ".$SizeIntersectionPO." Inherited Intersection Voters: ".implode(", ",$IntersectionPO)."<br />";
-#				echo " ".$SizeIntersectionAPO." Full Intersection: ".implode(", ",$IntersectionAPO)."<br />";
-
 				echo '</td></tr>';
 			}
 
