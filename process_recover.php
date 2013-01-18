@@ -43,13 +43,13 @@ function validate_recover_code_link()
 	$invalide_link_msg = "Sorry, there appeared to be a problem with validating your password reset link. Please enter the code manually below or contact support. Thanks.";
 	
 	if (!isset($_GET['t']) || !isset($_GET['u']) 
-		|| !ctype_alnum($_GET['t']) || !ctype_alnum($_GET['u']))
+		|| !ctype_alnum($_GET['t']) || !ctype_digit($_GET['u']))
 	{		
 		set_message("error", $invalide_link_msg);
 		return false;
 	}
 	
-	$token = $_GET['t'];
+	$token = mysql_real_escape_string($_GET['t']);
 	$userid = (int)$_GET['u'];
 
 	$sql = "SELECT userid, token, timeout		
