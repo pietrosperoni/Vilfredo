@@ -17,6 +17,25 @@ body {
 	top: -5px;
 }
 
+.vgaregiseterbutton {
+	height: 60px;
+	width: 120px;
+	border: 1px solid #b45f04;
+	background: #cdffcc;
+	background-image: url('images/paretobutton.png');
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	padding: 0;
+	padding-left: 65px;
+	margin-bottom: 20px;
+	line-height: 60px;
+	font-size: 1.1em;
+}
+a.plain {
+	text-decoration: none;
+	color: black;
+}
+
 .navbar {
 	margin: 0;
 	padding: 0;
