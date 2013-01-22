@@ -6111,21 +6111,21 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 	return;
 }
 
-function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
+function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
 	{
-		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
+		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
 		if ($svgfile)
 		{
 			$buf='<center><embed src="'.$svgfile.'" ';
-			#if($size=="L")      {	$buf.='width="1100" height="550" ';	}
-			if($size=="L")      {	$buf.='width="1100" height="800" ';	}
-			#elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
-			elseif($size=="M")	{	$buf.='width="800" height="600" ';	}
-			#elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
-			elseif($size=="S")	{	$buf.='width="600" height="400" ';	}		
+			if($size=="L")      {	$buf.='width="1100" height="550" ';	}
+			#if($size=="L")      {	$buf.='width="1100" height="800" ';	}
+			elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
+			#elseif($size=="M")	{	$buf.='width="800" height="600" ';	}
+			elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
+			#elseif($size=="S")	{	$buf.='width="600" height="400" ';	}		
 			elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
 			$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
 			echo $buf;
@@ -6168,12 +6168,16 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 }
 
 
-function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks)
+function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType)
 {
 	$room=GetQuestionRoom($question);
 	if ($InternalLinks)	{ $internal="here"; }
 	else			{ $internal="there"; }
-	return "map/".md5("map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.serialize($proposalsEndorsers));	
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.$ProposalLevelType.$UserLevelType.serialize($proposalsEndorsers);
+	$translated=md5($totranslate);
+#	echo "To translate= $totranslate";
+#	echo "translated= $translated";
+	return $translated;	
 }
 
 
@@ -6260,18 +6264,20 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 }
 
 
-function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
+function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
 {
-#	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
 	
-	$filename=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
-	#if($size=="L")     { $sz="11,5.5";	}
-	if($size=="L")     { $sz="11,8";	}
-	#elseif($size=="M") { $sz= "8,4";	}
-	elseif($size=="M") { $sz= "8,6";	}
-	#elseif($size=="S") { $sz= "6,3";    }
-	elseif($size=="S") { $sz= "6,4";    }
-	elseif($size=="XS"){ $sz= "4,2";    }
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$filename="map/".$name;
+	
+	##if($size=="L")     { $sz="11,5.5";	}
+	#if($size=="L")     { $sz="11,8";	}
+	##elseif($size=="M") { $sz= "8,4";	}
+	#elseif($size=="M") { $sz= "8,6";	}
+	##elseif($size=="S") { $sz= "6,3";    }
+	#elseif($size=="S") { $sz= "6,4";    }
+	#elseif($size=="XS"){ $sz= "4,2";    }
+	$sz="11,8";
 	
 	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
 	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
@@ -6280,7 +6286,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 	}
 	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/"NVotes",/*$UserLevelType=*/"Layers");
+	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
 	
 	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
 	//                  $ProposalLevelType == "NVotes", "Layers"
@@ -6655,13 +6661,14 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 			$ToAdd=' BGCOLOR="red" ';
 		}
 		
-		if($InternalLinks==true)
+		if($InternalLinks==false)
+		{
+			$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';			
+		}
+		else
 		{	
 			$urlquery=CreateInternalProposalURL($OriginalP);
-			$answer.='<TD '.$ToAdd.' HREF="'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
-		}else{
-	#		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
-			$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';			
+			$answer.='<TD '.$ToAdd.' HREF="'.$InternalLinks.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
 		}
 		
 		
@@ -7077,7 +7084,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 //possible values: $UserLevelType == "NVotes", "Layers", "Flat"
 //possible values: $ProposalLevelType == "NVotes", "Layers"
 
-function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes")
+function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
 #	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
 {
 	$proposals_below=array();
@@ -7117,16 +7124,22 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	$proposals_covered=GetCovered($proposals_below,$proposals);
 
 
-	$endorsers_below[$e]=array();
-	$endorsers_above[$e]=array();		
-	if($UserLevelType     !=   "Flat")
+	if($UserLevelType     ==   "Flat")
+	{
+		foreach ($endorsers as $e)
+		{
+			$endorsers_below[$e]=array();
+			$endorsers_above[$e]=array();
+		}				
+	}
+	else
 	{
 		foreach ($endorsers as $e)
 		{
 			$RelatedEndorsers=CalculateUsersRelationToFromArray($e,$endorserProposals,$endorsers);
 			$endorsers_below[$e]=$RelatedEndorsers["dominated"];
 			$endorsers_above[$e]=$RelatedEndorsers["dominating"];
-		}		
+		}				
 	}
 	$endorsers_covered=GetCovered($endorsers_below,$endorsers);
 	$endorsers_covering=GetCovered($endorsers_above,$endorsers);
@@ -7334,17 +7347,15 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 				$fillcolor='"lightblue" ';								
 			}
 			
-			if ($InternalLinks==true)
-			{	
-				$urlquery=CreateInternalProposalURL($OriginalP);
-				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
-			}
-			else
+			if ($InternalLinks==false)
 			{
 				$urlquery = CreateProposalURL($OriginalP, $room);
-#				$urlquery = "pluto";
-				
 				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			}
+			else
+			{		
+				$urlquery=CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
 			}
 			$buf.="\n";			
 		}
@@ -7352,15 +7363,16 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		{	
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
-			if ($InternalLinks==true)
+			
+			if ($InternalLinks==false)
+			{	
+				$urlquery = CreateProposalURL($OriginalP, $room);
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+			}
+			else
 			{
 				$urlquery = CreateInternalProposalURL($OriginalP);
-				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
-			}else{
-				
-				$urlquery = CreateProposalURL($OriginalP, $room);
-#				$urlquery = "pippo";
-				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
 			}
 			$buf.="\n";
 		}
@@ -7467,6 +7479,13 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		}
 	}
 	
+	
+	$buf.=" \n";
+	$buf.='ZoomIn'.' [label="Full Size" shape=plaintext color=Black peripheries=0 tooltip="Look at this image in full size" fontsize=9 URL="'.$addressImage.'" target="_top"]';
+
+	$buf.=" \n";
+	
+
 	#foreach ($proposals as $p)
 	#{
 	#	$buf.=' "'.WriteUserName(AuthorOfProposal($p)).'" -> '.$p.' [color=red]';

@@ -710,15 +710,18 @@ if ($userid) {
 				
 				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
-
-				#InsertMap($question,$generation,$userid,"L",0,/*$InternalLinks=*/true);
+				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
-				#echo "<table><tr><td>";
-				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"L",0,/*$InternalLinks=*/true);
-				#echo "</td><td>";
-				#$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-				#InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
-				#echo "</td></tr></table>";
+				$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
+				echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
+
+				echo "<tr><td width=\"70%\">";
+				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
+				echo "</td><td>";
+				InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+				echo "</td></tr>";
+
+				echo "</table>";
 				
 				echo "<br>";
 				echo "<br>";
