@@ -20,6 +20,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	$question = fetchValidQuestionFromQuery();
 	$room = fetchValidRoomFromQuery();
+	$generation = fetchValidIntValFromQueryWithKey(QUERY_KEY_GENERATION);
+	
 	
 	// Return false if bad query parameters passed
 	if ($question === false || $room === false)
@@ -36,115 +38,73 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		exit;
 	}
 	
-	$title=$QuestionInfo['title'];
-	$room=$QuestionInfo['room'];
 	$phase=$QuestionInfo['phase'];
-	$generation=$QuestionInfo['roundid'];
-
-
-	echo "<br />";
-
-	if (($phase==0) && ($generation>1))
+	$ActualGeneration=$QuestionInfo['roundid'];
+	
+	if ($phase==0)
 	{
-		$pastgeneration=$generation-1;
-		
-		
-		
-		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$pastgeneration); 
-		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
-
-		echo "<table width=\"1200\" cellpadding=\"0\" cellspacing=\"0\" border=1>";
-
-		echo "<tr><td width=\"33%\">";
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
-		echo "</td><td width=\"34%\">";
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
-		echo "</td><td width=\"33%\">";
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");		
-		echo "</td></tr>";
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");		
-		echo "</td></tr>";
-
-		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");
-		echo "</td></tr>";
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");
-		echo "</td></tr>";
-
-		echo "</table>";
-
-
+		if($ActualGeneration==0)
+		{
+			header("Location: error_page.php");
+			exit;			
+		}
+		if ($ActualGeneration <= $generation)
+		{
+			header("Location: error_page.php");
+			exit;
+		}		
 	}
-	
-	if ($phase==1)
+	else
 	{
-		
-		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
-		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
-
-		echo "<table width=\"1200\" cellpadding=\"0\" cellspacing=\"0\" border=1>";
-
-		echo "<tr><td width=\"33%\">";
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
-		echo "</td><td width=\"34%\">";
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
-		echo "</td><td width=\"33%\">";
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");		
-		echo "</td></tr>";
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");		
-		echo "</td></tr>";
-
-		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");
-		echo "</td></tr>";
-
-		echo "<tr><td>";		
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
-		echo "</td><td>";
-		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");
-		echo "</td></tr>";
-
-		echo "</table>";
-
-
+		if ($ActualGeneration < $generation)
+		{
+			header("Location: error_page.php");
+			exit;
+		}
 	}
-	
-	
 
 
-	echo '</div>';
+	$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
+	$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+
+	echo "<table width=\"1200\" cellpadding=\"0\" cellspacing=\"0\" border=1>";
+
+	echo "<tr><td width=\"33%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
+	echo "</td><td width=\"34%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
+	echo "</td><td width=\"33%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");		
+	echo "</td></tr>";
+
+	echo "<tr><td>";		
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");		
+	echo "</td></tr>";
+
+	$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+
+	echo "<tr><td>";		
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","NVotes");
+	echo "</td></tr>";
+
+	echo "<tr><td>";		
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Flat");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","Layers");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Layers","NVotes");
+	echo "</td></tr>";
+
+	echo "</table>";
+
 
 if (!$userid)
 {
