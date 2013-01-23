@@ -7170,26 +7170,50 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		$BundledUsers=array_merge($BundledUsers,$Combined2Users[$kc2u]);#Bundled elements don't need to be drawn
 		array_push($Combined2Users[$kc2u],$kc2u);
 	}
-	
 		
 	$ProposalLevelsKeys=array_keys($ProposalLevels);
 	$UserLevelsKeys=array_keys($UserLevels);
-	foreach ($ProposalLevelsKeys as $l)	{	$buf.="pl".$l." [shape=point fontcolor=white color=white fontsize=1] \n"; }	
-	foreach ($UserLevelsKeys as $l)		{	$buf.="ul".$l." [shape=point fontcolor=white color=white fontsize=1] \n";}
+
+	if      ($ProposalLevelType == "NVotes")	{	$FullSizeNote=max($ProposalLevelsKeys);	}
+	elseif	($ProposalLevelType == "Layers")	{	$FullSizeNote=0;			}
+
+	$AllGraphsNote=max($UserLevelsKeys);
+
+	foreach ($ProposalLevelsKeys as $l)
+	{
+		if ($l==$FullSizeNote)
+		{
+			$buf.=' "pl'.$FullSizeNote.'" [label="Full\\nSize" shape=circle style=filled color=Black peripheries=1 fillcolor=palegoldenrod tooltip="Look at this image in full size" fontsize=10 URL="'.$addressImage.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "pl'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n"; 
+	}
 	
+	foreach ($UserLevelsKeys as $l)
+	{	
+		if ($l==$AllGraphsNote) 
+		{
+			$AllGraph=SITE_DOMAIN."/viewquestiongraph.php".CreateGenerationURL($question,$generation,$room);
+			$buf.=' "ul'.$AllGraphsNote.'" [label="All\\nGraphs" shape=circle style=filled color=Black peripheries=1  fillcolor=palegoldenrod tooltip="Look at all the alternative views of this information" fontsize=9 URL="'.$AllGraph.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "ul'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n";
+	}
+
 	foreach ($ProposalLevelsKeys as $l)
 	{	
 		if($l!=$ProposalLevelsKeys[0])	
 			{$buf.=' -> ';}
-		$buf.='"pl'.$l.'"';
+		$buf.='"pl'.$l.'" ';
 	}
+	
 	foreach ($UserLevelsKeys as $l)
 	{	
 		$buf.=' -> ';
-		$buf.='"ul'.$l.'"';		
+		$buf.='"ul'.$l.'" ';		
 	}
 
-	$buf.="[color=white] \n";			
+	$buf.=" [color=white] \n ";			
 
 	foreach ($ProposalLevelsKeys as $l)
 	{
@@ -7480,12 +7504,8 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	}
 	
 	
-	$buf.=" \n";
-	$buf.='ZoomIn'.' [label="Full Size" shape=plaintext color=Black peripheries=0 tooltip="Look at this image in full size" fontsize=9 URL="'.$addressImage.'" target="_top"]';
 
-	$buf.=" \n";
 	
-
 	#foreach ($proposals as $p)
 	#{
 	#	$buf.=' "'.WriteUserName(AuthorOfProposal($p)).'" -> '.$p.' [color=red]';
