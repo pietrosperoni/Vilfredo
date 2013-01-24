@@ -26,7 +26,7 @@ else
 	if ($logged_in)
 	{
 		$redirect = getpostloginredirectlink();
-		//set_log(__FILE__.' :: getpostloginredirectlink = '.$redirect);
+		set_log(__FILE__.' :: getpostloginredirectlink = '.$redirect);
 		header("Location: " . $redirect);
 		exit;
 	}
@@ -76,6 +76,9 @@ else
 	</div>
 	
 	<div class="login_sector_soc">
+		
+	<a class="plain" href="register.php"><div class="vgaregiseterbutton">Register Now</div></a>
+		
 	<?php
 	$display_fb_login = true;
 	if (ADMIN_ACCESS_ONLY)
@@ -84,6 +87,7 @@ else
 	}
 	?>
 	<?php echo facebook_login_button_refresh_2(DISPLAY_FACEBOOK_LOGIN); ?>
+	
 	</div>
 	<div class="clear"></div>
 	<?php
