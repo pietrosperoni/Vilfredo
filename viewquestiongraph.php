@@ -30,6 +30,12 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		exit;
 	}
 		
+	if (!HasQuestionAccess())
+	{
+		header("Location: viewquestions.php");
+		exit;
+	}
+		
 	$QuestionInfo = GetQuestion($question);
 	
 	if (!$QuestionInfo)
