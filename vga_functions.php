@@ -1830,12 +1830,6 @@ function GetProposalAuthor($proposal)
 	return $row['usercreatorid'];
 }
 
-
-
-
-
-
-
 function GetProposalDaughter($proposal)
 {
 	$daughter=0;
@@ -1849,7 +1843,6 @@ function GetProposalDaughter($proposal)
 	return $daughter;
 }
 
-
 function GetProposalQuestion($proposal)
 {
 	 $sql="SELECT experimentid FROM proposals WHERE proposals.id = '$proposal'";
@@ -1857,10 +1850,6 @@ function GetProposalQuestion($proposal)
 	$row = mysql_fetch_assoc($result);
 	return $row['experimentid'];
 }
-
-
-
-
 
 function GetProposalRoom($proposal)
 {
@@ -1904,7 +1893,6 @@ function GetQuestionGeneration($question)
 
 	return $row['roundid'];
 }
-
 
 function GetQuestionTitle($question)
 {
@@ -1964,6 +1952,7 @@ function GetProposal($proposal)
 		return false;
 	}
 }
+
 function GetQuestion($question)
 {
 	 $sql = "SELECT *
@@ -1995,9 +1984,6 @@ function GetProposalValues($proposal)
 
 	return $info;
 }
-
-
-
 
 // Returns empty string if no room set,
 // or room id as a string
@@ -3211,6 +3197,20 @@ function ProposalsToAnEndorserFromArray($proposalsEndorsers,$u)
 	}
 	return $Supporters;	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5196,7 +5196,81 @@ function ReturnProposalsEndorsersArray($question,$generation)
 
 
 
+#it extracts from the array the endorses
+function EndorsersProposalsFromPorposalsEndorsers($proposalEndorsers) 	{ return invertArray($proposalEndorsers); } /*return  $endorserProposals*/ 
+function extractEndorsers($proposalsEndorsers) 			{ return extractB($proposalsEndorsers);   } /*return $endorsers*/ 
+	
+function extractB($A2B)
+{
+	$Bs=array();
+	foreach($A2B as $a)
+	{
+		$Bs=array_merge($Bs,$a);	
+	}
+	return array_unique($Bs);
+}
 
+
+function invertArray($A2B)
+{
+	$B2A=array();
+	$As=array_keys($A2B);
+	$Bs=extractB($A2B);
+	foreach ($Bs as $b) { $B2A[$b]=array(); }
+	
+	foreach ($As as $a)
+	{
+		foreach ($A2B[$a] as $b) { array_push($B2A[$b],$a); }
+	}
+	return $B2A;
+}
+
+
+//  ********************************************/
+//Given an array of relations A to B, and a particular 'a' finds which other elements of A are dominated or dominating 'a'.
+// using as a relation that p dominates q if p is a supraset of q.
+//   ********************************************/
+function CalculateRelationToFromArray($a,$A2B,$as=0)
+{
+	$Related=array();
+	$dominated=array();
+	$dominating=array();
+	$BsOfa=$A2B[$a];
+	if($as==0) { $as=array_keys($A2B); }
+	
+	foreach ($as as $p)
+	{
+		if ($a==$p) { continue; }
+		$BsOfp=$A2B[$p];
+		$dominant=WhichArrayDominatesWhich($BsOfa,$BsOfp);
+		
+		if     ($dominant==1)	{ array_push($dominated, $p); }
+		elseif ($dominant==2)	{ array_push($dominating,$p); }
+	}
+	$Related["dominated"]=$dominated;
+	$Related["dominating"]=$dominating;
+		
+	return $Related;
+}
+
+
+
+function FindLevelsBasedOnSizeFromArray($A2B)
+{
+	$Levels=array();
+	$keys=array_keys($A2B);
+	foreach($keys as $key)
+	{
+		$level=count($A2B[$key]);
+		if (in_array($level, array_keys($Levels))==false)
+		{
+			$Levels[$level]=array();
+		}
+		array_push($Levels[$level],$key);							
+	}
+	krsort($Levels);
+	return $Levels;
+}
 
 
 #this calcultates the Pareto Front in a group of proposals, without changing the DB
@@ -5233,13 +5307,6 @@ function CalculateParetoFrontFromProposals($proposals) //ARRAY
 	$paretofront=array_diff($proposalsID,$dominated);
 	return $paretofront;
 }
-
-
-
-
-
-
-
 
 
 
@@ -5284,31 +5351,66 @@ function CalculateProposalsRelationTo($proposal,$question,$generation)
 //  ********************************************/
 //Given a proposal this function finds all the proposal that dominates it or that are dominated by it
 //   ********************************************/
-function CalculateProposalsRelationToFromArray($proposal,$proposalsEndorsers)
+function CalculateProposalsRelationToFromArray($proposal,$proposalsEndorsers,$proposals=0)
 {
-	$proposals=array_keys($proposalsEndorsers);
+	return CalculateRelationToFromArray($proposal,$proposalsEndorsers,$proposals);
+	
 	$dominated=array();
 	$dominating=array();
 	$RelatedProposals=array();
+	$EndorsersToProposal=$proposalsEndorsers[$proposal];
+	
+	
+	if($proposals==0) { $proposals=array_keys($proposalsEndorsers); }
+	
 	foreach ($proposals as $p)
 	{
-		if ($proposal==$p) 
-			{	continue;}
-		$WhichIsDominating=WhoDominatesWhoFromArray(array_intersect_key($proposalsEndorsers, array_flip(array($proposal, $p))));
+		if ($proposal==$p) { continue; }
 		
-		if ($WhichIsDominating==$proposal)
-		{
-			array_push($dominated,$p);
-		}
-		elseif ($WhichIsDominating==$p)
-		{
-			array_push($dominating,$p);
-		}
+		$UsersEndorsedP=$proposalsEndorsers[$p];
+		$dominant=WhichArrayDominatesWhich($EndorsersToProposal,$UsersEndorsedP);
+		if     ($dominant==1)	{ array_push($dominated, $p); }
+		elseif ($dominant==2)	{ array_push($dominating,$p); }
 	}
 	$RelatedProposals["dominated"]=$dominated;
 	$RelatedProposals["dominating"]=$dominating;
+
 	return $RelatedProposals;
 }
+
+
+//  ********************************************/
+//Given a user this function finds all the user that dominates it or that are dominated by it
+//we say that a user dominate another user if it votes for the same things as the first plus something else
+//   ********************************************/
+function CalculateUsersRelationToFromArray($user,$endorserProposals,$users=0)
+{
+	return CalculateRelationToFromArray($user,$endorserProposals,$users);
+	
+#	$dominated=array();
+#	$dominating=array();
+#	$RelatedUsers=array();	
+#	$ProposalsUserEndorsed=$endorserProposals[$user];
+#	if ($users==0) { $users=array_keys($endorserProposals); }
+#
+#	foreach ($users as $v)
+#	{
+#		if ($user==$v) { continue; }
+#		$ProposalsVEndorsed=$endorserProposals[$v];
+#		$dominant=WhichArrayDominatesWhich($ProposalsUserEndorsed,$ProposalsVEndorsed);
+#		
+#		if     ($dominant==1)	{ array_push($dominated, $v); }
+#		elseif ($dominant==2)	{ array_push($dominating,$v); }
+#	}
+#	$RelatedUsers["dominated"]=$dominated;
+#	$RelatedUsers["dominating"]=$dominating;
+#	return $RelatedUsers;
+}
+
+
+
+
+
 
 
 //  ********************************************/
@@ -5518,6 +5620,43 @@ function WhoDominatesWho($proposal1,$proposal2)
 		}
 	}
 }
+
+
+
+
+
+
+function WhichArrayDominatesWhich($array_1,$array_2)
+{
+	$Array1minus2=array_diff($array_1,$array_2);
+	$Array2minus1=array_diff($array_2,$array_1);
+	if (count($Array1minus2))
+	{
+		if (count($Array2minus1))
+		{
+			return 0; //neither dominates the other.
+		}
+		else
+		{				
+			return 1; //array 1 dominates array 2
+		}
+	}
+	else
+	{
+		if (count($Array2minus1))
+		{
+			return 2; //array 2 dominates array 1
+		}
+		else
+		{			
+			return -1; #They have the same endorsers
+		}
+	}
+	
+}
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////This function takes two proposals, Each proposal being an array of the form and returns 0 if neither dominates the other because they have different users
 /////////////////returns -1 if neither dominates the other because they have the same users
@@ -5528,39 +5667,17 @@ function WhoDominatesWhoFromArray($proposals)
 	
 	if (count($keyproposals)!=2 )
 	{
-		return -1;
+		return -2; //error
 	}
 	$proposal1=$keyproposals[0];
 	$proposal2=$keyproposals[1];
-	
-	$users1=$proposals[$proposal1];
-	$users2=$proposals[$proposal2];
-	
-	$Users1minus2=array_diff($users1,$users2);
-	$Users2minus1=array_diff($users2,$users1);
-	if (count($Users1minus2))
-	{
-		if (count($Users2minus1))
-		{
-			return 0; //neither dominates the other.
-		}
-		else
-		{
-			return $proposal1;
-		}
-	}
-	else
-	{
-		if (count($Users2minus1))
-		{
-			return $proposal2;
-		}
-		else
-		{
-			return -1; #They have the same endorsers
-		}
-	}
-}
+		
+	$dominant=WhichArrayDominatesWhich($proposals[$proposal1],$proposals[$proposal2]);
+	if( $dominant==1 ) { return $proposal1; }
+	if( $dominant==2 ) { return $proposal2; }
+	return $dominant; //0=neither dominates, -1= they have the same endorsers
+}	
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -5607,17 +5724,6 @@ function CalculateKeyPlayersKnowingPF($question,$generation,$paretofront) //you 
 }
 
 
-#it extracts from the array the endorses
-
-function extractEndorsers($proposalsEndorsers)
-{
-	$endorsers=array();
-	foreach($proposalsEndorsers as $es)
-	{
-		$endorsers=array_merge($endorsers,$es);	
-	}
-	return array_unique($endorsers);
-}
 
 //Calculate the key players having the proposals in the array proposals endorsers
 function CalculateKeyPlayersfromArrayInteractive($proposalsEndorsers)
@@ -6003,19 +6109,21 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 	return;
 }
 
-
-function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
+function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
 	{
-		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
+		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
 		if ($svgfile)
 		{
 			$buf='<center><embed src="'.$svgfile.'" ';
 			if($size=="L")      {	$buf.='width="1100" height="550" ';	}
+			#if($size=="L")      {	$buf.='width="1100" height="800" ';	}
 			elseif($size=="M")	{	$buf.='width="800" height="400" ';	}
+			#elseif($size=="M")	{	$buf.='width="800" height="600" ';	}
 			elseif($size=="S")	{	$buf.='width="600" height="300" ';	}		
+			#elseif($size=="S")	{	$buf.='width="600" height="400" ';	}		
 			elseif($size=="XS")	{	$buf.='width="400" height="200" ';	}		
 			$buf.=' type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" /></center>';
 			echo $buf;
@@ -6048,8 +6156,6 @@ function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlight
 #$ShowNSupporters=true,$ShowAllEndorsments=false,$size="7.5,10",$bundles=true,$highlightuser1=0)
 
 
-
-
 function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
 #	echo "highlightproposal1 in MapName=".$highlightproposal1;
@@ -6060,15 +6166,17 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 }
 
 
-function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks)
+function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType)
 {
 	$room=GetQuestionRoom($question);
 	if ($InternalLinks)	{ $internal="here"; }
 	else			{ $internal="there"; }
-	return "map/".md5("map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.serialize($proposalsEndorsers));	
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.$ProposalLevelType.$UserLevelType.serialize($proposalsEndorsers);
+	$translated=md5($totranslate);
+#	echo "To translate= $totranslate";
+#	echo "translated= $translated";
+	return $translated;	
 }
-
-
 
 
 
@@ -6154,15 +6262,20 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 }
 
 
-function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
+function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
 {
-#	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
 	
-	$filename=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
-	if($size=="L")     { $sz="11,5.5";	}
-	elseif($size=="M") { $sz= "8,4";	}
-	elseif($size=="S") { $sz= "6,3";    }
-	elseif($size=="XS"){ $sz= "4,2";    }
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$filename="map/".$name;
+	
+	##if($size=="L")     { $sz="11,5.5";	}
+	#if($size=="L")     { $sz="11,8";	}
+	##elseif($size=="M") { $sz= "8,4";	}
+	#elseif($size=="M") { $sz= "8,6";	}
+	##elseif($size=="S") { $sz= "6,3";    }
+	#elseif($size=="S") { $sz= "6,4";    }
+	#elseif($size=="XS"){ $sz= "4,2";    }
+	$sz="11,8";
 	
 	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
 	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
@@ -6171,7 +6284,11 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 	}
 	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$ShowNSupporters=*/true,/*$ShowAllEndorsments=*/false,/*$bundles=*/true,/*$InternalLinks=*/$InternalLinks);
+	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
+	
+	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
+	//                  $ProposalLevelType == "NVotes", "Layers"
+	
 	
 	if ($MapFile) 
 	{
@@ -6186,8 +6303,6 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 
 
 
-
-
 function FindLevels($proposals_covered,$proposals)
 {
 	$proposalsToTest=$proposals;
@@ -6197,14 +6312,7 @@ function FindLevels($proposals_covered,$proposals)
 	
 	while(sizeof($proposalsAdded)<sizeof($proposals))
 	{
-		if ($Level==0)
-		{
-			$Levels["Pareto Fronts"]=array();
-		}
-		else
-		{
-			$Levels[$Level]=array();
-		}
+		$Levels[$Level]=array();
 				
 		foreach($proposalsToTest as $p)
 		{
@@ -6221,14 +6329,8 @@ function FindLevels($proposals_covered,$proposals)
 			{
 				continue;
 			}
-			if ($Level==0)
-			{
-				array_push($Levels["Pareto Front"],$p);				
-			}
-			else
-			{
-				array_push($Levels[$Level],$p);							
-			}			
+
+			array_push($Levels[$Level],$p);	
 			array_push($proposalsAdded,$p);
 		}		
 		$proposalsToTest= array_diff ($proposals, $proposalsAdded);
@@ -6254,27 +6356,42 @@ function FindLevelsBasedOnSize($proposals)
 	return $Levels;
 }
 
-function FindLevelsBasedOnSizeFromArray($proposalsEndorsers)
+
+
+// $elements_below is an array that given an element returns all the elements below it
+//$BigSet is the set of all possible elements.
+function GetCovered($elements_below,$BigSet)
 {
-	$Levels=array();
-	$proposals=array_keys($proposalsEndorsers);
-	foreach($proposals as $p)
+	$Covered=array();
+	foreach ($BigSet as $p)
 	{
-		$l=count($proposalsEndorsers[$p]);
-		if (in_array($l, array_keys($Levels))==false)
+		$cov1=array();
+		$below=$elements_below[$p];
+		foreach ($below as $b)
 		{
-			$Levels[$l]=array();
+			foreach ($below as $q)
+			{
+				$nextB=false;
+				$underq=$elements_below[$q];
+				if (in_array($b, $underq))
+				{
+					$nextB=true;
+					break;
+				}				
+			}
+			if ($nextB)
+			{
+				continue;
+			}			
+			array_push($cov1,$b);
 		}
-		array_push($Levels[$l],$p);							
+		$Covered[$p]=$cov1;		
 	}
-	krsort($Levels);
-	return $Levels;
+	return $Covered;
 }
 
-
-
-function GetCovered($proposals_below,$proposals)
-{
+#function GetCovered($proposals_below,$proposals)
+/*{
 	$Covered=array();
 	foreach ($proposals as $p)
 	{
@@ -6302,6 +6419,7 @@ function GetCovered($proposals_below,$proposals)
 	}
 	return $Covered;
 }
+*/
 //DEPRECATED USE NewEndorsersToAProposalFromArray instead
 function NewEndorsersToAProposal($proposal,$proposals_covered)
 {
@@ -6313,6 +6431,21 @@ function NewEndorsersToAProposal($proposal,$proposals_covered)
 	}
 	return array_diff(EndorsersToAProposal($proposal), 	array_unique($VotersKnown));
 }
+
+function NewProposalsToAnEndorserFromArray($endorserProposals,$endorser,$endorsers_covered)
+{	
+	$below=$endorsers_covered[$endorser];
+	$VotersKnown=array();
+	
+	foreach ($below as $b)
+	{
+		$VotersKnown=array_merge($VotersKnown,$endorserProposals[$b]);		
+	}
+	return array_diff($endorserProposals[$endorser], array_unique($VotersKnown));
+}
+
+
+
 
 function NewEndorsersToAProposalFromArray($proposalsEndorsers,$proposal,$proposals_covered)
 {
@@ -6526,13 +6659,14 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 			$ToAdd=' BGCOLOR="red" ';
 		}
 		
-		if($InternalLinks==true)
+		if($InternalLinks==false)
+		{
+			$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';			
+		}
+		else
 		{	
 			$urlquery=CreateInternalProposalURL($OriginalP);
-			$answer.='<TD '.$ToAdd.' HREF="'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
-		}else{
-	#		$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$p.'</TD>';	
-			$answer.='<TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';			
+			$answer.='<TD '.$ToAdd.' HREF="'.$InternalLinks.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
 		}
 		
 		
@@ -6622,7 +6756,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 	$LevelsKeys=array_keys($Levels);#print_r($LevelsKeys);
 	foreach ($LevelsKeys as $l)
 	{	
-		if($l==="Pareto Front")
+		if($l===0)
 		{
 #			$buf.='"'.$l.'" [shape=box color=lightblue style=filled fontsize=14]';			
 			$buf.='"Pareto\nFront" [shape=box color=lightblue style=filled fontsize=14]';			#$buf.='"'.$l.'" [shape=box color=white style=filled fontsize=14]';			
@@ -6940,164 +7074,181 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 }
 
 
-
 #Possible Values for $ShowNSupporters=true /false
 #$size="7.5,10
 #10,16.18
-function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false)
+
+
+//possible values: $UserLevelType == "NVotes", "Layers", "Flat"
+//possible values: $ProposalLevelType == "NVotes", "Layers"
+
+function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
+#	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
 {
-	
 	$proposals_below=array();
 	$proposals_above=array();
 	$proposals_covered=array();
-	$title=StringSafe(GetQuestionTitle($question));
-	#echo $title;
 
+	$endorserProposals=invertArray($proposalsEndorsers);
+
+	$endorsers=array_keys($endorserProposals);
+	$proposals=array_keys($proposalsEndorsers);
+
+	if (in_array($highlightuser1,$endorsers)==false){$highlightuser1=0;}
+#	if (in_array($highlightproposal1,$proposals)==false){$highlightproposal1=0;} #I would take this off too, but there might be a problem with highlighted proposals that have changed name through the generations
+
+
+	$title=StringSafe(GetQuestionTitle($question));
 	$buf='digraph "';
 	$buf.=$title;
 	$buf.='" {';
 	$buf.="\n";
-	//$buf.='size="'.$size.'"';
-	//$buf.="\n";
-	#$proposals=GetProposalsInGeneration($question,$generation);
-	#$endorsers=Endorsers($question,$generation);
-	
-	$proposals=array_keys($proposalsEndorsers);
-	$endorsers=extractEndorsers($proposalsEndorsers);
 
-	if($paretofront==0)
-	{
-		$pf=CalculateParetoFrontFromProposals($proposalsEndorsers);
-	}
-	else
-	{
-		$pf=$paretofront;
-	}
-	
-	#$pf=ParetoFront($question,$generation);
-	
+
+	if($paretofront==0) { $paretofront=CalculateParetoFrontFromProposals($proposalsEndorsers);	}
+	$pf=$paretofront;
+
+
 	$BundledProposals=array();
 	$BundledUsers=array();
+
 	
 	foreach ($proposals as $p)
 	{
-		$RelatedProposals=CalculateProposalsRelationToFromArray($p,$proposalsEndorsers);
-		$proposals_below[$p]=$RelatedProposals["dominated"];
-		$proposals_above[$p]=$RelatedProposals["dominating"];
+			$RelatedProposals=CalculateProposalsRelationToFromArray($p,$proposalsEndorsers,$proposals);
+			$proposals_below[$p]=$RelatedProposals["dominated"];
+			$proposals_above[$p]=$RelatedProposals["dominating"];
 	}
-	
 	$proposals_covered=GetCovered($proposals_below,$proposals);
-	if ($ShowNSupporters)
-	{	
-		$Levels=FindLevelsBasedOnSizeFromArray($proposalsEndorsers);
-		#$Levels=FindLevelsBasedOnSize($proposals);		
+
+
+	if($UserLevelType     ==   "Flat")
+	{
+		foreach ($endorsers as $e)
+		{
+			$endorsers_below[$e]=array();
+			$endorsers_above[$e]=array();
+		}				
 	}
 	else
 	{
-		$Levels=FindLevels($proposals_covered,$proposals);
+		foreach ($endorsers as $e)
+		{
+			$RelatedEndorsers=CalculateUsersRelationToFromArray($e,$endorserProposals,$endorsers);
+			$endorsers_below[$e]=$RelatedEndorsers["dominated"];
+			$endorsers_above[$e]=$RelatedEndorsers["dominating"];
+		}				
+	}
+	$endorsers_covered=GetCovered($endorsers_below,$endorsers);
+	$endorsers_covering=GetCovered($endorsers_above,$endorsers);
+
+	
+	if      ($ProposalLevelType == "NVotes"){	$ProposalLevels =                 FindLevelsBasedOnSizeFromArray($proposalsEndorsers);		}
+	elseif	($ProposalLevelType == "Layers"){	$ProposalLevels =                 FindLevels($proposals_covered,$proposals);			}
+
+	if      ($UserLevelType     == "NVotes"){	$UserLevels     = array_reverse ( FindLevelsBasedOnSizeFromArray($endorserProposals ) );	}
+	elseif	($UserLevelType     == "Layers"){	$UserLevels	=  		  FindLevels($endorsers_covering,$endorsers) ;			}
+	elseif	($UserLevelType     ==   "Flat"){	$UserLevels     = array();        $UserLevels[0]=$endorsers;}
+
+	//bundles
+	$Combined2Proposals=array();
+	$Combined2Proposals=CombineProposalsFromArray($proposalsEndorsers,$proposals); #	$Combined2Proposals=CombineProposals($proposals);
+	$keys=array_keys($Combined2Proposals);
+	foreach($keys as $kc2p)
+	{
+		$BundledProposals=array_merge($BundledProposals,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
+		array_push($Combined2Proposals[$kc2p],$kc2p);
 	}
 	
-	if($bundles)
+	$Combined2Users=array();
+	$Combined2Users=CombineUsersFromArray($proposalsEndorsers,$endorsers);
+	$keys=array_keys($Combined2Users);
+	foreach($keys as $kc2u)
 	{
-		$Combined2Proposals=CombineProposalsFromArray($proposalsEndorsers,$proposals); #	$Combined2Proposals=CombineProposals($proposals);
-		$keys=array_keys($Combined2Proposals);
-		foreach($keys as $kc2p)
-		{
-			$BundledProposals=array_merge($BundledProposals,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
-			array_push($Combined2Proposals[$kc2p],$kc2p);
-		}
-	}
-	else  	
-	{
-		$Combined2Proposals=array();
-	}
-	
-	if($bundles)	
-	{
-		$Combined2Users=CombineUsersFromArray($proposalsEndorsers,$endorsers);
-		$keys=array_keys($Combined2Users);
-		foreach($keys as $kc2u)
-		{
-			$BundledUsers=array_merge($BundledUsers,$Combined2Users[$kc2u]);#Bundled elements don't need to be drawn
-			array_push($Combined2Users[$kc2u],$kc2u);
-		}
-	}
-	else  	
-	{
-		$Combined2Users=array();
+		$BundledUsers=array_merge($BundledUsers,$Combined2Users[$kc2u]);#Bundled elements don't need to be drawn
+		array_push($Combined2Users[$kc2u],$kc2u);
 	}
 		
-	$LevelsKeys=array_keys($Levels);#print_r($LevelsKeys);
-	foreach ($LevelsKeys as $l)
-	{	
-		if($l==="Pareto Front")
-		{
-#			$buf.='"'.$l.'" [shape=box color=lightblue style=filled fontsize=14]';			
-			$buf.='"Pareto\nFront" [shape=box color=lightblue style=filled fontsize=14]';			#$buf.='"'.$l.'" [shape=box color=white style=filled fontsize=14]';			
-			$buf.="\n";			
-		}
-		else
-		{			
-			$buf.=$l." [shape=point fontcolor=white color=white fontsize=1] \n";
-		}		
-	}
-#	$buf.='"Voters" [shape=egg color=lightpink3 style=filled fontsize=14]';			
-	$buf.='"Voters" [shape=point color=white fontcolor=white style=filled fontsize=1]';			
-	$buf.="\n";			
-					
-	foreach ($LevelsKeys as $l)
-	{	
-		$buf.='"'.$l.'" -> ';
-	}
-	$buf.='"Voters" ';			
-#	$buf.='->"Authors who did not vote" ';			
-	$buf.="[color=white] \n";			
+	$ProposalLevelsKeys=array_keys($ProposalLevels);
+	$UserLevelsKeys=array_keys($UserLevels);
 
-	foreach ($LevelsKeys as $l)
+	if      ($ProposalLevelType == "NVotes")	{	$FullSizeNote=max($ProposalLevelsKeys);	}
+	elseif	($ProposalLevelType == "Layers")	{	$FullSizeNote=0;			}
+
+	$AllGraphsNote=max($UserLevelsKeys);
+
+	foreach ($ProposalLevelsKeys as $l)
 	{
-		$buf.='{rank=same; "'.$l.'" ';			
-		foreach ($Levels[$l] as $p)
+		if ($l==$FullSizeNote)
 		{
-			if(in_array($p,$BundledProposals)){	continue;}
+			$buf.=' "pl'.$FullSizeNote.'" [label="Full\\nSize" shape=circle style=filled color=Black peripheries=1 fillcolor=palegoldenrod tooltip="Look at this image in full size" fontsize=10 URL="'.$addressImage.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "pl'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n"; 
+	}
+	
+	foreach ($UserLevelsKeys as $l)
+	{	
+		if ($l==$AllGraphsNote) 
+		{
+			$AllGraph=SITE_DOMAIN."/viewquestiongraph.php".CreateGenerationURL($question,$generation,$room);
+			$buf.=' "ul'.$AllGraphsNote.'" [label="All\\nGraphs" shape=circle style=filled color=Black peripheries=1  fillcolor=palegoldenrod tooltip="Look at all the alternative views of this information" fontsize=9 URL="'.$AllGraph.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "ul'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n";
+	}
+
+	foreach ($ProposalLevelsKeys as $l)
+	{	
+		if($l!=$ProposalLevelsKeys[0])	
+			{$buf.=' -> ';}
+		$buf.='"pl'.$l.'" ';
+	}
+	
+	foreach ($UserLevelsKeys as $l)
+	{	
+		$buf.=' -> ';
+		$buf.='"ul'.$l.'" ';		
+	}
+
+	$buf.=" [color=white] \n ";			
+
+	foreach ($ProposalLevelsKeys as $l)
+	{
+		$buf.='{rank=same; "pl'.$l.'" ';			
+		foreach ($ProposalLevels[$l] as $p)
+		{
+			if(in_array($p,$BundledProposals)) { continue;}
 			$buf.=" ".$p." ";
 		}		
 		$buf.="}\n";					
 	}
 
-	$buf.="{rank=same; Voters ";
-	foreach ($endorsers as $e)
+	foreach ($UserLevelsKeys as $l)
 	{
-		if(in_array($e,$BundledUsers))
-			{continue;}
-		$buf.='"'.WriteUserName($e).'" ';				
+		$buf.='{rank=same; "ul'.$l.'" ';			
+		foreach ($UserLevels[$l] as $u)
+		{
+			if(in_array($u,$BundledUsers)) { continue;}
+			$buf.='"'.WriteUserName($u).'" ';				
+		}		
+		$buf.="}\n";					
 	}
-	
-	$buf.="}\n";					
+
 	
 	$keys=array_keys($Combined2Users);
 	foreach ($keys as $kc2u)
 	{
 		$detailsTable='  ';				
-		
-		$color="black";		
-		$fillcolor="lightpink3";
+		$color="black";	
+		$fillcolor="lightpink3"; 
 		$peripheries=0;
 
 		if($highlightproposal1)
 		{		
-			#if(in_array($e,EndorsersToAProposal($highlightproposal1)))		
-			if(in_array($kc2u,$proposalsEndorsers[$highlightproposal1]))
-			{
-				$color="red";
-				$peripheries=1;						
-			}
+			if(in_array($kc2u,$proposalsEndorsers[$highlightproposal1])) {	$color="red";	$peripheries=1;		}
 		}
-		if($highlightuser1===$kc2u) #bundles which have highlighted user inside do not have a line around
-		{
-			$color="black";
-	#		$peripheries=1;			
-		}
-		
+		if($highlightuser1===$kc2u) 					     { $color="black"; $peripheries=0;}#bundles which have highlighted user inside do not have a line around
 		$detailsTable=' BGCOLOR="lightpink3" ';	
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 		#$details=' style=filled color='.$color.' peripheries='.$peripheries.' ';
@@ -7106,30 +7257,17 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 
 	foreach ($endorsers as $e)
 	{
-		if(in_array($e,$BundledUsers)){	continue;}
-		if(in_array($e,array_keys($Combined2Users))){	continue;}
+		if(in_array($e,$BundledUsers))			{ continue;}
+		if(in_array($e,array_keys($Combined2Users)))	{ continue;}
 		
-#		$detailsTable='  ';				
-
-		$color="lightpink3";		
-		$fillcolor="lightpink3";
-		$peripheries=0;
+		$color="lightpink3";	$fillcolor="lightpink3"; $peripheries=0;
 
 		if($highlightproposal1)
 		{		
-			if(in_array($e,$proposalsEndorsers[$highlightproposal1]))		
-			{
-				$color="red";
-				$peripheries=1;						
-			}
+			if(in_array($e,$proposalsEndorsers[$highlightproposal1]))	{	$color="red";	$peripheries=1;	}
 		}
-		if($highlightuser1===$e)
-		{
-			$color="red";
-			$peripheries=1;			
-		}
+		if($highlightuser1===$e) 						{	$color="red";	$peripheries=1;	}
 
-#		$detailsTable=' BGCOLOR="lightpink3" ';	
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 
 		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
@@ -7159,33 +7297,21 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 					$peripheries=1;
 				}			
 			}
-			if(Count($endo)===Count($endorsers))
-			{
-				$detailsTable=' BGCOLOR="gold" ';								
-			}
-			else
-			{
-				$detailsTable=' BGCOLOR="lightblue" ';								
-			}
+			if(Count($endo)===Count($endorsers)) 	{ $detailsTable=' BGCOLOR="gold" ';	}
+			else 					{ $detailsTable=' BGCOLOR="lightblue" ';}
 			$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';			
 		}
 		else
 		{
-			$color="black";
-			$peripheries=0;
-			if(in_array($highlightuser1,$proposalsEndorsers[$kc2p]))
-			{
-				$color="red";
-				$peripheries=1;
-			}
+			$color="black"; $peripheries=0;
+			
+			if(in_array($highlightuser1,$proposalsEndorsers[$kc2p])) { $color="red"; $peripheries=1; }
+			
 			if ($highlightproposal1>0)	
 			{
-				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1])){
-					$color="red";
-					$peripheries=1;
-				}			
-			}
-			
+				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1]))
+				{       $color="red"; $peripheries=1; }			
+			}			
 			$details=' fillcolor=white color='.$color.' peripheries='.$peripheries.' ';						
 		}
 		
@@ -7243,17 +7369,15 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 				$fillcolor='"lightblue" ';								
 			}
 			
-			if ($InternalLinks==true)
-			{	
-				$urlquery=CreateInternalProposalURL($OriginalP);
-				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
-			}
-			else
+			if ($InternalLinks==false)
 			{
 				$urlquery = CreateProposalURL($OriginalP, $room);
-#				$urlquery = "pluto";
-				
 				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			}
+			else
+			{		
+				$urlquery=CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
 			}
 			$buf.="\n";			
 		}
@@ -7261,15 +7385,16 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		{	
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
-			if ($InternalLinks==true)
+			
+			if ($InternalLinks==false)
+			{	
+				$urlquery = CreateProposalURL($OriginalP, $room);
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+			}
+			else
 			{
 				$urlquery = CreateInternalProposalURL($OriginalP);
-				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$urlquery.'" target="_top"]';
-			}else{
-				
-				$urlquery = CreateProposalURL($OriginalP, $room);
-#				$urlquery = "pippo";
-				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
 			}
 			$buf.="\n";
 		}
@@ -7297,10 +7422,8 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 			
 			if( count( $proposalsEndorsers[$pc] ) == 0 ) #an empty array is trivially dominated by everything. But that is so trivial that it simplifies the graph if we just do not show those lines. 
 			{
-				#$color="lightgray";
-				$color="white";
+				$color="white"; #$color="lightgray";
 			}
-			
 			
 			if($highlightproposal1)
 			{			
@@ -7313,42 +7436,73 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		}		
 	}
 	
+	
+
+	foreach ($endorsers as $e)
+	{
+		$ecolor="blue";
+		if(in_array($e,$BundledUsers))	{ continue;}
+		$endorsers_covered[$e];
+		$ecs=$endorsers_covered[$e];
+		if($highlightuser1)
+		{			
+			if($highlightuser1===$e OR in_array($highlightuser1,$endorsers_above[$e])) 
+				{$ecolor="red";}					
+		}
+		foreach ($ecs as $ec)
+		{
+			$color=$ecolor;
+			if(in_array($ec,$BundledUsers)) { continue;}
+			if(in_array($highlightproposal1,$endorserProposals[$ec])) { $color="red"; }		
+
+#			if($highlightuser1)
+#			{
+#				if($highlightuser1===$e OR in_array($e,$endorsers_below[$highlightuser1]))	{$color="red";}
+#			}
+			$buf.='"'.WriteUserName($e).'" -> "'.WriteUserName($ec).'" [color="'.$color.'"]';	
+			$buf.=" \n";      		
+		}		
+	}
+	
+	
+	$NewProposals=array();
+	foreach ($endorsers as $e)
+	{
+		$NewProposals[$e]=NewProposalsToAnEndorserFromArray($endorserProposals,$e,$endorsers_covered);
+	}
+	
+	
 	foreach ($proposals as $p)
 	{
 		if(in_array($p,$BundledProposals)){continue;}
 		
-		if($ShowAllEndorsments)	
-		{
-			$endorserstothis=$proposalsEndorsers[$p];	
-		}
-		else
-		{
-			$endorserstothis=NewEndorsersToAProposalFromArray($proposalsEndorsers,$p,$proposals_covered);
-		}
-
+		$endorserstothis=NewEndorsersToAProposalFromArray($proposalsEndorsers,$p,$proposals_covered);
+		
+			
 		foreach ($endorserstothis as $e)
 		{
+			
 			if(in_array($e,$BundledUsers)){	continue;}
+			if(in_array($p,$NewProposals[$e])==false) {continue;}
 			$color="blue";
-			if($highlightuser1==$e)
+			if($highlightuser1==$e OR in_array($highlightuser1,$endorsers_above[$e]))
 				{$color="red";	}
 			$keys=array_keys($Combined2Users);
 			if(in_array($e,$keys))
 			{
-				if(in_array($highlightuser1,$Combined2Users[$e]))
-				{
-					$color="red";	
-				}
+				if(in_array($highlightuser1,$Combined2Users[$e]))   {	$color="red";	}
 			}
 			if ($highlightproposal1>0)
 			{
-				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
-					{$color="red";}
+				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1])) {$color="red";}
 			}
 			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [ color="'.$color.'"]';
 			$buf.=" \n";
 		}
 	}
+	
+	
+
 	
 	#foreach ($proposals as $p)
 	#{
@@ -7359,27 +7513,6 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	$buf.="\n}";
 	return $buf;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -8140,8 +8273,6 @@ function WriteQuestionInfo($question,$userid)
 	echo '</table>';
 	
 }
-
-
 
 
 
