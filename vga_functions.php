@@ -2045,6 +2045,9 @@ function make_URI_absolute($loc)
 	return "http://$host$uri/$loc";
 }
 
+//**************************************
+// Post login redirects
+//**************************************
 function postloginredirect()
 {
 	if (isset($_SESSION['request'] )) 
@@ -2061,12 +2064,6 @@ function postloginredirect()
 		header("Location: viewquestions.php");
 	}
 }
-
-function GetRequestString()
-{
-	return array_pop(explode('/', $_SERVER[REQUEST_URI]));
-}
-
 
 function GetRequest($location="viewquestions.php")
 {
@@ -2087,20 +2084,16 @@ function GetRequest($location="viewquestions.php")
 function SetRequest()
 {
 	// Store user's request for after login
-	$arr = explode('/', $_SERVER['REQUEST_URI']);
-	$request = array_pop($arr);
-	
-	//$request = $_SERVER['REQUEST_URI'];
-	//$_SESSION['request'] = array_pop(explode('/', $request));
+	$_SESSION['request'] = basename($_SERVER['REQUEST_URI']);
 	set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
 }
 function UnsetRequest()
 {
 	unset($_SESSION['request']);
 }
-function getpostloginredirectlink()
+function GetRequestString()
 {
-	if (isset($_SESSION['request'] )) 
+	if (isset($_SESSION['request'])) 
 	{
 		// Now send the user to his desired page
 		$request = $_SESSION['request'];
@@ -2112,13 +2105,18 @@ function getpostloginredirectlink()
 		return "viewquestions.php";
 	}
 }
+function getpostloginredirectlink()
+{
+	return GetRequestString();
+}
 
 function DoLogin()
 {
 	// Store user's request for after login
-	$_SESSION['request'] = array_pop(explode('/', $_SERVER[REQUEST_URI]));
+	SetRequest();
 	header("Location: login.php");
 }
+//**************************************
 
 function fb_user_logout()
 {
