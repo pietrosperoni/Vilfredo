@@ -77,7 +77,7 @@ else
 	
 	<div class="login_sector_soc">
 		
-	<a class="plain" href="register.php"><div class="vgaregiseterbutton">Register Now</div></a>
+	<a class="plain" href="register.php"><div class="vgaregisterbutton">Register Now</div></a>
 		
 	<?php
 	$display_fb_login = true;
