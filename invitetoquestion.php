@@ -23,7 +23,7 @@ if ( isset($_GET[QUERY_KEY_ROOM]) && (hasTags($_GET[QUERY_KEY_ROOM]) || !checkMa
 if ($userid)
 {
 	$question = (int)$_GET[QUERY_KEY_QUESTION];
-	isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";
+	$room = isset($_GET[QUERY_KEY_ROOM]) ? $_GET[QUERY_KEY_ROOM] : "";	
 
 	$sql = 'SELECT id, username FROM users WHERE email != "" ';
 	$response = mysql_query($sql);
