@@ -86,6 +86,15 @@ function register_user()
 		set_message("error", $msg);
 		$errors = true;
 	}
+	
+	if (!ctype_alnum($username))
+	{
+		$msg = "Your username should consist of letters or numbers only.";
+		set_message("error", $msg);
+		$errors = true;
+		unset($_POST);
+		return false;
+	}
 
 	if (!validEmail($email))
 	{

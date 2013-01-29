@@ -6,6 +6,10 @@ if (!is_dir("logs"))
 {
 	mkdir("logs", 0755);
 }
+if (!is_dir("rss"))
+{
+	mkdir("rss", 0755);
+}
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
 //******************************************/
@@ -13,17 +17,17 @@ if (!is_dir("logs"))
 #define("TEST_LIVE", TRUE); //test the live site
 
 // Look above document root then in current directory for priv.php
+
 if ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/../priv.php"))
 {
 	include $privfile;
 }
-elseif (is_file("priv.php"))
+elseif ($privfile = realpath($_SERVER["DOCUMENT_ROOT"] . "/priv.php"))
 {
-	include "priv.php";
+	include $privfile;
 }
-
 // else use the default priv directory
-if (!defined("PRIV"))
+else
 {
 	define("PRIV", "priv");
 }
