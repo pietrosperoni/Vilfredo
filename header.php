@@ -94,6 +94,7 @@ $rss_link = CreateRSSLink();
 		<link rel="alternate" type="application/rss+xml" href="<?php echo $rss_link; ?>">
 		<?php echo $headcommands; ?>
 	</head>
+	
 	<?php
 #	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 ?>
@@ -105,6 +106,12 @@ echo LoadGoogleAnalytics();
 
 // Get user ID if logged in
 $userid=isloggedin();
+
+?>
+<script type="text/javascript">
+var userid = parseInt(<?=json_encode($userid)?>);
+</script>
+<?php
 $userquestioncount = 0;
 if ($userid)
 {

@@ -29,7 +29,6 @@ require_once('header.php');
 
 <script type="text/javascript">
 var cookieexpires = 3; //days
-var userid = parseInt(<?=json_encode($userid)?>);
 $(function() {
 	$(".foottip a[tooltip]").tooltip({
 		bodyHandler: function() {
