@@ -111,8 +111,18 @@ if ($userid)
 	$userquestioncount = getUserQuestionCount($userid);
 }
 //*******************************Header Links***************************
-echo '<div id="content_page">';
 ?>
+	
+	<div id="site_error"></div>
+	<div id="site_feedback"></div>
+	<div class ="windowpanel" id="site_message">
+		<div class="wpcontent"></div>
+		<div class="wplinks"></div>
+	</div>
+	<div id="site_help"></div>
+	
+	
+	<div id="content_page">
 	<div id="header">
 		<div id="top-pics">
 			<a href="http://en.wikipedia.org/wiki/Vilfredo_Pareto">
@@ -163,6 +173,7 @@ echo '<div id="content_page">';
 			<li><a href="http://bubblingaround.com/viewquestions.php?qb=1&amp;room=Vilfredo">Feedback</a></li>
 		</ul>
 	</div> <!-- header -->
+
 
 <?php
 echo '<div id="innerheader">';

@@ -19,10 +19,17 @@ require_once('header.php');
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/jquery.tooltip.js" type="text/javascript"></script>
 <script src="js/jquery/tooltip/chili-1.7.pack.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+<script type="text/javascript" src="/js/sprintf-0.6.js"></script> 
+<script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
+<script type="text/javascript" src="js/vilfredo.php"></script>
 
 <script type="text/javascript">
 var cookieexpires = 3; //days
-
+var userid = parseInt(<?=json_encode($userid)?>);
 $(function() {
 	$(".foottip a[tooltip]").tooltip({
 		bodyHandler: function() {

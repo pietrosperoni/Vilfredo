@@ -23,6 +23,7 @@ include('header.php');
 <script type="text/javascript" src="js/<?=SVG_DIR?>/jquery.svganim.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
+<script type="text/javascript" src="/js/sprintf-0.6.js"></script> 
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -33,6 +34,7 @@ include('header.php');
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+var userid = parseInt(<?=json_encode($userid)?>);
 </script>
 <?php
 
@@ -129,6 +131,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	echo '<table id="social-buttons"><tr><td>';
 
 	// Only display twit button if shorturl found in DB or generated from bitly
+	/*
 	if (!empty($shorturl))
 	{
 		if (false)
@@ -143,7 +146,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			//set_log('Tweet Button lang = ' . $locale);
 			echo '<a href="http://twitter.com/share" class="twitter-share-button" data-url="'. $shorturl .'" data-text="'. $title .'" data-count="none" data-via="Vg2A" data-lang="'.$locale.'">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>';
 		}
-	}
+	}*/
 
 	echo '</td><!-- <td><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like href="" send="false" layout="button_count" width="450" show_faces="true" font=""></fb:like></td> --></tr></table>';
 

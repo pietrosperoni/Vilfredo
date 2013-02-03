@@ -22,7 +22,7 @@ function publishOnFacebook($params=NULL)
 	}
 	
 	$room = "";
-	$url = "http://derek2.pietrosperoni.it/viewquestions.php";
+	$url = SITE_DOMAIN."/viewquestions.php";
 	$bubbleurl = ($room != '') ? "$url?qb=$question&room=$room" : "$url?bq=$question";
 	$blurb = "If we all buy helicopters we could fly to Greece for the summer.";
 	$message = "I think helicopters are cool.";
@@ -1417,17 +1417,27 @@ function HasProposalBeenSuggested($question,$blurb,$abstract,$generation=0)
 	return 0;
 }
 
-
-
-
-
-
 function SendInvite($userid, $receiver, $question)
 {  	     
   	$sql = "INSERT INTO `invites` (sender, receiver, question, creationtime) 
   	VALUES ('$userid', '$receiver', '$question', NOW())";
   
-  	mysql_query($sql) or die(mysql_error());
+  	if ($result = mysql_query($sql))
+	{
+		if (mysql_affected_rows() == 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
 }
 // **************************************
 function GetQuestionFilterOpen($userid)
@@ -4893,6 +4903,57 @@ If you would like not to receive any more invitations from '.$authorusername.' y
 		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
 }
 
+function getBlockedUsers($userid)
+{
+	$sql = "";
+	
+	if ($result = mysql_query($sql))
+	{
+		$blocked = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($invites, $row);
+		}
+		return $invites;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function getQuestionInvites($userid)
+{	
+	$sql = "SELECT `invites`.`sender`, `invites`.`question`,
+	`questions`.`usercreatorid`, `questions`.`title`, `questions`.`room`, 
+	`users`.`username`
+	FROM `invites`, `questions`, `users`
+	WHERE `invites`.`receiver` = $userid
+	AND `invites`.`sysmsg` = 1
+	AND `invites`.`sender` NOT IN 
+	(
+		SELECT `from_userid` FROM `block_invites`
+		WHERE `to_userid` = $userid
+	)
+	AND `questions`.`id` = `invites`.`question`
+	AND `users`.`id` = `questions`.`usercreatorid`"; 
+
+	if ($result = mysql_query($sql))
+	{
+		$invites = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($invites, $row);
+		}
+		return $invites;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
 function InviteUserToQuestion($user,$question,$room,$userid)
 {
     $question_url = CreateQuestionURL($question,$room);
@@ -4924,9 +4985,9 @@ You can do this by going to the page
 
 If you would like not to receive any more invitations from '.$authorusername.' you can tell him directly.';
 
-		$message=wordwrap  ( $message, 70,"\n",true);
-		mail($to,$subject, $message );
-		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
+	$message=wordwrap  ( $message, 70,"\n",true);
+	mail($to,$subject, $message );
+	set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
 }
 
 function InviteKeyPlayersToRewriteProposals($question,$generation,$room)

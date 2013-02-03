@@ -1,7 +1,8 @@
 <?php
 Header("content-type: application/x-javascript");
-include '../vga_functions.php';
 session_start();
+include '../vga_functions.php';
+
 if (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
 {
 	$locale = $_SESSION["locale"];
@@ -11,7 +12,11 @@ else
 	$locale = fetch_preferred_language_from_client();
 }
 @include getLanguageForJS($locale);
+include 'messaging.php';
 ?>
+
+var userid = <?=json_encode($userid)?>;
+
 $(function() {
 	$.ajaxSetup({cache: false});
 	
