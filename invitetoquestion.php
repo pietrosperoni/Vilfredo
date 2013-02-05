@@ -65,7 +65,7 @@ if ($userid)
 			}
 			?>
 			</tr>
-			<tr><td></td><td></td><td></td><td><input type = "Submit" Name = "Submit" title="<?=$VGA_CONTENT['submit2invite_title']?>" VALUE = "<?=$VGA_CONTENT['submit_button']?>"></td>
+			<tr><td></td><td><input type = "Submit" Name = "Submit" title="<?=$VGA_CONTENT['submit2invite_title']?>" VALUE = "<?=$VGA_CONTENT['submit_button']?>"></td>
 			</tr></table>
 			</form>
 			<?php
