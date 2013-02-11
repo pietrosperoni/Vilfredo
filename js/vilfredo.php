@@ -1,6 +1,5 @@
 <?php
 Header("content-type: application/x-javascript");
-//session_start();
 include '../vga_functions.php';
 
 if (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
@@ -581,9 +580,6 @@ function checklengths() {
 	}
 	
 	<?php
-	if (defined('MESSAGING_ON') && MESSAGING_ON)
-	{
-		include 'messaging.php';
-		include 'popup.php';
-	}
+	include 'messaging.php';
+	include 'popup.php';
 	?>

@@ -10,6 +10,11 @@ var cookieexpires = 1; //days
 
 $(function()
 {
+	if (!messagingOn)
+	{
+		return;
+	}
+	
 	$('.windowpanel .wplinks span').live('mouseover', function(event) {
 		$(this).addClass("over");
 	});
