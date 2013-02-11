@@ -6327,9 +6327,9 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType)
 {
 	$room=GetQuestionRoom($question);
-	if ($InternalLinks)	{ $internal="here"; }
-	else			{ $internal="there"; }
-	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$internal.$ProposalLevelType.$UserLevelType.serialize($proposalsEndorsers);
+#	if ($InternalLinks)	{ $internal="here"; }
+#	else			{ $internal="there"; }
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$InternalLinks.$ProposalLevelType.$UserLevelType.serialize($proposalsEndorsers);
 	$translated=md5($totranslate);
 #	echo "To translate= $totranslate";
 #	echo "translated= $translated";
@@ -6824,7 +6824,8 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 		else
 		{	
 			$urlquery=CreateInternalProposalURL($OriginalP);
-			$answer.='<TD '.$ToAdd.' HREF="'.$InternalLinks.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
+			$InternalLinksToUse=str_replace ( "&" , "&amp;" , $InternalLinks );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+			$answer.='<TD '.$ToAdd.' HREF="'.$InternalLinksToUse.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.$OriginalP.'</TD>';						
 		}
 		
 		
