@@ -581,6 +581,9 @@ function checklengths() {
 	}
 	
 	<?php
-	include 'messaging.php';
-	include 'popup.php';
+	if (defined('MESSAGING_ON') && MESSAGING_ON)
+	{
+		include 'messaging.php';
+		include 'popup.php';
+	}
 	?>

@@ -1,4 +1,4 @@
-ALTER TABLE `invites` ADD `sysmsg` TINYINT( 1 ) NOT NULL DEFAULT '1';
+ALTER TABLE `invites` ADD `sysmsg` TINYINT( 1 ) NOT NULL DEFAULT '0';
 
 CREATE TABLE IF NOT EXISTS `block_invites` (
   `from_user` int(11) NOT NULL COMMENT 'Set to 0 to block all invites',

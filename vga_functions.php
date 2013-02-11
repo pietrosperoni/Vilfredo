@@ -1419,8 +1419,10 @@ function HasProposalBeenSuggested($question,$blurb,$abstract,$generation=0)
 
 function SendInvite($userid, $receiver, $question)
 {  	     
-  	$sql = "INSERT INTO `invites` (sender, receiver, question, creationtime) 
-  	VALUES ('$userid', '$receiver', '$question', NOW())";
+  	$send_invite_message = (defined('MESSAGING_ON') && MESSAGING_ON) ? 1 : 0;
+
+	$sql = "INSERT INTO `invites` (`sender`, `receiver`, `question`, `creationtime`, `sysmsg`) 
+  	VALUES ('$userid', '$receiver', '$question', NOW(), $send_invite_message)";
   
   	if ($result = mysql_query($sql))
 	{
