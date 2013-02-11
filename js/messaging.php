@@ -12,6 +12,7 @@ $(function()
 {
 	if (!messagingOn)
 	{
+		$('#window_bar .cont .button').css('display', 'none');
 		return;
 	}
 	
