@@ -1,6 +1,6 @@
 <?php
 Header("content-type: application/x-javascript");
-session_start();
+//session_start();
 include '../vga_functions.php';
 
 if (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
@@ -12,10 +12,8 @@ else
 	$locale = fetch_preferred_language_from_client();
 }
 @include getLanguageForJS($locale);
-include 'messaging.php';
+//include 'messaging.php';
 ?>
-
-var userid = <?=json_encode($userid)?>;
 
 $(function() {
 	$.ajaxSetup({cache: false});
@@ -581,3 +579,8 @@ function checklengths() {
 			prop_indicator.removeClass("length_not_ok");
 		}
 	}
+	
+	<?php
+	include 'messaging.php';
+	include 'popup.php';
+	?>

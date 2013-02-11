@@ -3384,9 +3384,7 @@ function ActivityInRoom($userid,$room)
 	}
 	
 	return array_unique($questions);
-	
 }
-
 
 function RoomsUsed($userid)
 {
@@ -4903,9 +4901,84 @@ If you would like not to receive any more invitations from '.$authorusername.' y
 		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
 }
 
+function questionSubscribe($user, $question)
+{
+	$sql = "INSERT INTO `updates` (`user`, `question`) VALUES ($user, $question)";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function questionUnsubscribe($user, $question)
+{
+	$sql = "DELETE FROM `updates` WHERE `user` = $user AND `question` = $question";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function ignoreInvite($invite_id)
+{
+	$sql = "UPDATE `invites` SET `sysmsg` = 0 WHERE `id` = $invite_id";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function blockUserInvites($from_user, $to_user)
+{
+	$sql = "INSERT INTO `block_invites` (`from_user`, `to_user`) 
+	VALUES ($from_user, $to_user)";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function unblockUserInvites($from_user, $to_user)
+{
+	$sql = "DELETE FROM `block_invites` 
+	WHERE `from_user` = $from_user AND `to_user` = $to_user";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
 function getBlockedUsers($userid)
 {
-	$sql = "";
+	$sql = "SELECT `from_user` FROM `block_invites` 
+	WHERE `to_user` = $userid";
 	
 	if ($result = mysql_query($sql))
 	{
@@ -4924,7 +4997,7 @@ function getBlockedUsers($userid)
 }
 function getQuestionInvites($userid)
 {	
-	$sql = "SELECT `invites`.`sender`, `invites`.`question`,
+	$sql_v1 = "SELECT `invites`.`sender`, `invites`.`question`,
 	`questions`.`usercreatorid`, `questions`.`title`, `questions`.`room`, 
 	`users`.`username`
 	FROM `invites`, `questions`, `users`
@@ -4932,11 +5005,33 @@ function getQuestionInvites($userid)
 	AND `invites`.`sysmsg` = 1
 	AND `invites`.`sender` NOT IN 
 	(
-		SELECT `from_userid` FROM `block_invites`
-		WHERE `to_userid` = $userid
+		SELECT `from_user` FROM `block_invites`
+		WHERE `to_user` = $userid
 	)
 	AND `questions`.`id` = `invites`.`question`
 	AND `users`.`id` = `questions`.`usercreatorid`"; 
+	
+	
+	$sql = "SELECT `invites`.`id`, `invites`.`sender`, `invites`.`receiver`, `invites`.`question`,
+	`questions`.`usercreatorid`, `questions`.`title`, `questions`.`room`, `questions`.`question` as blurb, 
+	`users`.`username`, (subscribed IS NOT NULL) AS subscribed
+	FROM `questions`, `users`, `invites`
+	LEFT JOIN
+	(
+	   	SELECT user, question, question as subscribed FROM updates
+		WHERE user = $userid
+	) as subscriptions USING (question)
+	WHERE `invites`.`receiver` = $userid
+	AND `invites`.`sysmsg` = 1
+	AND `invites`.`sender` NOT IN 
+	(
+		SELECT `from_user` FROM `block_invites`
+		WHERE `to_user` = $userid
+	)
+	AND `invites`.`question` = `questions`.`id`
+	AND `users`.`id` = `questions`.`usercreatorid`";
+	
+	//set_log(__FUNCTION__.":: $sql");
 
 	if ($result = mysql_query($sql))
 	{
@@ -5071,6 +5166,8 @@ function InviteKeyPlayerToRewriteProposals($KeyPlayer,$proposals,$question,$room
 	';
 	
 	$message=wordwrap  ( $message, 70,"\n",true);
+	file_put_contents('invite_to_rewrite.txt', $message);
+	exit;
 	mail($to,$subject, $message );
 	
 	set_log("Mail from InviteKeyPlayerToRewriteProposals to ".$username." as keyplayer for proposal ".$proposal." in question ".$question." ");

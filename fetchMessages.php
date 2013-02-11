@@ -10,16 +10,17 @@ if (empty($_POST['tv_userid']) || !ctype_digit($_POST['tv_userid']))
 
 $userid = (int)$_POST['tv_userid'];
 
-$invites = getQuestionInvites($userid);
+$messages = getSystemMessages($userid);
 
-if ($invites)
+if ($messages)
 {	
-	echo json_encode($invites);
+	//set_log("Messages returned with ". count($messages)." elements...");
+	echo json_encode($messages);
 	exit();
 }
 else
 {
-	set_log(__FILE__." failed to return invites");
+	set_log(__FILE__." failed to return messages");
 	echo '0';
 	exit();
 }

@@ -17,6 +17,7 @@ $headcommands='
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <!-- <script type="text/javascript" src="js/jquery/retweet.js"></script> -->
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="/js/sprintf-0.6.js"></script> 
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jquery.jqcp.min.js"></script>
@@ -29,6 +30,7 @@ include('header.php');
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+//var messagingOn = false;
 </script>
 <?php
 

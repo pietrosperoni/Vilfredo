@@ -14,6 +14,7 @@ require_once('header.php');
 //if ($userid)
 //{
 ?>
+
 <script type="text/javascript" src="js/jquery-1.6.min.js"></script>
 <script src="js/jquery/jquery.bgiframe.js" type="text/javascript"></script>
 <script src="js/jquery/jquery.dimensions.js" type="text/javascript"></script>
@@ -22,6 +23,8 @@ require_once('header.php');
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
 <script type="text/javascript" src="/js/sprintf-0.6.js"></script> 
+<script type="text/javascript" src="/js/cookies/jquery.cookie.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script> 
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -535,7 +538,7 @@ echo '<div class="clearboth">&nbsp;</div>';
 
 if (!$userid)
 {
-	set_log('Not logged in - storing request');
+	//set_log('Not logged in - storing request');
 	SetRequest();
 }
 

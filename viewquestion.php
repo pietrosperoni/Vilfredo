@@ -23,7 +23,9 @@ include('header.php');
 <script type="text/javascript" src="js/<?=SVG_DIR?>/jquery.svganim.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.livequery.js"></script>
-<script type="text/javascript" src="/js/sprintf-0.6.js"></script> 
+<script type="text/javascript" src="/js/sprintf-0.6.js"></script>
+<script type="text/javascript" src="/js/cookies/jquery.cookie.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>  
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -932,7 +934,7 @@ if ($userid) {
 
 if (!$userid)
 {
-	set_log('Not logged in - storing request');
+	//set_log('Not logged in - storing request');
 	SetRequest();
 }
 

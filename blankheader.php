@@ -8,11 +8,11 @@ require_once 'config.inc.php';
 <script type="text/javascript">
 	function gotomainsite()
 	{
-		top.window.location='<?= SITE_DOMAIN ?>';
+		top.window.location='<?=SITE_DOMAIN?>';
 	}
 	function gotoURL(url)
 	{
-		url = typeof url !== 'undefined' ? url : '<?= SITE_DOMAIN ?>';
+		url = typeof url !== 'undefined' ? url : '<?=SITE_DOMAIN?>';
 	    //console.log("Redirect to "+url);
 		top.window.location = url;
 	}

@@ -110,6 +110,8 @@ $userid=isloggedin();
 ?>
 <script type="text/javascript">
 var userid = parseInt(<?=json_encode($userid)?>);
+var messagingOn = <?=json_encode(MESSAGING_ON)?>;
+var domain = <?=json_encode(SITE_DOMAIN)?>;
 </script>
 <?php
 $userquestioncount = 0;
@@ -119,6 +121,21 @@ if ($userid)
 }
 //*******************************Header Links***************************
 ?>
+	<div id="window_bar">
+	<div class="cont">
+	<span class="title">Vilfredo</span>
+	<span id="topmsgbutton" class="button msg"></span>
+	</div>
+	</div>
+	
+	<div id="popup">
+		<a class="close">close</a>
+		<h2 class="title"></h2>
+		<div class="contentsurround">
+		<div class="content"></div>
+		</div>
+	</div>
+	<div id="backgroundPopup"></div>
 	
 	<div id="site_error"></div>
 	<div id="site_feedback"></div>

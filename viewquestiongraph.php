@@ -114,7 +114,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 if (!$userid)
 {
-	set_log('Not logged in - storing request');
+	//set_log('Not logged in - storing request');
 	SetRequest();
 }
 
