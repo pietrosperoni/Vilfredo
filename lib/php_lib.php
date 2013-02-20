@@ -49,7 +49,7 @@ function clean_input_array($input)
 // Define optional input handler
 if (!function_exists('input_handler'))
 {
-	set_log("Function input_handler not defined-->setting dummy function");
+	//set_log("Function input_handler not defined-->setting dummy function");
 	function input_handler($value, $desc="")
 	{
 		// Handle Input

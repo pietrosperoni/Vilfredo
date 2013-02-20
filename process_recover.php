@@ -313,8 +313,8 @@ _HTML_;
 	$message = wordwrap($message, 70, "\n", false);
 	
 	file_put_contents($subject.'.txt', $message);
-	return true;
+	//return true;
 	// return true or false
-	//return @mail($to, $subject, $message);
+	return @mail($to, $subject, $message);
 }
 ?>

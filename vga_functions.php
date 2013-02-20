@@ -2083,7 +2083,7 @@ function SetRequest()
 {
 	// Store user's request for after login
 	$_SESSION['request'] = basename($_SERVER['REQUEST_URI']);
-	set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
+	//set_log(__FUNCTION__.' :: Storing user request '.$_SESSION['request']);
 }
 function UnsetRequest()
 {

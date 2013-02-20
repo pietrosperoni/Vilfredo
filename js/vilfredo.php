@@ -11,7 +11,6 @@ else
 	$locale = fetch_preferred_language_from_client();
 }
 @include getLanguageForJS($locale);
-//include 'messaging.php';
 ?>
 
 $(function() {
