@@ -73,8 +73,23 @@ echo '<h2><a href="vhq.php' .CreateQuestionURL($question, $room). '">' . $VGA_CO
 	
 if ($generation>0)
 {
+	$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
+	$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
+	$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 	
-	InsertMap($question,$generation,$userid,"L",0);
+	$vg_url = SITE_DOMAIN."/vg.php".CreateGenerationURL($question,$generation,$room);
+	#echo "<br>".$vg_url."<br>";
+	echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
+
+	echo "<tr><td width=\"70%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$vg_url,"Layers","Layers");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$vg_url,"Layers","Layers");
+	echo "</td></tr>";
+
+	echo "</table>";
+	
+	#InsertMap($question,$generation,$userid,"L",0);
 	
 	echo '<div id="paretofrontbox">';
 	echo "<h3>{$VGA_CONTENT['pareto_front_txt']}</h3>";
@@ -84,7 +99,9 @@ if ($generation>0)
 						
 	foreach ($ParetoFront as $p)
 	{
-		echo '<div class="paretoproposal">';
+		$originalname=GetOriginalProposal($p);
+		
+		echo '<div class="paretoproposal"><a name="proposal'.$originalname['proposalid'].'"></a>';
 	?>	
 			<form method="get" action="npv.php" target="_blank">
 		<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
@@ -110,8 +127,9 @@ if ($generation>0)
 	arsort($PropOrdered);
 	foreach (array_keys($PropOrdered) as $p)
 	{
-		#echo '<div class="paretoproposal">';
-		echo '<div class="nonparetoproposal">';
+		$originalname=GetOriginalProposal($p);
+		
+		echo '<div class="nonparetoproposal"><a name="proposal'.$originalname['proposalid'].'"></a>';
 		?>	
 				<form method="get" action="npv.php" target="_blank">
 			<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
@@ -155,10 +173,10 @@ if ($generation>0)
 	echo '<br />';	
 	echo '</div>';	
 			
-	echo '<h3>' . $VGA_CONTENT['alt_history_txt'] . '</h3><br />';
+	echo '<h3>' . $VGA_CONTENT['alt_history_txt'] . ' <a name="AlternativeHistory" href="'.$vg_url.'#AlternativeHistory" >#</a></h3><br />';
 	
 	echo '' . $VGA_CONTENT['alt_events_txt'] . '<br />';
-	echo '<h4>' . $VGA_CONTENT['key_players_txt'] . '</h4><br />';			
+	echo '<h4>'. $VGA_CONTENT['key_players_txt'].' <a name="KeyPlayers" href="'.$vg_url.'#KeyPlayers" >#</a></h4><br />';			
 	
 	$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
 	if (count($ProposalsCouldDominate) > 0)
@@ -182,7 +200,7 @@ if ($generation>0)
 		echo '</p>';
 	}	
 
-	echo '<h4>' . $VGA_CONTENT['each_part_txt'] . '</h4><br />';
+	echo '<h4>' . $VGA_CONTENT['each_part_txt'] . ' <a name="Effect" href="'.$vg_url.'#Effect" >#</a></h4><br />';
 
 	foreach ($endorsers as $e)
 	{
@@ -216,22 +234,27 @@ if ($generation>0)
 			if (sizeof($ParetoFrontPlus))
 			{
 				foreach ($ParetoFrontPlus as $p)	{	echo WriteProposalNumber($p,$room);}						
-				echo "would have been in the Pareto Front,<br />while ".WriteUserVsReader($e,$userid)." vote helped us to simplify the solution and exclude them.<br />";						
+				echo "would have been in the Pareto Front";
+				#echo ",<br />while ".WriteUserVsReader($e,$userid)." vote helped us to simplify the solution and exclude them";
+				echo ".<br />";						
 			}
 			if (sizeof($ParetoFrontMinus))
 			{
 				foreach ($ParetoFrontMinus as $p)	{	echo WriteProposalNumber($p,$room);}						
-				echo "would NOT have been in the Pareto Front,<br />while ".WriteUserVsReader($e,$userid)." vote helped us to see their importance, and thus consider them for the next generation.<br />";						
+				echo "would NOT have been in the Pareto Front";
+				#echo ",<br />while ".WriteUserVsReader($e,$userid)." vote helped us to see their importance, and thus consider them for the next generation";						
+				echo ".<br />";						
 			}
 			echo "Without ".WriteUserVsReader($e,$userid)." the Pareto Front would have been";
 			foreach ($PFE as $p)	{	echo WriteProposalNumber($p,$room);}						
-			echo "<br />";						
-			echo "<br />";						
+			echo ".<br />";						
 		}
 		else
 		{
-			echo "By voting ".WriteUserVsReader($e,$userid)." did not change the resulting Pareto Front.<br />But we love ".WriteUserVsReader($e,$userid)." anyway :-). Maybe, even more so ;-)!<br /><br />";
+			echo "By voting ".WriteUserVsReader($e,$userid)." did not change the resulting Pareto Front.<br />";
+			#echo "But we love ".WriteUserVsReader($e,$userid)." anyway :-). Maybe, even more so ;-)!<br />";
 		}
+		echo "<br />";						
 	}
 	echo $VGA_CONTENT['combined_effect_txt'];
 }
