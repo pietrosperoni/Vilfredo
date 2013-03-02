@@ -134,6 +134,6 @@ if ($is_anon)
 }
 else
 {
-	header("Location: viewquestion.php".$urlquery);
+	header("Location: viewquestion.php".$urlquery."#Voted");
 }
 ?> 

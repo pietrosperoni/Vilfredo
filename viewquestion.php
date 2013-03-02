@@ -704,7 +704,7 @@ if ($userid) {
 			
 			if ($userhasvoted)
 			{
-				echo "<div class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div>";
+				echo "<div id=\"Voted\"  class=\"feedback\">Your votes have been registered for this round <img src=\"images/grn_tick_trans.gif\" width=\"20\" height=\"20\" alt=\"\" /><div>(<u>Hint</u>: You can change you votes by voting again below)</div>";
 				echo " </div>";
 				
 				
