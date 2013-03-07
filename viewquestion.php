@@ -707,6 +707,7 @@ if ($userid) {
 		if ($response)
 		{
 			$userhasvoted = false;
+#			$userhasvoted = true; #(let's try with a default of true)
 			if ($userid)
 			{
 				$userhasvoted = hasUserEndorsed($userid, $question, $generation);
@@ -876,6 +877,10 @@ if ($userid) {
 				{
 					echo ' checked="checked" ';
 				}
+#				if($userhasvoted==false) 
+#				{
+#					echo ' checked="checked" ';#default answer for people who have not voted
+#				}
 			}
 				echo ' /></p> </td></tr>';
 		}
