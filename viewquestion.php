@@ -214,9 +214,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$pastgeneration); 
 		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+		$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
+		
 				
 		echo '<div class = "container_large">';
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+#		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
+#		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+		
 		
 		//InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
 		/*
@@ -259,6 +264,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$ProposalsToSee=ParetoFront($question,$vpg);
 				foreach($ProposalsToSee as $p)
 				{
+					$originalname=GetOriginalProposal($p);
+					echo '<div id="proposal'.$originalname['proposalid'].'">';
 					?><form method="get" action="npv.php" target="_blank">
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
@@ -266,8 +273,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 							<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
 							<?php	echo '</h3>';
 					WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
+					echo '</div>';
 				}
-				
 		}
 		$lastgeneration=$generation-1;
 		if (! in_array($lastgeneration,$VisibleProposalsGenerations))
@@ -278,7 +285,10 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
 			{
-					echo '<div class="paretoproposal">';
+				$originalname=GetOriginalProposal($p);
+				echo '<div id="proposal'.$originalname['proposalid'].'">';
+				
+				echo '<div class="paretoproposal">';
 				
 				?>
 				<form method="get" action="npv.php" target="_blank">
@@ -302,6 +312,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 				echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
 				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
 				echo '</div>';
+				echo '</div>';
+				
 				#}
 			}
 			echo '</div>';
@@ -568,7 +580,7 @@ $(document).ready(function() {
 			prop_indicator.removeClass("length_not_ok");
 		}
 	}
-	 var checklength = function (len) {
+	var checklength = function (len) {
 		var title = $("#abstract_title");
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
