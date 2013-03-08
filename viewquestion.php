@@ -745,7 +745,8 @@ if ($userid) {
 				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
 				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
 				
-				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
+				if (FALSE) #We take this off for now
+				#if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
 				{
 					echo "<div class=\"feedback\">By voting You have changed the results.<br>Without you ";
 					if (sizeof($ParetoFrontPlus))
@@ -791,6 +792,37 @@ if ($userid) {
 				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
 #				$proposals=GetProposalsInGeneration($question,$generation);				
 #				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
+				
+								
+				$CouldDominate=CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$ParetoFront);
+				$users=extractEndorsers($proposalsEndorsers);
+				echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
+				foreach ($users as $u)
+				{
+					if($u==$userid)
+						{continue;}
+					$HomeWork=$CouldDominate[$u];
+					if (count($HomeWork) > 0)
+					{
+						$uString=WriteUserVsReader($u,$userid);
+						echo "The result would be simpler if ".$uString." were to vote for ";					
+						$PCD=$HomeWork[0];
+						$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+						echo " ".$proposalNumber;
+						foreach ($HomeWork as $PCD)
+						{
+							if ($PCD==$HomeWork[0]) continue;
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+							echo ", ".$proposalNumber;
+						}
+						echo ".</br>";
+#						echo "<u>Convince Them!</u>";
+						echo "Convince Them!";
+						echo "</br>";
+						echo "</br>";
+					}	
+				}
+				echo "</div>";					
 				
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
