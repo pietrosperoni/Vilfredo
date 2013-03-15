@@ -909,10 +909,10 @@ if ($userid) {
 				{
 					echo ' checked="checked" ';
 				}
-#				if($userhasvoted==false) 
-#				{
-#					echo ' checked="checked" ';#default answer for people who have not voted
-#				}
+				if($userhasvoted==false) 
+				{
+					echo ' checked="checked" ';#default answer for people who have not voted
+				}
 			}
 				echo ' /></p> </td></tr>';
 		}
