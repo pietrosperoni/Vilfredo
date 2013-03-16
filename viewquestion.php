@@ -8,6 +8,7 @@ function getLabel($key,$language){
 
 $headcommands='';
 include('header.php');
+
 ?>
 
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
@@ -95,15 +96,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$shorturl = BITLY_URL.$hash;
 		}
 	}
-	//set_log('$shorturl = ' . $shorturl);
-
-	echo '<div class="questionbox">';
-	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
 	?>
-		<h2 id="question">
-		<form method="post" action="changeupdate.php">
-			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
-			<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
+	
+	<div id="questionbox" class="questionbox">
+	<h2><?=$VGA_CONTENT['question_txt']?></h2>
+	<h2 id="question">
+	<form method="post" action="changeupdate.php">
+		<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+		<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
 		<?php
 		echo  $title;
 	if ($userid) {
@@ -131,7 +131,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 
 	echo '<table id="social-buttons"><tr><td>';
 
-	// Only display twit button if shorturl found in DB or generated from bitly
+	// Only display tweet button if shorturl found in DB or generated from bitly
 	/*
 	if (!empty($shorturl))
 	{
@@ -468,7 +468,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
        <div id="proposal_RTE">
        <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
       <?php
-         $RTE_TextLimit_content = 1000;
+         $RTE_TextLimit_content = MAX_LEN_PROPOSAL_BLURB;//1000;
          include_once("js/jquery/RichTextEditor/content_editor_proposal.php");
          include_once("js/jquery/RichTextEditor/editor.php");
       ?>

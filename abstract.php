@@ -1,6 +1,6 @@
       <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
       <?php
-	$RTE_TextLimit_abstract = 500;
+	$RTE_TextLimit_abstract = MAX_LEN_PROPOSAL_ABSTRACT;//500;
 	 include_once("js/jquery/RichTextEditor/content_editor_abstract.php");
 	?>
 	<script type="text/javascript">

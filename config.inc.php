@@ -65,6 +65,8 @@ define("MAX_LEN_PASSWORD", 60);
 define("MIN_LEN_PASSWORD", 6);
 define("MAX_LEN_ROOM", 20);
 define("MIN_LEN_ROOM", 2);
+define("MAX_LEN_PROPOSAL_ABSTRACT", 1000);
+define("MAX_LEN_PROPOSAL_BLURB", 1000);
 
 // ******************************************
 // Connects to the Database

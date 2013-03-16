@@ -75,7 +75,7 @@ if ($userid)
 					<div id="p_abstract_RTE">
 						      <textarea id="abstract" name="abstract" class="jqrte_popup" rows="250" cols="70"></textarea>
 						      <?php
-							$RTE_TextLimit_abstract = 500;
+							$RTE_TextLimit_abstract = MAX_LEN_PROPOSAL_ABSTRACT;//500;
 							 include_once("js/jquery/RichTextEditor/content_editor_abstract.php");
 							?>
 <script type="text/javascript">
@@ -117,7 +117,7 @@ try{
 			     <div id="proposal_RTE">
 			       <textarea id="content" name="blurb" class="jqrte_popup" rows="500" cols="70"></textarea>
 			      <?php
-			         $RTE_TextLimit_content = 1000;
+			         $RTE_TextLimit_content = MAX_LEN_PROPOSAL_BLURB;//1000;
 			         include_once("js/jquery/RichTextEditor/content_editor_proposal.php");
 			         include_once("js/jquery/RichTextEditor/editor.php");
 			      ?>
