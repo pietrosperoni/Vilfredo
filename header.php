@@ -26,6 +26,19 @@
 */
 // Start output buffer
 ob_start();
+
+// Cache Control
+//
+// Date in the past
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+// always modified
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+// HTTP/1.1
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+// HTTP/1.0
+header("Pragma: no-cache");
+
 // ******************************************	
 // 	Load System Serttings
 require_once 'config.inc.php';
@@ -76,9 +89,6 @@ $rss_link = CreateRSSLink();
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" /> 
 	<title><?=$VGA_CONTENT['site_title_txt']?></title>
-	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-	<meta http-equiv="Pragma" content="no-cache" />
-	<meta http-equiv="Expires" content="0" />
 	<!--[if IE8]>
 	<meta http-equiv="X-UA-Compatible" content="IE=7" />
 	<![endif]-->
