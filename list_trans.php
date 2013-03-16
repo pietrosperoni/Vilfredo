@@ -24,7 +24,7 @@ echo "<th><b>Var Key</b></th>";
 echo "<th><b>Text</b></th>"; 
 echo "<th><b>Italian</b></th>"; 
 echo "</tr>"; 
-$result = mysql_query("SELECT * FROM `vga_content_new` WHERE `page` = 'Bubbles'") or trigger_error(mysql_error()); 
+$result = mysql_query("SELECT * FROM `vga_content` WHERE `page` = 'Bubbles'") or trigger_error(mysql_error()); 
 while($row = mysql_fetch_array($result)){ 
 foreach($row AS $key => $value) { $row[$key] = stripslashes($value); } 
 echo "<tr>";  
