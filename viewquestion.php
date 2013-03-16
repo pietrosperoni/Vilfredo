@@ -218,9 +218,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$pastgeneration); 
 		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+		$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
+		
 				
 		echo '<div class = "container_large">';
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+#		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
+		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
+#		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+		
 		
 		//InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
 		/*
@@ -263,6 +268,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$ProposalsToSee=ParetoFront($question,$vpg);
 				foreach($ProposalsToSee as $p)
 				{
+					$originalname=GetOriginalProposal($p);
+					echo '<div id="proposal'.$originalname['proposalid'].'">';
 					?><form method="get" action="npv.php" target="_blank">
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
@@ -270,8 +277,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 							<input type="submit" name="submit" title="<?=$VGA_CONTENT['reprop_this_title']?>" id="submit" value="<?=$VGA_CONTENT['reprop_mutate_button']?>" /></form>
 							<?php	echo '</h3>';
 					WriteProposalOnlyContent($p,$question,$generation,$room,$userid);
+					echo '</div>';
 				}
-				
 		}
 		$lastgeneration=$generation-1;
 		if (! in_array($lastgeneration,$VisibleProposalsGenerations))
@@ -282,7 +289,10 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
 			{
-					echo '<div class="paretoproposal">';
+				$originalname=GetOriginalProposal($p);
+				echo '<div id="proposal'.$originalname['proposalid'].'">';
+				
+				echo '<div class="paretoproposal">';
 				
 				?>
 				<form method="get" action="npv.php" target="_blank">
@@ -306,6 +316,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 				echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
 				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
 				echo '</div>';
+				echo '</div>';
+				
 				#}
 			}
 			echo '</div>';
@@ -572,7 +584,7 @@ $(document).ready(function() {
 			prop_indicator.removeClass("length_not_ok");
 		}
 	}
-	 var checklength = function (len) {
+	var checklength = function (len) {
 		var title = $("#abstract_title");
 		var abstract_length = $("#abstract_rte").data('content_length');
 		var content_length =  $("#content_rte").data('content_length');
@@ -699,6 +711,7 @@ if ($userid) {
 		if ($response)
 		{
 			$userhasvoted = false;
+#			$userhasvoted = true; #(let's try with a default of true)
 			if ($userid)
 			{
 				$userhasvoted = hasUserEndorsed($userid, $question, $generation);
@@ -736,7 +749,8 @@ if ($userid) {
 				$ParetoFrontPlus=array_diff($PFE,$ParetoFront);
 				$ParetoFrontMinus=array_diff($ParetoFront,$PFE);
 				
-				if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
+				if (FALSE) #We take this off for now
+				#if (sizeof($ParetoFrontPlus) OR sizeof($ParetoFrontMinus))
 				{
 					echo "<div class=\"feedback\">By voting You have changed the results.<br>Without you ";
 					if (sizeof($ParetoFrontPlus))
@@ -782,6 +796,37 @@ if ($userid) {
 				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
 #				$proposals=GetProposalsInGeneration($question,$generation);				
 #				$PFE=CalculateFullParetoFrontExcluding($proposals,$userid);
+				
+								
+				$CouldDominate=CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$ParetoFront);
+				$users=extractEndorsers($proposalsEndorsers);
+				echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
+				foreach ($users as $u)
+				{
+					if($u==$userid)
+						{continue;}
+					$HomeWork=$CouldDominate[$u];
+					if (count($HomeWork) > 0)
+					{
+						$uString=WriteUserVsReader($u,$userid);
+						echo "The result would be simpler if ".$uString." were to vote for ";					
+						$PCD=$HomeWork[0];
+						$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+						echo " ".$proposalNumber;
+						foreach ($HomeWork as $PCD)
+						{
+							if ($PCD==$HomeWork[0]) continue;
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+							echo ", ".$proposalNumber;
+						}
+						echo ".</br>";
+#						echo "<u>Convince Them!</u>";
+						echo "Convince Them!";
+						echo "</br>";
+						echo "</br>";
+					}	
+				}
+				echo "</div>";					
 				
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
@@ -867,6 +912,10 @@ if ($userid) {
 				if(mysql_fetch_array(mysql_query($sql)))
 				{
 					echo ' checked="checked" ';
+				}
+				if($userhasvoted==false) 
+				{
+					echo ' checked="checked" ';#default answer for people who have not voted
 				}
 			}
 				echo ' /></p> </td></tr>';
