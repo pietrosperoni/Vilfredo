@@ -1,6 +1,24 @@
 <?php 
 include('config.inc.php'); 
 header('Content-Type: text/html; charset=utf-8'); 
+
+// Get user ID if logged in
+$userid=isloggedin();
+
+if (!$userid)
+{
+	setError("You must be logged in to access this page.");
+	header("Location: error_page.php");
+	exit;
+}
+elseif (!isAdmin($userid))
+{
+	setError("Only Administrators may access this page.");
+	header("Location: error_page.php");
+	exit;
+}
+
+
 if (isset($_GET['id']) ) { 
 $id = (int) $_GET['id']; 
 if (isset($_POST['submitted'])) { 
