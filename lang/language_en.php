@@ -62,7 +62,7 @@
   'view_hist_txt' => 'Here you can see who voted for what, what proposals were eliminated. You can recover past proposals that you think should not be lost. Maybe explaining them better.',
   'proposals_txt' => 'Proposals',
   'voting_hist_txt' => 'Voting</br>History',
-  'check_all_endorse_txt' => 'Check all the ones you endorse',
+  'check_all_endorse_txt' => 'Check all the ones you endorse, uncheck the ones you oppose',
   'not_part_title' => 'You did not participate in the voting on generation',
   'you_endorsed_title' => 'You endorsed this proposal on generation',
   'you_ignored_title' => 'You ignored this proposal  on generation',
