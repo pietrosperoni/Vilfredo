@@ -127,6 +127,17 @@ function isAdmin($userid)
 	
 	return $admin;
 }
+function isTranslator($userid)
+{
+	$admin = false;
+	$sql = "SELECT userid FROM translators WHERE userid = '$userid'";
+	$response = mysql_query($sql);
+	if (mysql_num_rows($response) > 0) {
+		$admin = true;
+	}
+	
+	return $admin;
+}
 //
 //  ******************************************/
 // PROPOSAL RELATIONS
