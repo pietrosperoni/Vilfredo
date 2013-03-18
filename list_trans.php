@@ -29,9 +29,42 @@ elseif (!isAdmin($userid))
  {
 	width: 200px;
  }
+
+.links {
+	height: 50px;
+	font-size: 1.2em;
+	margin-top: 25px;
 }
+
+.intro {
+	font-size: 1.1em;
+	width: 600px;
+	background-color: #FFEFD5;
+	padding: 10px;
+}
+
 </style>
+
+
 <?php
+
+if (isAdmin($userid))
+{
+?>
+<div class="intro">
+	<h3>Admin</h3>
+	<p>Edit the entries below then when you are finished click on the "Language Admin Page" link to go to the admin page where you can generate the language files from the database in order to make the changes live.</p>
+	<p>Then click "Back to listing" link at the top to return to this listing page.</p>
+	
+	<div class="links">
+	<a href="language_admin.php">Language Admin Page</a>
+	</div>
+</div>
+<br /><br />
+<?php	
+}
+
+
 echo "<table border=1 >"; 
 echo "<tr>"; 
 echo "<th><b>Id</b></th>"; 
