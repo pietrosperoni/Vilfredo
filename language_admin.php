@@ -49,7 +49,7 @@ if (isset($_POST['generate_dictionary_file']))
 		
 		if (generate_translation_file($_POST['dictfilelang'], $_POST['langfilename'] ))
 		{
-			$msg[] = "$language dictionary {$_POST['langfilename']} successfully created in ". LANG_FILES_DIRECTORY ." subdirectory!";
+			$msg[] = "$language dictionary {$_POST['langfilename']} successfully created in lang/". LANG_FILES_DIRECTORY ." subdirectory!";
 		}
 		else
 		{
@@ -120,7 +120,7 @@ table.panel {
 <h2>Using table <?=$table?></h2>
 
 <div class="intro">
-<p>Select language 'en' or 'it' from from down then click button to create the language file in the /<?=LANG_FILES_DIRECTORY?> subdirectory from the database. The current file will be renamed with the current time and date as a backup.</p>
+<p>Select language 'en' or 'it' from from down then click button to create the language file in the lang/<?=LANG_FILES_DIRECTORY?> subdirectory from the database. The current file will be renamed with the current time and date as a backup.</p>
 <p>Click "Back to listing" link at the top to return to the listing page.</p>
 </div>
 

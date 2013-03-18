@@ -10,10 +10,7 @@ if (!is_dir("rss"))
 {
 	mkdir("rss", 0755);
 }
-if (!is_dir("langfiles"))
-{
-	mkdir("langfiles", 0755);
-}
+
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
 //******************************************/
@@ -72,7 +69,7 @@ define("MIN_LEN_ROOM", 2);
 define("MAX_LEN_PROPOSAL_ABSTRACT", 1000);
 define("MAX_LEN_PROPOSAL_BLURB", 1000);
 
-define("LANG_FILES_DIRECTORY", 'langfiles');
+define("LANG_FILES_DIRECTORY", 'generatedlangfiles');
 
 // ******************************************
 // Connects to the Database

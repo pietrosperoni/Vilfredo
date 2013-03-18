@@ -124,11 +124,11 @@ function generate_translation_file($dictlang='it', $langfile)
 	
 	if (!empty($langfile))
 	{
-		$newdictfile = LANG_FILES_DIRECTORY.'/' . $langfile . '_'. $dictlang . '.php';
+		$newdictfile = 'lang/'.LANG_FILES_DIRECTORY.'/' . $langfile . '_'. $dictlang . '.php';
 	}
 	else
 	{
-		$newdictfile = LANG_FILES_DIRECTORY.'/language_'. $dictlang . '.php';
+		$newdictfile = 'lang/'.LANG_FILES_DIRECTORY.'/language_'. $dictlang . '.php';
 	}
 	
 	//printbrx($newdictfile);
@@ -137,6 +137,11 @@ function generate_translation_file($dictlang='it', $langfile)
 	{
 		set_log("creating site lang dir");
 		mkdir("lang");
+	}
+	if (!is_dir('lang/'.LANG_FILES_DIRECTORY))
+	{
+		set_log("creating site lang/".LANG_FILES_DIRECTORY);
+		mkdir("lang/".LANG_FILES_DIRECTORY);
 	}
 			
 	if (file_exists($newdictfile))
@@ -229,7 +234,7 @@ function generate_translation_file_old($langfile, $dictlang='it')
 				// try exporting array
 				$all = array_combine($keys, $dictphrases);
 				$save = var_export($all, true);
-				file_put_contents(LANG_FILES_DIRECTORY.'/language_it.php', '<?php $phrases = ' . $save . '; ?>');
+				file_put_contents('lang/'.LANG_FILES_DIRECTORY.'/language_it.php', '<?php $phrases = ' . $save . '; ?>');
 				//
 				if ($encoding_error)
 				{
@@ -244,7 +249,7 @@ function generate_translation_file_old($langfile, $dictlang='it')
 				}
 				$dictionary .= "\n</phrases>\n";
 				
-				$newdictfile = LANG_FILES_DIRECTORY."/$dictlang/$langfile.xml";
+				$newdictfile = 'lang/'.LANG_FILES_DIRECTORY."/$dictlang/$langfile.xml";
 				
 				//printbr($dictionary);
 				//printbr($newdictfile);
@@ -258,8 +263,8 @@ function generate_translation_file_old($langfile, $dictlang='it')
 				// create language sub dir if not exists
 				if (!is_dir("lang/$dictlang"))
 				{
-					set_log("creating ".LANG_FILES_DIRECTORY."/$dictlang dir");
-					mkdir(LANG_FILES_DIRECTORY."/$dictlang");
+					set_log("creating lang/".LANG_FILES_DIRECTORY."/$dictlang dir");
+					mkdir('lang/'.LANG_FILES_DIRECTORY."/$dictlang");
 				}
 				
 				if (file_exists($newdictfile))
