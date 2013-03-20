@@ -279,7 +279,7 @@ function ajax_error(jqxhr, status, error)
 	$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 	if (!$lastmoveonTime)
 	{
-		$lastmoveonTime=strtotime( $row[6] );
+		$lastmoveonTime = strtotime( $QuestionInfo['usercreatorid'] );
 	}
 
 	$timeelapsed=time()-$lastmoveonTime;

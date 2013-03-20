@@ -5132,12 +5132,12 @@ function InviteKeyPlayersToRewriteProposals($question,$generation,$room)
 {
 	$ProposalsCouldDominate=CalculateKeyPlayers($question,$generation);
 	
-	log_error("Preparing to send invitations".$generation."");
+	//set_log("Preparing to send invitations, generation ".$generation."");
 	
 	
 	if (count($ProposalsCouldDominate) > 0)
 	{
-		log_error("There are invitations to send");
+		//set_log("There are invitations to send");
 		
 		$KeyPlayers=array_keys($ProposalsCouldDominate);
 		foreach ($KeyPlayers as $KeyPlayer)
@@ -5209,14 +5209,8 @@ function InviteKeyPlayerToRewriteProposals($KeyPlayer,$proposals,$question,$room
 	';
 	
 	$message=wordwrap  ( $message, 70,"\n",true);
-	file_put_contents('invite_to_rewrite.txt', $message);
-	exit;
+	//file_put_contents('invite_to_rewrite.txt', $message);
 	mail($to,$subject, $message );
-	
-	set_log("Mail from InviteKeyPlayerToRewriteProposals to ".$username." as keyplayer for proposal ".$proposal." in question ".$question." ");
-	
-	
-	
 }
 
 function InviteKeyPlayerToRewriteProposal($proposal,$room)
@@ -5309,10 +5303,10 @@ function MoveOnToEndorse($question)
 //  ********************************************/
 function ParetoFront($question,$generation)
 {
-	set_log(__FUNCTION__.":: called with $question and $generation");
+	//set_log(__FUNCTION__.":: called with $question and $generation");
 	$paretofront=array();
-	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation." and dominatedby = 0";
-	set_log(__FUNCTION__.":: $sql");
+	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation." and dominatedby = 0";
+	//set_log(__FUNCTION__.":: $sql");
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{
