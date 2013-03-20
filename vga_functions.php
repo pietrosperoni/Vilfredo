@@ -1412,12 +1412,13 @@ function GetRelatedQuestions($userid)
 
 
 
-function HasProposalBeenSuggested($question,$blurb,$abstract,$generation=0)
+function HasProposalBeenSuggested($pid, $question,$blurb,$abstract,$generation=0)
 {
 	if ($generation==0)	{	$generation=GetQuestionGeneration($question);}
 	$proposals=GetProposalsInGeneration($question,$generation);
 	foreach($proposals as $p)
 	{
+		if(!is_null($pid) && $p == $pid) return;
 		$sql3 = "SELECT blurb, abstract FROM proposals WHERE id = ".$p." LIMIT 1 ";
 		$response3 = mysql_query($sql3);
 		while ($row3 = mysql_fetch_array($response3))
@@ -2381,6 +2382,24 @@ function SafeStringProposal($proposal)
 	}
 }
 
+function deleteProposal($pid, $userid)
+{
+	$sql = "DELETE FROM `proposals` 
+	WHERE `proposals`.`id` = $pid AND `usercreatorid` = $userid";
+	
+	$result = mysql_query($sql);
+
+	if (!$result)
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 
 //******************************************************************/
 //			START: Persistant Cookies
@@ -3135,16 +3154,19 @@ function CountAllProposals($question)
 
 function CountProposals($question,$generation)
 {
-	$sql = "SELECT * FROM proposals WHERE experimentid = ".$question." and roundid = ".$generation."";
-	$n=0;
+	$sql = "SELECT COUNT(id) as proposals FROM proposals WHERE experimentid = $question AND roundid = $generation";
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
-	{
-		$n+=1;
-	}
-	return $n;
+	$row = mysql_fetch_assoc($response);
+	return $row['proposals'];
 }
-
+function CountAuthorsOfNewProposals($question,$generation)
+{
+	$sql = "SELECT COUNT(DISTINCT usercreatorid) as authors FROM proposals 
+	WHERE experimentid = $question AND roundid = $generation AND source = 0";
+	$response = mysql_query($sql);
+	$row = mysql_fetch_assoc($response);
+	return $row['authors'];
+}
 function hasUserEndorsed($user, $question, $generation)
 {
 	$sql = 'SELECT DISTINCT endorse.proposalid 
@@ -3181,10 +3203,18 @@ function EndorsersToAProposal($proposal)
 {
 	$endorsers=array();
 	$sql = "SELECT DISTINCT userid FROM endorse WHERE proposalid = ".$proposal." ";
+	set_log(__FUNCTION__.":: $sql");
 	$response = mysql_query($sql);
-	while ($row = mysql_fetch_array($response))
+	if (!$response)
 	{
-		array_push($endorsers,$row[0]);
+		return $endorsers;
+	}
+	else
+	{
+		while ($row = mysql_fetch_array($response))
+		{
+			array_push($endorsers,$row[0]);
+		}
 	}
 	return array_unique($endorsers);
 
@@ -5279,8 +5309,10 @@ function MoveOnToEndorse($question)
 //  ********************************************/
 function ParetoFront($question,$generation)
 {
+	set_log(__FUNCTION__.":: called with $question and $generation");
 	$paretofront=array();
 	$sql = "SELECT id FROM proposals WHERE experimentid = ".$question." and roundid= ".$generation." and dominatedby = 0";
+	set_log(__FUNCTION__.":: $sql");
 	$response = mysql_query($sql);
 	while ($row = mysql_fetch_array($response))
 	{

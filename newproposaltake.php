@@ -18,6 +18,12 @@ $blurb = $_POST['blurb'];
 $abstract = $_POST['abstract'];
 
 $abstract = trim($abstract);
+
+if ($abstract == '<br>')
+{
+	$abstract = '';
+}
+
 $blurb = trim($blurb);
 
 if (!IsQuestionWriting($question))
@@ -81,7 +87,7 @@ if ($userid) {
 
 
 
-$previousProposal=HasProposalBeenSuggested($question,$blurb,$abstract);
+$previousProposal=HasProposalBeenSuggested(null, $question,$blurb,$abstract);
 if($previousProposal)
 {
 	echo "sorry, it looks like the proposal has already been suggested.";

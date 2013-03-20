@@ -37,6 +37,99 @@ include('header.php');
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+
+$(function() {
+	$('.deletebtn').click(function(){
+		var ok = confirm("<?=$VGA_CONTENT['delete_yr_prop_txt']?>");
+		if (ok)
+		{
+			var pid = $(this).attr('id').replace(/[^0-9]/g, '');
+			var qid = $(this).siblings('.qid').val();
+			var gen = $(this).siblings('.qgen').val();
+			deleteproposal(pid, qid, gen, this);
+		}
+	});
+});
+
+function deleteproposal(pid, question, generation, node)
+{
+	$.ajax({
+		type: "POST",
+		url: "deletePropx.php",
+		data: ({pid : pid, question : question, generation : generation}),
+		cache: false,
+		error: ajax_error,
+		dataType: 'json',
+		success: function(response, status)
+		{
+			if ((typeof response) == 'number')
+			{
+				if (jQuery.trim(response) == '0')
+				{
+					alert('There was a problem deleting that proposal');
+				}
+			}
+			else
+			{
+				$(node).parents('tr').fadeOut(1000, function(){
+					$(node).remove();
+				});	
+				
+				// Update new author and proposal count from DB
+				if (response['numauthors'] !== false)
+				{
+					$('#anp').text(response['numauthors']);
+				}
+				if (response['numproposals'] !== false)
+				{
+					$('#np').text(response['numproposals']);
+				}
+			}
+		}
+	});
+}
+
+function deleteproposal_v1(pid, node)
+{
+	$.ajax({
+		type: "POST",
+		url: "ajax/deleteProp.php",
+		data: ({pid : pid}),
+		cache: false,
+		error: ajax_error,
+		dataType: 'html',
+		success: function(response, status)
+		{
+			response = jQuery.trim(response);
+			switch(response)
+			{
+			case "0": 
+			   	alert('There was a problem deleting that proposal');
+			case "1": 
+			   	$(node).parents('tr').fadeOut(1000, function(){
+					$(node).remove();
+				});	
+				// Update new author and proposal count (not from DB as yet)
+				var newprops = parseInt($('#np').text()) - 1;
+				var newauth = parseInt($('#anp').text());
+				$('#np').text(newprops);
+				if (newprops == 0)
+				{
+					newauth--;
+				}
+				$('#anp').text(newauth);		
+			}
+		}
+	});
+}
+
+//error(jqXHR, textStatus, errorThrown)
+// status: "timeout", "error", "abort", and "parsererror"
+function ajax_error(jqxhr, status, error)
+{
+	//displayAjaxErrorMsg("<?=$VGA_CONTENT['oops_internet_txt']?>");
+}
+
 </script>
 <?php
 
@@ -80,6 +173,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	$shorturl = '';
 	$permit_anon_votes = $QuestionInfo['permit_anon_votes'];
 	$permit_anon_proposals = $QuestionInfo['permit_anon_proposals'];
+	
+	$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
 		
 	$subscribed=IsSubscribed($question,$userid);
 
@@ -217,9 +312,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 		$pastgeneration=$generation-1;
 		$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$pastgeneration); 
 		$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
-		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
-		$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
-		
+		$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));		
 				
 		echo '<div class = "container_large">';
 #		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
@@ -286,9 +379,11 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			echo "<h3>{$VGA_CONTENT['alt_props_txt']}</h3>";
 			echo "<p><i>{$VGA_CONTENT['pareto_txt']}</i></p>";
 
+			set_log("Calling ParetoFront() with $question and $generation minus 1");
 			$ParetoFront=ParetoFront($question,$generation-1);
 			foreach ($ParetoFront as $p)
 			{
+				set_log("Processing prop $p");
 				$originalname=GetOriginalProposal($p);
 				echo '<div id="proposal'.$originalname['proposalid'].'">';
 				
@@ -342,8 +437,8 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 			}
 
 	$NProposals=CountProposals($question,$generation);
-	echo "<p>{$VGA_CONTENT['num_authors_txt']}: ".count(AuthorsOfNewProposals($question,$generation))."</p>";
-	echo "<p>{$VGA_CONTENT['num_props_txt']}: ".$NProposals."</p>";
+	echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".CountAuthorsOfNewProposals($question,$generation)."</span></p>";
+	echo "<p>{$VGA_CONTENT['num_props_txt']}: <span id=\"np\">".$NProposals."</span></p>";
 
 		}
 		if ( $phase==1)
@@ -652,7 +747,7 @@ if ($userid) {
 			while ($row = mysql_fetch_array($response))
 			{
 				echo '<tr><td>';
-				echo '<div class="paretoproposal">';
+				echo "<div class=\"paretoproposal\">";
 				if (!empty($row['abstract'])) {
 					echo '<div class="paretoabstract">';
 					echo display_fulltext_link();
@@ -670,13 +765,17 @@ if ($userid) {
 					echo $row['blurb'] ;
 					echo '</div>';
 				}
-				
+				//$VGA_CONTENT['edit_delete_button']
 				?>
-				<form method="post" action="deleteproposal.php">
-				<input type="hidden" name="p" id="p" value="<?php echo $row[0]; ?>" />
-				<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['edit_delete_button']?>" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
+				<form method="post" action="editproposal.php">
+				<input type="hidden" name="p" value="<?=$row['id']?>" />
+				<input type="hidden" name="backurl" value="<?=$question_url?>" />
+				<input type="hidden" class="qid" name="q" value="<?=$question?>" />
+				<input type="hidden" class="qgen" name="g" value="<?=$generation?>" />
+				<input type="submit" name="submit" value="Edit" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
+				<input type="button" class="deletebtn" id="<?='del_p'.$row['id']?>" value="Delete" title="<?=$VGA_CONTENT['click_ed_del_title']?>"/>
 				</form>
-				
+
 				<?php
 				
 				echo '</div>';
@@ -729,7 +828,6 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
-				$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
 				echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
 
 				echo "<tr><td width=\"70%\">";
