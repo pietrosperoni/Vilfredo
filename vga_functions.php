@@ -1375,6 +1375,22 @@ function GetProposalsInGeneration($question,$generation)
 	}
 	return $proposals;
 }
+function GetUserEndorsementsInGeneration($question,$generation,$userid)
+{
+	$sql = "SELECT end.proposalid FROM endorse AS end, proposals AS prop
+	WHERE end.proposalid = prop.id
+	AND prop.experimentid = $question
+	AND prop.roundid = $generation
+	AND end.userid = $userid";
+	$response = mysql_query($sql);
+	
+	$proposals=array();
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row['proposalid']);
+	}
+	return $proposals;
+}
 
 function GetRelatedQuestions($userid)
 {

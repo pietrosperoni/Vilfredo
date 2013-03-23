@@ -146,7 +146,7 @@ textarea {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 50px;
+	height: 39px;
 	overflow-x: hidden;
 	overflow-y: hidden;
 	position: fixed;
@@ -162,7 +162,7 @@ textarea {
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	margin-bottom: 2px;
+	margin-bottom: 0px;
 	padding-left: 10px;
 }
 
@@ -1337,6 +1337,19 @@ td#content_rte_chars_remaining.length_ok
 	padding-top: 10px;
 }
 
+tr.top {
+	background-color: #E0EEE0;
+}
+tr.top th {
+	padding: 15px 5px;
+}
+.voting_info h3 {
+	text-align: center;
+}
+.voting_info p {
+	text-align: center;
+}
+
 div.feedback {
 	margin: 0;
 	margin-left: 200px;
@@ -1350,6 +1363,23 @@ div.feedback {
 }
 
 div.feedback div{
+	margin-top: 4px;
+	font-size: .8em;
+}
+
+div.info {
+	margin: 0;
+	margin-left: 200px;
+	margin-bottom: 10px;
+	background-color: #B7C8B6;
+	border: 2px solid #43a52a;
+	padding: 10px;
+	width: 50%;
+	font-size: 1.1em;
+	text-align: center;
+}
+
+div.info div{
 	margin-top: 4px;
 	font-size: .8em;
 }

@@ -805,7 +805,10 @@ if ($userid) {
 
 	if ( $phase==1)
 	{
-		$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation."  ORDER BY `id` DESC  ";
+		//$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation."  ORDER BY `id` DESC  ";
+		
+		$sql = "SELECT * FROM `proposals` WHERE `experimentid` = $question AND `roundid` = $generation ORDER BY `id` DESC";
+		
 		//they should be randomly sorted!
 		$response = mysql_query($sql);
 		if ($response)
@@ -932,13 +935,17 @@ if ($userid) {
 				
 			}
 			?>
+			
 			<form method="post" action="endorse_or_not.php">
 			<input type="hidden" name="question" value="<?php echo $question; ?>" />
 			<table border="1" class="your_endorsements userproposal">
-			<tr>
-			<td class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
-			<td><h4><?=$VGA_CONTENT['prop_sol_txt']?></h4></td>
-			<td class="endorse_cell"><b><?=$VGA_CONTENT['check_all_endorse_txt']?></b></td>
+			<tr class="top">
+			<th class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
+			<th class="voting_info">
+				<h3><?=$VGA_CONTENT['prop_sol_txt']?></h3>
+				<p><b><?=$VGA_CONTENT['check_all_endorse_txt']?></b></p>
+				</td>
+			<th class="endorse_cell">&nbsp;</td>
 			</tr>
 
 			<?php
@@ -1004,20 +1011,20 @@ if ($userid) {
 				echo '</div>';
 				echo '</td><td>';
 				
-				echo '<Input type = "Checkbox" Name ="proposal[]" title="' . $VGA_CONTENT['check_to_endorse_title'] . '" value="'.$row[0].'"';
+				echo '<Input type = "Checkbox" Name ="proposal[]" title="' . $VGA_CONTENT['check_to_endorse_title'] . '" value="'.$row['id'].'"';
 
-			if ($userid) {
-				$sql = "SELECT  id FROM endorse WHERE  endorse.userid = " . $userid . " and endorse.proposalid = " . $row[0] . "  LIMIT 1";
-				if(mysql_fetch_array(mysql_query($sql)))
-				{
-					echo ' checked="checked" ';
-				}
-				if($userhasvoted==false) 
+			if ($userid) 
+			{
+				if($userhasvoted === false) 
 				{
 					echo ' checked="checked" ';#default answer for people who have not voted
 				}
+				elseif (isset($proposalsEndorsers) && in_array($userid, $proposalsEndorsers[$row['id']]))
+				{
+					echo ' checked="checked" ';
+				}
 			}
-				echo ' /></p> </td></tr>';
+				echo ' ></td></tr>';
 		}
 		
 	// Anonymous Submit
