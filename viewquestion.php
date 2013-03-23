@@ -423,39 +423,38 @@ function ajax_error(jqxhr, status, error)
 
 	//****** PASTE HERE
 	echo '<div id="actionbox">';
-		echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
-		if ( $phase==0)
+	echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
+	if ( $phase==0)
+	{
+		echo "{$VGA_CONTENT['writing_phase_txt']}</h3>";
+		if ($generation==1)
 		{
-			echo "{$VGA_CONTENT['writing_phase_txt']}</h3>";
-			if ($generation==1)
-			{
-				echo "<p><i>{$VGA_CONTENT['what_to_do_txt']}</i></p>";
-			}
-			else
-			{
-					echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>";
-			}
-
-	$NProposals=CountProposals($question,$generation);
-	echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".CountAuthorsOfNewProposals($question,$generation)."</span></p>";
-	echo "<p>{$VGA_CONTENT['num_props_txt']}: <span id=\"np\">".$NProposals."</span></p>";
-
+			echo "<p><i>{$VGA_CONTENT['what_to_do_txt']}</i></p>";
 		}
-		if ( $phase==1)
+		else
 		{
-			echo "{$VGA_CONTENT['eval_phase_txt']}</h3>";
-	//			echo "<i>The list of proposals that follow should <br/>(a) give the possibility to endorse all of them, and <br/>(b)be all and only the proposals of this generation plus the winning proposals of the previous generation</i><br/><br/>";
-				echo "<p>{$VGA_CONTENT['click_all_txt']}</p>";
+			echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>";
+		}
+
+		$NProposals=CountProposals($question,$generation);
+		$NAuthors=CountAuthorsOfNewProposals($question,$generation);
 	
+		echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".CountAuthorsOfNewProposals($question,$generation)."</span></p>";
+		echo "<p>{$VGA_CONTENT['num_props_txt']}: <span id=\"np\">".$NProposals."</span></p>";
 	}
-	//*****
+	if ( $phase==1)
+	{
+		echo "{$VGA_CONTENT['eval_phase_txt']}</h3>";
+		echo "<p>{$VGA_CONTENT['click_all_txt']}</p>";
+	}
 
 #	if ( $userid and $phase==0 and $userid==$creatorid and $tomoveon==1) #creatorid was wrong so the button never appeared
 	if ( $userid and $phase==0 and $userid==$author and $tomoveon==1)
 	{
 		if ($generation==1)
 		{
-			if (CountProposals($question,$generation)>1)
+#			if (CountProposals($question,$generation)>1)
+			if ($NProposals>1)
 			{
 				?>
 					<form method="post" action="moveontoendorse.php">
@@ -468,7 +467,8 @@ function ajax_error(jqxhr, status, error)
 		}
 		else
 		{
-			if (CountProposals($question,$generation))
+#			if (CountProposals($question,$generation))
+			if ($NAuthors)
 			{
 				?>
 					<form method="post" action="moveontoendorse.php">
