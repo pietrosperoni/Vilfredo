@@ -316,8 +316,9 @@ function ajax_error(jqxhr, status, error)
 				
 		echo '<div class = "container_large">';
 #		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
-#		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+		#InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
+		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"NVotes","Layers");
+		#		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
 		
 		
 		//InsertMap($question,$generation-1, 0, 'M',/*$InternalLinks=*/false);		
