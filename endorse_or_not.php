@@ -60,7 +60,10 @@ if ($userid) {
 
 
 $endorsedproposals = $_POST['proposal'];
-if(!$endorsedproposals){$endorsedproposals=array();}
+if(!$endorsedproposals)
+{
+	$endorsedproposals = array();
+}
 
 $sql2 = "SELECT roundid FROM questions WHERE id = ".$question." LIMIT 1 ";
 $response2 = mysql_query($sql2);

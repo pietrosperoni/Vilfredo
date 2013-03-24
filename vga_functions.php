@@ -3219,7 +3219,6 @@ function EndorsersToAProposal($proposal)
 {
 	$endorsers=array();
 	$sql = "SELECT DISTINCT userid FROM endorse WHERE proposalid = ".$proposal." ";
-	set_log(__FUNCTION__.":: $sql");
 	$response = mysql_query($sql);
 	if (!$response)
 	{
