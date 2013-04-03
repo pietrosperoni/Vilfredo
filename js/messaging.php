@@ -1,5 +1,5 @@
 
-var windowpanelAnimHeight = 215;//165;
+var windowpanelAnimHeight = 205;
 var msgwaitinterval = 5; //seconds
 var messages = [];
 var invites = [];
