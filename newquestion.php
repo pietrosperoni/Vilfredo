@@ -60,8 +60,6 @@ var roomId = <?php echo "'$randomID'" ?>;
 	<p><strong><?=$VGA_CONTENT['invite_exp_txt']?></strong></p>
 	<p><?=$VGA_CONTENT['new_quest_exp_txt']?></p><p><code>http://vilfredo.org/viewquestion.php?q=67&room=vilfredo</code></p>
 
-
-
 	<p id="bubblequestionintro" class="quest-type-intro" style="display:none;">Bubble questions should be Open Questions looking for a number of Proposed Solutions.</p>
 	
 	<p id="vgaquestionintro" class="quest-type-intro"><?=$VGA_CONTENT['open_exp_txt']?> <a href="FAQ.php"><?=$VGA_CONTENT['faq_link']?>.</a></p>
