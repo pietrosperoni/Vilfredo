@@ -70,7 +70,7 @@ function GetEscapedPostParam($key)
 {
 	$val = trim($_POST[$key]);
 	if (get_magic_quotes_gpc())
-		$val = stripslashes($key);
+		$val = stripslashes($_POST[$key]);
 	return $val;
 }
 
@@ -78,7 +78,7 @@ function GetEscapedGetParam($key)
 {
 	$val = trim($_GET[$key]);
 	if (get_magic_quotes_gpc())
-		$val = stripslashes($key);
+		$val = stripslashes($_POST[$key]);
 	return $val;
 }
 
