@@ -8,6 +8,7 @@ function getLabel($key,$language){
 
 $headcommands='';
 include('header.php');
+include('vga_timeless.php');
 
 ?>
 
@@ -254,8 +255,12 @@ function ajax_error(jqxhr, status, error)
 
 	echo '</div>';//---extended questionbox	
 
+
+
 	if($generation>1)
 	{		
+		ShowCommunityMap($question,$generation,$phase);
+		
 		//echo '<div class="elementcontainer">'; 
 		
 		echo '<p><span id="show_table_link" class="question_panel_link"><span>'.$VGA_CONTENT['show_hist_table_txt'].'</span> <img src="images/voting.gif" width="30" height="20" alt="" /></span></p>';

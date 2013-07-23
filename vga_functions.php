@@ -1819,6 +1819,20 @@ function HasQuestionAccess()
         return false;
 }
 
+function GetOriginalProposalID($proposal)
+{
+	$sql="SELECT source, roundid  FROM proposals WHERE proposals.id = '$proposal'";
+	$result = mysql_query($sql) or die(mysql_error());
+	$row = mysql_fetch_assoc($result);
+	if ($row['source']==0)
+	{
+		return $proposal;
+	}
+	else
+	{
+		return GetOriginalProposalID($row['source']);
+	}
+}
 
 function GetOriginalProposal($proposal)
 {
@@ -4094,6 +4108,7 @@ function WriteProposalNumber($proposal,$room)
 	$answer="";
 	$OriginalPData=GetOriginalProposal($proposal);
 	$OriginalP=$OriginalPData['proposalid'];
+#	$OriginalP=GetOriginalProposalID($proposal);
 	$urlquery = CreateProposalURL($OriginalP, $room);
 	
 	#$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
@@ -4107,6 +4122,7 @@ function WriteProposalNumberInternalLink($proposal,$room)
 	$answer="";
 	$OriginalPData=GetOriginalProposal($proposal);
 	$OriginalP=$OriginalPData['proposalid'];
+#	$OriginalP=GetOriginalProposalID($proposal);
 	$urlquery = CreateProposalURL($OriginalP, $room);
 	
 	#$urlquery = CreateProposalURL($proposal, $room);#echo $urlquery;
@@ -5397,11 +5413,46 @@ function ReturnProposalsEndorsersArray($question,$generation)
 		$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = $p ";
 		$response1 = mysql_query($sql1);
 		$endorsers=array();
-		while ($row1 = mysql_fetch_array($response1))	{ array_push($endorsers,$row1[0]);}
+		while ($row1 = mysql_fetch_array($response1))	
+		{ 
+			array_push($endorsers,$row1[0]);
+		}
 		$proposals[$p]=$endorsers;
 	}
 	return $proposals;
 }
+
+#the same as before but with the original ID
+function ReturnOriginalProposalsEndorsersArray($question,$generation)
+{
+	$proposalslist=array();
+	$proposals=array();
+	$sql = "SELECT id FROM proposals 
+		WHERE experimentid = $question AND roundid = $generation";
+	$response = mysql_query($sql);
+	while ($row = mysql_fetch_array($response))
+	{
+		$p=$row[0];
+		#$OriginalP=GetOriginalProposalID($p);
+		$OriginalPData=GetOriginalProposal($p);
+		$OriginalP=$OriginalPData['proposalid'];
+		
+		#$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = ".$p." ";
+		$sql1 = "SELECT userid FROM endorse WHERE endorse.proposalid = $p ";
+		$response1 = mysql_query($sql1);
+		$endorsers=array();
+		while ($row1 = mysql_fetch_array($response1))	
+		{ 
+			array_push($endorsers,$row1[0]);
+		}
+#		$proposals[$p]=$endorsers;
+		$proposals[$OriginalP]=$endorsers;
+#		echo "proposal $p; original proposal $OriginalP<br>";
+	}
+	return $proposals;
+}
+
+
 
 
 #	print_r(array_flip($prop3));
@@ -5409,8 +5460,9 @@ function ReturnProposalsEndorsersArray($question,$generation)
 
 
 #it extracts from the array the endorses
-function EndorsersProposalsFromPorposalsEndorsers($proposalEndorsers) 	{ return invertArray($proposalEndorsers); } /*return  $endorserProposals*/ 
-function extractEndorsers($proposalsEndorsers) 			{ return extractB($proposalsEndorsers);   } /*return $endorsers*/ 
+function ProposalsEndorsersFromEndorsersProposals($endorsersProposal) 	{ return invertArray($endorsersProposal); } /*return  $proposalEndorsers*/ 
+function EndorsersProposalsFromProposalsEndorsers($proposalEndorsers) 	{ return invertArray($proposalEndorsers); } /*return  $endorserProposals*/ 
+function extractEndorsers($proposalsEndorsers) 				{ return extractB($proposalsEndorsers);   } /*return $endorsers*/ 
 	
 function extractB($A2B)
 {
@@ -5428,11 +5480,17 @@ function invertArray($A2B)
 	$B2A=array();
 	$As=array_keys($A2B);
 	$Bs=extractB($A2B);
-	foreach ($Bs as $b) { $B2A[$b]=array(); }
+	foreach ($Bs as $b) 
+	{ 
+		$B2A[$b]=array(); 
+	}
 	
 	foreach ($As as $a)
 	{
-		foreach ($A2B[$a] as $b) { array_push($B2A[$b],$a); }
+		foreach ($A2B[$a] as $b) 
+		{ 
+			array_push($B2A[$b],$a); 
+		}
 	}
 	return $B2A;
 }
@@ -6489,12 +6547,12 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	#elseif($size=="XS"){ $sz= "4,2";    }
 	$sz="11,8";
 	
-	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
-	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
-	{
-		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
-	}
+#	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
+#	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
+#	{
+#		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
+#		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+#	}
 	$MapFile = fopen($filename.".dot", "w+");
 	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
 	
@@ -6858,6 +6916,7 @@ function WriteBundledProposals($BundleName,$BundleContent,$room,$details,$detail
 	{
 		$OriginalPData=GetOriginalProposal($p);
 		$OriginalP=$OriginalPData['proposalid'];
+		#$OriginalP=GetOriginalProposalID($proposal);
 		#$urlquery = CreateProposalURL($OriginalP, $room);
 		
 		$urlquery = CreateProposalURL($p, $room);
@@ -7166,6 +7225,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 			
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
+			#$OriginalP=GetOriginalProposalID($proposal);
 			
 			#$urlquery = CreateProposalURL($p, $room);
 			
@@ -7198,6 +7258,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 		{	
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
+			#$OriginalP=GetOriginalProposalID($proposal);
 			if ($InternalLinks==true)
 			{
 				$urlquery = CreateInternalProposalURL($OriginalP);
@@ -7322,6 +7383,10 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	$pf=$paretofront;
 
 
+	#print_r($pf);
+	
+	
+	
 	$BundledProposals=array();
 	$BundledUsers=array();
 
@@ -7565,10 +7630,15 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		
 		if(in_array ( $p, $pf ))
 		{
-			
+#			echo "working on proposal $p <br>";
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
 			
+#			echo "OriginalP op proposal $p = $OriginalP<br>";
+			
+			
+			#$OriginalP=GetOriginalProposalID($proposal);
+				
 			#$urlquery = CreateProposalURL($p, $room);
 			
 			$endo=EndorsersToAProposal($p);
@@ -7598,6 +7668,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		{	
 			$OriginalPData=GetOriginalProposal($p);
 			$OriginalP=$OriginalPData['proposalid'];
+			#$OriginalP=GetOriginalProposalID($proposal);
 			
 			if ($InternalLinks==false)
 			{	
