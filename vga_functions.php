@@ -8449,6 +8449,80 @@ function GetProposalsQuestion($proposal)
 	return $row[0];
 }
 
+
+
+function WriteQuestionInfoFromData($question,$userid)
+{
+	
+	$QuestionInfo = GetQuestion($question);
+	
+	if (!$QuestionInfo)
+	{
+		// no question found
+		return false;
+	}
+	
+	$title=$QuestionInfo['title'];
+	$content=$QuestionInfo['question'];
+	$room=$QuestionInfo['room'];
+	$phase=$QuestionInfo['phase'];
+	$generation=$QuestionInfo['roundid'];
+	$author=$QuestionInfo['usercreatorid'];
+	$bitlyhash = $row['bitlyhash'];
+	$shorturl = '';
+	$permit_anon_votes = $row['permit_anon_votes'];
+	$permit_anon_proposals = $row['permit_anon_proposals'];
+	
+	$subscribed=IsSubscribed($question,$userid);
+	
+	
+	echo '<table width="100%" ><tr valign="top">';
+	echo '<td width="50%">';
+	echo '<div class="questionbox">';
+	echo "<h2>{$VGA_CONTENT['question_txt']}</h2>";
+	?>
+		<h2 id="question">
+		<form method="post" action="changeupdate.php">
+			<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+			<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
+		<?php
+		echo  $title;
+	if ($userid) {
+		if ($subscribed==1)
+		{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_sub_link']?>unsubscribe" /> <?php
+		}else{
+			?> <input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['email_unsub_link']?>subscribe" /> <?php
+		}
+		
+	}
+		?>
+		</form>
+		</h2>
+	<?php
+	echo "<br />";
+	echo '<div id="question">' . $content . '</div>';
+	
+	
+	echo WriteUserVsReader($author,$userid);
+	
+	
+	echo '</div>';//---extended questionbox	
+	echo '</td>';
+	
+#	if($generation>1){
+#	echo '<td width="50%">';		
+#	MakeQuestionMap($userid,$question,$room,$generation,$phase);
+#	echo '</td>';
+#	}
+	echo '</tr>';
+	echo '</table>';
+	
+}
+
+
+
+
 function WriteQuestionInfo($question,$userid)
 {
 	global $bitly_user, $bitly_key;

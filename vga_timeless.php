@@ -1,6 +1,17 @@
 <?php
 
 
+
+function ShowCommunityMapAll($question,$generation,$phase)
+{
+	list($ProposalsEndorserTimeless,$endorserProposalsTimeless)=ReturnProposalsEndorsersTimelessArrayOriginalOnlyParetoFront($question,$generation,$phase);
+	$ParetoFrontTimeless=CalculateParetoFrontFromProposals($ProposalsEndorserTimeless);
+	InsertMapFromArray($question,$generation,$ProposalsEndorserTimeless,$ParetoFrontTimeless,$room,$userid,"M",0,$question_url,"Layers","Layers");
+	echo "<br>";
+	echo "<br>";	
+	return;
+}
+
 #ReturnProposalsEndorsersTimelessArrayOriginalOnlyParetoFront
 function ShowCommunityMap($question,$generation,$phase)
 {
@@ -36,7 +47,8 @@ function ShowCommunityMap($question,$generation,$phase)
 	echo "<br>";
 	echo "<br>";
 	
-	return;
+	
+	return $ParetoFrontEndorsersTimeless;
 	
 	
 	/////////////////////////////////////////////////////////////////
