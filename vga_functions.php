@@ -1821,34 +1821,60 @@ function HasQuestionAccess()
 
 function GetOriginalProposalID($proposal)
 {
-	$sql="SELECT source, roundid  FROM proposals WHERE proposals.id = '$proposal'";
+	$sql="SELECT source, originalid  FROM proposals WHERE proposals.id = '$proposal'";
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_assoc($result);
-	if ($row['source']==0)
+	if ($row['originalid']==0)
 	{
-		return $proposal;
+		if ($row['source']==0)
+		{
+			setoriginalid($proposal,$proposal);
+			return $proposal;
+		}
+		else
+		{
+			$originalid=GetOriginalProposalID($row['source']);
+			setoriginalid($p,$originalid);
+			return $originalid;
+		}
 	}
 	else
 	{
-		return GetOriginalProposalID($row['source']);
+		return GetOriginalProposalID($row['originalid']);
 	}
+	
 }
 
 function GetOriginalProposal($proposal)
 {
-	$sql="SELECT source, roundid FROM proposals WHERE proposals.id = '$proposal'";
+	$sql="SELECT source, roundid, originalid FROM proposals WHERE proposals.id = '$proposal'";
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_assoc($result);
-	if ($row['source']==0)
+	if ($row['originalid']==0)
 	{
-		$result=array();
-		$result['proposalid']=$proposal;
-		$result['generation']=$row['roundid'];
-		return $result;
+		if ($row['source']==0)
+		{
+			setoriginalid($proposal,$proposal);
+			$result=array();
+			$result['proposalid']=$proposal;
+			$result['generation']=$row['roundid'];
+			return $result;
+		}
+		else
+		{
+			$OriginalProposal=GetOriginalProposal($row['source']);			
+			$OPropID=$OriginalProposal["proposalid"];
+			setoriginalid($p,$OPropID);
+			return $OriginalProposal;
+		}
 	}
 	else
 	{
-		return GetOriginalProposal($row['source']);
+		$result=array();
+		$originalid=$row['originalid'];
+		$result['proposalid']=$originalid;
+		$result['generation']=GetProposalGeneration($originalid);
+		return $result;
 	}
 }
 
@@ -2237,6 +2263,28 @@ function isadminonly($userid)
 		return $userid;
 	}
 }
+
+
+
+function setoriginalid($p,$originalid)
+{
+	$sql = "UPDATE proposals 
+	SET originalid = $originalid
+	WHERE id = $p";
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error($sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+
+
 
 function setlogintime($user)
 {
