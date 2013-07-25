@@ -258,8 +258,8 @@ function ajax_error(jqxhr, status, error)
 
 
 	if($generation>1)
-	{		
-		ShowCommunityMap($question,$generation,$phase);
+	{
+		#ShowCommunityMap($question,$generation,$phase);
 		
 		//echo '<div class="elementcontainer">'; 
 		
