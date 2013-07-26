@@ -5082,6 +5082,21 @@ If you would like not to receive any more invitations from '.$authorusername.' y
 		set_log("Mail from ".$authorusername." to ".$username." on new question ".$question." ");
 }
 
+function setOriginalIDForNewProposal($pid)
+{
+	$sql = "UPDATE `proposals` SET `originalid` = $pid WHERE id = $pid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
 function questionSubscribe($user, $question)
 {
 	$sql = "INSERT INTO `updates` (`user`, `question`) VALUES ($user, $question)";
