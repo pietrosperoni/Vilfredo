@@ -146,6 +146,7 @@ else
 	}
 	
 	$newpropid = mysql_insert_id();
+	setOriginalIDForNewProposal($newpropid);
 	
 	// Add mutated proposal $newpropid to proposal_relations table
 	if (isset($_POST['mutate']) and isset($_POST['origpid']))
