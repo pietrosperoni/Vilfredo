@@ -6279,7 +6279,7 @@ function StoreParetoFront($question,$generation,$paretofront)
 				$abstract = $row['abstract'];
 			}
 
-			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract` ) VALUES (\'' . $blurb . '\', \'' . $row['usercreatorid'] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\');';
+			$sql = 'INSERT INTO `proposals` (`blurb`, `usercreatorid`, `roundid`, `experimentid`,`source`,`dominatedby`,`creationtime`, `abstract`, `originalid` ) VALUES (\'' . $blurb . '\', \'' . $row['usercreatorid'] . '\', \'' . $generation . '\', \'' . $question . '\', \''.$p.'\',\'0\', NOW(), \'' . $abstract .'\', ' . $row['originalid'] . ')';
 			
 			$add_pareto_to_nextgen = mysql_query($sql);
 			if (!$add_pareto_to_nextgen)
