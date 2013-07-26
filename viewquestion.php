@@ -1271,7 +1271,7 @@ if ($userid) {
 			{
 				$userendorsedata[$p] = 1;
 			}
-			elseif (!empty($commentslist) && !empty($commentslist[$p]) && array_key_exists($userid, $commentslist[$p]))
+			elseif ($userid && !empty($commentslist) && !empty($commentslist[$p]) && array_key_exists($userid, $commentslist[$p]))
 			{
 				if ($commentslist[$p][$userid]['type'] == 'dislike')
 				{
