@@ -11,6 +11,14 @@ if (!is_dir("rss"))
 	mkdir("rss", 0755);
 }
 
+/*
+$counter++;
+if ($counter > 1)
+{
+	throw new Exception('config file included more than once!!!');
+}
+*/
+
 //******************************************/
 // DOMAIN SPECIFIC SETTINGS
 //******************************************/
@@ -43,9 +51,9 @@ require_once 'process_input.php';
 require_once 'graphs.php';
 require_once 'vga_functions.php';
 include_once 'lib/php_lib.php';
-require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
+//require_once 'lib/htmlpurifier-4.0.0-live/HTMLPurifier.standalone.php';
 require_once "lib/feedcreator-1.7.2-ppt/include/feedcreator.class.php";
-require_once "vga_bubble_functions.php";
+//require_once "vga_bubble_functions.php";
 
 // Set error logs if log directory is defined (in config.domain.php)
 if (defined('LOG_DIRECTORY'))
@@ -70,6 +78,27 @@ define("MAX_LEN_PROPOSAL_ABSTRACT", 1000);
 define("MAX_LEN_PROPOSAL_BLURB", 1000);
 
 define("LANG_FILES_DIRECTORY", 'generatedlangfiles');
+
+define("NOT_VOTED", 0);
+define("AGREE", 1);
+define("DISAGREE", 2);
+define("NOT_UNDERSTAND", 3);
+
+// Admin display settings
+$display_interactive_graphs = True;
+$display_key_players = True;
+$display_confused_voting_option = True;
+
+$default_voting_options = array (
+	'display_interactive_graphs' => 1,
+	'display_key_players' => 1,
+	'display_confused_voting_option' => 1,
+	'require_voting_comments' => 1
+);
+
+$voting_settings = array_merge($default_voting_options, fetch_voting_settings());
+
+//set_log("Counter = $counter");
 
 // ******************************************
 // Connects to the Database

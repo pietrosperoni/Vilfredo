@@ -39,6 +39,9 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 // HTTP/1.0
 header("Pragma: no-cache");
 
+
+$counter = 0;
+
 // ******************************************	
 // 	Load System Serttings
 require_once 'config.inc.php';

@@ -28,6 +28,7 @@ include('vga_timeless.php');
 <script type="text/javascript" src="/js/sprintf-0.6.js"></script>
 <script type="text/javascript" src="/js/cookies/jquery.cookie.js"></script>
 <script type="text/javascript" src="/js/underscore.js"></script>  
+<script type="text/javascript" src="/js/charCount.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="js/jquery/RichTextEditor/jqDnR.min.js"></script>
 <script type="text/javascript" src="js/jquery/jquery.jqpopup.min.js"></script>
@@ -38,8 +39,225 @@ include('vga_timeless.php');
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+var votingcommentslist;
+var userid = <?=json_encode($userid)?>;
+var require_voting_comments = <?=json_encode($voting_settings['require_voting_comments'])?>;
+
+var NOT_VOTED = <?=json_encode(NOT_VOTED)?>;
+var AGREE = <?=json_encode(AGREE)?>;
+var DISAGREE = <?=json_encode(DISAGREE)?>;
+var NOT_UNDERSTAND = <?=json_encode(NOT_UNDERSTAND)?>;
+
 
 $(function() {
+	/*
+	<div class="commentform">
+	<div class="intro"></div>
+	<div class="commentslist"></div>
+	<div class="textbox">
+	<textarea rows="25" cols="100"></textarea> 
+	<div class="commentdelete">Delete</div>
+	<div class="commentclose">Close</div>
+	<div class="commentsave">Save</div>
+	</div>
+	</div>
+	*/
+	
+	/*
+	<div class="comments">
+		<p>List of comments from users.</p>
+		<div class="commentslist"></div>
+	</div>
+	<div class="commentform">
+		<p>Please tell us why you don't understand this proposal.</p>
+		<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
+	</div>
+	*/
+
+	// Display messages on icon click
+	//
+	$('.usrmsgpic').live("click", function(event){
+		var comments = $(this).parent('.paretoproposal').siblings('.comments');
+		if (comments.length == 0)
+		{
+			comments = $(this).parent('.paretoproposal').find('.comments');
+		}
+		
+		var commentslist = comments.find('.commentslist');
+		
+		if (commentslist.is(':visible'))
+		{
+			comments.find('.commentslist').html('');
+			comments.slideUp(500);
+			$(this).find('.intro').html("");
+		}
+		else
+		{
+			var el_with_id = $(this).parents('tr.user_vote');
+			if (el_with_id.length == 0)
+			{
+				el_with_id = $(this).parents('.pfbox');
+			}
+			var pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
+			
+			if (typeof votingcommentslist[pid] != 'undefined')
+			{
+				var commentslist = comments.find('.commentslist');
+				var createList = $.each(votingcommentslist[pid], function(i, usercomment) {					
+					if (usercomment['comment'] != '')
+					{
+						commentslist.append('<div class="comment"><div class="comment_type ' +
+						usercomment['type'] + '"></div><div class="text">' + usercomment['comment'] +
+						//'</div><div class="author">by '+ usercomment['authorname'] +'</div></div>');
+						'</div></div>');
+					}
+					else
+					{
+						commentslist.append('<div class="comment"><div class="comment_type ' +
+						usercomment['type'] + '"></div><div class="text">' + //usercomment['authorname'] +
+						' user entered no comment</div></div>');
+					}
+				});
+				//commentslist.append('<div class="commentslistclose">Close</div><br/>');
+				
+				$.when(createList).done(function()
+				{
+					//commentslist.append('<div class="clear"></div><br/>');
+					comments.slideDown(500);
+					//commentslist.slideDown(500);
+				});
+			}
+		}
+	});
+	
+	/*
+	<div class="comments">
+		<p>List of comments from users.</p>
+		<div class="commentslist"></div>
+	</div>
+	<div class="commentform">
+		<p>Please tell us why you don't understand this proposal.</p>
+		<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
+	</div>
+	*/
+	$('.voting_choices img').live('click', function(event){
+		var img = $(this).prop('src');
+		var choice = $(this).parents('.voting_choices').siblings('.voting_choice');
+		choice.css('background-image', 'url('+img+')');
+		var setval = choice.siblings('.voting_choice_val');
+		var prev_val = choice.siblings('.prev_voting_choice_val');
+		if ($(this).hasClass('1'))
+		{
+			setval.val(1);
+			$(this).parents('td').siblings('td.proposalcontent').find('.commentform').slideUp(500);
+		}
+		else if ($(this).hasClass('2') || $(this).hasClass('3'))
+		{
+			if ($(this).hasClass('2'))
+			{
+				setval.val(2);
+			}
+			else
+			{
+				setval.val(3);
+			}
+			
+			var pid = parseInt($(this).parents('tr.user_vote').attr('id').replace(/[^0-9]/g, ''));
+			if ( (setval.val() == 2 || setval.val() == 3) && (prev_val.val() != setval.val()) )
+			{
+				var commentform = $(this).parents('td').siblings('td.proposalcontent').find('.commentform');
+				if (setval.val() == "2")
+				{
+					commentform.find('.intro').html("<p>Please tell us why you don\'t like this proposal.</p>");
+				}
+				else
+				{
+					commentform.find('.intro').html("<p>Please tell us why you don\'t understand this proposal.</p>");
+				}
+				commentform.find('textarea').trigger('setcharcount');
+				
+				if (!commentform.is(':visible'))
+				{
+					commentform.slideDown(500, function(){
+						$(this).find('.textbox').fadeIn(500);
+					});
+				}
+			}
+			else
+			{
+				$(this).parents('td').siblings('td.proposalcontent').find('.commentform').slideUp(500);
+			}
+		}
+	});
+	
+	
+	$('.user_vote').each(function(i){
+		var vote = $(this).find('.voting_choice_val').val();
+		switch (vote)
+		{
+			case "2":
+				$(this).find('.voting_choice').css('background-image', 'url(images/thumbdown.png)');
+				break;	
+			case "3":
+				$(this).find('.voting_choice').css('background-image', 'url(images/confused.png)');
+				break;
+			case "0":
+			case "1":
+				$(this).find('.voting_choice').css('background-image', 'url(images/thumbup.png)');
+		}	
+	});
+	
+	// Commet textarea counter
+	$(".commentform textarea").charCount({
+		allowed: 100,		
+		warning: 20,
+		counterText: "<?=$VGA_CONTENT['char_count_label']?>" + " "
+	});
+
+	// Check voting info before submitting
+	$('form#votingform').submit(function() 
+	{	
+		var comments_done = true;
+		
+		if (require_voting_comments)
+		{
+			$('.commentform textarea').each(function(){
+				if ($(this).is(":visible") && $(this).val() == '')
+				{
+					$(this).css('border', '5px solid red');
+					comments_done = false;
+				}
+				else
+				{
+					$(this).css('border', 'none');
+				}
+			});
+		}
+		
+		if (!comments_done)
+		{
+			alert("You need to complete the comment boxes for the proposals you are not endorsing");
+			return false;
+		}
+		
+		var has_endorsed = false;
+		// User can only vote if they have made at least one endorsement - today
+		$('.voting_choice_val').each(function(){
+			if ($(this).val() == 1)
+			{
+				has_endorsed = true;
+			}
+		});
+		if (!has_endorsed)
+		{
+			alert("You must endorse at least one proposal in order to submit your votes");
+			return false;
+		}
+		
+		// Everything OK - submit votes
+		return true;
+	});
+	
 	$('.deletebtn').click(function(){
 		var ok = confirm("<?=$VGA_CONTENT['delete_yr_prop_txt']?>");
 		if (ok)
@@ -50,7 +268,173 @@ $(function() {
 			deleteproposal(pid, qid, gen, this);
 		}
 	});
+	
+	$('span.submit')
+	.live("mouseover", function(event){
+		$(this).addClass("over");
+	})
+	.live("mouseout", function(event){
+		$(this).removeClass("over");
+	})
+	.live("click", function(event){
+		var props = $(this).siblings(".plist").data('props');
+		//alert("Submitting equalities: "+ props.toString());
+		addProposalRelations(props, "equivalent");		
+	});
+	
+	$('span.cancel')
+	.live("mouseover", function(event){
+		$(this).addClass("over");
+	})
+	.live("mouseout", function(event){
+		$(this).removeClass("over");
+	})
+	.live("click", function(event){
+		var plist = $(this).siblings(".plist");
+		$('table.your_endorsements').find('tr.user_vote').die().removeClass('selected over');
+		plist.html('');
+		$('#select_same').removeClass("active");
+		$('span.submit').remove();
+		plist.data('props', []);
+		$(this).remove();		
+	});
+	
+	$('#select_same')
+	.data('active', "false")
+	.mouseenter(function(event){
+		$(this).addClass("over");
+	})
+	.mouseleave(function(event){
+		$(this).removeClass("over");
+	});
+		
+	$('#select_same').click(function(event){
+		
+		// <div>Identify proposal relations: <span id="select_same">Equivalent Proposals</span><span class="plist"></span><span class="submit">Submit</span><span class="submit">Cancel</span></div>
+		
+		var plist = $(this).siblings(".plist");
+		
+		if (isArray(plist.data('props')) == false)
+		{
+			plist.data('props', []);
+		}
+				
+		var active = $('#select_same').data('active');
+		
+		if (active == 'true')
+		{
+			active = 'false';
+		}
+		else
+		{
+			active = 'true';
+		}
+		
+		$(this).data('active', active);
+		
+		if (active == 'true')
+		{		
+			$(this).addClass("active");
+		
+			$('table.your_endorsements').find('tr.user_vote')
+			.live('mouseover', function(event) {
+				$(this).addClass("over");
+			})
+			.live('mouseout', function(event) {
+				$(this).addClass("over");
+			})
+			.live('click', function(event) 
+			{
+				if ($(this).hasClass("selected") == false)
+				{
+					$(this).addClass("selected");
+					var pid = $(this).find('input[name="proposal[]"]').val();
+					
+					plist.data('props').push(parseInt(pid));
+					
+					if ($('span.pbox').length > 0)
+					{
+						plist.append('<span class="mathop"> = </span><span class="pbox">'+pid+'</span>');
+					}
+					else
+					{
+						plist.append('<span class="pbox">'+pid+'</span>');
+					}
+					
+					if ($('span.pbox').length == 2)
+					{
+						plist.after('<span class="submit">Submit</span><span class="cancel">Cancel</span>');
+					}
+				}
+				else
+				{
+					$(this).removeClass("selected");
+					var pid = $(this).find('input[name="proposal[]"]').val();
+					
+					
+					$.each(plist.data('props'), function(i, id) {
+					    if (id == parseInt(pid))
+					    {
+					        plist.data('props').splice(i, 1);
+					    }
+					});		
+					
+					var pboxes = plist.find('span.pbox');
+					var mathops = plist.find('span.mathop');
+					pboxes.each(function(i) {
+						if ($(this).text() == pid)
+						{
+							$(this).fadeOut('slow').remove();
+							if (mathops.length > 0)
+							{
+								mathops.eq(i-1).fadeOut('slow').remove();
+							}
+						}
+					});
+					if ($('span.pbox').length == 1)
+					{
+						$('span.submit, span.cancel').fadeOut('fast', function(){
+							$(this).remove();
+						});
+					}
+				}
+			});
+		}
+		else
+		{
+			$('table.your_endorsements').find('tr.user_vote').die().removeClass('selected over');
+			plist.html('');
+			$(this).removeClass("active");
+			$('span.submit, span.cancel').remove();
+			plist.data('props', []);
+		}
+	});
 });
+
+
+function addProposalRelations(pids, relation, node)
+{
+	$.ajax({
+		type: "POST",
+		url: "addProposalRelationsx.php",
+		data: ({pids : pids, relation : relation}),
+		cache: false,
+		error: ajax_error,
+		dataType: 'html',
+		success: function(response, status)
+		{
+			response = jQuery.trim(response);
+			switch(response)
+			{
+			case "0": 
+			   	alert('There was a problem adding the proposal relations');
+			    break;
+			case "1": 
+			   	alert('Proposal relations successfully added');		
+			}
+		}
+	});
+}
 
 function deleteproposal(pid, question, generation, node)
 {
@@ -197,7 +581,7 @@ function ajax_error(jqxhr, status, error)
 	<div id="questionbox" class="questionbox">
 	<h2><?=$VGA_CONTENT['question_txt']?></h2>
 	<h2 id="question">
-	<form method="post" action="changeupdate.php">
+	<form autocomplete="off" method="post" action="changeupdate.php">
 		<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 		<input type="hidden" name="room" id="room" value="<?php echo $room; ?>" />
 		<?php
@@ -369,7 +753,7 @@ function ajax_error(jqxhr, status, error)
 				{
 					$originalname=GetOriginalProposal($p);
 					echo '<div id="proposal'.$originalname['proposalid'].'">';
-					?><form method="get" action="npv.php" target="_blank">
+					?><form autocomplete="off" method="get" action="npv.php" target="_blank">
 						<?php	echo '<h3>'.WriteProposalPage($p,$room)." ";?>	
 							<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
 							<?php	if($room) { ?><input type="hidden" name="room" id="room" value="<?php echo $room; ?>" /><?php	}	?>
@@ -387,16 +771,35 @@ function ajax_error(jqxhr, status, error)
 
 			set_log("Calling ParetoFront() with $question and $generation minus 1");
 			$ParetoFront=ParetoFront($question,$generation-1);
+			
+			//$allconfusedcomments = getCommentsByProposals($ParetoFront);
+			$commentslist = getCommentsList($ParetoFront);
+			set_log('$commentslist');
+			set_log($commentslist);
+			
+			?>
+			<script>
+			//commentslist = <?=json_encode($commentslist)?>;
+			votingcommentslist = <?=json_encode($commentslist)?>;
+			//allconfusedcomments = <?=json_encode($allconfusedcomments)?>;
+			</script>
+			<?php
+
 			foreach ($ParetoFront as $p)
 			{
 				set_log("Processing prop $p");
 				$originalname=GetOriginalProposal($p);
-				echo '<div id="proposal'.$originalname['proposalid'].'">';
+				echo '<div class="pfbox" id="proposal'.$originalname['proposalid'].'">';
 				
 				echo '<div class="paretoproposal">';
+
+				if (isset($commentslist[$p]))
+				{
+					echo '<img class="usrmsgpic" src="images/hascomments.jpg" title="'.count($commentslist[$p]).' comments">';
+				}
 				
 				?>
-				<form method="get" action="npv.php" target="_blank">
+				<form autocomplete="off" method="get" action="npv.php" target="_blank">
 				<h3>
 					<?php	echo WriteProposalPage($p,$room);?>	
 						<input type="hidden" name="p" id="p" value="<?php echo $p; ?>" />
@@ -415,7 +818,14 @@ function ajax_error(jqxhr, status, error)
 				if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
 				$endorsers=EndorsersToAProposal($p);
 				echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
-				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}					
+				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}	
+				
+				echo '<div class="comments">';
+				echo '<p>List of comments from users.</p>';
+				echo '<div class="commentslist"></div>';
+				echo '<div class="clear"></div>';
+				echo '</div>';
+								
 				echo '</div>';
 				echo '</div>';
 				
@@ -463,7 +873,7 @@ function ajax_error(jqxhr, status, error)
 			if ($NProposals>1)
 			{
 				?>
-					<form method="post" action="moveontoendorse.php">
+					<form autocomplete="off" method="post" action="moveontoendorse.php">
 					<?=$VGA_CONTENT['you_can_txt']?>:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>" />
@@ -477,7 +887,7 @@ function ajax_error(jqxhr, status, error)
 			if ($NAuthors)
 			{
 				?>
-					<form method="post" action="moveontoendorse.php">
+					<form autocomplete="off" method="post" action="moveontoendorse.php">
 					<?=$VGA_CONTENT['you_can_txt']?>:
 						<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 						<input type="submit" name="submit" id="submit" value="<?=$VGA_CONTENT['move_next_button']?>" />
@@ -510,7 +920,7 @@ function ajax_error(jqxhr, status, error)
 		if ($userid and $nEndorsers>1 and $userid==$author and $tomoveon==1) 
 		{
 			?>
-			<form method="post" action="moveontowriting.php">
+			<form autocomplete="off" method="post" action="moveontowriting.php">
 			If everybody has endorsed the proposals they wanted to endorse, you can:
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
@@ -562,9 +972,9 @@ function ajax_error(jqxhr, status, error)
 	<?php 
 		if ($userid) {//open 
 		?>
-		<form method="post" action="newproposaltake.php">
+		<form autocomplete="off" method="post" action="newproposaltake.php">
 		<?php } else { ?>
-		<form method="post" action="newproposaltake.php" class="reg-only">
+		<form autocomplete="off" method="post" action="newproposaltake.php" class="reg-only">
 	<?php } ?>
 
 	<div id="editor_panel">
@@ -773,7 +1183,7 @@ if ($userid) {
 				}
 				//$VGA_CONTENT['edit_delete_button']
 				?>
-				<form method="post" action="editproposal.php">
+				<form autocomplete="off" method="post" action="editproposal.php">
 				<input type="hidden" name="p" value="<?=$row['id']?>" />
 				<input type="hidden" name="backurl" value="<?=$question_url?>" />
 				<input type="hidden" class="qid" name="q" value="<?=$question?>" />
@@ -810,8 +1220,80 @@ if ($userid) {
 
 	if ( $phase==1)
 	{
-		//$sql = "SELECT * FROM proposals WHERE experimentid = ".$question."  and roundid = ".$generation."  ORDER BY `id` DESC  ";
+		// Fetch User Comments
+		$proposallist = getCurrentProposalIDs($question, $generation);
+		//set_log('$proposallist:');
+		//set_log($proposallist);
 		
+		$userendorsedlist = array();
+		if ($userid)
+		{
+			$userendorsedlist = getUserEndorsedFromList($userid, $proposallist);
+		}
+		
+		set_log('$userendorsedlist');
+		set_log($userendorsedlist);
+		
+		// === UserCommentsGroupedByProposal
+		//$confusedcomments = getConfusedByUsers($proposallist);
+		//$commentsbyusers = getCommentsByUsers($proposallist);
+		//set_log('$commentsbyusers');
+		//set_log($commentsbyusers);
+		// === ProposalCommentsGroupedByUser
+		//$allconfusedcomments = getConfusedByProposals($proposallist);
+		//$allconfusedcomments = getCommentsByProposals($proposallist);
+		//set_log('$allconfusedcomments');
+		//set_log($allconfusedcomments);
+		// === ProposalComments
+		//$commentslist = getvotingcommentslist($proposallist);
+		$commentslist = getCommentsList($proposallist);
+		set_log('$commentslist');
+		set_log($commentslist);
+		
+		?>
+		<script>
+		//commentslist = <?=json_encode($commentslist)?>;
+		votingcommentslist = <?=json_encode($commentslist)?>;
+		//allconfusedcomments = <?=json_encode($allconfusedcomments)?>;
+		</script>
+		<?php
+		
+		// Set $userendorsedata array
+		$userendorsedata = array();
+		set_log("commentslist = ");
+		set_log($commentslist);
+		foreach($proposallist as $p)
+		{
+			set_log("commentslist key = $p");
+			set_log("userid = $userid");
+			
+			if (!empty($userendorsedlist) && in_array($p, $userendorsedlist))
+			{
+				$userendorsedata[$p] = 1;
+			}
+			elseif (!empty($commentslist) && !empty($commentslist[$p]) && array_key_exists($userid, $commentslist[$p]))
+			{
+				if ($commentslist[$p][$userid]['type'] == 'dislike')
+				{
+					$userendorsedata[$p] = 2;
+				}
+				elseif ($commentslist[$p][$userid]['type'] == 'confused')
+				{
+					$userendorsedata[$p] = 3;
+				}
+			}
+			else
+			{
+				$userendorsedata[$p] = 0;
+			}
+		}
+		
+		/*
+		set_log('userendorsedata:');
+		set_log($userendorsedata);
+		set_log($commentsbyusers);
+		*/
+				
 		$sql = "SELECT * FROM `proposals` WHERE `experimentid` = $question AND `roundid` = $generation ORDER BY `id` DESC";
 		
 		//they should be randomly sorted!
@@ -822,7 +1304,11 @@ if ($userid) {
 #			$userhasvoted = true; #(let's try with a default of true)
 			if ($userid)
 			{
-				$userhasvoted = hasUserEndorsed($userid, $question, $generation);
+				//$userhasvoted = hasUserEndorsed($userid, $question, $generation);
+				//$userhasvoted = hasUserVoted($userid, $question, $generation);
+				$userhasvoted = checkuservote($userid, $question, $generation);
+				//set_log('userhasvoted?');
+				//set_log($userhasvoted);
 			}
 			
 			echo "<h3>{$VGA_CONTENT['proposals_txt']}:</h3>";
@@ -837,6 +1323,11 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
+				
+				$use_old_graph_layout = false;
+				// --------------- begin old
+				if ($voting_settings['display_interactive_graphs'] && $use_old_graph_layout)
+				{
 				echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
 
 				echo "<tr><td width=\"70%\">";
@@ -846,6 +1337,148 @@ if ($userid) {
 				echo "</td></tr>";
 
 				echo "</table>";
+				}
+				// ------------------ end old
+				
+				
+				// ------------------ begin New
+				
+				//elseif ($display_interactive_graphs && USE_GRAPHVIZ_MAPS)
+				elseif ($voting_settings['display_interactive_graphs'] && USE_GRAPHVIZ_MAPS)
+				{
+					$votesgraph = GenerateMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
+										
+					$pfvotesgraph = GenerateMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+					?>
+					
+					<br /><br />
+					<div class="graphpanel"><span id="vgonly" class="button">User Voting</span><span id="bothgraphs" class="button">Show Both</span><span id="pfonly" class="button">Winning Proposals Only</span></div>
+
+					<div id="graphs" class="graphcontainer">
+						<div id="votesgraph" class="inner"></div>
+						<div id="pfgraph" class="inner right"></div>
+					</div>
+					
+					<script type="text/javascript">
+					
+					var votesgraph = <?=stripslashes(json_encode($votesgraph))?>;
+					var pfvotesgraph = 	<?=stripslashes(json_encode($pfvotesgraph))?>;			
+					
+					function loadGraph(svgfile, svgfile2)
+					{
+						console.log(loadGraph+" called. Loading "+svgfile);
+						$('#votesgraph').svg({loadURL: svgfile, onLoad: initGraph});
+						$('#pfgraph').svg({loadURL: svgfile2, onLoad: initGraph});
+					}
+
+					function initGraph(svg) {
+						setGraphSize(svg);
+						setFullSizeLink(svg);
+						//setGraphData();
+						//setCurrentUser(user);
+					}
+					function setFullSizeLink(svg)
+					{
+						var link = $('a', svg.root()).filter(function() {
+						    return $(this).attr('xlink:title').indexOf("full size") > -1;
+						});
+
+						var url = link.attr('xlink:href');
+						link.attr('xlink:href', 'map/'+url);
+					}
+					function setGraphSize(svg, width, height) 
+					{
+						gwidth = width || $(svg._container).innerWidth();
+						gheight = height || $(svg._container).innerHeight();
+						svg.configure({width: gwidth, height: gheight});
+					}
+					
+					$(function() {
+						$('.graphpanel').fadeIn(1000);
+						//loadGraph('Q73_R2.svg', 'Q73_R2_PF.svg');
+						loadGraph(votesgraph, pfvotesgraph);
+
+						$('.button').mouseenter(function(event){
+							$(this).addClass("over");
+						});
+						$(".button").mouseleave(function(event){
+							$(this).removeClass("over");
+						});
+
+						$('#vgonly').click(function(event){	
+							var votes = $('#votesgraph');
+							var graphbox = $('#graphs');
+							var pfgraph = $('#pfgraph');
+
+							if (votes.is(":visible") && pfgraph.is(":visible"))
+							{
+								pfgraph.fadeOut(1000, function(){			
+									votes.css("width", graphbox.innerWidth());
+									setGraphSize(votes.svg("get")); 
+								});
+							}
+							else if (!votes.is(":visible") && pfgraph.is(":visible"))
+							{	
+								pfgraph.fadeOut(1000, function(){			
+									$(this).css("width", "49%");
+									setGraphSize($(this).svg("get")); 
+									votes.css("width", graphbox.innerWidth());
+									setGraphSize(votes.svg("get")); 
+									votes.fadeIn(1000);
+								});	
+							}
+						});
+						$('#pfonly').click(function(event){	
+							var pfgraph = $('#pfgraph');
+							var graphbox = $('#graphs');
+							var votes = $('#votesgraph');
+
+							if (votes.is(":visible") && pfgraph.is(":visible"))
+							{
+								votes.fadeOut(1000, function(){			
+									pfgraph.css("width", graphbox.innerWidth());
+									setGraphSize(pfgraph.svg("get")); 
+								});
+							}
+							else if (votes.is(":visible") && !pfgraph.is(":visible"))
+							{	
+								votes.fadeOut(1000, function(){			
+									$(this).css("width", "49%");
+									setGraphSize($(this).svg("get")); 
+									pfgraph.css("width", graphbox.innerWidth());
+									setGraphSize(pfgraph.svg("get")); 
+									pfgraph.fadeIn(1000);
+								});	
+							}
+						});
+						$('#bothgraphs').click(function(event){	
+
+							var graphbox = $('#graphs');
+							var votes = $('#votesgraph');
+							var pfgraph = $('#pfgraph');
+
+							if (votes.is(":visible") && !pfgraph.is(":visible"))
+							{
+								votes.css("width", "49%");
+								setGraphSize(votes.svg("get"));
+								pfgraph.fadeIn(1000);
+							}
+							else if (!votes.is(":visible") && pfgraph.is(":visible"))
+							{
+								pfgraph.css("width", "49%");
+								setGraphSize(pfgraph.svg("get"));
+								votes.fadeIn(1000);
+							}
+						});
+					});
+					
+					</script>
+					
+					<?php
+				}
+				
+				// ------------------ end New
+				
 				
 				echo "<br>";
 				echo "<br>";
@@ -907,42 +1540,56 @@ if ($userid) {
 								
 				$CouldDominate=CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$ParetoFront);
 				$users=extractEndorsers($proposalsEndorsers);
-				echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
-				foreach ($users as $u)
-				{
-					if($u==$userid)
-						{continue;}
-					$HomeWork=$CouldDominate[$u];
-					if (count($HomeWork) > 0)
-					{
-						$uString=WriteUserVsReader($u,$userid);
-						echo "The result would be simpler if ".$uString." were to vote for ";					
-						$PCD=$HomeWork[0];
-						$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-						echo " ".$proposalNumber;
-						foreach ($HomeWork as $PCD)
-						{
-							if ($PCD==$HomeWork[0]) continue;
-							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-							echo ", ".$proposalNumber;
-						}
-						echo ".</br>";
-#						echo "<u>Convince Them!</u>";
-						echo "Convince Them!";
-						echo "</br>";
-						echo "</br>";
-					}	
-				}
-				echo "</div>";					
 				
+				if ($voting_settings['display_key_players'])
+				{
+					// Display Key Players -- Begin
+					echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
+					foreach ($users as $u)
+					{
+						if($u==$userid)
+							{continue;}
+						$HomeWork=$CouldDominate[$u];
+						if (count($HomeWork) > 0)
+						{
+							$uString=WriteUserVsReader($u,$userid);
+							echo "The result would be simpler if ".$uString." were to vote for ";					
+							$PCD=$HomeWork[0];
+							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+							echo " ".$proposalNumber;
+							foreach ($HomeWork as $PCD)
+							{
+								if ($PCD==$HomeWork[0]) continue;
+								$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+								echo ", ".$proposalNumber;
+							}
+							echo ".</br>";
+	#						echo "<u>Convince Them!</u>";
+							echo "Convince Them!";
+							echo "</br>";
+							echo "</br>";
+						}	
+					}
+					echo "</div>";					
+					// Display Key Players -- End
+				}
+				
+				if ($voting_settings['display_interactive_graphs'])
+				{
 				echo "<div class=\"feedback\">";
 				echo " Above are the results IF the voting would end right now. If you think by voting differently you can get a better result, please change your vote below</div>";
+				}
 				
 			}
 			?>
 			
-			<form method="post" action="endorse_or_not.php">
-			<input type="hidden" name="question" value="<?php echo $question; ?>" />
+			<!--
+			<div class="relation_panel">Identify proposal relations: <span id="select_same">Equivalent Proposals</span><span class="plist"></span></div>
+			-->
+			
+			<form autocomplete="off" method="post" id="votingform" action="endorse_confused_or_not.php">
+			<input type="hidden" name="question" value="<?=$question?>" />
+			<input type="hidden" name="hasvoted" value="<?=$userhasvoted?>" />
 			<table border="1" class="your_endorsements userproposal">
 			<tr class="top">
 			<th class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
@@ -957,7 +1604,9 @@ if ($userid) {
 
 			while ($row = mysql_fetch_array($response))
 			{
-				echo '<tr>';
+				$current_prop = $row['id'];
+				
+				echo '<tr class="user_vote" id="user_vote_' . $row['id'] . '">';
 				echo '<td class="vote_list">';
 				if ($userid and $row['source'] != 0)
 				{
@@ -992,8 +1641,14 @@ if ($userid) {
 					echo '&nbsp;'; }
 				echo '</td>';
 				
-				echo '<td>';
+				echo '<td class="proposalcontent">';
 				echo '<div class="paretoproposal">';
+				
+				if (isset($commentslist[$row['id']]))
+				{
+					echo '<img class="usrmsgpic" src="images/hascomments.jpg" title="'.count($commentslist[$row['id']]).' comments">';
+				}
+				
 				$originalname=GetOriginalProposal($proposal);
 				#print_r($originalname[proposalid]);
 				if (!empty($row['abstract'])) {
@@ -1014,22 +1669,77 @@ if ($userid) {
 					echo '</div>';
 				}
 				echo '</div>';
-				echo '</td><td>';
-				
+				// coffee
+				?>			
+				<div class="comments">
+					<p>List of comments from users.</p>
+					<div class="commentslist"></div>
+				</div>
+				<div class="clear"></div><br/>
+				<div class="commentform">
+					<span class="intro"><p>Please tell us why you don't understand this proposal.</p></span>
+					<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
+				</div>
+	
+				</td>
+				<?php
+				/*
+				echo '<td>';	
 				echo '<Input type = "Checkbox" Name ="proposal[]" title="' . $VGA_CONTENT['check_to_endorse_title'] . '" value="'.$row['id'].'"';
-
-			if ($userid) 
-			{
-				if($userhasvoted === false) 
+			
+				if ($userid) 
 				{
-					echo ' checked="checked" ';#default answer for people who have not voted
+					if($userhasvoted === false) 
+					{
+						echo ' checked="checked" ';#default answer for people who have not voted
+					}
+					elseif (isset($proposalsEndorsers) && in_array($userid, $proposalsEndorsers[$row['id']]))
+					{
+						echo ' checked="checked" ';
+					}
 				}
-				elseif (isset($proposalsEndorsers) && in_array($userid, $proposalsEndorsers[$row['id']]))
-				{
-					echo ' checked="checked" ';
-				}
-			}
-				echo ' ></td></tr>';
+				echo ' </td></tr>';
+				*/	
+				
+				//$current_prop = $row['id'];
+				/*
+				set_log('$userid');
+				set_log($userid);
+				set_log('$current_prop:');
+				set_log($current_prop);
+				set_log('$userendorsedata:');
+				set_log($userendorsedata);
+				//set_log('$commentsbyusers');
+				// set_log($commentsbyusers);
+				
+				set_log('========================================');
+				set_log('');set_log('');
+				set_log('$userendorsedata[$current_prop]');
+				set_log($userendorsedata[$current_prop]);
+				set_log('');set_log('');
+				set_log('========================================');
+				//exit;
+				*/
+				?>	
+				
+				<td class="votes">
+				<div class="user_vote">
+				<div class="voting_choices">
+				<img class="2" src="images/thumbdown.png" width="30" height="30" alt="" title="I Disagree">
+				<img class="1" src="images/thumbup.png" width="30" height="30" alt="" title="I Agree">
+				<?php if ($voting_settings['display_confused_voting_option']):?>
+				<img class="3" src="images/confused.png" width="30" height="30" alt="" title="I Don't Understand">
+				<?php endif;?>
+				</div>
+				<div class="voting_choice"></div>
+				<input type="hidden" class="voting_choice_val" name="proposal[<?=$current_prop?>]" 
+				value="<?=($userendorsedata[$current_prop]) ? $userendorsedata[$current_prop] : 1?>">
+				<input type="hidden" class="prev_voting_choice_val" name="prev_proposal[<?=$current_prop?>]" 
+				value="<?=$userendorsedata[$current_prop]?>">
+				</div>
+				</td></tr>
+				
+				<?php
 		}
 		
 	// Anonymous Submit

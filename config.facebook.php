@@ -280,7 +280,33 @@ else
 
 $str = <<<_HTML_
 
-<fb:login-button scope="$facebook_permissions" v="2" size="medium" onlogin="refresh_page();">$button_txt</fb:login-button>
+<div class="fb-login-button" scope="$facebook_permissions" v="2" size="small" onlogin="refresh_page();">$button_txt</div>
+
+<script type="text/javascript">
+function refresh_page() {
+	  window.location = "$goto";}
+</script>
+_HTML_;
+return (USE_FACEBOOK_CONNECT && $display) ? $str : ''; 
+}
+function facebook_login_header_button_refresh_FB_crap($display=true) 
+{
+
+global $FACEBOOK_ID, $VGA_CONTENT, $facebook_permissions;
+$button_txt = $VGA_CONTENT['fb_login_button'];
+
+if ($FACEBOOK_ID != null && ($userid = fb_isconnected($FACEBOOK_ID)))
+{
+	$goto = 'fb_login.php';
+}
+else
+{
+	$goto = 'fb_register.php';
+}
+
+$str = <<<_HTML_
+
+<fb:login-button scope="$facebook_permissions" v="2" size="small" onlogin="refresh_page();">$button_txt</fb:login-button>
 
 <script type="text/javascript">
 function refresh_page() {

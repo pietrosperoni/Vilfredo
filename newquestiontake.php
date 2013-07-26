@@ -1,6 +1,9 @@
 <?php
 include('header.php');
 
+#print_array($_POST);
+#exit;
+
 if ($userid)
 {
 	if (hasTags($_POST['title']) || hasTags($_POST['room_id']))
@@ -22,6 +25,8 @@ if ($userid)
 	$title = GetMySQLEscapedPostParam('title');
 	$blurb = GetMySQLEscapedPostParam('question');
 	
+	printbr("Title = $title");
+	
 	$mysql = array();
 	$mysql['room'] = mysql_real_escape_string($room);
 	
@@ -41,6 +46,9 @@ if ($userid)
 		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
 		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '{$mysql['room']}', $permit_anon_votes, $permit_anon_proposals)";
 
+		printbr($sql);
+		exit;
+		
 		if (!mysql_query($sql))
 		{
 			db_error($sql);

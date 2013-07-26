@@ -223,12 +223,12 @@ function displayQuestionInvite(index)
 function createQuestionInviteMessage(invite)
 {
 	var shorttitle = invite['title'];
-	if (shorttitle.length > 25)
+	if (shorttitle.length > 30)
 	{
-		shorttitle = shorttitle.substring(0,25) + "...";
+		shorttitle = shorttitle.substring(0,30) + "...";
 	}
-	
-	return sprintf('<p>You have just been invited by <b>%s</b> to participate in the question <span class="viewquestion">%s</span></p> <p>Look at it and decide if you are interested. If you have something to propose you can do it immediately. If not you can subscribe to it, and when other people have written their proposals you can participate in the voting phase.</p>', invite['username'], invite['title'], shorttitle);
+		
+	return sprintf('<p>You have just been invited by <b>%s</b> to participate in the question <span class="viewquestion" title="%s">%s</span></p> <p>Look at it and decide if you are interested. If you have something to propose you can do it immediately. If not you can subscribe to it, and when other people have written their proposals you can participate in the voting phase.</p>', invite['username'], invite['title'], shorttitle);
 }
 
 function setMessageBoxLinks(type)

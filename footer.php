@@ -7,6 +7,7 @@
 			<?php echo facebook_fbconnect_init_js(DISPLAY_FACEBOOK_LOGIN); ?>
 			
 		</body>
+		<script type="text/javascript" src="/js/cookies/jquery.cookie.js"></script>
 	</html>
 	<?php
 		ob_end_flush();

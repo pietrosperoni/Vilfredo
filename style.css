@@ -18,8 +18,22 @@ body {
 }
 
 .fb_iframe_widget iframe {
+	
 	position: relative; 
 	top: -5px;
+}
+
+.fb-login-button {
+    position: relative; 
+	top: -5;
+}
+.sp_login-button img {
+    
+    width: 20px;
+    height: 20px;
+}
+.sp_login-button {
+    background-position: 0 -157px;
 }
 
 .viewquestion {
@@ -829,8 +843,204 @@ table#social-buttons {
 }
 
 .questionmapContent {
-	background-color:lightgrey; 
+	background-color: #CDCDCD; 
 	border-spacing: 0;
+}
+
+td.votes {
+	width: 150px;
+	height: 100px;
+}
+.user_vote {
+	width: 150px;
+	height: 90px;
+	padding: 10px 0;
+	position: relative;
+}
+.voting_choices {
+	position: absolute;
+	top: 17px;/*6px;*/
+	left: 0;/*5px;*/
+	height: 75px;
+	width: 70px;/*25px;*/
+}
+.voting_choices img {
+	margin-top: 3px;
+	margin-bottom: 0;
+	cursor: pointer;
+}
+
+.voting_choices > img:first-child+img {
+    float: right;
+}
+.voting_choices > img:first-child+img+img {
+    margin-left: 30%;
+}
+
+.voting_choice {
+	position: absolute;
+	top: 15px;
+	right: 0;/*5px;*/
+	height: 75px;
+	width: 75px;
+	margin-left: 10px;
+	margin-bottom: 20px;
+	background: url(images/thumbup.png) no-repeat;
+	background-size: 100%;
+}
+.voting_choice img{
+	width: 100%;
+	height: 100%;
+}
+
+.commentform .counter{
+	font-size:20px;
+	font-weight:bold;
+	color:green;
+}
+.commentform .warning{
+	color:blue;
+}	
+.commentform .exceeded{
+	color:#e00;
+}
+
+/*
+<div class="comments">
+	<p>List of comments from users.</p>
+	<div class="commentslist"></div>
+</div>
+<div class="commentform">
+	<p>Please tell us why you don't understand this proposal.</p>
+	<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
+</div>
+*/
+
+.comment_type {
+    position: absolute;
+    top: 0;
+    right: -25;
+    width: 25px;
+    height: 25px;
+}
+.comment_type.confused {
+    background-repeat: no-repeat;
+    background-image: url('images/confused_25x25.png');
+}
+.comment_type.dislike {
+    background-repeat: no-repeat;
+    background-image: url('images/thumbdown_25x25.png');
+}
+
+.comments {
+	width: 400px;
+	padding-left: 100px;
+	display: none;
+	/*border: 1px solid yellow;*/
+}
+
+.commentslist { /*****/
+	width: 400px;
+	/*padding-left: 100px;*/
+	/*display: none;*/
+	position: relative;
+	/*border: 1px solid red;*/
+}
+
+.commentslist .comment {
+	border: 1px solid gray;
+	width: 400px;
+	height: 100px;
+	background-color: #FAEBD7;
+	float: right;
+	position: relative;
+}
+.commentslist .comment .text {
+	padding: 5px;
+}
+.commentslist .comment .author {
+	padding: 5px;
+}
+
+/*
+.commentform {
+	height: 230px;
+	display: none;
+	margin: 5px;
+}*/
+.commentform .textbox { /*****/
+	width: 400px;
+	padding-left: 100px;
+	display: none;
+	position: relative;
+	/*border: 1px solid blue;*/
+	float: left;
+}
+
+.commentform { /*****/
+	width: 400px;
+	padding-left: 100px;
+	display: none;
+	position: relative;
+	/*border: 1px solid blue;*/
+}
+
+
+.commentform .commentsave, .commentform .commentclose, .commentform .commentdelete, .commentslist .commentslistclose {
+	width: 100px;
+	height: 30px;
+	background-color: green;
+	color: white;
+	text-align: center;
+	padding-top: 10px;
+	font-size: 1.1em;
+	float: left;
+	cursor: pointer;
+}
+.commentslist .commentslistclose{
+	float: right;
+}
+.commentform .commentsave.over, .commentform .commentclose.over,
+.commentform .commentdelete.over, .commentslistclose .commentclose.over {
+	background-color: yellow;
+}
+
+span.plist {
+	margin-left: 5px;
+}
+.relation_panel span.submit {
+	cursor: pointer;
+	background-color: green;
+	color: white;
+	margin-left: 5px;
+}
+.relation_panel span.submit.over {
+	background-color: yellow;
+}
+.relation_panel span.cancel {
+	cursor: pointer;
+	background-color: gray;
+	margin-left: 5px;
+	color: white;
+}
+.relation_panel span.cancel.over {
+	background-color: yellow;
+}
+#select_same {
+	cursor: pointer;
+}
+#select_same.over {
+	background-color: yellow;
+}
+#select_same.active {
+	background-color: orange;
+}
+tr.user_vote.selected {
+	background-color: orange;
+}
+.pbox {
+	/*margin-right: 5px;*/
+	background-color: #EBC79E;
 }
 
 .question_panel_link {
@@ -897,6 +1107,16 @@ div.paretoproposal {
 	border: 1px solid #B45F04; 
 	margin-bottom: 10px;
 	padding: 10px;
+	margin-top: 15px;
+}
+
+div.paretoproposal img.usrmsgpic {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 25;
+	height: 18;
+	cursor: pointer;
 }
 
 .paretoproposal h3 {
@@ -914,6 +1134,7 @@ div.paretoabstract {
 	position: relative;
 	background-color: #E5F4AB; 
 	margin: 5px;
+	margin-top: 10px;
 	padding: 10px;
 	border: 1px solid #BAE38F;
 }
@@ -1571,3 +1792,91 @@ a.tweet span.vert {
 	color: white;
 	text-decoration: none;
 }*/
+
+/* Graphs */
+.graphpanel {
+	display: none;
+	width: 500px;
+	height: 20px;
+	margin: 0 auto;
+}
+
+.graphpanel .button {
+	width: 70px;
+	height: 30px;
+	text-align: center;
+	font-weight: 200;
+	font-size: 1em;
+	padding: 5px;
+	cursor: pointer;
+	background-color: #d0f5a9;
+	border: 1px solid #494; 
+}
+.graphpanel .button:not(:last-child) {
+	margin-right: 10px;
+}
+.graphpanel .button.over {
+	background-color: yellow;
+}
+#graphs {
+	width: 98%;
+	height: 600px;
+	margin: 0 auto;
+	margin-top: 10px;
+	padding: 0;
+	border: #b45f04 solid 2px;
+	position: relative;
+}
+.graphcontainer .inner {
+	width: 49%;
+	height: 100%;
+	/*border: yellow solid 1px;*/
+	position: relative;
+}
+
+#pfgraph {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.graphcontainer .right {
+	float: right;
+}
+
+.myprop {
+	stroke: red;
+}
+.pf {
+	stroke: green;
+}
+/* arrow */
+.arrow.voted path {
+	stroke: red;
+}
+.arrow.voted polygon {
+	stroke: red;
+	fill: red;
+}
+/* user */
+.user.currentuser.voted polygon {
+	fill: red
+}
+.user.currentuser.voted text {
+	fill: white
+}
+/* proposal, proposalgroup */
+.proposal.voted polygon, .proposalgroup.voted polygon {
+	stroke: red;
+}
+/* usergroup */
+/* .usergroup.voted > polygon:first-of-type { */
+.usergroup.currentuser.voted title:first-child + polygon {
+	stroke: red;
+}
+.usergroup.currentuser.voted a.currentuserlink polygon {
+	fill: red;
+} 
+.usergroup.currentuser.voted a.currentuserlink text {
+	fill: white
+}

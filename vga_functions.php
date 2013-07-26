@@ -329,6 +329,32 @@ function deleteProposalRelation($from, $to, $relation)
 		}
 	}
 }
+
+//
+//  ******************************************/
+// Admin Settings
+//	Loads and saves Admin settings
+// 
+// ******************************************/
+function save_voting_settings($voting_options)
+{
+	return file_put_contents("voting_options.json", json_encode($voting_options));
+}
+
+function fetch_voting_settings()
+{
+	$buffer = @file_get_contents('voting_options.json');
+	if ($buffer !== false)
+	{
+		$json = @json_decode($buffer, true);
+		if ($json !== null)
+		{
+			return $json;
+		}
+	}
+
+	return array();
+}
 //
 //  ******************************************/
 // MULTILINGUAL
@@ -3245,6 +3271,39 @@ function CountAuthorsOfNewProposals($question,$generation)
 	$row = mysql_fetch_assoc($response);
 	return $row['authors'];
 }
+
+function hasUserVoted_1($user, $question, $generation)
+{
+	$sql = "SELECT DISTINCT endorse.proposalid 
+		FROM proposals, endorse 
+		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
+		and proposals.id = endorse.proposalid and endorse.userid = $user
+		UNION
+		SELECT DISTINCT comments.proposalid 
+		FROM proposals, comments 
+		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
+		and proposals.id = comments.proposalid and comments.userid = $user";
+		
+	set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) != 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
 function hasUserEndorsed($user, $question, $generation)
 {
 	$sql = 'SELECT DISTINCT endorse.proposalid 
@@ -5052,6 +5111,470 @@ function questionUnsubscribe($user, $question)
 	}
 }
 
+//  ******************************************/
+function checkuservote($user, $question, $generation)
+{
+	$hasvoted = hasuservoted($user, $question, $generation);
+	if (!$hasvoted)
+	{
+		$hasendorsedorsedorcommented = hasuserendorsedorcommented($user, $question, $generation);
+		if ($hasendorsedorsedorcommented)
+		{
+			setuservoted($user, $question, $generation);
+			return true;
+		}
+	}
+	else
+	{
+		return true;
+	}
+}
+function hasuserendorsedorcommented($user, $question, $generation)
+{
+	$sql = "SELECT DISTINCT endorse.proposalid 
+		FROM proposals, endorse 
+		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
+		and proposals.id = endorse.proposalid and endorse.userid = $user
+		UNION
+		SELECT DISTINCT comments.proposalid 
+		FROM proposals, comments 
+		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
+		and proposals.id = comments.proposalid and comments.userid = $user";
+		
+	//set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) > 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function hasuservoted($user, $question, $generation)
+{
+	$sql = "SELECT * FROM `hasvoted` WHERE
+	`userid` = $user AND `questionid` = $question AND `roundid` = $generation";
+		
+	//set_log(__FUNCTION__." :: SQL = $sql");
+	
+	$result = mysql_query($sql);
+		
+	if (!$result)
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+function setuservoted($user, $question, $generation)
+{
+	$sql = "INSERT INTO `hasvoted` (`userid`, `questionid`, `roundid`)
+		VALUES ($user, $question, $generation)";
+		
+	//set_log(__FUNCTION__." :: SQL = $sql");
+		
+	$result = mysql_query($sql);
+	
+	if (!$result)
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+//*****************************************
+//*****************************************
+// Comments
+//*****************************************
+//*****************************************
+function copyProposalCommentsToNextGeneration($pid, $new_pid)
+{
+	$sql = "INSERT INTO `comments` (`userid`, `proposalid`, `created`, `comment`, `type`) 
+	(
+		SELECT `userid`, $new_pid, `created`, `comment`, `type` FROM `comments` WHERE `proposalid` = $pid
+	)";
+	
+	set_log(__FUNCTION__." :: SQL = $sql");
+	set_log("Copying commnets from proposal $pid to proposal $new_pid");
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function addComment($userid, $proposalid, $comment, $type)
+{	
+	//deleteEndorsement($userid, $proposalid);
+	
+	$sql = sprintf("INSERT INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
+		VALUES ($userid, $proposalid, '%s', '$type')
+		ON DUPLICATE KEY UPDATE `comment` = '%s', `type` = '$type'",
+		mysql_real_escape_string($comment), mysql_real_escape_string($comment));
+		
+	$sql3 = "INSERT INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
+		VALUES ($userid, $proposalid, '$comment', '$type')
+		ON DUPLICATE KEY UPDATE `comment` = '$comment', `type` = '$type'";
+		
+	$sql_off = "INSERT IGNORE INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
+			VALUES ($userid, $proposalid, '$comment', '$type')";
+		
+	//set_log(__FUNCTION__." :: SQL = $sql");
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function countComments($proposalid)
+{	
+	$sql = "SELECT COUNT(*) as comments FROM `comments` WHERE `proposalid` = $proposalid";
+	$result = mysql_query($sql);
+	if (!$result)
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['comments'];
+	}
+}
+function deleteComment($userid, $proposalid)
+{	
+	$sql = "DELETE FROM `comments` WHERE `userid` = $userid AND `proposalid` = $proposalid";
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function getCommentsList($proposalids)
+{
+	$comments = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT `c`.*, `u`.`username` FROM `comments` as `c`, `users` as `u` 
+	WHERE `proposalid` IN ($pids) 
+	AND `u`.`id` = `c`.`userid`
+	ORDER BY `created` DESC";
+	
+	//set_log($sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$comments[$row['proposalid']][$row['userid']] = 
+			array('comment' => $row['comment'], 'authorid' => $row['userid'], 'authorname' => $row['username'], 'created' => $row['created'], 'type' => $row['type']);
+		}
+	}
+	return $comments;
+}
+function getCommentsByProposals($proposalids)
+{
+	$comments = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT * FROM `comments` WHERE `proposalid` IN ($pids) ORDER BY `created` DESC";
+	
+	//set_log($sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$comments[$row['proposalid']][$row['userid']] = 
+			array('comment' => $row['comment'], 'created' => $row['created'], 'type' => $row['type']);
+		}
+	}
+	return $comments;
+}
+function getCommentsByUsers($proposalids)
+{
+	$comments = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT * FROM `comments` WHERE `proposalid` IN ($pids) ORDER BY `created` DESC";
+	
+	//set_log($sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{		
+			$comments[$row['userid']][$row['proposalid']] = 
+			array('comment' => $row['comment'], 'created' => $row['created'], 'type' => $row['type']);
+		}
+	}
+	return $comments;
+}
+
+//*****************************************
+// Commented end
+//*****************************************
+//*****************************************
+//*****************************************
+// Confused
+//*****************************************
+//*****************************************
+function addConfused($userid, $proposalid, $comment)
+{	
+	deleteEndorsement($userid, $proposalid);
+	
+	$sql2 = sprintf("INSERT INTO `confused` (`userid`, `proposalid`, `comment`)
+		VALUES ($userid, $proposalid, '%s')
+		ON DUPLICATE KEY UPDATE `comment` = '%s'",
+		mysql_real_escape_string($comment), mysql_real_escape_string($comment));
+		
+	$sql3 = "INSERT INTO `confused` (`userid`, `proposalid`, `comment`)
+		VALUES ($userid, $proposalid, '$comment')
+		ON DUPLICATE KEY UPDATE `comment` = '$comment'";
+		
+	$sql = "INSERT IGNORE INTO `confused` (`userid`, `proposalid`, `comment`)
+			VALUES ($userid, $proposalid, '$comment')";
+		
+	//set_log(__FUNCTION__." :: SQL = $sql");
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function deleteConfused($userid, $proposalid)
+{	
+	$sql = "DELETE FROM `confused` WHERE `userid` = $userid AND `proposalid` = $proposalid";
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function getConfusedcommentsList($proposalids)
+{
+	$confused = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT `c`.*, `u`.`username` FROM `confused` as `c`, `users` as `u` 
+	WHERE `proposalid` IN ($pids) 
+	AND `u`.`id` = `c`.`userid`
+	ORDER BY `created` DESC";
+	
+	//set_log($sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			//$confused[$row['proposalid']][] = 
+			//array('userid' => $row['userid'], 'comment' => $row['comment'], 'created' => $row['created']);
+			
+			$confused[$row['proposalid']][] = 
+			array('comment' => $row['comment'], 'authorid' => $row['userid'], 'authorname' => $row['username'], 'created' => $row['created']);
+		}
+	}
+	return $confused;
+}
+function getConfusedByProposals($proposalids)
+{
+	$confused = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT * FROM `confused` WHERE `proposalid` IN ($pids) ORDER BY `created` DESC";
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			//$confused[$row['proposalid']][] = 
+			//array('userid' => $row['userid'], 'comment' => $row['comment'], 'created' => $row['created']);
+			
+			$confused[$row['proposalid']][$row['userid']] = 
+			array('comment' => $row['comment'], 'created' => $row['created']);
+		}
+	}
+	return $confused;
+}
+function getConfusedByUsers($proposalids)
+{
+	$confused = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT * FROM `confused` WHERE `proposalid` IN ($pids) ORDER BY `created` DESC";
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			//$confused[$row['proposalid']][] = 
+			//array('userid' => $row['userid'], 'comment' => $row['comment'], 'created' => $row['created']);
+			
+			$confused[$row['userid']][$row['proposalid']] = 
+			array('comment' => $row['comment'], 'created' => $row['created']);
+		}
+	}
+	return $confused;
+}
+
+//*****************************************
+// Confused end
+//*****************************************
+
+function addEndorsement($userid, $proposalid)
+{		
+	$sql = "INSERT INTO `endorse` (`userid`, `proposalid`, `endorsementdate`) 
+		VALUES ($userid, $proposalid, NOW())";
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function deleteEndorsement($userid, $proposalid)
+{		
+	$sql = "DELETE FROM `endorse` WHERE `userid` = $userid AND `proposalid` = $proposalid";
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+function getUserEndorsedFromList($userid, $proposalids)
+{
+	$endorsements = array();
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT `proposalid` FROM `endorse` WHERE `userid` = $userid AND `proposalid` IN ($pids)";
+	//printbr($sql);
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$endorsements[] = $row['proposalid'];
+		}
+	}
+	return $endorsements;
+}
+
+function getCurrentProposals($question, $generation)
+{
+	$proposals = array();
+	$sql = "SELECT * FROM `proposals` WHERE `experimentid` = $question AND `roundid` = $generation ORDER BY `id` DESC";
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$proposals[] = $row;
+		}
+	}
+	return $proposals;
+}
+function getCurrentProposalIDs($question, $generation)
+{
+	$proposals = array();
+	$sql = "SELECT `id` FROM `proposals` WHERE `experimentid` = $question AND `roundid` = $generation ORDER BY `id` DESC";
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$proposals[] = $row['id'];
+		}
+	}
+	return $proposals;
+}
+//***************************************
+
 function ignoreInvite($invite_id)
 {
 	$sql = "UPDATE `invites` SET `sysmsg` = 0 WHERE `id` = $invite_id";
@@ -5763,7 +6286,11 @@ function StoreParetoFront($question,$generation,$paretofront)
 			{
 				handle_db_error($add_pareto_to_nextgen, $sql);
 			}
-			
+			// Copy comments to new proposals
+			elseif (countComments($p))
+			{
+				copyProposalCommentsToNextGeneration($p, mysql_insert_id());
+			}
 		}
 	}
 }
@@ -6449,6 +6976,18 @@ function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofro
 	}
 	return;
 }
+function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+{
+	$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+		if ($svgfile)
+		{
+			return $svgfile;
+		}
+		else
+		{
+			return false;
+		}	
+}
 
 
 function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
@@ -6527,7 +7066,7 @@ function DeleteGraph($question,$generation)
 	{
 		if (count($graphfiles) == 0)
 		{
-			set_log(__FUNCTION__.":: No files found");
+			//set_log(__FUNCTION__.":: No files found");
 			return true;
 		}
 		
@@ -6578,6 +7117,47 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	else { echo "<br /><b>Error creating map file, please check write permissions.</b><br />";}	
 	return;
 }
+
+
+function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+{
+	
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$filename="map/".$name;
+	
+	##if($size=="L")     { $sz="11,5.5";	}
+	#if($size=="L")     { $sz="11,8";	}
+	##elseif($size=="M") { $sz= "8,4";	}
+	#elseif($size=="M") { $sz= "8,6";	}
+	##elseif($size=="S") { $sz= "6,3";    }
+	#elseif($size=="S") { $sz= "6,4";    }
+	#elseif($size=="XS"){ $sz= "4,2";    }
+	$sz="11,8";
+	
+	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
+	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
+	{
+		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
+		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+	}
+	$MapFile = fopen($filename.".dot", "w+");
+	$buf=MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
+	
+	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
+	//                  $ProposalLevelType == "NVotes", "Layers"
+	
+	
+	if ($MapFile) 
+	{
+		fputs($MapFile,$buf);
+		fclose($MapFile);
+		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
+		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+	}
+	else { echo "<br /><b>Error creating map file, please check write permissions.</b><br />";}	
+	return;
+}
+
 
 
 function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
@@ -6689,18 +7269,12 @@ function GetCovered($elements_below,$BigSet)
 		{
 			foreach ($below as $q)
 			{
-				$nextB=false;
 				$underq=$elements_below[$q];
 				if (in_array($b, $underq))
 				{
-					$nextB=true;
-					break;
+					continue 2;
 				}				
-			}
-			if ($nextB)
-			{
-				continue;
-			}			
+			}	
 			array_push($cov1,$b);
 		}
 		$Covered[$p]=$cov1;		
@@ -7400,6 +7974,443 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 #$size="7.5,10
 #10,16.18
 
+function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
+#	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
+{
+	$proposals_below=array();
+	$proposals_above=array();
+	$proposals_covered=array();
+
+	$endorserProposals=invertArray($proposalsEndorsers);
+
+	$endorsers=array_keys($endorserProposals);
+	$proposals=array_keys($proposalsEndorsers);
+
+	if (in_array($highlightuser1,$endorsers)==false){$highlightuser1=0;}
+#	if (in_array($highlightproposal1,$proposals)==false){$highlightproposal1=0;} #I would take this off too, but there might be a problem with highlighted proposals that have changed name through the generations
+
+
+	$title=StringSafe(GetQuestionTitle($question));
+	$buf='digraph "';
+	$buf.=$title;
+	$buf.='" {';
+	$buf.="\n";
+
+
+	if($paretofront==0) { $paretofront=CalculateParetoFrontFromProposals($proposalsEndorsers);	}
+	$pf=$paretofront;
+
+
+	$BundledProposals=array();
+	$BundledUsers=array();
+
+	
+	foreach ($proposals as $p)
+	{
+			$RelatedProposals=CalculateProposalsRelationToFromArray($p,$proposalsEndorsers,$proposals);
+			$proposals_below[$p]=$RelatedProposals["dominated"];
+			$proposals_above[$p]=$RelatedProposals["dominating"];
+	}
+	$proposals_covered=GetCovered($proposals_below,$proposals);
+
+
+	if($UserLevelType     ==   "Flat")
+	{
+		foreach ($endorsers as $e)
+		{
+			$endorsers_below[$e]=array();
+			$endorsers_above[$e]=array();
+		}				
+	}
+	else
+	{
+		foreach ($endorsers as $e)
+		{
+			$RelatedEndorsers=CalculateUsersRelationToFromArray($e,$endorserProposals,$endorsers);
+			$endorsers_below[$e]=$RelatedEndorsers["dominated"];
+			$endorsers_above[$e]=$RelatedEndorsers["dominating"];
+		}				
+	}
+	$endorsers_covered=GetCovered($endorsers_below,$endorsers);
+	$endorsers_covering=GetCovered($endorsers_above,$endorsers);
+
+	
+	if      ($ProposalLevelType == "NVotes"){	$ProposalLevels =                 FindLevelsBasedOnSizeFromArray($proposalsEndorsers);		}
+	elseif	($ProposalLevelType == "Layers"){	$ProposalLevels =                 FindLevels($proposals_covered,$proposals);			}
+
+	if      ($UserLevelType     == "NVotes"){	$UserLevels     = array_reverse ( FindLevelsBasedOnSizeFromArray($endorserProposals ) );	}
+	elseif	($UserLevelType     == "Layers"){	$UserLevels	=  		  FindLevels($endorsers_covering,$endorsers) ;			}
+	elseif	($UserLevelType     ==   "Flat"){	$UserLevels     = array();        $UserLevels[0]=$endorsers;}
+
+	//bundles
+	$Combined2Proposals=array();
+	$Combined2Proposals=CombineProposalsFromArray($proposalsEndorsers,$proposals); #	$Combined2Proposals=CombineProposals($proposals);
+	$keys=array_keys($Combined2Proposals);
+	foreach($keys as $kc2p)
+	{
+		$BundledProposals=array_merge($BundledProposals,$Combined2Proposals[$kc2p]);#Bundled elements don't need to be drawn
+		array_push($Combined2Proposals[$kc2p],$kc2p);
+	}
+	
+	$Combined2Users=array();
+	$Combined2Users=CombineUsersFromArray($proposalsEndorsers,$endorsers);
+	$keys=array_keys($Combined2Users);
+	foreach($keys as $kc2u)
+	{
+		$BundledUsers=array_merge($BundledUsers,$Combined2Users[$kc2u]);#Bundled elements don't need to be drawn
+		array_push($Combined2Users[$kc2u],$kc2u);
+	}
+		
+	$ProposalLevelsKeys=array_keys($ProposalLevels);
+	$UserLevelsKeys=array_keys($UserLevels);
+
+	if      ($ProposalLevelType == "NVotes")	{	$FullSizeNote=max($ProposalLevelsKeys);	}
+	elseif	($ProposalLevelType == "Layers")	{	$FullSizeNote=0;			}
+
+	$AllGraphsNote=max($UserLevelsKeys);
+	
+	// UFO
+	$fullimagelink = 'map/' . $addressImage;
+
+	foreach ($ProposalLevelsKeys as $l)
+	{
+		if ($l==$FullSizeNote)
+		{
+			$buf.=' "pl'.$FullSizeNote.'" [label="Full\\nSize" shape=circle style=filled color=Black peripheries=1 fillcolor=palegoldenrod tooltip="Look at this image in full size" fontsize=10 URL="'.$fullimagelink.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "pl'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n"; 
+	}
+	
+	foreach ($UserLevelsKeys as $l)
+	{	
+		if ($l==$AllGraphsNote) 
+		{
+			$AllGraph=SITE_DOMAIN."/viewquestiongraph.php".CreateGenerationURL($question,$generation,$room);
+			$buf.=' "ul'.$AllGraphsNote.'" [label="All\\nGraphs" shape=circle style=filled color=Black peripheries=1  fillcolor=palegoldenrod tooltip="Look at all the alternative views of this information" fontsize=9 URL="'.$AllGraph.'" target="_top" width=.75 height=.75 ]; '."\n";
+			continue;
+		}
+		$buf.=' "ul'.$l.'" [shape=point fontcolor=white color=white fontsize=1]; '."\n";
+	}
+
+	foreach ($ProposalLevelsKeys as $l)
+	{	
+		if($l!=$ProposalLevelsKeys[0])	
+			{$buf.=' -> ';}
+		$buf.='"pl'.$l.'" ';
+	}
+	
+	foreach ($UserLevelsKeys as $l)
+	{	
+		$buf.=' -> ';
+		$buf.='"ul'.$l.'" ';		
+	}
+
+	$buf.=" [color=white] \n ";			
+
+	foreach ($ProposalLevelsKeys as $l)
+	{
+		$buf.='{rank=same; "pl'.$l.'" ';			
+		foreach ($ProposalLevels[$l] as $p)
+		{
+			if(in_array($p,$BundledProposals)) { continue;}
+			$buf.=" ".$p." ";
+		}		
+		$buf.="}\n";					
+	}
+
+	foreach ($UserLevelsKeys as $l)
+	{
+		$buf.='{rank=same; "ul'.$l.'" ';			
+		foreach ($UserLevels[$l] as $u)
+		{
+			if(in_array($u,$BundledUsers)) { continue;}
+			$buf.='"'.WriteUserName($u).'" ';				
+		}		
+		$buf.="}\n";					
+	}
+
+	
+	$keys=array_keys($Combined2Users);
+	foreach ($keys as $kc2u)
+	{
+		$detailsTable='  ';				
+		$color="black";	
+		$fillcolor="lightpink3"; 
+		$peripheries=0;
+
+		if($highlightproposal1)
+		{		
+			if(in_array($kc2u,$proposalsEndorsers[$highlightproposal1])) {	$color="red";	$peripheries=1;		}
+		}
+		if($highlightuser1===$kc2u) 					     { $color="black"; $peripheries=0;}#bundles which have highlighted user inside do not have a line around
+		$detailsTable=' BGCOLOR="lightpink3" ';	
+		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
+		#$details=' style=filled color='.$color.' peripheries='.$peripheries.' ';
+		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1);
+	}
+
+	foreach ($endorsers as $e)
+	{
+		if(in_array($e,$BundledUsers))			{ continue;}
+		if(in_array($e,array_keys($Combined2Users)))	{ continue;}
+		
+		$color="lightpink3";	$fillcolor="lightpink3"; $peripheries=0;
+
+		if($highlightproposal1)
+		{		
+			if(in_array($e,$proposalsEndorsers[$highlightproposal1]))	{	$color="red";	$peripheries=1;	}
+		}
+		if($highlightuser1===$e) 						{	$color="red";	$peripheries=1;	}
+
+		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
+
+		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		$buf.="\n";					
+	}
+
+	$keys=array_keys($Combined2Proposals);
+	foreach($keys as $kc2p)	
+	{  
+		$detailsTable='  ';				
+		
+		if(in_array ( $kc2p, $pf ))
+		{
+			$color="black";
+			$peripheries=0;	#$endo=EndorsersToAProposal($kc2p);
+			$endo=$proposalsEndorsers[$kc2p];
+			
+			if(in_array($highlightuser1,$endo))
+			{
+				$color="red";
+				$peripheries=1;
+			}
+			if ($highlightproposal1>0)	
+			{
+				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1])){
+					$color="red";
+					$peripheries=1;
+				}			
+			}
+			if(Count($endo)===Count($endorsers)) 	{ $detailsTable=' BGCOLOR="gold" ';	}
+			else 					{ $detailsTable=' BGCOLOR="lightblue" ';}
+			$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';			
+		}
+		else
+		{
+			$color="black"; $peripheries=0;
+			
+			if(in_array($highlightuser1,$proposalsEndorsers[$kc2p])) { $color="red"; $peripheries=1; }
+			
+			if ($highlightproposal1>0)	
+			{
+				if(in_array($kc2p,$proposals_below[$highlightproposal1]) OR in_array($kc2p,$proposals_above[$highlightproposal1]))
+				{       $color="red"; $peripheries=1; }			
+			}			
+			$details=' fillcolor=white color='.$color.' peripheries='.$peripheries.' ';						
+		}
+		
+		$buf.=WriteBundledProposals($kc2p,$Combined2Proposals[$kc2p],$room,$details,$detailsTable,$highlightproposal1,$InternalLinks);
+	}
+	
+	foreach ($proposals as $p)
+	{
+		if(in_array($p,$BundledProposals)){	continue;}
+		if(in_array($p,array_keys($Combined2Proposals))){	continue;}
+		$color="black";
+		$peripheries=1;
+		if ($highlightuser1>0)
+		{	
+			#echo "EndorsersToAProposal($p)=".EndorsersToAProposal($p);
+			#echo "highlightuser1=".$highlightuser1;
+			
+			if(in_array($highlightuser1,$proposalsEndorsers[$p]))
+			{
+				$color="red";
+				$peripheries=2;
+			}
+		}
+		if ($highlightproposal1>0)
+		{
+			if($highlightproposal1===$p )
+			{
+				$color="red";
+				$peripheries=3;
+			}			
+			if(in_array($p,$proposals_below[$highlightproposal1]) 
+				OR in_array($p,$proposals_above[$highlightproposal1]))
+			{
+				$color="red";
+				$peripheries=2;
+			}			
+		}
+		
+		if(in_array ( $p, $pf ))
+		{
+			
+			$OriginalPData=GetOriginalProposal($p);
+			$OriginalP=$OriginalPData['proposalid'];
+			
+			#$urlquery = CreateProposalURL($p, $room);
+			
+			$endo=EndorsersToAProposal($p);
+			
+			if(Count($endo)===Count($endorsers))
+			{
+				$fillcolor='"gold"';								
+			}
+			else
+			{
+				$fillcolor='"lightblue" ';								
+			}
+			
+			if ($InternalLinks==false)
+			{
+				$urlquery = CreateProposalURL($OriginalP, $room);
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';			
+			}
+			else
+			{		
+				$urlquery=CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
+			}
+			$buf.="\n";			
+		}
+		else
+		{	
+			$OriginalPData=GetOriginalProposal($p);
+			$OriginalP=$OriginalPData['proposalid'];
+			
+			if ($InternalLinks==false)
+			{	
+				$urlquery = CreateProposalURL($OriginalP, $room);
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.SITE_DOMAIN.'/viewproposal.php'.$urlquery.'" target="_top"]';
+			}
+			else
+			{
+				$urlquery = CreateInternalProposalURL($OriginalP);
+				$buf.=$p.' [label='.$OriginalP.' shape=box color='.$color.' peripheries='.$peripheries.' tooltip="'.substr(SafeStringProposal($p), 0, 800).'"  fontsize=11 URL="'.$InternalLinks.$urlquery.'" target="_top"]';
+			}
+			$buf.="\n";
+		}
+	}
+	
+	foreach ($proposals as $p)
+	{
+		$pcolor="black";
+		if(in_array($p,$BundledProposals))
+			{continue;}
+		$pcs=$proposals_covered[$p];
+		if($highlightproposal1)
+		{
+			if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1]))
+			 			{$pcolor="red";}					
+		}
+		foreach ($pcs as $pc)
+		{
+			$color=$pcolor;
+			if(in_array($pc,$BundledProposals)){	continue;}
+			if(in_array($highlightuser1,$proposalsEndorsers[$pc]))
+			{
+				$color="red";
+			}
+			
+			if( count( $proposalsEndorsers[$pc] ) == 0 ) #an empty array is trivially dominated by everything. But that is so trivial that it simplifies the graph if we just do not show those lines. 
+			{
+				$color="white"; #$color="lightgray";
+			}
+			
+			if($highlightproposal1)
+			{			
+				if($highlightproposal1===$pc OR in_array($pc,$proposals_above[$highlightproposal1]))	
+					{$color="red";}
+			}
+			
+			$buf.=' '.$pc.' -> '.$p.' [color="'.$color.'"]';	
+			$buf.=" \n";					
+		}		
+	}
+	
+	
+
+	foreach ($endorsers as $e)
+	{
+		$ecolor="blue";
+		if(in_array($e,$BundledUsers))	{ continue;}
+		$endorsers_covered[$e];
+		$ecs=$endorsers_covered[$e];
+		if($highlightuser1)
+		{			
+			if($highlightuser1===$e OR in_array($highlightuser1,$endorsers_above[$e])) 
+				{$ecolor="red";}					
+		}
+		foreach ($ecs as $ec)
+		{
+			$color=$ecolor;
+			if(in_array($ec,$BundledUsers)) { continue;}
+			if(in_array($highlightproposal1,$endorserProposals[$ec])) { $color="red"; }		
+
+#			if($highlightuser1)
+#			{
+#				if($highlightuser1===$e OR in_array($e,$endorsers_below[$highlightuser1]))	{$color="red";}
+#			}
+			$buf.='"'.WriteUserName($e).'" -> "'.WriteUserName($ec).'" [color="'.$color.'"]';	
+			$buf.=" \n";      		
+		}		
+	}
+	
+	
+	$NewProposals=array();
+	foreach ($endorsers as $e)
+	{
+		$NewProposals[$e]=NewProposalsToAnEndorserFromArray($endorserProposals,$e,$endorsers_covered);
+	}
+	
+	
+	foreach ($proposals as $p)
+	{
+		if(in_array($p,$BundledProposals)){continue;}
+		
+		$endorserstothis=NewEndorsersToAProposalFromArray($proposalsEndorsers,$p,$proposals_covered);
+		
+			
+		foreach ($endorserstothis as $e)
+		{
+			
+			if(in_array($e,$BundledUsers)){	continue;}
+			if(in_array($p,$NewProposals[$e])==false) {continue;}
+			$color="blue";
+			if($highlightuser1==$e OR in_array($highlightuser1,$endorsers_above[$e]))
+				{$color="red";	}
+			$keys=array_keys($Combined2Users);
+			if(in_array($e,$keys))
+			{
+				if(in_array($highlightuser1,$Combined2Users[$e]))   {	$color="red";	}
+			}
+			if ($highlightproposal1>0)
+			{
+				if($highlightproposal1===$p OR in_array($p,$proposals_below[$highlightproposal1])) {$color="red";}
+			}
+			$buf.=' "'.WriteUserName($e).'" -> '.$p.' [ color="'.$color.'"]';
+			$buf.=" \n";
+		}
+	}
+	
+	
+
+	
+	#foreach ($proposals as $p)
+	#{
+	#	$buf.=' "'.WriteUserName(AuthorOfProposal($p)).'" -> '.$p.' [color=red]';
+	#	$buf.=" \n";
+	#}
+	
+	$buf.="\n}";
+	return $buf;
+}
+
+
+
 
 //possible values: $UserLevelType == "NVotes", "Layers", "Flat"
 //possible values: $ProposalLevelType == "NVotes", "Layers"
@@ -7862,7 +8873,27 @@ function WriteIntergenerationalGVMap($question)
 		echo "<br /><b>Error creating map file, please check write permissions.</b><br />";
 		return;
 	}	
+}
+
+
+// User added proposal relations
+function addProposalRelations($pids, $userid, $relation)
+{
+	switch ($relation)
+	{
+		case 'equivalent':
+			return addProposalsEquivalent($pids, $userid, $relation);
+			break;
+		default:
+			return false;
+	}
+}
+//new
+function addProposalsEquivalent($pids, $userid, $relation)
+{
+	return true;
 	
+	$sql = "";
 }
 
 function GetProposalsRelated($proposal,$relation)

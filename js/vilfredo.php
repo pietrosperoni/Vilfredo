@@ -13,6 +13,10 @@ else
 @include getLanguageForJS($locale);
 ?>
 
+function isArray(o) {
+  return Object.prototype.toString.call(o) === '[object Array]';
+}
+
 $(function() {
 	$.ajaxSetup({cache: false});
 	
