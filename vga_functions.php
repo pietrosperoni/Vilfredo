@@ -5129,23 +5129,35 @@ function questionUnsubscribe($user, $question)
 //  ******************************************/
 function checkuservote($user, $question, $generation)
 {
+	set_log(__FUNCTION__." called....");
 	$hasvoted = hasuservoted($user, $question, $generation);
 	if (!$hasvoted)
 	{
+		set_log('$hasvoted returned FALSE');
 		$hasendorsedorsedorcommented = hasuserendorsedorcommented($user, $question, $generation);
 		if ($hasendorsedorsedorcommented)
 		{
-			setuservoted($user, $question, $generation);
+			set_log('$hasendorsedorsedorcommented returned TRUE - calling uservoted()');
+			//setuservoted($user, $question, $generation);
+			set_log("NOT calling setuservoted() function for now...");
 			return true;
+		}
+		else
+		{
+			set_log('$hasendorsedorsedorcommented returned FALSE');
+			return false;
 		}
 	}
 	else
 	{
+		set_log('$hasvoted returned TRUE');
 		return true;
 	}
 }
 function hasuserendorsedorcommented($user, $question, $generation)
 {
+	set_log(__FUNCTION__." called...");
+	
 	$sql = "SELECT DISTINCT endorse.proposalid 
 		FROM proposals, endorse 
 		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
@@ -5156,7 +5168,7 @@ function hasuserendorsedorcommented($user, $question, $generation)
 		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
 		and proposals.id = comments.proposalid and comments.userid = $user";
 		
-	//set_log($sql);
+	set_log($sql);
 	
 	if ($result = mysql_query($sql))
 	{
@@ -5177,6 +5189,8 @@ function hasuserendorsedorcommented($user, $question, $generation)
 }
 function hasuservoted($user, $question, $generation)
 {
+	set_log(__FUNCTION__." called...");
+	
 	$sql = "SELECT * FROM `hasvoted` WHERE
 	`userid` = $user AND `questionid` = $question AND `roundid` = $generation";
 		
@@ -6300,11 +6314,6 @@ function StoreParetoFront($question,$generation,$paretofront)
 			if (!$add_pareto_to_nextgen)
 			{
 				handle_db_error($add_pareto_to_nextgen, $sql);
-			}
-			// Copy comments to new proposals
-			elseif (countComments($p))
-			{
-				copyProposalCommentsToNextGeneration($p, mysql_insert_id());
 			}
 		}
 	}
