@@ -6110,7 +6110,6 @@ function CalculateRelationToFromArray($a,$A2B,$as=0)
 }
 
 
-
 function FindLevelsBasedOnSizeFromArray($A2B)
 {
 	$Levels=array();
@@ -7200,7 +7199,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
 	
 	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
-	//                  $ProposalLevelType == "NVotes", "Layers"
+	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
 	
 	
 	if ($MapFile) 
@@ -8019,14 +8018,23 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 	$BundledProposals=array();
 	$BundledUsers=array();
 
-	
-	foreach ($proposals as $p)
+	if($ProposalLevelType     ==   "Flat")
 	{
+		foreach ($proposals as $p)
+		{
+			$proposals_below[$p]=array();
+			$proposals_above[$p]=array();
+		}				
+	}else{
+		foreach ($proposals as $p)
+		{
 			$RelatedProposals=CalculateProposalsRelationToFromArray($p,$proposalsEndorsers,$proposals);
 			$proposals_below[$p]=$RelatedProposals["dominated"];
 			$proposals_above[$p]=$RelatedProposals["dominating"];
+		}
 	}
 	$proposals_covered=GetCovered($proposals_below,$proposals);
+	
 
 
 	if($UserLevelType     ==   "Flat")
@@ -8052,6 +8060,8 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 	
 	if      ($ProposalLevelType == "NVotes"){	$ProposalLevels =                 FindLevelsBasedOnSizeFromArray($proposalsEndorsers);		}
 	elseif	($ProposalLevelType == "Layers"){	$ProposalLevels =                 FindLevels($proposals_covered,$proposals);			}
+	elseif	($ProposalLevelType ==   "Flat"){	$ProposalLevels = array(); 	  $ProposalLevels[1]= $proposals;				}
+	
 
 	if      ($UserLevelType     == "NVotes"){	$UserLevels     = array_reverse ( FindLevelsBasedOnSizeFromArray($endorserProposals ) );	}
 	elseif	($UserLevelType     == "Layers"){	$UserLevels	=  		  FindLevels($endorsers_covering,$endorsers) ;			}
@@ -8081,6 +8091,8 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 
 	if      ($ProposalLevelType == "NVotes")	{	$FullSizeNote=max($ProposalLevelsKeys);	}
 	elseif	($ProposalLevelType == "Layers")	{	$FullSizeNote=0;			}
+	elseif	($ProposalLevelType == "Flat")		{	$FullSizeNote=1;			}
+	
 
 	$AllGraphsNote=max($UserLevelsKeys);
 	
@@ -8428,7 +8440,8 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 
 
 //possible values: $UserLevelType == "NVotes", "Layers", "Flat"
-//possible values: $ProposalLevelType == "NVotes", "Layers"
+//possible values: $ProposalLevelType == "NVotes", "Layers", "Flat"
+
 
 function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
 #	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
@@ -8464,15 +8477,22 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	$BundledProposals=array();
 	$BundledUsers=array();
 
-	
-	foreach ($proposals as $p)
+	if($ProposalLevelType     ==   "Flat")
 	{
+		foreach ($proposals as $p)
+		{
+			$proposals_below[$p]=array();
+			$proposals_above[$p]=array();
+		}				
+	}else{
+		foreach ($proposals as $p)
+		{
 			$RelatedProposals=CalculateProposalsRelationToFromArray($p,$proposalsEndorsers,$proposals);
 			$proposals_below[$p]=$RelatedProposals["dominated"];
 			$proposals_above[$p]=$RelatedProposals["dominating"];
+		}
 	}
 	$proposals_covered=GetCovered($proposals_below,$proposals);
-
 
 	if($UserLevelType     ==   "Flat")
 	{
@@ -8481,9 +8501,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 			$endorsers_below[$e]=array();
 			$endorsers_above[$e]=array();
 		}				
-	}
-	else
-	{
+	}else{
 		foreach ($endorsers as $e)
 		{
 			$RelatedEndorsers=CalculateUsersRelationToFromArray($e,$endorserProposals,$endorsers);
@@ -8497,10 +8515,11 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 	
 	if      ($ProposalLevelType == "NVotes"){	$ProposalLevels =                 FindLevelsBasedOnSizeFromArray($proposalsEndorsers);		}
 	elseif	($ProposalLevelType == "Layers"){	$ProposalLevels =                 FindLevels($proposals_covered,$proposals);			}
-
+	elseif	($ProposalLevelType ==   "Flat"){	$ProposalLevels = array(); 	  $ProposalLevels[1]= $proposals;				}
+	
 	if      ($UserLevelType     == "NVotes"){	$UserLevels     = array_reverse ( FindLevelsBasedOnSizeFromArray($endorserProposals ) );	}
 	elseif	($UserLevelType     == "Layers"){	$UserLevels	=  		  FindLevels($endorsers_covering,$endorsers) ;			}
-	elseif	($UserLevelType     ==   "Flat"){	$UserLevels     = array();        $UserLevels[0]=$endorsers;}
+	elseif	($UserLevelType     ==   "Flat"){	$UserLevels     = array();        $UserLevels[0]=$endorsers;					}
 
 	//bundles
 	$Combined2Proposals=array();
@@ -8526,6 +8545,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 
 	if      ($ProposalLevelType == "NVotes")	{	$FullSizeNote=max($ProposalLevelsKeys);	}
 	elseif	($ProposalLevelType == "Layers")	{	$FullSizeNote=0;			}
+	elseif	($ProposalLevelType == "Flat")		{	$FullSizeNote=1;			}
 
 	$AllGraphsNote=max($UserLevelsKeys);
 
