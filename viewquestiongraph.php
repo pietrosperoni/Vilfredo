@@ -76,6 +76,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	echo "<table width=\"1200\" cellpadding=\"0\" cellspacing=\"0\" border=1>";
 
 	echo "<tr><td width=\"33%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","Flat");
+	echo "</td><td width=\"34%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","Layers");
+	echo "</td><td width=\"33%\">";
+	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","NVotes");		
+	echo "</td></tr>";
+
+	echo "<tr><td width=\"33%\">";
 	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
 	echo "</td><td width=\"34%\">";
 	InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Layers");
@@ -92,6 +100,14 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 	echo "</td></tr>";
 
 	$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
+
+	echo "<tr><td>";		
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","Flat");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","Layers");
+	echo "</td><td>";
+	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"Flat","NVotes");
+	echo "</td></tr>";
 
 	echo "<tr><td>";		
 	InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"XS",0,true,"NVotes","Flat");
