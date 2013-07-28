@@ -5320,8 +5320,6 @@ function getUserComment($userid, $pid)
 	WHERE `proposalid` = $pid 
 	AND `userid` = $userid";
 	
-	printbr($sql);
-	
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: $sql");
