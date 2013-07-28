@@ -5313,6 +5313,25 @@ function deleteComment($userid, $proposalid)
 		return true;
 	}
 }
+
+function getUserComment($userid, $pid)
+{
+	$sql = "SELECT `comment`, `type` FROM `comments`
+	WHERE `proposalid` = $pid 
+	AND `userid` = $userid";
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return mysql_fetch_assoc($result);
+	}
+	return false;
+}
+
 function getCommentsList($proposalids)
 {
 	$comments = array();
