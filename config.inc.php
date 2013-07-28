@@ -88,12 +88,14 @@ define("NOT_UNDERSTAND", 3);
 $display_interactive_graphs = True;
 $display_key_players = True;
 $display_confused_voting_option = True;
+$anonymize_graph = True;
 
 $default_voting_options = array (
 	'display_interactive_graphs' => 1,
 	'display_key_players' => 1,
 	'display_confused_voting_option' => 1,
-	'require_voting_comments' => 1
+	'require_voting_comments' => 1,
+	'anonymize_graph' => 1,	
 );
 
 $voting_settings = array_merge($default_voting_options, fetch_voting_settings());

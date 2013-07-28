@@ -31,7 +31,10 @@ if (isAdmin($userid))
 				($_POST['display_confused_voting_option']) ? 1 : 0;
 			$voting_settings['require_voting_comments'] =
 				($_POST['require_voting_comments']) ? 1 : 0;
-			
+			$voting_settings['anonymize_graph'] =
+				($_POST['anonymize_graph']) ? 1 : 0;
+				
+							
 			foreach ($voting_settings as $setting)
 			{
 				if ($setting != 0 and $setting != 1)
@@ -106,7 +109,9 @@ input[type='submit']#settings {
 	<li> Display Key Players <input type="checkbox" name="display_key_players" value="1" <?php if ($voting_settings['display_key_players']) echo "checked"; ?> /> </li>
 	<li> Display Confused Voting Option <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </li>
 	<li> Require Voting Comments <input type="checkbox" name="require_voting_comments" value="1" <?php if ($voting_settings['require_voting_comments']) echo "checked"; ?> /> </li>
+	<li> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </li>
 	</ul>
+	
 	<input type="submit" name="submit" id="settings" value="Save Settings">
 </form>
 

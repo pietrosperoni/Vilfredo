@@ -1323,8 +1323,8 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
-				#$AnonymizeGraph=true;
-				$AnonymizeGraph=false;
+				if($voting_settings['anonymize_graph']) 	{ $AnonymizeGraph=true; }
+				else						{ $AnonymizeGraph=false;}
 				
 				$use_old_graph_layout = false;
 				// --------------- begin old
