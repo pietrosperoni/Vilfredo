@@ -1323,20 +1323,20 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
+				#$AnonymizeGraph=true;
+				$AnonymizeGraph=false;
 				
 				$use_old_graph_layout = false;
 				// --------------- begin old
 				if ($voting_settings['display_interactive_graphs'] && $use_old_graph_layout)
 				{
-				echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
-
-				echo "<tr><td width=\"70%\">";
-				InsertMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
-				echo "</td><td>";
-				InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
-				echo "</td></tr>";
-
-				echo "</table>";
+					echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
+						echo "<tr><td width=\"70%\">";
+						InsertMapFromArray($question, $generation, $proposalsEndorsers, $ParetoFront, $room, $userid, "M", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
+						echo "</td><td>";
+						InsertMapFromArray($question, $generation, $ParetoFrontEndorsers, $ParetoFront, $room, $userid, "S", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
+						echo "</td></tr>";
+					echo "</table>";
 				}
 				// ------------------ end old
 				
@@ -1346,9 +1346,8 @@ if ($userid) {
 				//elseif ($display_interactive_graphs && USE_GRAPHVIZ_MAPS)
 				elseif ($voting_settings['display_interactive_graphs'] && USE_GRAPHVIZ_MAPS)
 				{
-					$votesgraph = GenerateMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
-										
-					$pfvotesgraph = GenerateMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
+					$votesgraph = GenerateMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers", $AnonymizeGraph);									
+					$pfvotesgraph =  GenerateMapFromArray($question, $generation, $ParetoFrontEndorsers, $ParetoFront, $room, $userid, "S", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
 					?>
 					
 					<br /><br />
