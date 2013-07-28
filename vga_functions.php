@@ -6968,12 +6968,12 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 	return;
 }
 
-function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
 	{
-		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+		$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 		if ($svgfile)
 		{
 			$buf='<center><embed src="'.$svgfile.'" ';
@@ -6990,9 +6990,9 @@ function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofro
 	}
 	return;
 }
-function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
-	$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 		if ($svgfile)
 		{
 			return $svgfile;
@@ -7037,12 +7037,12 @@ function MapName($question,$generation,$highlightuser1=0,$size="L",$highlightpro
 }
 
 
-function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType)
+function MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize)
 {
 	$room=GetQuestionRoom($question);
 #	if ($InternalLinks)	{ $internal="here"; }
 #	else			{ $internal="there"; }
-	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$InternalLinks.$ProposalLevelType.$UserLevelType.serialize($proposalsEndorsers);
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_hl1u".$highlightuser1."_hl1p".$highlightproposal1."_".$InternalLinks.$ProposalLevelType.$UserLevelType.$Anonymize.serialize($proposalsEndorsers);
 	$translated=md5($totranslate);
 #	echo "To translate= $totranslate";
 #	echo "translated= $translated";
@@ -7133,10 +7133,10 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 }
 
 
-function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
 	
-	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 	$filename="map/".$name;
 	
 	##if($size=="L")     { $sz="11,5.5";	}
@@ -7174,10 +7174,10 @@ function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorse
 
 
 
-function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers")
+function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
 	
-	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType);
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 	$filename="map/".$name;
 	
 	##if($size=="L")     { $sz="11,5.5";	}
@@ -7196,7 +7196,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 #		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 #	}
 	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
+	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg",$Anonymize);
 	
 	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
 	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
@@ -7501,7 +7501,7 @@ function CombineUsersFromArray($proposalsEndorsers,$users)
 
 
 
-function WriteBundledUsers($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightuser1=0)
+function WriteBundledUsers($BundleName,$BundleContent,$room,$details,$detailsTable,$highlightuser1=0,$Anonymous=false)
 {
 	$answer="";
 	$color="black";
@@ -7524,14 +7524,26 @@ function WriteBundledUsers($BundleName,$BundleContent,$room,$details,$detailsTab
 		$ToAdd=' BGCOLOR="red" '; #WE WRITE THE HIGHLIGHTED USER BEFORE; AND ON A DIFFERENT COLOR
 		$answer.='<TR><TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/user.php?u='.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.WriteUserName($u).'</TD></TR>';	
 	}
-	foreach ($BundleContent as $u)
+	if ($Anonymous)
 	{
-		if ($highlightuser1==$u){continue;} #THIS HAS ALREADY BEEN WRITTEN
-		$urlquery=$u;
-		$tooltip=WriteUserName($u);
-		$tooltip=str_replace ( "&" , "&amp;" , $tooltip );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
-		$ToAdd='';
-		$answer.='<TR><TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/user.php?u='.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.WriteUserName($u).'</TD></TR>';	
+		foreach ($BundleContent as $u)
+		{
+			if ($highlightuser1==$u){continue;} #THIS HAS ALREADY BEEN WRITTEN
+			$ToAdd='';
+			$answer.='<TR><TD '.$ToAdd.' tooltip="..." target="_top">...</TD></TR>';	
+		}		
+	}
+	else
+	{
+		foreach ($BundleContent as $u)
+		{
+			if ($highlightuser1==$u){continue;} #THIS HAS ALREADY BEEN WRITTEN
+			$urlquery=$u;
+			$tooltip=WriteUserName($u);
+			$tooltip=str_replace ( "&" , "&amp;" , $tooltip );#This is weird, in all the rest of the map an & is an & but here he wants them as a &amp;	
+			$ToAdd='';
+			$answer.='<TR><TD '.$ToAdd.' HREF="'.SITE_DOMAIN.'/user.php?u='.$urlquery.'" tooltip="'.$tooltip.'" target="_top">'.WriteUserName($u).'</TD></TR>';	
+		}	
 	}
 #	$answer.='</TR><TR><TD COLSPAN="'.$BundleSize.'"></TD></TR></TABLE>>]';
 	$answer.='</TABLE>>]';
@@ -7988,7 +8000,7 @@ function MakeGraphVizMap($question,$generation,$highlightuser1=0,$highlightpropo
 #$size="7.5,10
 #10,16.18
 
-function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
+function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="",$Anonymize=false)
 #	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
 {
 	$proposals_below=array();
@@ -8174,7 +8186,7 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 		$detailsTable=' BGCOLOR="lightpink3" ';	
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 		#$details=' style=filled color='.$color.' peripheries='.$peripheries.' ';
-		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1);
+		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1,$Anonymize);
 	}
 
 	foreach ($endorsers as $e)
@@ -8192,7 +8204,16 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 
-		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		if ($Anonymize == true && $highlightuser1 != $e)
+		{
+			
+			$buf.='"'.WriteUserName($e).'" [label="..." tooltip="..." shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		}
+		else
+		{
+			$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		}
+#		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
 		$buf.="\n";					
 	}
 
@@ -8443,7 +8464,7 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 //possible values: $ProposalLevelType == "NVotes", "Layers", "Flat"
 
 
-function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="")
+function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="", $Anonymize=true)
 #	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
 {
 	$proposals_below=array();
@@ -8624,7 +8645,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		$detailsTable=' BGCOLOR="lightpink3" ';	
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 		#$details=' style=filled color='.$color.' peripheries='.$peripheries.' ';
-		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1);
+		$buf.=WriteBundledUsers($kc2u,$Combined2Users[$kc2u],$room,$details,$detailsTable,$highlightuser1,$Anonymize);
 	}
 
 	foreach ($endorsers as $e)
@@ -8642,9 +8663,19 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 
-		$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		if ($Anonymize == true && $highlightuser1 != $e)
+		{
+			
+			$buf.='"'.WriteUserName($e).'" [label="..." tooltip="..." shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		}
+		else
+		{
+			$buf.='"'.WriteUserName($e).'" [shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
+		}
 		$buf.="\n";					
 	}
+	
+	
 
 	$keys=array_keys($Combined2Proposals);
 	foreach($keys as $kc2p)	
@@ -8814,7 +8845,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 		}		
 	}
 	
-	
+#	$Anonymize
 
 	foreach ($endorsers as $e)
 	{
