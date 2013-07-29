@@ -5127,6 +5127,76 @@ function questionUnsubscribe($user, $question)
 }
 
 //  ******************************************/
+function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7-2013
+{		
+	if (hasUserVoted($user, $question, $generation) === false)
+	{
+		return "not_voted";
+	}
+	elseif(hasUserEndorsedThis($user, $proposal) === $proposal)
+	{
+		return "like";
+	}
+	elseif($opposed_type = hasUserCommentedThis($user, $proposal))
+	{
+		return $opposed_type;
+	}
+	else
+	{
+		// There was a DB error somewhere - see error log
+		return false;
+	}	
+}
+
+function hasUserCommentedThis($user, $proposal)
+{
+	$sql = "SELECT `type` FROM `comments`
+		    WHERE `userid` = $user AND `proposalid` = $proposal";
+	
+	//set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) > 0)
+		{
+			$row = mysql_fetch_assoc($result);
+			return $row['type'];
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function hasUserEndorsedThis($user, $proposal)
+{
+	$sql = "SELECT `proposalid` FROM `endorse`
+		    WHERE `userid` = $user AND `proposalid` = $proposal";
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) > 0)
+		{
+			return $proposal;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+
 function checkuservote($user, $question, $generation)
 {
 	set_log(__FUNCTION__." called....");
