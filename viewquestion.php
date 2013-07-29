@@ -706,7 +706,7 @@ function ajax_error(jqxhr, status, error)
 		echo '<div class = "container_large">';
 #		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,/*$InternalLinks=*/true);
 		#InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers");
-		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"NVotes","Layers");
+		InsertMapFromArray($question,$pastgeneration,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"NVotes","Layers",/*$Anonymize=*/ false);
 		#		InsertMapFromArray($question,$generation,$ParetoFrontEndorsers,$ParetoFront,$room,$userid,"S",0,$question_url,"Layers","Layers");
 		
 		
@@ -1544,28 +1544,58 @@ if ($userid) {
 				{
 					// Display Key Players -- Begin
 					echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
+					
 					foreach ($users as $u)
 					{
-						if($u==$userid)
-							{continue;}
+						if($u==$userid)			{continue;}
 						$HomeWork=$CouldDominate[$u];
 						if (count($HomeWork) > 0)
 						{
-							$uString=WriteUserVsReader($u,$userid);
-							echo "The result would be simpler if ".$uString." were to vote for ";					
-							$PCD=$HomeWork[0];
-							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-							echo " ".$proposalNumber;
+							$disiked=array();
+							$confusing=array();
 							foreach ($HomeWork as $PCD)
 							{
-								if ($PCD==$HomeWork[0]) continue;
-								$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
-								echo ", ".$proposalNumber;
+								
+								$vote=GetUserVoteForProposal($u, $question, $PCD, $generation);
+								if ($vote=="dislike")
+								{
+#									echo "$u Dislikes $PCD <br/>";
+									$disiked[]=$PCD;
+								}
+								elseif ($vote=="confused")
+								{
+#									echo "$u does not understand $PCD <br/>";
+									$confusing[]=$PCD;
+								}
 							}
-							echo ".</br>";
-	#						echo "<u>Convince Them!</u>";
-							echo "Convince Them!";
+							
+							$uString=WriteUserVsReader($u,$userid);							
+							foreach ($disiked as $dsl)
+							{
+								echo "The result would be simpler if ".$uString." were to vote for ";					
+								$proposalNumber = WriteProposalNumberInternalLink($dsl,$room);
+								echo " ".$proposalNumber;
+								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
+								if ($vote=="like")
+								{
+									echo "<b>Can you try to convince him?</b><br/>";
+								}
+								echo "</br>";
+							}
 							echo "</br>";
+							foreach ($confusing as $dsl)
+							{
+								$proposalNumber = WriteProposalNumberInternalLink($dsl,$room);
+								echo "$uString could not understand $proposalNumber. ";
+								echo "But the result would be simpler if ".$uString." were to vote for it. ";
+								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
+								if ($vote=="like")
+								{
+									echo "<b>Could you explain it?</b><br/>";
+								}
+								echo "</br>";
+							}
+				
 							echo "</br>";
 						}	
 					}
