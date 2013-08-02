@@ -233,7 +233,7 @@
   'already_registered_txt' => '¡Ya registrado!',
   'captcha_error_txt' => 'Disculpa, no ingresaste las palabras del reCAPTCHA correctamente',
   'email_txt' => 'Correo electrónico',
-  'req_flds_txt' => 'Campos requeridos:'
+  'req_flds_txt' => 'Campos requeridos:',
   'not_enter_un_txt' => 'No ingresaste un nombre de usuario',
   'time_minute_txt' => 'minuto',
   'time_minutes_txt' => 'minutos',
@@ -253,8 +253,8 @@
   'users_txt' => 'Usuarios:',
   'check2invite_title' => 'Marca este casillero si quieres invitar a este usuario',
   'submit2invite_title' => 'Enviar para invitar usuarios',
-  'now_voting_err_txt' => 'Disculpa, esta pregunta está ahora en la fase de votación. Por favor espera hasta que la pregunta se mueva a la próxima generación antes de crear nuevas propuestas.'
-  'wrong_user_err_txt' => 'Parece que intentaste mutar una propuesta presentada en esta generación por alguien más. Esto no está permitido. Si has escrito esta propuesta, por favor ingresa como el autor de la misma.'
+  'now_voting_err_txt' => 'Disculpa, esta pregunta está ahora en la fase de votación. Por favor espera hasta que la pregunta se mueva a la próxima generación antes de crear nuevas propuestas.',
+  'wrong_user_err_txt' => 'Parece que intentaste mutar una propuesta presentada en esta generación por alguien más. Esto no está permitido. Si has escrito esta propuesta, por favor ingresa como el autor de la misma.',
   'new_mutate_txt' => 'Has elegido crear una nueva propuesta basada en la propuesta %1$s',
   'write_here_txt' => 'Redacta tu propuesta aquí',
   'embed_txt' => 'Embeber',
@@ -389,7 +389,7 @@
   'bubbling stage_msg' => 'Esta pregunta ahora ha sido movida a la fase de burbujeo',
   'voting_stage_msg' => 'Esta pregunta ahora ha sido movida a la fase de votación',
   'closed_stage_msg' => 'Esta pregunta ahora ha sido movida a la fase de preguntas concluidas',
-  'login_finalvote_txt' => 'Esta pregunta ahora ha ingresado a la fase de votación final. Por favor regístrate para participar en la elección de la propuesta ganadora para esta pregunta.'
+  'login_finalvote_txt' => 'Esta pregunta ahora ha ingresado a la fase de votación final. Por favor regístrate para participar en la elección de la propuesta ganadora para esta pregunta.',
   'set_votes_txt' => 'Emite o Actualiza Votos Aquí',
   'finalvote_back_lnk' => 'Volver a las Preguntas Burbuja',
   'saved_votes_txt' => 'Votos Salvados',
