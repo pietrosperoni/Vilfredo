@@ -423,7 +423,7 @@ function getLanguage($language = 'en',  $altfile=null)
 {
 	$default_language = 'en';
 	
-	if ($language != 'en' and $language != 'it')
+	if ($language != 'en' and $language != 'it' and $language != 'es')
 	{
 		$language = $default_language;
 	}

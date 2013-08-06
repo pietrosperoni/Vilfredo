@@ -51,12 +51,12 @@ require_once 'config.inc.php';
 //$VGA_CONTENT[$common_lang_page] = loadLangXML($common_lang_page, $lang);
 //eg $VGA_CONTENT[$common_lang_page]['site_title_txt']
 
-if (isset($_GET["locale"]) and ($_GET["locale"] == 'en' or $_GET["locale"] == 'it' ))
+if (isset($_GET["locale"]) and ($_GET["locale"] == 'en' or $_GET["locale"] == 'it' or $_GET["locale"] == 'es' ))
 {
 	$locale = $_GET["locale"];
 	$_SESSION['locale'] = $locale;
 }
-elseif (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' ))
+elseif (isset($_SESSION["locale"]) and ($_SESSION["locale"] == 'en' or $_SESSION["locale"] == 'it' or $_GET["locale"] == 'es' ))
 {
 	$locale = $_SESSION["locale"];
 }
@@ -73,7 +73,7 @@ else
 putenv("LC_ALL=$locale");
 setlocale(LC_ALL, $locale);
 //printbrx(getenv('LC_ALL'));
-@include getLanguage($locale);
+include getLanguage($locale);
 //print_array($VGA_CONTENT);
 //print_array($_SERVER);
 //printbrx($_SERVER['REQUEST_URI']);
@@ -227,7 +227,7 @@ else
 
 <div id="room_title"><?=$VGA_CONTENT['room_label']?>:&nbsp; <?=$current_room?><a href="<?=$rss_link?>"><img src="images/rss.jpg" width="19" height="19" alt="RSS Feed" /></a></div>
 
-<span id="langs"><strong><?=$VGA_CONTENT['langs_label']?></strong> <a href="<?=AppendToQuery('locale','en')?>"><img src="images/en.png" width="16" height="16" alt="Select English" /></a> <a href="<?=AppendToQuery('locale','it')?>"><img src="images/it.png" width="16" height="16" alt="Select Italian" /></a></span>
+<span id="langs"><strong><?=$VGA_CONTENT['langs_label']?></strong> <a href="<?=AppendToQuery('locale','en')?>"><img src="images/en.png" width="16" height="16" alt="Select English" /></a> <a href="<?=AppendToQuery('locale','it')?>"><img src="images/it.png" width="16" height="16" alt="Select Italian" /></a> <a href="<?=AppendToQuery('locale','es')?>"><img src="images/es.png" width="16" height="15" alt="Select Spanish" /></a></span>
 
 <!-- <div id="roomfeed"><a class="rss-link" href="<?php echo $rss_link?>"> <?=$VGA_CONTENT['room_feed_link']?></a></div> -->
 
