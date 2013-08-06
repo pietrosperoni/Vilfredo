@@ -7066,7 +7066,7 @@ function InsertMap($question,$generation,$highlightuser1=0,$size="L",$highlightp
 	return;
 }
 
-function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize)
+function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
 #	echo "highlightproposal1 in InsertMap=".$highlightproposal1;
 	if (USE_GRAPHVIZ_MAPS)
