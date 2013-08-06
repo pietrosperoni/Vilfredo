@@ -1707,7 +1707,7 @@ if ($userid) {
 				<div class="clear"></div><br/>
 				<div class="commentform">
 					<span class="intro"><p>Please tell us why you don't understand this proposal.</p></span>
-					<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
+					<textarea class="comment" rows="20" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
 				</div>
 	
 				</td>
