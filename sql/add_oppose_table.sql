@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `oppose` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
 INSERT INTO `oppose`(`userid`, `proposalid`, `created`, `type`, `roundid`, `commentid`) 
-SELECT c.`userid`, c.`proposalid`, c.`created`, c.`type`, p.`roundid`, NULL 
+SELECT c.`userid`, c.`proposalid`, c.`created`, c.`type`, p.`roundid`, 0 
 FROM `comments` as c, `proposals` as p 
 WHERE `comment` = '' 
 AND c.`proposalid` = p.`id` ;
@@ -25,5 +25,17 @@ FROM `comments` as c, `proposals` as p
 WHERE `comment` != '' 
 AND c.`proposalid` = p.`id`;
 
-DELETE FROM comments WHERE comment = '' ;
+DELETE FROM `comments` WHERE `comment` = '' ;
 
+ALTER TABLE `comments` ADD `roundid` INT NOT NULL ;
+
+UPDATE `comments` as com LEFT JOIN
+(
+	SELECT `commentid`, `roundid` FROM `oppose`
+	WHERE `commentid` IS NOT NULL
+) as opp ON opp.`commentid` = com.`id`
+SET com.`roundid` = opp.`roundid` ;
+
+DELETE
+FROM `comments` WHERE  
+`id` NOT IN (SELECT DISTINCT `commentid` FROM `oppose`)

@@ -920,28 +920,67 @@ td.votes {
 </div>
 */
 
-.comment_type {
+
+.select_comment {
     position: absolute;
     top: 0;
     right: -25;
     width: 25px;
     height: 25px;
+    display: none;
+}
+.comment_type {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
 }
 .comment_type.confused {
     background-repeat: no-repeat;
     background-image: url('images/confused_25x25.png');
+    background-size: 20px 20px;
 }
 .comment_type.dislike {
     background-repeat: no-repeat;
     background-image: url('images/thumbdown_25x25.png');
+    background-size: 20px 20px;
+}
+/* DONOW */
+
+.comments { 
+	width: 95%;
+	display: none;
+	/*border: 1px solid red;*/
+	position: relative;
 }
 
+.commentsleft h3, .commentsright h3 {
+    margin-left: 20px;
+}
+
+.commentsleft {
+    width: 400px;
+    /*border: 1px solid yellow;*/
+
+    float:left;
+    margin-left: 20px;
+}
+.commentsright {
+    width: 400px;
+	/*border: 1px solid green;*/
+
+	float:left;
+	margin-left: 30px;
+}
+/*
 .comments {
 	width: 400px;
 	padding-left: 100px;
 	display: none;
-	/*border: 1px solid yellow;*/
-}
+	
+}*/
+
 
 .commentslist { /*****/
 	width: 400px;
@@ -967,6 +1006,24 @@ td.votes {
 	padding: 5px;
 }
 
+.disagree h3 {
+    color: #b20000;
+}
+.confused h3 {
+    color: #0020cc;
+}
+
+.disagree .comment {
+    border: 1px solid #b20000;
+}
+.confused .comment {
+    border: 1px solid #0020cc;
+}
+
+.space {
+    height: 30px;
+}
+
 /*
 .commentform {
 	height: 230px;
@@ -974,7 +1031,7 @@ td.votes {
 	margin: 5px;
 }*/
 .commentform .textbox { /*****/
-	width: 400px;
+	width: 200px;
 	padding-left: 100px;
 	display: none;
 	position: relative;
@@ -983,11 +1040,17 @@ td.votes {
 }
 
 .commentform { /*****/
-	width: 400px;
-	padding-left: 100px;
+	width: 500px;
+	/*padding-left: 100px;*/
 	display: none;
 	position: relative;
 	/*border: 1px solid blue;*/
+	margin-left: auto ;
+    margin-right: auto ;
+}
+
+.commentform p {
+    margin-top: 0;
 }
 
 
@@ -1481,6 +1544,7 @@ div.tooltip {
 
 td.vote_list {
 	text-align: center;
+	width: 50px;
 }
 
 /********** RTE Dimensions *************/

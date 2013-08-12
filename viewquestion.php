@@ -10,6 +10,8 @@ $headcommands='';
 include('header.php');
 include('vga_timeless.php');
 
+set_log(__FILE__." called....");
+
 ?>
 
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
@@ -42,6 +44,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 var votingcommentslist;
 var userid = <?=json_encode($userid)?>;
 var require_voting_comments = <?=json_encode($voting_settings['require_voting_comments'])?>;
+var user_commentid;
 
 var NOT_VOTED = <?=json_encode(NOT_VOTED)?>;
 var AGREE = <?=json_encode(AGREE)?>;
@@ -49,47 +52,124 @@ var DISAGREE = <?=json_encode(DISAGREE)?>;
 var NOT_UNDERSTAND = <?=json_encode(NOT_UNDERSTAND)?>;
 
 
-$(function() {
-	/*
-	<div class="commentform">
-	<div class="intro"></div>
-	<div class="commentslist"></div>
-	<div class="textbox">
-	<textarea rows="25" cols="100"></textarea> 
-	<div class="commentdelete">Delete</div>
-	<div class="commentclose">Close</div>
-	<div class="commentsave">Save</div>
-	</div>
-	</div>
-	*/
+function closeCommentsList(comments)
+{	
+	if (comments.is(':visible') == false)
+	{
+		return;
+	}
 	
-	/*
-	<div class="comments">
-		<p>List of comments from users.</p>
-		<div class="commentslist"></div>
-	</div>
-	<div class="commentform">
-		<p>Please tell us why you don't understand this proposal.</p>
-		<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
-	</div>
-	*/
+	var dislikecommentslist = comments.find('.dislikecommentslist');
+	var confusedcommentslist = comments.find('.confusedcommentslist');
+	
+	dislikecommentslist.empty();
+	confusedcommentslist.empty();
+	comments.slideUp(500);
+}
 
+function toggleCommentsList(comments)
+{
+	if (comments.is(':visible') == false)
+	{
+		openCommentsList(comments);
+	}
+	else
+	{
+		closeCommentsList(comments);
+	}
+}
+
+function openCommentsList(comments)
+{	
+	var dislikecommentslist = comments.find('.dislikecommentslist');
+	var confusedcommentslist = comments.find('.confusedcommentslist');
+	
+	if (comments.is(':visible'))
+	{
+		return;
+	}
+	else
+	{
+		var el_with_id = comments.parents('tr.user_vote');
+		if (el_with_id.length == 0)
+		{
+			el_with_id = comments.parents('.pfbox');
+		}
+		if (el_with_id.length == 0)
+		{
+			return;
+		}
+		var pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
+		
+		//alert(pid);
+		
+		if (typeof votingcommentslist[pid] != 'undefined')
+		{
+			var createLists = $.each(votingcommentslist[pid], function(i, usercomment) 
+			{					
+				var selected = ''
+				if (typeof user_commentid != 'undefined' && 
+					typeof user_commentid[pid] != 'undefined' && 
+					user_commentid[pid] == usercomment['id'])
+				{
+					selected = 'checked="checked"';
+				}
+				if (usercomment['comment'] != '')
+				{
+					if (usercomment['type'] == 'dislike')
+					{
+						dislikecommentslist.append('<div class="comment">' + 
+						'<div class="select_comment"><input type="radio" name="select_comment[' + pid + ']" value="' +
+						usercomment["id"] + '"' + selected + '></div>' + 
+						'<div class="text">' + usercomment['comment'] +
+						'</div></div>');
+					}
+					if (usercomment['type'] == 'confused')
+					{
+						confusedcommentslist.append('<div class="comment">' + 
+						'<div class="select_comment"><input type="radio" name="select_comment[' + pid + ']" value="' +
+						usercomment["id"] + '"' + selected + '></div>' + 
+						'<div class="text">' + usercomment['comment'] +
+						'</div></div>');
+					}
+				}	
+			});
+			
+			$.when(createLists).done(function()
+			{
+				comments.slideDown(500);
+			});
+		}
+	}
+}
+
+
+$(function() {
+	
 	// Display messages on icon click
 	//
 	$('.usrmsgpic').live("click", function(event){
-		var comments = $(this).parent('.paretoproposal').siblings('.comments');
+		
+		var paretoproposal = $(this).parent('.paretoproposal');
+		var the_comments = paretoproposal.siblings('.comments');
+		
+		var comments = $(this).parent('.paretoproposal').siblings('.comments'); // DONOW 2
 		if (comments.length == 0)
 		{
 			comments = $(this).parent('.paretoproposal').find('.comments');
 		}
+
+		toggleCommentsList(comments);
+		return;
 		
-		var commentslist = comments.find('.commentslist');
+		var dislikecommentslist = comments.find('.dislikecommentslist');
+		var confusedcommentslist = comments.find('.confusedcommentslist');
 		
-		if (commentslist.is(':visible'))
+		if (comments.is(':visible'))
 		{
-			comments.find('.commentslist').html('');
+			dislikecommentslist.empty();
+			confusedcommentslist.empty();
 			comments.slideUp(500);
-			$(this).find('.intro').html("");
 		}
 		else
 		{
@@ -100,56 +180,96 @@ $(function() {
 			}
 			var pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
 			
+			//alert(pid);
+			
 			if (typeof votingcommentslist[pid] != 'undefined')
 			{
-				var commentslist = comments.find('.commentslist');
-				var createList = $.each(votingcommentslist[pid], function(i, usercomment) {					
+				var createLists = $.each(votingcommentslist[pid], function(i, usercomment) 
+				{					
+					var selected = ''
+					if (typeof user_commentid != 'undefined' && typeof user_commentid[pid] != 'undefined' && user_commentid[pid] == usercomment['id'])
+					{
+						selected = 'checked="checked"';
+					}
 					if (usercomment['comment'] != '')
 					{
-						commentslist.append('<div class="comment"><div class="comment_type ' +
-						usercomment['type'] + '"></div><div class="text">' + usercomment['comment'] +
-						//'</div><div class="author">by '+ usercomment['authorname'] +'</div></div>');
-						'</div></div>');
-					}
-					else
-					{
-						commentslist.append('<div class="comment"><div class="comment_type ' +
-						usercomment['type'] + '"></div><div class="text">' + //usercomment['authorname'] +
-						' user entered no comment</div></div>');
-					}
+						if (usercomment['type'] == 'dislike')
+						{
+							dislikecommentslist.append('<div class="comment">' + 
+							'<div class="select_comment"><input type="radio" name="select_comment[' + pid + ']" value="' +
+							usercomment["id"] + '"' + selected + '></div>' + 
+							'<div class="text">' + usercomment['comment'] +
+							'</div></div>');
+						}
+						if (usercomment['type'] == 'confused')
+						{
+							confusedcommentslist.append('<div class="comment">' + 
+							'<div class="select_comment"><input type="radio" name="select_comment[' + pid + ']" value="' +
+							usercomment["id"] + '"' + selected + '></div>' + 
+							'<div class="text">' + usercomment['comment'] +
+							'</div></div>');
+						}
+					}	
 				});
-				//commentslist.append('<div class="commentslistclose">Close</div><br/>');
 				
-				$.when(createList).done(function()
+				$.when(createLists).done(function()
 				{
-					//commentslist.append('<div class="clear"></div><br/>');
 					comments.slideDown(500);
-					//commentslist.slideDown(500);
 				});
 			}
 		}
 	});
 	
-	/*
-	<div class="comments">
-		<p>List of comments from users.</p>
-		<div class="commentslist"></div>
-	</div>
-	<div class="commentform">
-		<p>Please tell us why you don't understand this proposal.</p>
-		<textarea rows="25" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
-	</div>
-	*/
+	$('.select_comment').live('click', function(event){
+		var commentformtextarea = $(this).parents('.comments').siblings('.commentform').find('textarea');
+		if (commentformtextarea.val() != '')
+		{
+			var ok = confirm("You sure you want to clear your comment text?");
+			if (ok)
+			{
+				commentformtextarea.val('');
+			}
+		}
+	});
+	$('.commentform textarea').live('click', function(event){
+		var form = $(this).parents('.commentform');
+		var comments = form.siblings('.comments');
+		var radios = comments.find('.select_comment input');
+		
+		var selectcomments = $(this).parents('.commentform').siblings('.comments').find('.select_comment input');
+		selectcomments.each(function(){
+			$(this).prop('checked', false);
+		});
+	});
+	
 	$('.voting_choices img').live('click', function(event){
 		var img = $(this).prop('src');
 		var choice = $(this).parents('.voting_choices').siblings('.voting_choice');
 		choice.css('background-image', 'url('+img+')');
 		var setval = choice.siblings('.voting_choice_val');
 		var prev_val = choice.siblings('.prev_voting_choice_val');
+		
+		var comments = $(this).parents('.votes').siblings('.proposalcontent').find('.comments');
+		
 		if ($(this).hasClass('1'))
 		{
 			setval.val(1);
+			
+			closeCommentsList(comments);
+			
 			$(this).parents('td').siblings('td.proposalcontent').find('.commentform').slideUp(500);
+			/*
+			// Remove comment select buttons
+			comments.find('.dislikecommentslist .select_comment').each(function(i){
+				$(this).fadeOut(1000);
+				$(this).prop('checked', false);
+			});
+			comments.find('.confusedcommentslist .select_comment').each(function(i){
+				$(this).fadeOut(1000);
+				$(this).prop('checked', false);
+			});
+			comments.slideUp(1000);
+			*/
 		}
 		else if ($(this).hasClass('2') || $(this).hasClass('3'))
 		{
@@ -162,17 +282,53 @@ $(function() {
 				setval.val(3);
 			}
 			
+			var comments = $(this).parents('.votes').siblings('.proposalcontent').find('.comments');
+			openCommentsList(comments);
+						
+			if ($(this).hasClass('2'))
+			{
+				comments.find('.dislikecommentslist .select_comment').each(function(i){
+					$(this).fadeIn(1000);
+				});
+				comments.find('.confusedcommentslist .select_comment').each(function(i){
+					$(this).fadeOut(1000);
+					$(this).prop('checked', false);
+				});
+			}
+			else if ($(this).hasClass('3'))
+			{
+				comments.find('.dislikecommentslist .select_comment').each(function(i){
+					$(this).fadeOut(1000);
+					$(this).prop('checked', false);
+				});
+				comments.find('.confusedcommentslist .select_comment').each(function(i){
+					$(this).fadeIn(1000);
+				});
+			}
+			else
+			{
+				comments.find('.dislikecommentslist .select_comment').each(function(i){
+					$(this).fadeOut(1000);
+					$(this).prop('checked', false);
+				});
+				comments.find('.confusedcommentslist .select_comment').each(function(i){
+					$(this).fadeOut(1000);
+					$(this).prop('checked', false);
+				});
+			}
+			
 			var pid = parseInt($(this).parents('tr.user_vote').attr('id').replace(/[^0-9]/g, ''));
-			if ( (setval.val() == 2 || setval.val() == 3) && (prev_val.val() != setval.val()) )
+			//if ( (setval.val() == 2 || setval.val() == 3) && (prev_val.val() != setval.val()) )
+			if ( (setval.val() == 2 || setval.val() == 3) )
 			{
 				var commentform = $(this).parents('td').siblings('td.proposalcontent').find('.commentform');
 				if (setval.val() == "2")
 				{
-					commentform.find('.intro').html("<p>Please tell us why you don\'t like this proposal.</p>");
+					commentform.find('.intro').html("<p>Please tell us why you don\'t like this proposal.</p> <p>Select a comment you agree with (if there are any) or write your own below.</p>");
 				}
 				else
 				{
-					commentform.find('.intro').html("<p>Please tell us why you don\'t understand this proposal.</p>");
+					commentform.find('.intro').html("<p>Please tell us why you don\'t understand this proposal.</p> <p>Select a comment you agree with (if there are any) or write your own below.</p>");
 				}
 				commentform.find('textarea').trigger('setcharcount');
 				
@@ -818,13 +974,28 @@ function ajax_error(jqxhr, status, error)
 				if ($OPropGen!=$generation)		{	echo "in ".WriteGenerationPage($question,$OPropGen,$room).".<br>";	}
 				$endorsers=EndorsersToAProposal($p);
 				echo '<br />' . $VGA_CONTENT['endorsed_by_txt'] . ': ';
-				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}	
+				foreach($endorsers as $e)		{	echo WriteUserVsReader($e,$userid);}	// DONOW 2
 				
-				echo '<div class="comments">';
-				echo '<p>List of comments from users.</p>';
-				echo '<div class="commentslist"></div>';
-				echo '<div class="clear"></div>';
-				echo '</div>';
+				?>
+				
+				<div class="comments">
+					
+				<div class="space"></div>
+				
+				<div class="commentsleft disagree">
+				<h3>Disagree</h3>
+				<div class="dislikecommentslist commentslist"></div>
+				</div>
+				
+				<div class="commentsright confused">
+				<h3>Don't Understand</h3>
+				<div class="confusedcommentslist commentslist"></div>
+				</div>
+				
+				<div class="clear"></div>
+				
+				</div> <!-- comments -->
+				<?php
 								
 				echo '</div>';
 				echo '</div>';
@@ -1220,32 +1391,33 @@ if ($userid) {
 
 	if ( $phase==1)
 	{
-		// Fetch User Comments
+		// Fetch User Comments // DONOW 1
 		$proposallist = getCurrentProposalIDs($question, $generation);
 		//set_log('$proposallist:');
 		//set_log($proposallist);
 		
 		$userendorsedlist = array();
+		$useropposedlist = array();
 		if ($userid)
 		{
 			$userendorsedlist = getUserEndorsedFromList($userid, $proposallist);
+			$useropposedlistdata = getUserOpposedFromList($userid, $proposallist);
+			$useropposedlist = $useropposedlistdata['type'];
+			$user_commentid = $useropposedlistdata['commentid'];			
 		}
+	
+		set_log('$useropposedlistdata');
+		set_log($useropposedlistdata);
+
+		set_log('$user_commentid'); 
+		set_log($user_commentid);
 		
 		set_log('$userendorsedlist');
 		set_log($userendorsedlist);
 		
-		// === UserCommentsGroupedByProposal
-		//$confusedcomments = getConfusedByUsers($proposallist);
-		//$commentsbyusers = getCommentsByUsers($proposallist);
-		//set_log('$commentsbyusers');
-		//set_log($commentsbyusers);
-		// === ProposalCommentsGroupedByUser
-		//$allconfusedcomments = getConfusedByProposals($proposallist);
-		//$allconfusedcomments = getCommentsByProposals($proposallist);
-		//set_log('$allconfusedcomments');
-		//set_log($allconfusedcomments);
-		// === ProposalComments
-		//$commentslist = getvotingcommentslist($proposallist);
+		set_log('$useropposedlist');
+		set_log($useropposedlist);
+
 		$commentslist = getCommentsList($proposallist);
 		set_log('$commentslist');
 		set_log($commentslist);
@@ -1253,7 +1425,8 @@ if ($userid) {
 		?>
 		<script>
 		//commentslist = <?=json_encode($commentslist)?>;
-		votingcommentslist = <?=json_encode($commentslist)?>;
+		votingcommentslist = <?=json_encode($commentslist)?>; // DONOW
+		var user_commentid = <?=json_encode($user_commentid)?>;
 		//allconfusedcomments = <?=json_encode($allconfusedcomments)?>;
 		</script>
 		<?php
@@ -1271,13 +1444,13 @@ if ($userid) {
 			{
 				$userendorsedata[$p] = 1;
 			}
-			elseif ($userid && !empty($commentslist) && !empty($commentslist[$p]) && array_key_exists($userid, $commentslist[$p]))
+			elseif ($userid && !empty($useropposedlist) && array_key_exists($p, $useropposedlist))
 			{
-				if ($commentslist[$p][$userid]['type'] == 'dislike')
+				if ($useropposedlist[$p] == 'dislike')
 				{
 					$userendorsedata[$p] = 2;
 				}
-				elseif ($commentslist[$p][$userid]['type'] == 'confused')
+				elseif ($useropposedlist[$p] == 'confused')
 				{
 					$userendorsedata[$p] = 3;
 				}
@@ -1304,9 +1477,8 @@ if ($userid) {
 #			$userhasvoted = true; #(let's try with a default of true)
 			if ($userid)
 			{
-				//$userhasvoted = hasUserEndorsed($userid, $question, $generation);
-				//$userhasvoted = hasUserVoted($userid, $question, $generation);
-				$userhasvoted = checkuservote($userid, $question, $generation);
+				//$userhasvoted = checkuservote($userid, $question, $generation);
+				$userhasvoted = hasuservoted($userid, $question, $generation);
 				//set_log('userhasvoted?');
 				//set_log($userhasvoted);
 			}
@@ -1619,6 +1791,7 @@ if ($userid) {
 			<form autocomplete="off" method="post" id="votingform" action="endorse_confused_or_not.php">
 			<input type="hidden" name="question" value="<?=$question?>" />
 			<input type="hidden" name="hasvoted" value="<?=$userhasvoted?>" />
+			<input type="hidden" name="generation" value="<?=$generation?>" />
 			<table border="1" class="your_endorsements userproposal">
 			<tr class="top">
 			<th class="history_cell"><h4><?=$VGA_CONTENT['voting_hist_txt']?></h4></td>
@@ -1629,7 +1802,7 @@ if ($userid) {
 			<th class="endorse_cell">&nbsp;</td>
 			</tr>
 
-			<?php
+			<?php // DONOW
 
 			while ($row = mysql_fetch_array($response))
 			{
@@ -1698,15 +1871,30 @@ if ($userid) {
 					echo '</div>';
 				}
 				echo '</div>';
-				// coffee
-				?>			
+				?>	
+			
+				
 				<div class="comments">
-					<p>List of comments from users.</p>
-					<div class="commentslist"></div>
+				
+				<div class="commentsleft disagree">
+				<h3>Disagree</h3>
+				<div class="dislikecommentslist commentslist"></div>
 				</div>
+				
+				<div class="commentsright confused">
+				<h3>Don't Understand</h3>
+				<div class="confusedcommentslist commentslist"></div>
+				</div>
+				
+				<div class="clear"></div>
+				
+				</div> <!-- comments -->
+				
+				
+				
 				<div class="clear"></div><br/>
 				<div class="commentform">
-					<span class="intro"><p>Please tell us why you don't understand this proposal.</p></span>
+					<span class="intro"><p>Please tell us why you don't understand this proposal.</p> <p>Select a comment you agree with (if there are any) or write your own below.</p></p></span>
 					<textarea class="comment" rows="20" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
 				</div>
 	
@@ -1765,6 +1953,10 @@ if ($userid) {
 				value="<?=($userendorsedata[$current_prop]) ? $userendorsedata[$current_prop] : 1?>">
 				<input type="hidden" class="prev_voting_choice_val" name="prev_proposal[<?=$current_prop?>]" 
 				value="<?=$userendorsedata[$current_prop]?>">
+				
+				<input type="hidden" name="prev_commentid[<?=$current_prop?>]" 
+				value="<?= isset($user_commentid[$current_prop]) ? $user_commentid[$current_prop] : 0  ?>">
+				
 				</div>
 				</td></tr>
 				

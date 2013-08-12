@@ -3272,8 +3272,10 @@ function CountAuthorsOfNewProposals($question,$generation)
 	return $row['authors'];
 }
 
-function hasUserVoted_1($user, $question, $generation)
+function hasUserVoted($user, $question, $generation)
 {
+	set_log(__FUNCTION__." called...");
+	
 	$sql = "SELECT DISTINCT endorse.proposalid 
 		FROM proposals, endorse 
 		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
@@ -3284,7 +3286,7 @@ function hasUserVoted_1($user, $question, $generation)
 		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
 		and proposals.id = comments.proposalid and comments.userid = $user";
 		
-	set_log($sql);
+	//set_log($sql);
 	
 	if ($result = mysql_query($sql))
 	{
@@ -5137,7 +5139,7 @@ function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7
 	{
 		return "like";
 	}
-	elseif($opposed_type = hasUserCommentedThis($user, $proposal))
+	elseif($opposed_type = hasUserOpposedThis($user, $proposal))
 	{
 		return $opposed_type;
 	}
@@ -5146,6 +5148,32 @@ function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7
 		// There was a DB error somewhere - see error log
 		return false;
 	}	
+}
+
+function hasUserOpposedThis($user, $proposal)
+{
+	$sql = "SELECT `type` FROM `oppose`
+		    WHERE `userid` = $user AND `proposalid` = $proposal";
+	
+	//set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_num_rows($result) > 0)
+		{
+			$row = mysql_fetch_assoc($result);
+			return $row['type'];
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
 }
 
 function hasUserCommentedThis($user, $proposal)
@@ -5257,7 +5285,7 @@ function hasuserendorsedorcommented($user, $question, $generation)
 		return false;
 	}
 }
-function hasuservoted($user, $question, $generation)
+function hasuservoted_old($user, $question, $generation)
 {
 	set_log(__FUNCTION__." called...");
 	
@@ -5306,13 +5334,77 @@ function setuservoted($user, $question, $generation)
 // Comments
 //*****************************************
 //*****************************************
-function copyProposalCommentsToNextGeneration($pid, $new_pid)
+
+function setUserOppose_old($userid, $proposalid, $type, $generation, $commentid=0)
 {
-	$sql = "INSERT INTO `comments` (`userid`, `proposalid`, `created`, `comment`, `type`) 
-	(
-		SELECT `userid`, $new_pid, `created`, `comment`, `type` FROM `comments` WHERE `proposalid` = $pid
-	)";
+	return addUserOppose($userid, $proposalid, $type, $generation, $commentid);
+}
+
+function getCommentUserCount($commentid)
+{
+	$sql = "SELECT COUNT(*) as `users` FROM `oppose` WHERE `commentid` = $commentid";
 	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_associative();
+		return $row['users'];
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function getUserOpposed($userid, $proposalid, $generation)
+{
+	$sql = "SELECT * FROM `oppose` WHERE `userid` = $userid 
+			AND `proposalid` = $proposalid and `roundid` = $generation";
+
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return mysql_fetch_associative();
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function setUserOppose($userid, $proposalid, $type, $generation, $commentid=0)
+{							
+	$sql = "INSERT INTO `oppose` (`userid`, `proposalid`, `type`, `roundid`, `commentid`)
+		VALUES ($userid, $proposalid, '$type', $generation, $commentid)
+		ON DUPLICATE KEY UPDATE `commentid` = $commentid, `type` = '$type'";
+		
+	set_log(__FUNCTION__." :: SQL = $sql");
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function addUserOppose($userid, $proposalid, $type, $generation, $commentid=0)
+{							
+		
+	$sql = "INSERT INTO `oppose` (`userid`, `proposalid`, `type`, `roundid`, `commentid`) 
+			VALUES ($userid, $proposalid, '$type', $generation, $commentid)";
+		
 	set_log(__FUNCTION__." :: SQL = $sql");
 	set_log("Copying commnets from proposal $pid to proposal $new_pid");
 		
@@ -5326,10 +5418,29 @@ function copyProposalCommentsToNextGeneration($pid, $new_pid)
 		return true;
 	}
 }
-function addComment($userid, $proposalid, $comment, $type)
-{	
-	//deleteEndorsement($userid, $proposalid);
-	
+
+function deleteUserOppose($userid, $proposalid, $generation)
+{							
+	$sql = "DELETE FROM `oppose`
+		WHERE `userid` = $userid
+		AND `proposalid` = $proposalid
+		AND `roundid` = $generation";
+		
+	set_log(__FUNCTION__." :: SQL = $sql");
+		
+	if (!mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function addComment_old($userid, $proposalid, $comment, $type, $generation)
+{		
 	$sql = sprintf("INSERT INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
 		VALUES ($userid, $proposalid, '%s', '$type')
 		ON DUPLICATE KEY UPDATE `comment` = '%s', `type` = '$type'",
@@ -5339,7 +5450,7 @@ function addComment($userid, $proposalid, $comment, $type)
 		VALUES ($userid, $proposalid, '$comment', '$type')
 		ON DUPLICATE KEY UPDATE `comment` = '$comment', `type` = '$type'";
 		
-	$sql_off = "INSERT IGNORE INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
+	$sql1 = "INSERT IGNORE INTO `comments` (`userid`, `proposalid`, `comment`, `type`)
 			VALUES ($userid, $proposalid, '$comment', '$type')";
 		
 	//set_log(__FUNCTION__." :: SQL = $sql");
@@ -5354,25 +5465,35 @@ function addComment($userid, $proposalid, $comment, $type)
 		return true;
 	}
 }
-function countComments($proposalid)
-{	
-	$sql = "SELECT COUNT(*) as comments FROM `comments` WHERE `proposalid` = $proposalid";
-	$result = mysql_query($sql);
-	if (!$result)
+
+function addComment($userid, $proposalid, $type, $generation, $comment)
+{		
+	$sql = sprintf("INSERT INTO `comments` (`userid`, `proposalid`, `type`, `roundid`, `comment`)
+		VALUES ($userid, $proposalid, '$type', $generation, '%s')",
+		mysql_real_escape_string($comment));
+		
+	set_log(__FUNCTION__." :: SQL = $sql");
+		
+	if (!mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: " . $sql);
 		return false;
 	}
 	else
 	{
-		$row = mysql_fetch_assoc($result);
-		return $row['comments'];
+		return mysql_insert_id();
 	}
 }
-function deleteComment($userid, $proposalid)
-{	
-	$sql = "DELETE FROM `comments` WHERE `userid` = $userid AND `proposalid` = $proposalid";
+
+function deleteComment($commentid)
+{		
+	$sql = "DELETE
+			FROM `comments` WHERE 
+			`id` = $commentid 
+			AND `id` NOT IN (SELECT `commentid` FROM `oppose`) ";
 		
+	set_log(__FUNCTION__.' - '.$sql);
+	
 	if (!mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: " . $sql);
@@ -5384,12 +5505,180 @@ function deleteComment($userid, $proposalid)
 	}
 }
 
-function getUserComment($userid, $pid)
+
+function commentTextExists($pid, $generation, $type, $comment)
+{
+	set_log(__FUNCTION__." called...");
+	
+	$sql = "SELECT `id` FROM `comments`
+	WHERE `proposalid` = $pid 
+	AND `type` = $type
+	AND `roundid` = $generation
+	AND `comment` = '$comment'";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		return (int)$row['id'];
+	}
+	return false;
+}
+
+function commentExists($pid, $generation, $type, $comment)
+{
+	set_log(__FUNCTION__." called...");
+	
+	if ($comment == '')
+	{
+		return false;
+	}
+	
+	$sql = "SELECT `id` FROM `comments`
+	WHERE `proposalid` = $pid 
+	AND `type` = '$type'
+	AND `roundid` = $generation
+	AND `comment` = '$comment'";
+	
+	set_log(__FUNCTION__." - ".$sql);
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		return (int)$row['id'];
+	}
+	return false;
+}
+
+function getVotingComment($commentid)
+{
+	$sql = "SELECT `comment` FROM `comments`
+	WHERE `id` = $commentid";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['comment'];
+	}
+	else
+	{
+		return false;
+	}
+}
+
+function getVotingCommentDetailsForText($text) // haha
+{
+	$sql = "SELECT `com`.*, `user_count`.`usercount`
+	FROM `comments` as `com`
+	LEFT JOIN
+	(
+	    SELECT `commentid`, count(*) as `usercount`
+	    FROM `oppose`
+	    GROUP BY `commentid`
+	) as `user_count` ON `com`.`id` = `user_count`.`commentid`
+	WHERE `com`.`comment` = '$text'";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return mysql_fetch_assoc($result);
+	}
+	return false;
+}
+
+function getVotingCommentDetails($commentid) // haha
+{
+	$sql = "SELECT `com`.*, `user_count`.`usercount`
+	FROM `comments` as `com`
+	LEFT JOIN
+	(
+	    SELECT `commentid`, count(*) as `usercount`
+	    FROM `oppose`
+	    GROUP BY `commentid`
+	) as `user_count` ON `com`.`id` = `user_count`.`commentid`
+	WHERE `com`.`id` = $commentid";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return mysql_fetch_assoc($result);
+	}
+	return false;
+}
+function getUserVotingComment($userid, $pid, $generation) // haha
+{
+	$sql = "SELECT `opp`.*, `com`.`comment`, `user_count`.`usercount`
+	FROM `comments` as `com`, `oppose` as `opp`
+	LEFT JOIN
+	(
+	    SELECT `commentid`, count(*) as `usercount`
+	    FROM `oppose`
+	    GROUP BY `commentid`
+	) as `user_count` ON `opp`.`commentid` = `user_count`.`commentid`
+	WHERE `opp`.`proposalid` = $pid 
+	AND `opp`.`userid` = $userid
+	AND `opp`.`roundid` = $generation
+	AND `opp`.`commentid` = `com`.`id`";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		return mysql_fetch_assoc($result);
+	}
+	return false;
+}
+
+function getUserCommentText($commentid)
+{
+	$sql = "SELECT `comment` FROM `comments`
+	WHERE `id` = $commentid";
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['comment'];
+	}
+	return false;
+}
+
+function getUserComment($userid, $pid, $generation)
 {
 	$sql = "SELECT `comment`, `type` FROM `comments`
 	WHERE `proposalid` = $pid 
-	AND `userid` = $userid";
-	
+	AND `userid` = $userid
+	AND `roundid` = $generation";
+		
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: $sql");
@@ -5411,7 +5700,7 @@ function getCommentsList($proposalids)
 	AND `u`.`id` = `c`.`userid`
 	ORDER BY `created` DESC";
 	
-	//set_log($sql);
+	set_log(__FUNCTION__." - ".$sql);
 	
 	if(!$result = mysql_query($sql))
 	{
@@ -5422,8 +5711,8 @@ function getCommentsList($proposalids)
 	{
 		while ($row = mysql_fetch_assoc($result))
 		{
-			$comments[$row['proposalid']][$row['userid']] = 
-			array('comment' => $row['comment'], 'authorid' => $row['userid'], 'authorname' => $row['username'], 'created' => $row['created'], 'type' => $row['type']);
+			$comments[$row['proposalid']][] = 
+			array('comment' => $row['comment'], 'authorid' => $row['userid'], 'authorname' => $row['username'], 'created' => $row['created'], 'type' => $row['type'], 'id' => $row['id']);
 		}
 	}
 	return $comments;
@@ -5639,7 +5928,7 @@ function getUserEndorsedFromList($userid, $proposalids)
 	$endorsements = array();
 	$pids = implode(',', $proposalids);
 	$sql = "SELECT `proposalid` FROM `endorse` WHERE `userid` = $userid AND `proposalid` IN ($pids)";
-	//printbr($sql);
+
 	if(!$result = mysql_query($sql))
 	{
 		db_error(__FUNCTION__ . " SQL: $sql");
@@ -5653,6 +5942,34 @@ function getUserEndorsedFromList($userid, $proposalids)
 		}
 	}
 	return $endorsements;
+}
+function getUserOpposedFromList($userid, $proposalids)
+{
+	$opposed = array();
+	$opposed_type = array();
+	$opposed_commentid = array();
+	
+	$pids = implode(',', $proposalids);
+	$sql = "SELECT `proposalid`, `type`, `commentid` FROM `oppose` WHERE `userid` = $userid AND `proposalid` IN ($pids)";
+
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			//$opposed[$row['proposalid']] = $row['type'];
+			$opposed_type[$row['proposalid']] = $row['type'];
+			$opposed_commentid[$row['proposalid']] = $row['commentid'];
+		}
+	}
+	$opposed['type'] = $opposed_type;
+	$opposed['commentid'] = $opposed_commentid;
+	
+	return $opposed;
 }
 
 function getCurrentProposals($question, $generation)
