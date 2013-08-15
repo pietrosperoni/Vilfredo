@@ -59,6 +59,11 @@ function closeCommentsList(comments)
 		return;
 	}
 	
+	if (comments.siblings('.commentform').is(':visible'))
+	{
+		return;
+	}
+	
 	var dislikecommentslist = comments.find('.dislikecommentslist');
 	var confusedcommentslist = comments.find('.confusedcommentslist');
 	
