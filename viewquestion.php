@@ -377,7 +377,40 @@ $(function() {
 		
 		if (require_voting_comments)
 		{
-			$('.commentform textarea').each(function(){
+			$('tr.user_vote').each(function(){
+				//var pid = parseInt($(this).attr('id').replace(/[^0-9]/g, ''));
+							
+				var vote = parseInt($(this).find('.voting_choice_val').val())
+				var prev_vote = parseInt($(this).find('.prev_voting_choice_val').val())
+				
+				if (vote == prev_vote)
+				{
+					return true;
+				}
+				
+				//var prev_commentid = parseInt($(this).find('td[name^=prev_commentid]').val())
+
+				var selected_comments = $(this).find('input[name^=select_comment]:checked').length; // 0 or 1
+				var comment_box = $(this).find('.commentform textarea');
+				var new_comment = '';
+				if (comment_box)
+				{
+					new_comment = comment_box.val();
+				}
+				
+				if (vote != prev_vote && selected_comments == 0 && new_comment == '')
+				{
+					comment_box.css('border', '5px solid red');
+					comments_done = false;
+				}
+				else
+				{
+					comment_box.css('border', 'none');
+				}
+			});
+
+			/*
+			$('.commentform textarea').each(function(){ // FIXME
 				if ($(this).is(":visible") && $(this).val() == '')
 				{
 					$(this).css('border', '5px solid red');
@@ -388,6 +421,7 @@ $(function() {
 					$(this).css('border', 'none');
 				}
 			});
+			*/
 		}
 		
 		if (!comments_done)
@@ -1802,7 +1836,7 @@ if ($userid) {
 			<th class="endorse_cell">&nbsp;</td>
 			</tr>
 
-			<?php // DONOW
+			<?php
 
 			while ($row = mysql_fetch_array($response))
 			{
@@ -1876,69 +1910,26 @@ if ($userid) {
 				
 				<div class="comments">
 				
-				<div class="commentsleft disagree">
-				<h3>Disagree</h3>
-				<div class="dislikecommentslist commentslist"></div>
-				</div>
+					<div class="commentsleft disagree">
+					<h3>Disagree</h3>
+					<div class="dislikecommentslist commentslist"></div>
+					</div>
 				
-				<div class="commentsright confused">
-				<h3>Don't Understand</h3>
-				<div class="confusedcommentslist commentslist"></div>
-				</div>
+					<div class="commentsright confused">
+					<h3>Don't Understand</h3>
+					<div class="confusedcommentslist commentslist"></div>
+					</div>
 				
-				<div class="clear"></div>
+					<div class="clear"></div>
 				
 				</div> <!-- comments -->
-				
-				
 				
 				<div class="clear"></div><br/>
 				<div class="commentform">
 					<span class="intro"><p>Please tell us why you don't understand this proposal.</p> <p>Select a comment you agree with (if there are any) or write your own below.</p></p></span>
 					<textarea class="comment" rows="20" cols="100" name="user_comment[<?=$current_prop?>]"></textarea>
 				</div>
-	
 				</td>
-				<?php
-				/*
-				echo '<td>';	
-				echo '<Input type = "Checkbox" Name ="proposal[]" title="' . $VGA_CONTENT['check_to_endorse_title'] . '" value="'.$row['id'].'"';
-			
-				if ($userid) 
-				{
-					if($userhasvoted === false) 
-					{
-						echo ' checked="checked" ';#default answer for people who have not voted
-					}
-					elseif (isset($proposalsEndorsers) && in_array($userid, $proposalsEndorsers[$row['id']]))
-					{
-						echo ' checked="checked" ';
-					}
-				}
-				echo ' </td></tr>';
-				*/	
-				
-				//$current_prop = $row['id'];
-				/*
-				set_log('$userid');
-				set_log($userid);
-				set_log('$current_prop:');
-				set_log($current_prop);
-				set_log('$userendorsedata:');
-				set_log($userendorsedata);
-				//set_log('$commentsbyusers');
-				// set_log($commentsbyusers);
-				
-				set_log('========================================');
-				set_log('');set_log('');
-				set_log('$userendorsedata[$current_prop]');
-				set_log($userendorsedata[$current_prop]);
-				set_log('');set_log('');
-				set_log('========================================');
-				//exit;
-				*/
-				?>	
-				
 				<td class="votes">
 				<div class="user_vote">
 				<div class="voting_choices">
@@ -1953,7 +1944,6 @@ if ($userid) {
 				value="<?=($userendorsedata[$current_prop]) ? $userendorsedata[$current_prop] : 1?>">
 				<input type="hidden" class="prev_voting_choice_val" name="prev_proposal[<?=$current_prop?>]" 
 				value="<?=$userendorsedata[$current_prop]?>">
-				
 				<input type="hidden" name="prev_commentid[<?=$current_prop?>]" 
 				value="<?= isset($user_commentid[$current_prop]) ? $user_commentid[$current_prop] : 0  ?>">
 				

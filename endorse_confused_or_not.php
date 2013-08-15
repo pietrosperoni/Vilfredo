@@ -5,7 +5,7 @@ set_log(__FILE__." called....");
 
 set_log($_POST);
 
-print_array($_POST);
+//print_array($_POST);
 
 $question = fetchValidIntValFromPostWithKey('question');
 if ($question === false)
