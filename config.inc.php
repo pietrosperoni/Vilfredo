@@ -95,7 +95,9 @@ $default_voting_options = array (
 	'display_key_players' => 1,
 	'display_confused_voting_option' => 1,
 	'require_voting_comments' => 1,
-	'anonymize_graph' => 1,	
+	'anonymize_graph' => 1,
+	'proposal_node_layout' => 'Layers',
+	'user_node_layout' => 'Layers'
 );
 
 $voting_settings = array_merge($default_voting_options, fetch_voting_settings());

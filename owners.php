@@ -33,6 +33,10 @@ if (isAdmin($userid))
 				($_POST['require_voting_comments']) ? 1 : 0;
 			$voting_settings['anonymize_graph'] =
 				($_POST['anonymize_graph']) ? 1 : 0;
+			$voting_settings['proposal_node_layout'] =
+				($_POST['proposal_node_layout']) ? $_POST['proposal_node_layout'] : 'Layers';
+			$voting_settings['user_node_layout'] =
+				($_POST['user_node_layout']) ? $_POST['user_node_layout'] : 'Layers';
 				
 							
 			foreach ($voting_settings as $setting)
@@ -110,6 +114,22 @@ input[type='submit']#settings {
 	<li> Display Confused Voting Option <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </li>
 	<li> Require Voting Comments <input type="checkbox" name="require_voting_comments" value="1" <?php if ($voting_settings['require_voting_comments']) echo "checked"; ?> /> </li>
 	<li> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </li>
+	
+	<li>Proposal Node Layout on Graph
+	<select name="proposal_node_layout">
+	<option value="Layers">Layers</option>
+	<option value="NVotes">Num Votes</option>
+	<option value="Flat">Flat</option>
+	</select>
+	</li>
+	<li>User Node Layout on Graph
+	<select name="user_node_layout">
+	<option value="Layers">Layers</option>
+	<option value="NVotes">Num Votes</option>
+	<option value="Flat">Flat</option>
+	</select>
+	</li>
+	
 	</ul>
 	
 	<input type="submit" name="submit" id="settings" value="Save Settings">

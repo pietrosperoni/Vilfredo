@@ -1557,8 +1557,36 @@ if ($userid) {
 				//elseif ($display_interactive_graphs && USE_GRAPHVIZ_MAPS)
 				elseif ($voting_settings['display_interactive_graphs'] && USE_GRAPHVIZ_MAPS)
 				{
-					$votesgraph = GenerateMapFromArray($question,$generation,$proposalsEndorsers,$ParetoFront,$room,$userid,"M",0,$question_url,"Layers","Layers", $AnonymizeGraph);									
-					$pfvotesgraph =  GenerateMapFromArray($question, $generation, $ParetoFrontEndorsers, $ParetoFront, $room, $userid, "S", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
+					//set_log("Prop node layering option = " . $voting_settings['proposal_node_layout']);
+					//set_log("User node layering option = " . $voting_settings['user_node_layout']);
+					
+					$votesgraph = GenerateMapFromArray(
+						$question,
+						$generation,
+						$proposalsEndorsers,
+						$ParetoFront,
+						$room,
+						$userid,
+						"M",
+						0,
+						$question_url, 
+						$voting_settings['proposal_node_layout'],
+						$voting_settings['user_node_layout'], 
+						$AnonymizeGraph);									
+					
+					$pfvotesgraph =  GenerateMapFromArray(
+						$question,
+						$generation,
+						$ParetoFrontEndorsers,
+						$ParetoFront,
+						$room,
+						$userid,
+						"S",
+						0,
+						$question_url,
+						$voting_settings['proposal_node_layout'],
+						$voting_settings['user_node_layout'],
+						$AnonymizeGraph);
 					?>
 					
 					<br /><br />
