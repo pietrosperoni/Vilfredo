@@ -1604,7 +1604,7 @@ if ($userid) {
 					
 					function loadGraph(svgfile, svgfile2)
 					{
-						console.log(loadGraph+" called. Loading "+svgfile);
+						console.log("loadGraph called: Loading ", svgfile, " and ", svgfile2);
 						$('#votesgraph').svg({loadURL: svgfile, onLoad: initGraph});
 						$('#pfgraph').svg({loadURL: svgfile2, onLoad: initGraph});
 					}
