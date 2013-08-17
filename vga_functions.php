@@ -5600,14 +5600,6 @@ function getVotingCommentDetailsForText($text) // haha
 	return false;
 }
 
-/*
-
-id	origid
-10	10
-15	10
-20	10
-
-*/
 function getVotingCommentDetailsForProposalAllGen($originalid) // NEW
 {
 	$sql = "SELECT `com`.*, `user_count`.`usercount`
