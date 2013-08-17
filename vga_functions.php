@@ -5128,7 +5128,7 @@ function questionUnsubscribe($user, $question)
 	}
 }
 
-//  ******************************************/ FIXME
+//  ******************************************/ 
 function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7-2013
 {		
 	if(hasUserEndorsedThis($user, $proposal) === $proposal)
@@ -5600,7 +5600,61 @@ function getVotingCommentDetailsForText($text) // haha
 	return false;
 }
 
-function getVotingCommentDetails($commentid) // haha
+/*
+
+id	origid
+10	10
+15	10
+20	10
+
+*/
+function getVotingCommentDetailsForProposalAllGen($originalid) // NEW
+{
+	$sql = "SELECT `com`.*, `user_count`.`usercount`
+	FROM `comments` as `com`
+	LEFT JOIN
+	(
+	    SELECT `commentid`, count(*) as `usercount`
+	    FROM `oppose`
+	    GROUP BY `commentid`
+	) as `user_count` ON `com`.`id` = `user_count`.`commentid`
+	WHERE `com`.`proposalid` IN
+	(
+		SELECT `id` FROM `proposals` WHERE
+		`originalid` = $originalid
+	)
+	ORDER BY `com`.`roundid` DESC, `user_count`.`usercount` ASC";
+	
+	$comments = array();
+	//$comments['dislike'] = array();
+	//$comments['confused'] = array();
+		
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$comments[] = $row;
+			/*
+			if ($row['type'] == 'dislike')
+			{
+				$comments['dislike'][] = $row; 
+			}
+			elseif ($row['type'] == 'confused')
+			{
+				$comments['confused'][] = $row;
+			}
+			*/
+		}
+		return $comments;
+	}
+	return false;
+}
+function getVotingCommentDetails($commentid) // NEW
 {
 	$sql = "SELECT `com`.*, `user_count`.`usercount`
 	FROM `comments` as `com`
@@ -5623,7 +5677,7 @@ function getVotingCommentDetails($commentid) // haha
 	}
 	return false;
 }
-function getUserVotingComment($userid, $pid, $generation) // haha
+function getUserVotingComment($userid, $pid, $generation)
 {
 	$sql = "SELECT `opp`.*, `com`.`comment`, `user_count`.`usercount`
 	FROM `comments` as `com`, `oppose` as `opp`
@@ -7410,6 +7464,8 @@ function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretof
 		}
 		else
 		{
+			set_log(__FUNCTION__.": WriteGraphVizMapFromArray returned false....");
+			set_log(__FUNCTION__." svgfile = $svgfile");
 			return false;
 		}	
 }
@@ -7517,6 +7573,8 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 {
 #	echo "<br />highlightproposal1 in WriteGraphVizMap = ".$highlightproposal1."<br />";
 	
+	// call(["/usr/local/bin/dot", "-Tsvg", filepath + ".dot", "-o" + filepath + ".svg"])
+	
 	$filename=MapName($question,$generation,$highlightuser1,$size,$highlightproposal1,$InternalLinks);
 	if($size=="L")     { $sz="11,5.5";	}
 	elseif($size=="M") { $sz= "8,4";	}
@@ -7587,9 +7645,15 @@ function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorse
 
 function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
+	set_log(__FUNCTION__." called...");
 	
 	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
+	
+	set_log(__FUNCTION__." generated name = $name");
+	
 	$filename="map/".$name;
+	
+	set_log(__FUNCTION__." filename (path) = $filename");
 	
 	##if($size=="L")     { $sz="11,5.5";	}
 	#if($size=="L")     { $sz="11,8";	}
@@ -7600,28 +7664,68 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	#elseif($size=="XS"){ $sz= "4,2";    }
 	$sz="11,8";
 	
-#	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
+	if (file_exists ( $filename.".svg"))
+	{
+		set_log(1);
+		set_log(__FUNCTION__.": SVG map exists - returning filename.");
+		return $filename.".svg"; 
+	}
 #	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
 #	{
 #		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
 #		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 #	}
-	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg",$Anonymize);
+	
+	$MapFile = fopen($filename.".dot", "w+b");
+	
+	if ($MapFile === false)
+	{
+		set_log(2);
+		set_log(__FUNCTION__.": Error opening map file! Check write permissions.");
+		return false;
+	}
+	
+	$buf = MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg",$Anonymize);
 	
 	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
 	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
 	
+	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $filename.dot -o$filename.svg";
+	set_log(__FUNCTION__.": DOT STRING = $dot_string");
 	
 	if ($MapFile) 
 	{
 		fputs($MapFile,$buf);
 		fclose($MapFile);
-		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+		//system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
+		$call_dot = system($dot_string);
+		
+		if ($call_dot === false)
+		{
+			set_log(__FUNCTION__.": DOT Error creating svg file.");
+			return false;
+		}
+		else
+		{
+			set_log(__FUNCTION__.": DOT output: $call_dot");
+		}
+		
+		if (file_exists($filename.".svg"))
+		{
+			set_log(__FUNCTION__.": SVG file created. Returning filename.");
+			return $filename.".svg";
+		}
+		else
+		{
+			set_log(__FUNCTION__.": Error creating svg file, please check write permissions.");
+			return false;
+		}
 	}
-	else { echo "<br /><b>Error creating map file, please check write permissions.</b><br />";}	
-	return;
+	else 
+	{ 
+		set_log(__FUNCTION__.": Error creating map file, please check write permissions.");
+		return false;
+	}	
 }
 
 

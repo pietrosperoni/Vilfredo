@@ -26,6 +26,7 @@ include('header.php');
 <script type="text/javascript">
 //Assumes id is passed in the URL
 var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
+var all_comments = [];
 </script>
 <?php
 
@@ -64,7 +65,7 @@ else
 {
 	
 	$sql = "SELECT proposals.blurb, proposals.experimentid, proposals.abstract, 
-	questions.permit_anon_proposals
+	questions.permit_anon_proposals, proposals.originalid
 	FROM proposals, questions 
 	WHERE proposals.id = $proposal
 	AND proposals.experimentid = questions.id";
@@ -79,11 +80,74 @@ else
 		$abstract = $row['abstract'];
 		$permit_anon_proposals = $row['permit_anon_proposals'];
 		
-		$subscribed=IsSubscribed($question,$userid);
+		$subscribed = IsSubscribed($question, $userid);
 		
+		$all_comments = getVotingCommentDetailsForProposalAllGen($row['originalid']);
+		set_log('$all_comments');
+		set_log($all_comments);
+		$has_comments = $all_comments !== false && count($all_comments);
 		
 		?>
+		<script>
+		all_comments = <?=json_encode($all_comments)?>;
+		</script>
+		<?php
+		
+		// NEW
+		?>
 		<div id="actionbox">
+			
+			<?php if ($has_comments) {?>
+			<script>
+				$(function() {
+					$( "#commenttabs" ).tabs();
+				
+					if (all_comments.length)
+					{
+						var commentsheading = '<div class="votercommentheadings"><div class="genheading">Generation</div><div class="txtheading">Comment</div><div class="usersheading">Users</div></div>';
+						var disagreecomments = $('#disagree-tabs');
+						disagreecomments.append(commentsheading);
+						var confusedcomments = $('#confused-tabs');
+						confusedcomments.append(commentsheading);
+					
+						var createCommentLists = $.each(all_comments, function(i, usercomment) 
+						{						
+							var commentstring = '<div class="votercomment">';
+							commentstring += '<div class="commentgen">' + usercomment['roundid'] + '</div>';
+							commentstring += '<div class="usercount">' + usercomment['usercount'] + '</div>';
+							commentstring += usercomment['comment'];
+							commentstring += '</div>';
+							
+							if (usercomment['type'] == 'dislike')
+							{
+								disagreecomments.append(commentstring);
+							}
+							else if (usercomment['type'] == 'confused')
+							{
+								confusedcomments.append(commentstring);
+							}
+						});
+					}
+				});
+			</script>
+			
+			<div id="commentsbox">
+				<h3>Voter Comments</h3>
+				<div id="commenttabs">
+				<ul>
+				<li><a href="#disagree-tabs">Disagree</a></li>
+				<li><a href="#confused-tabs">Don't Understand</a></li>
+				</ul>
+				<div id="disagree-tabs">
+				</div>
+				<div id="confused-tabs">				
+				</div>
+				</div>
+				
+				<div class="clear"></div>
+			</div>
+			<?php } // has_comments ?>
+			
 			<h2><?=$VGA_CONTENT['prop_ans_txt']?></h2>
 			<?php 
 			echo '<p>';
