@@ -95,16 +95,21 @@ function openCommentsList(comments)
 	}
 	else
 	{
-		var el_with_id = comments.parents('tr.user_vote');
+		var pid;
+		var el_with_id = comments.parents('tr.user_vote'); // FIXME
 		if (el_with_id.length == 0)
 		{
-			el_with_id = comments.parents('.pfbox');
+			el_with_id = comments.parents('.paretoproposal'); 
+			if (el_with_id.length == 0)
+			{
+				return;
+			}
+			pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
 		}
-		if (el_with_id.length == 0)
+		else
 		{
-			return;
+			pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
 		}
-		var pid = parseInt(el_with_id.attr('id').replace(/[^0-9]/g, ''));
 		
 		//alert(pid);
 		
@@ -974,9 +979,7 @@ function ajax_error(jqxhr, status, error)
 			
 			?>
 			<script>
-			//commentslist = <?=json_encode($commentslist)?>;
 			votingcommentslist = <?=json_encode($commentslist)?>;
-			//allconfusedcomments = <?=json_encode($allconfusedcomments)?>;
 			</script>
 			<?php
 
@@ -984,9 +987,9 @@ function ajax_error(jqxhr, status, error)
 			{
 				set_log("Processing prop $p");
 				$originalname=GetOriginalProposal($p);
-				echo '<div class="pfbox" id="proposal'.$originalname['proposalid'].'">';
+				echo '<div class="pfbox" id="proposal'.$originalname['proposalid'].'">'; // FIX
 				
-				echo '<div class="paretoproposal">';
+				echo '<div class="paretoproposal" id="real_proposal'.$p.'">';
 
 				if (isset($commentslist[$p]))
 				{
