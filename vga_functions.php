@@ -5128,14 +5128,10 @@ function questionUnsubscribe($user, $question)
 	}
 }
 
-//  ******************************************/
+//  ******************************************/ FIXME
 function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7-2013
 {		
-	if (hasUserVoted($user, $question, $generation) === false)
-	{
-		return "not_voted";
-	}
-	elseif(hasUserEndorsedThis($user, $proposal) === $proposal)
+	if(hasUserEndorsedThis($user, $proposal) === $proposal)
 	{
 		return "like";
 	}
@@ -5145,8 +5141,8 @@ function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7
 	}
 	else
 	{
-		// There was a DB error somewhere - see error log
-		return false;
+		// User not voted
+		return "not_voted";
 	}	
 }
 
