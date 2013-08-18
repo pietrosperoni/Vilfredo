@@ -162,12 +162,12 @@ $(function() {
 		if (kpcomment.is(":visible"))
 		{
 			kpcomment.slideUp(1000);
-			$(this).html("Show Comment");
+			$(this).html("(Show Comment)");
 		}
 		else
 		{
 			kpcomment.slideDown(1000);
-			$(this).html("Hide Comment");
+			$(this).html("(Hide Comment)");
 		}
 	});
 	
@@ -1842,19 +1842,21 @@ if ($userid) {
 							$uString=WriteUserVsReader($u,$userid);
 							foreach ($disiked as $dsl)
 							{				
+								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
+								
 								$proposalNumber = WriteProposalNumberInternalLink($dsl, $room);
 								echo "$uString voted against proposal $proposalNumber. ";
 								
 								// Display users comment DONOW
-								if (isset($ucomments[$dsl]))
+								if (isset($ucomments[$dsl]) && $vote=="like")
 								{
-									echo " <span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";
-									echo "<div class=\"kpcomment dislike\">{$ucomments[$dsl]['comment']}</div>";
+									echo " <span><span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";
+									echo "<div class=\"kpcomment dislike\">{$ucomments[$dsl]['comment']}</div></span>";
 								}
 								
 								echo "</br>The result would be simpler if they were to vote for it. ";
 								
-								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);								
+																
 								if ($vote=="like")
 								{
 									echo "</br><b>Can you try to convince him?</b>";
@@ -1868,7 +1870,7 @@ if ($userid) {
 								echo "$uString did not understand $proposalNumber. ";
 								
 								// Display users comment
-								if (isset($ucomments[$dsl]))
+								if (isset($ucomments[$dsl]) && $vote=="like")
 								{
 									echo " <span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";
 									echo "<div class=\"kpcomment confused\">{$ucomments[$dsl]['comment']}</div>";
