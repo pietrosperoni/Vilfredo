@@ -5576,6 +5576,37 @@ function getVotingComment($commentid)
 	}
 }
 
+function getUserCommentsForProposals($userid, $proposalids)
+{
+	set_log(__FUNCTION__." called with $proposalids...");
+	
+	$comments = array();
+	$pids = implode(',', $proposalids);
+	
+	$sql = "SELECT `comm`.`comment`, `comm`.`proposalid`, `comm`.`type`
+		FROM `comments` as `comm`, `oppose` as `opp`
+		WHERE `opp`.`userid` = $userid
+		AND `opp`.`commentid` = `comm`.`id`
+		AND `comm`.`proposalid` IN ($pids)";
+	
+	set_log($sql);
+	
+	if (!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$comments[$row['proposalid']] = 
+			array('comment' => $row['comment'], 'type' => $row['type']);
+		}
+	}
+	return $comments;
+}
+
 function getVotingCommentDetailsForText($text) // haha
 {
 	$sql = "SELECT `com`.*, `user_count`.`usercount`
@@ -5631,16 +5662,6 @@ function getVotingCommentDetailsForProposalAllGen($originalid) // NEW
 		while ($row = mysql_fetch_assoc($result))
 		{
 			$comments[] = $row;
-			/*
-			if ($row['type'] == 'dislike')
-			{
-				$comments['dislike'][] = $row; 
-			}
-			elseif ($row['type'] == 'confused')
-			{
-				$comments['confused'][] = $row;
-			}
-			*/
 		}
 		return $comments;
 	}
@@ -5965,6 +5986,7 @@ function deleteEndorsement($userid, $proposalid)
 		return true;
 	}
 }
+
 function getUserEndorsedFromList($userid, $proposalids)
 {
 	$endorsements = array();

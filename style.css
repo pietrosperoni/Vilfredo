@@ -537,6 +537,29 @@ div.invisible {
     /*height: 100%;*/
 }
 
+/* Add key player comments */
+.kpreadcomment {
+    text-decoration: underline;
+    cursor: pointer;
+    color: blue;
+}
+.kpcomment { 
+    width: 400px;
+    height: 100px;
+    background-color: white;
+    padding: 5px;
+	font-size: 1em;
+	text-align: left;
+	margin: 0 auto;
+	display: None;
+}
+.kpcomment.confused {
+    border: solid 1px #0020cc;
+}
+.kpcomment.dislike {
+    border: solid 1px #b20000;
+}
+
 #disagree-tabs, #confused-tabs {
     height: 450px;
     overflow: auto;
@@ -1731,7 +1754,7 @@ div.feedback {
 
 div.feedback div{
 	margin-top: 4px;
-	font-size: .8em;
+	/*font-size: .8em;*/
 }
 
 div.info {
