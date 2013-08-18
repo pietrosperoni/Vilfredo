@@ -423,7 +423,7 @@ $(function() {
 					new_comment = comment_box.val();
 				}
 				
-				if (vote != prev_vote && selected_comments == 0 && new_comment == '')
+				if (vote != prev_vote && vote != 1 && selected_comments == 0 && new_comment == '')
 				{
 					comment_box.css('border', '5px solid red');
 					comments_done = false;
