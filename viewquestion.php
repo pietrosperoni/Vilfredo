@@ -1785,7 +1785,7 @@ if ($userid) {
 				if ($voting_settings['display_key_players'])
 				{
 					// Display Key Players -- Begin
-					echo "<div class=\"feedback\">KEY PLAYERS: </br></br>";
+					echo "<div class=\"feedback\">KEY PLAYERS:";
 					
 					foreach ($users as $u)
 					{
@@ -1813,14 +1813,15 @@ if ($userid) {
 							
 							$uString=WriteUserVsReader($u,$userid);							
 							foreach ($disiked as $dsl)
-							{
-								echo "The result would be simpler if ".$uString." were to vote for ";					
+							{				
 								$proposalNumber = WriteProposalNumberInternalLink($dsl,$room);
-								echo " ".$proposalNumber;
+								echo "$uString voted against proposal $proposalNumber. ";
+								echo "The result would be simpler if they were to vote for it. ";	
+								
 								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
 								if ($vote=="like")
 								{
-									echo "<b>Can you try to convince him?</b><br/>";
+									echo "<b>Can you try to convince him?</b>";
 								}
 								echo "</br>";
 							}
@@ -1828,12 +1829,12 @@ if ($userid) {
 							foreach ($confusing as $dsl)
 							{
 								$proposalNumber = WriteProposalNumberInternalLink($dsl,$room);
-								echo "$uString could not understand $proposalNumber. ";
-								echo "But the result would be simpler if ".$uString." were to vote for it. ";
+								echo "$uString did not understand $proposalNumber. ";
+								echo "The result would be simpler if they were to vote for it. ";
 								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
 								if ($vote=="like")
 								{
-									echo "<b>Could you explain it?</b><br/>";
+									echo "<b>Could you explain it?</b>";
 								}
 								echo "</br>";
 							}
