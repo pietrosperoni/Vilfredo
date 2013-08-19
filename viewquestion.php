@@ -118,7 +118,7 @@ function openCommentsList(comments)
 			var createLists = $.each(votingcommentslist[pid], function(i, usercomment) 
 			{					
 				var selected = ''
-				if (typeof user_commentid != 'undefined' && 
+				if (user_commentid != null && 
 					typeof user_commentid[pid] != 'undefined' && 
 					user_commentid[pid] == usercomment['id'])
 				{
