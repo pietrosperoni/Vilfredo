@@ -3276,15 +3276,15 @@ function hasUserVoted($user, $question, $generation)
 {
 	set_log(__FUNCTION__." called...");
 	
-	$sql = "SELECT DISTINCT endorse.proposalid 
-		FROM proposals, endorse 
-		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
-		and proposals.id = endorse.proposalid and endorse.userid = $user
+	$sql = "SELECT DISTINCT `endorse`.`proposalid` 
+		FROM `proposals`, `endorse` 
+		WHERE `proposals`.`experimentid` = $question and `proposals`.`roundid` = $generation 
+		and `proposals`.`id` = `endorse`.`proposalid` and `endorse`.`userid` = $user
 		UNION
-		SELECT DISTINCT comments.proposalid 
-		FROM proposals, comments 
-		WHERE proposals.experimentid = $question and proposals.roundid = $generation 
-		and proposals.id = comments.proposalid and comments.userid = $user";
+		SELECT DISTINCT `oppose`.`proposalid` 
+		FROM `proposals`, `oppose` 
+		WHERE `proposals`.`experimentid` = $question and `proposals`.`roundid` = $generation 
+		and `proposals`.`id` = `oppose`.`proposalid` and `oppose`.`userid` = $user";
 		
 	//set_log($sql);
 	
@@ -5138,6 +5138,13 @@ function GetUserVoteForProposal($user, $question, $proposal, $generation) # 29-7
 	elseif($opposed_type = hasUserOpposedThis($user, $proposal))
 	{
 		return $opposed_type;
+	}
+	// In previous DB there are no oppose entries for dislike, 
+	// so return a 'dislike' for this proposal if user has endorsed another proposal
+	// in this generation
+	elseif(hasUserVoted($user, $question, $generation))
+	{
+		return "dislike";
 	}
 	else
 	{
