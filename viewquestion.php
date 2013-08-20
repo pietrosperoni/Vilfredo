@@ -984,7 +984,7 @@ function ajax_error(jqxhr, status, error)
 			echo "<h3>{$VGA_CONTENT['alt_props_txt']}</h3>";
 			echo "<p><i>{$VGA_CONTENT['pareto_txt']}</i></p>";
 
-			set_log("Calling ParetoFront() with $question and $generation minus 1");
+			//set_log("Calling ParetoFront() with $question and $generation minus 1");
 			$ParetoFront=ParetoFront($question,$generation-1);
 			
 			//$allconfusedcomments = getCommentsByProposals($ParetoFront);
@@ -1000,7 +1000,7 @@ function ajax_error(jqxhr, status, error)
 
 			foreach ($ParetoFront as $p)
 			{
-				set_log("Processing prop $p");
+				//set_log("Processing prop $p");
 				$originalname=GetOriginalProposal($p);
 				echo '<div class="pfbox" id="proposal'.$originalname['proposalid'].'">'; // FIX
 				
@@ -1547,6 +1547,9 @@ if ($userid) {
 				
 				
 				$proposalsEndorsers=ReturnProposalsEndorsersArray($question,$generation); 
+				set_log('$proposalsEndorsers');
+				set_log($proposalsEndorsers);
+				
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
@@ -1793,25 +1796,32 @@ if ($userid) {
 				
 								
 				$CouldDominate = CalculateKeyPlayersKnowingPFfromArrayInteractive($proposalsEndorsers,$ParetoFront);
+				set_log('$CouldDominate');
+				set_log($CouldDominate);
 				$users = extractEndorsers($proposalsEndorsers);
+				
+				set_log("Voters");
+				set_log($users);
 				
 				if ($voting_settings['display_key_players']) 
 				{
 					// Display Key Players -- Begin
-					echo "<div class=\"feedback\">KEY PLAYERS:";
+					echo "<div class=\"feedback\">KEY PLAYERS:<br/><br/>";
 					
 					foreach ($users as $u)
 					{
 						if ($u==$userid)	{continue;}
 						
 						$HomeWork = $CouldDominate[$u];
+						//('$HomeWork');
+						//set_log($HomeWork);
 						$ucomments = array();
 						
-						if (count($HomeWork))
+						if (count($HomeWork) > 0)
 						{
 							$ucomments = getUserCommentsForProposals($u, $HomeWork);
-							set_log('$ucomments');
-							set_log($ucomments);
+							//set_log('$ucomments');
+							//set_log($ucomments);
 						}
 						
 						if (count($HomeWork) > 0)
@@ -1819,13 +1829,15 @@ if ($userid) {
 							$disiked=array();
 							$confusing=array();
 							
-							//set_log('$HomeWork');
-							//set_log($HomeWork);
+							//set_log("Processing homework...");
 							
 							foreach ($HomeWork as $PCD)
 							{
 								
 								$vote = GetUserVoteForProposal($u, $question, $PCD, $generation);
+								
+								//set_log('$GetUserVoteForProposal for user $u on propsal $PCD');
+								//set_log($vote);
 								
 								if ($vote=="dislike")
 								{
@@ -1845,13 +1857,18 @@ if ($userid) {
 								$vote=GetUserVoteForProposal($userid, $question, $dsl, $generation);
 								
 								$proposalNumber = WriteProposalNumberInternalLink($dsl, $room);
-								echo "$uString voted against proposal $proposalNumber. ";
+								//set_log($uString);
+								//set_log($uString);
+								
+								echo '<div class="kpinfo">';
+								
+								echo "$uString voted against proposal $proposalNumber ";
 								
 								// Display users comment DONOW
 								if (isset($ucomments[$dsl]) && $vote=="like")
 								{
-									echo " <span><span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";
-									echo "<div class=\"kpcomment dislike\">{$ucomments[$dsl]['comment']}</div></span>";
+									echo " <span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";
+									echo "<div class=\"kpcomment dislike\">{$ucomments[$dsl]['comment']}</div>";
 								}
 								
 								echo "</br>The result would be simpler if they were to vote for it. ";
@@ -1861,13 +1878,16 @@ if ($userid) {
 								{
 									echo "</br><b>Can you try to convince him?</b>";
 								}
-								echo "</br>";
+								echo "</div>";
+								//echo "</br>";
 							}
-							echo "</br>";
+							//echo "</br>";
 							foreach ($confusing as $dsl)
 							{
 								$proposalNumber = WriteProposalNumberInternalLink($dsl,$room);
-								echo "$uString did not understand $proposalNumber. ";
+								
+								echo '<div class="kpinfo">';
+								echo "$uString did not understand proposal $proposalNumber ";
 								
 								// Display users comment
 								if (isset($ucomments[$dsl]) && $vote=="like")
@@ -1881,10 +1901,11 @@ if ($userid) {
 								{
 									echo "</br><b>Could you explain it?</b>";
 								}
-								echo "</br>";
+								echo "</div>";
+								//echo "</br>";
 							}
 				
-							echo "</br>";
+							//echo "</br>";
 						}	
 					}
 					echo "</div>";					

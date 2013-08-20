@@ -537,6 +537,10 @@ div.invisible {
     /*height: 100%;*/
 }
 
+.kpinfo {
+    margin-bottom: 20px;
+}
+
 /* Add key player comments */
 .kpreadcomment {
     text-decoration: underline;
