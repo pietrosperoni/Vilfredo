@@ -29,6 +29,8 @@ if (isAdmin($userid))
 				($_POST['display_key_players']) ? 1 : 0;
 			$voting_settings['display_confused_voting_option'] =
 				($_POST['display_confused_voting_option']) ? 1 : 0;
+			$voting_settings['optional_voting_comments'] =
+				($_POST['optional_voting_comments']) ? 1 : 0;
 			$voting_settings['require_voting_comments'] =
 				($_POST['require_voting_comments']) ? 1 : 0;
 			$voting_settings['anonymize_graph'] =
@@ -36,6 +38,10 @@ if (isAdmin($userid))
 			$voting_settings['proposal_node_layout'] =
 				($_POST['proposal_node_layout']) ? $_POST['proposal_node_layout'] : 'Layers';
 			$voting_settings['user_node_layout'] =
+				($_POST['user_node_layout']) ? $_POST['user_node_layout'] : 'Layers';
+			$voting_settings['pareto_proposal_node_layout'] =
+				($_POST['proposal_node_layout']) ? $_POST['proposal_node_layout'] : 'Layers';
+			$voting_settings['pareto_user_node_layout'] =
 				($_POST['user_node_layout']) ? $_POST['user_node_layout'] : 'Layers';
 				
 							
@@ -112,21 +118,37 @@ input[type='submit']#settings {
 	<li> Display Interactive Graphs <input type="checkbox" name="display_interactive_graphs" value="1" <?php if ($voting_settings['display_interactive_graphs']) echo "checked"; ?> /> </li>
 	<li> Display Key Players <input type="checkbox" name="display_key_players" value="1" <?php if ($voting_settings['display_key_players']) echo "checked"; ?> /> </li>
 	<li> Display Confused Voting Option <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </li>
+	<li> Optional Voting Comments <input type="checkbox" name="optional_voting_comments" value="1" <?php if ($voting_settings['optional_voting_comments']) echo "checked"; ?> /> </li>
 	<li> Require Voting Comments <input type="checkbox" name="require_voting_comments" value="1" <?php if ($voting_settings['require_voting_comments']) echo "checked"; ?> /> </li>
 	<li> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </li>
 	
-	<li>Proposal Node Layout on Graph
+	<li>Proposal Node Layout on <b>All Votes</b> Graph
 	<select name="proposal_node_layout">
 	<option value="Layers" <?php if ($voting_settings['proposal_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
 	<option value="NVotes" <?php if ($voting_settings['proposal_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
 	<option value="Flat" <?php if ($voting_settings['proposal_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
 	</select>
 	</li>
-	<li>User Node Layout on Graph
+	<li>User Node Layout on <b>All Votes</b> Graph
 	<select name="user_node_layout">
 	<option value="Layers" <?php if ($voting_settings['user_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
 	<option value="NVotes" <?php if ($voting_settings['user_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
 	<option value="Flat" <?php if ($voting_settings['user_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
+	</select>
+	</li>
+	
+	<li>Proposal Node Layout on <b>Pareto</b> Graph
+	<select name="proposal_node_layout">
+	<option value="Layers" <?php if ($voting_settings['pareto_proposal_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
+	<option value="NVotes" <?php if ($voting_settings['pareto_proposal_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
+	<option value="Flat" <?php if ($voting_settings['pareto_proposal_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
+	</select>
+	</li>
+	<li>User Node Layout on <b>Pareto</b> Graph
+	<select name="user_node_layout">
+	<option value="Layers" <?php if ($voting_settings['pareto_user_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
+	<option value="NVotes" <?php if ($voting_settings['pareto_user_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
+	<option value="Flat" <?php if ($voting_settings['pareto_user_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
 	</select>
 	</li>
 	

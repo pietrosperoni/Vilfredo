@@ -94,10 +94,13 @@ $default_voting_options = array (
 	'display_interactive_graphs' => 1,
 	'display_key_players' => 1,
 	'display_confused_voting_option' => 1,
+	'optional_voting_comments' => 1,
 	'require_voting_comments' => 1,
 	'anonymize_graph' => 1,
 	'proposal_node_layout' => 'Layers',
-	'user_node_layout' => 'Layers'
+	'user_node_layout' => 'Layers',
+	'pareto_proposal_node_layout' => 'Layers',
+	'pareto_user_node_layout' => 'Layers'
 );
 
 $voting_settings = array_merge($default_voting_options, fetch_voting_settings());

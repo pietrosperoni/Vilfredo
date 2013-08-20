@@ -44,6 +44,7 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 var votingcommentslist;
 var userid = <?=json_encode($userid)?>;
 var require_voting_comments = <?=json_encode($voting_settings['require_voting_comments'])?>;
+var voting_settings = <?=json_encode($voting_settings)?>;
 var user_commentid;
 
 var NOT_VOTED = <?=json_encode(NOT_VOTED)?>;
@@ -267,7 +268,7 @@ $(function() {
 		});
 	});
 	
-	$('.voting_choices img').live('click', function(event){
+	$('.voting_choices img').live('click', function(event){ // FIXME
 		var img = $(this).prop('src');
 		var choice = $(this).parents('.voting_choices').siblings('.voting_choice');
 		choice.css('background-image', 'url('+img+')');
@@ -305,6 +306,11 @@ $(function() {
 			else
 			{
 				setval.val(3);
+			}
+			
+			if (voting_settings['optional_voting_comments'] == 0)
+			{
+				return;
 			}
 			
 			var comments = $(this).parents('.votes').siblings('.proposalcontent').find('.comments');
@@ -1603,8 +1609,8 @@ if ($userid) {
 						"S",
 						0,
 						$question_url,
-						$voting_settings['proposal_node_layout'],
-						$voting_settings['user_node_layout'],
+						$voting_settings['pareto_proposal_node_layout'],
+						$voting_settings['pareto_user_node_layout'],
 						$AnonymizeGraph);
 					?>
 					
