@@ -203,7 +203,7 @@ foreach ($allproposals as $p)
 			{
 				$commentid = (int)$select_comment[$p];
 			}
-			elseif (array_key_exists($p, $user_comment))
+			elseif (array_key_exists($p, $user_comment) && !empty($user_comment[$p]))
 			{
 				$new_comment = $user_comment[$p];
 			
