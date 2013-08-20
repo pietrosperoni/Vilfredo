@@ -117,16 +117,16 @@ input[type='submit']#settings {
 	
 	<li>Proposal Node Layout on Graph
 	<select name="proposal_node_layout">
-	<option value="Layers">Layers</option>
-	<option value="NVotes">Num Votes</option>
-	<option value="Flat">Flat</option>
+	<option value="Layers" <?php if ($voting_settings['proposal_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
+	<option value="NVotes" <?php if ($voting_settings['proposal_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
+	<option value="Flat" <?php if ($voting_settings['proposal_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
 	</select>
 	</li>
 	<li>User Node Layout on Graph
 	<select name="user_node_layout">
-	<option value="Layers">Layers</option>
-	<option value="NVotes">Num Votes</option>
-	<option value="Flat">Flat</option>
+	<option value="Layers" <?php if ($voting_settings['user_node_layout']=="Layers") echo 'selected="selected"'; ?>>Layers</option>
+	<option value="NVotes" <?php if ($voting_settings['user_node_layout']=="NVotes") echo 'selected="selected"'; ?>>Num Votes</option>
+	<option value="Flat" <?php if ($voting_settings['user_node_layout']=="Flat") echo 'selected="selected"'; ?>>Flat</option>
 	</select>
 	</li>
 	
