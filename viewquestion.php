@@ -161,12 +161,12 @@ $(function() {
 		
 		if (kpcomment.is(":visible"))
 		{
-			kpcomment.slideUp(1000);
+			kpcomment.slideUp(500);
 			$(this).html("(Show Comment)");
 		}
 		else
 		{
-			kpcomment.slideDown(1000);
+			kpcomment.slideDown(500);
 			$(this).html("(Hide Comment)");
 		}
 	});
