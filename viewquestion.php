@@ -1810,11 +1810,16 @@ if ($userid) {
 				
 				set_log("Voters");
 				set_log($users);
-				
+								
 				if ($voting_settings['display_key_players']) 
 				{
 					// Display Key Players -- Begin
 					echo "<div class=\"feedback\">KEY PLAYERS:<br/><br/>";
+					
+					if (count($CouldDominate) == 0)
+					{
+						echo "There are currently no key players";
+					}
 					
 					foreach ($users as $u)
 					{
