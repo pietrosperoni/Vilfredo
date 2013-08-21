@@ -10,6 +10,10 @@ if (!is_dir("rss"))
 {
 	mkdir("rss", 0755);
 }
+if (!is_dir("map"))
+{
+	mkdir("map", 0755);
+}
 
 /*
 $counter++;
