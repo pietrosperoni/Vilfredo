@@ -115,6 +115,10 @@ fieldset {
 	margin: 20px 0;
 }
 
+legend {
+	font-weight: bold;
+}
+
 </style>
 <div class="intro">
 	<h3>Admin: Voting Options.</h3>
@@ -129,6 +133,8 @@ fieldset {
 	
 	<p> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </p>
 	
+	<fieldset>
+	<legend>Voting Comments</legend>
 	
 	<p>Use Voting Comments
 	<select name="use_voting_comments">
@@ -137,6 +143,7 @@ fieldset {
 	<option value="Required" <?php if ($voting_settings['pareto_proposal_node_layout']=="Required") echo 'selected="selected"'; ?>>Required</option>
 	</select>
 	</p>
+	</fieldset>
 	
 	<fieldset>
 		<legend>All Proposals Graph</legend>
