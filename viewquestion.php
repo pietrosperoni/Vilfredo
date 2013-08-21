@@ -308,7 +308,8 @@ $(function() {
 				setval.val(3);
 			}
 			
-			if (voting_settings['optional_voting_comments'] == 0)
+			//if (voting_settings['optional_voting_comments'] == 0)
+			if (voting_settings['use_voting_comments'] == "No")
 			{
 				return;
 			}
@@ -406,7 +407,8 @@ $(function() {
 	{	
 		var comments_done = true;
 		
-		if (require_voting_comments)
+		//if (voting_settings['require_voting_comments'])
+		if (voting_settings['use_voting_comments'] == "Required")
 		{
 			$('tr.user_vote').each(function(){
 				//var pid = parseInt($(this).attr('id').replace(/[^0-9]/g, ''));
@@ -1012,7 +1014,7 @@ function ajax_error(jqxhr, status, error)
 				
 				echo '<div class="paretoproposal" id="real_proposal'.$p.'">';
 
-				if (isset($commentslist[$p]))
+				if (isset($commentslist[$p]) && $voting_settings['use_voting_comments'] != "No")
 				{
 					echo '<img class="usrmsgpic" src="images/hascomments.jpg" title="'.count($commentslist[$p]).' comments">';
 				}
@@ -1989,7 +1991,7 @@ if ($userid) {
 				echo '<td class="proposalcontent">';
 				echo '<div class="paretoproposal">';
 				
-				if (isset($commentslist[$row['id']]))
+				if (isset($commentslist[$row['id']]) && $voting_settings['use_voting_comments'] != "No")
 				{
 					echo '<img class="usrmsgpic" src="images/hascomments.jpg" title="'.count($commentslist[$row['id']]).' comments">';
 				}
