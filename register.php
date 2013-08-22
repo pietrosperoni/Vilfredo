@@ -6,7 +6,9 @@ include('header.php');
 input[type='submit'].registerbutton {
 	font-size: 1.2em;
 	width: 125px;
-	height: 120px;
+	height: 160px;
+	margin-top: 20px;
+	margin-left: 100px;
 }
 </style>
 <?php
@@ -99,12 +101,14 @@ else
 						<input type="password" name="pass2">
 					</td>
 				</tr>
+				<?php if (USE_CAPTCHA) { ?>
 				<tr>
 					<td><?=$VGA_CONTENT['captch_req_label']?></td>
 					<td>
-						<?php if (USE_CAPTCHA) { echo recaptcha_get_html($recaptcha_public_key); } ?>
+						<?php echo recaptcha_get_html($recaptcha_public_key); ?>
 					</td>
 				</tr>
+				<?php } ?>
 				<tr>
 					<th colspan=2>
 						<input class="registerbutton" type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
