@@ -7,15 +7,18 @@ function register_user()
 	global $VGA_CONTENT;
 	$errors = false;
 	
-	$resp = recaptcha_check_answer ($recaptcha_private_key,
-			$_SERVER["REMOTE_ADDR"],
-			$_POST["recaptcha_challenge_field"],
-			$_POST["recaptcha_response_field"]);
+	if (USE_CAPTCHA) 
+	{
+		$resp = recaptcha_check_answer ($recaptcha_private_key,
+				$_SERVER["REMOTE_ADDR"],
+				$_POST["recaptcha_challenge_field"],
+				$_POST["recaptcha_response_field"]);
 
-	if (!$resp->is_valid) {
-		$msg = "{$VGA_CONTENT['captcha_err_txt']}";
-		set_message("error", $msg);
-		$errors = true;
+		if (!$resp->is_valid) {
+			$msg = "{$VGA_CONTENT['captcha_err_txt']}";
+			set_message("error", $msg);
+			$errors = true;
+		}
 	}
 	
 	$username = GetEscapedPostParam('username');

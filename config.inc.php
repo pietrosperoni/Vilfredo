@@ -88,6 +88,9 @@ define("AGREE", 1);
 define("DISAGREE", 2);
 define("NOT_UNDERSTAND", 3);
 
+define('USE_CAPTCHA', true);
+
+
 // Admin display settings
 $display_interactive_graphs = True;
 $display_key_players = True;

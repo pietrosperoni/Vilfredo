@@ -1,7 +1,19 @@
 <?php
 include('header.php');
 
-require_once('lib/recaptcha-php-1.11/recaptchalib.php');
+?>
+<style type="text/css">
+input[type='submit'] {
+	font-size: 1.2em;
+	width: 125px;
+	height: 120px;
+}
+</style>
+<?php
+
+if (USE_CAPTCHA) {
+	require_once('lib/recaptcha-php-1.11/recaptchalib.php');
+}
 
 if ($userid)
 {
@@ -90,7 +102,7 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['captch_req_label']?></td>
 					<td>
-						<?php echo recaptcha_get_html($recaptcha_public_key); ?>
+						<?php if (USE_CAPTCHA) { echo recaptcha_get_html($recaptcha_public_key); } ?>
 					</td>
 				</tr>
 				<tr>
