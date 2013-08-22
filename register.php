@@ -3,7 +3,7 @@ include('header.php');
 
 ?>
 <style type="text/css">
-input[type='submit'] {
+input[type='submit'].registerbutton {
 	font-size: 1.2em;
 	width: 125px;
 	height: 120px;
@@ -107,7 +107,7 @@ else
 				</tr>
 				<tr>
 					<th colspan=2>
-						<input type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
+						<input class="registerbutton" type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
 					</th>
 				</tr>
 			</table>
