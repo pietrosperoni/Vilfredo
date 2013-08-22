@@ -6,9 +6,12 @@ include('header.php');
 input[type='submit'].registerbutton {
 	font-size: 1.2em;
 	width: 125px;
-	height: 160px;
-	margin-top: 20px;
+	height: 60px;
 	margin-left: 0;
+	margin-top: 25px;
+}
+input[type='text'].register, input[type='password'].register {
+	height: 25px;
 }
 </style>
 <?php
@@ -80,25 +83,25 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['username_label']?> <?=$VGA_CONTENT['user_caution_txt']?></td>
 					<td>
-						<input type="text" name="username" size="40" maxlength="60" value="<?php echo $_POST['username']?>">
+						<input class="register" type="text" name="username" size="40" maxlength="60" value="<?php echo $_POST['username']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['email_label']?></td>
 					<td>
-						<input type="text" name="email" size="40" maxlength="60" value="<?php echo $_POST['email']?>">
+						<input class="register" type="text" name="email" size="40" maxlength="60" value="<?php echo $_POST['email']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['password_label']?></td>
 					<td>
-						<input type="password" size="20" name="pass">
+						<input class="register" type="password" size="20" name="pass">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['pass_conf_label']?></td>
 					<td>
-						<input type="password" size="20" name="pass2">
+						<input class="register" type="password" size="20" name="pass2">
 					</td>
 				</tr>
 				<?php if (USE_CAPTCHA) { ?>
@@ -109,12 +112,8 @@ else
 					</td>
 				</tr>
 				<?php } ?>
-				<tr>
-					<th colspan=2>
-						<input class="registerbutton" type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
-					</th>
-				</tr>
 			</table>
+			<input class="registerbutton" type="submit" name="submit" value="<?=$VGA_CONTENT['register_link']?>">
 		</form>
 		<p><?=$VGA_CONTENT['email_exp_txt']?></p> 
 		<?php
