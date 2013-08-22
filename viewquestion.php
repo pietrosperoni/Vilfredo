@@ -1561,18 +1561,15 @@ if ($userid) {
 				$ParetoFront=CalculateParetoFrontFromProposals($proposalsEndorsers);
 				$ParetoFrontEndorsers=	array_intersect_key($proposalsEndorsers, array_flip($ParetoFront));
 				
-				if($voting_settings['anonymize_graph']) 	{ $AnonymizeGraph=true; }
-				else						{ $AnonymizeGraph=false;}
-				
 				$use_old_graph_layout = false;
 				// --------------- begin old
 				if ($voting_settings['display_interactive_graphs'] && $use_old_graph_layout)
 				{
 					echo "<table cellpadding=\"0\" cellspacing=\"0\" border=0>";
 						echo "<tr><td width=\"70%\">";
-						InsertMapFromArray($question, $generation, $proposalsEndorsers, $ParetoFront, $room, $userid, "M", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
+						InsertMapFromArray($question, $generation, $proposalsEndorsers, $ParetoFront, $room, $userid, "M", 0, $question_url, "Layers", "Layers", $voting_settings['anonymize_graph']);
 						echo "</td><td>";
-						InsertMapFromArray($question, $generation, $ParetoFrontEndorsers, $ParetoFront, $room, $userid, "S", 0, $question_url, "Layers", "Layers", $AnonymizeGraph);
+						InsertMapFromArray($question, $generation, $ParetoFrontEndorsers, $ParetoFront, $room, $userid, "S", 0, $question_url, "Layers", "Layers", $voting_settings['anonymize_graph']);
 						echo "</td></tr>";
 					echo "</table>";
 				}
@@ -1606,7 +1603,7 @@ if ($userid) {
 						$question_url, 
 						$voting_settings['proposal_node_layout'],
 						$voting_settings['user_node_layout'], 
-						$AnonymizeGraph);									
+						$voting_settings['anonymize_graph']);									
 					
 					$pfvotesgraph =  GenerateMapFromArray(
 						$question,
@@ -1620,7 +1617,7 @@ if ($userid) {
 						$question_url,
 						$voting_settings['pareto_proposal_node_layout'],
 						$voting_settings['pareto_user_node_layout'],
-						$AnonymizeGraph);
+						$voting_settings['anonymize_graph']);
 					?>
 					
 					<br /><br />

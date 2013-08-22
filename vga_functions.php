@@ -7678,7 +7678,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 {
 	set_log(__FUNCTION__." called...");
 	
-	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize); //fixme
 	
 	set_log(__FUNCTION__." generated name = $name");
 	
@@ -8750,7 +8750,7 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 
-		if ($Anonymize == true && $highlightuser1 != $e)
+		if ($Anonymize && $highlightuser1 != $e)
 		{
 			
 			$buf.='"'.WriteUserName($e).'" [label="..." tooltip="..." shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
@@ -9209,7 +9209,7 @@ function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$par
 
 		$details=' fillcolor=white style=filled color='.$color.' peripheries='.$peripheries.' ';
 
-		if ($Anonymize == true && $highlightuser1 != $e)
+		if ($Anonymize && $highlightuser1 != $e)
 		{
 			
 			$buf.='"'.WriteUserName($e).'" [label="..." tooltip="..." shape=egg fillcolor='.$fillcolor.' style=filled color='.$color.' peripheries='.$peripheries.' style=filled  fontsize=11]';					
