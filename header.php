@@ -208,6 +208,16 @@ if ($userid)
 		}		
 		?>
 			<li><a href="http://bubblingaround.com/viewquestions.php?qb=1&amp;room=Vilfredo">Feedback</a></li>
+			
+		<?php
+		if (isAdmin($userid))
+		{ ?>
+			<li><a href="owners.php">Vilfredo Admin</a></li>
+		<?php
+		}
+		?>
+			
+			
 		</ul>
 	</div> <!-- header -->
 

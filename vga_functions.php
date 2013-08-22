@@ -118,14 +118,12 @@ function formatSeconds($seconds)
 
 function isAdmin($userid)
 {
-	$admin = false;
-	$sql = "SELECT userid FROM admin WHERE userid = '$userid'";
+	$sql = "SELECT userid FROM admin WHERE userid = $userid";
 	$response = mysql_query($sql);
 	if (mysql_num_rows($response) > 0) {
-		$admin = true;
+		return true;
 	}
-	
-	return $admin;
+	return false;
 }
 function isTranslator($userid)
 {
