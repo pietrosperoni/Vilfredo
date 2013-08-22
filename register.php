@@ -8,7 +8,7 @@ input[type='submit'].registerbutton {
 	width: 125px;
 	height: 160px;
 	margin-top: 20px;
-	margin-left: 100px;
+	margin-left: 0;
 }
 </style>
 <?php
@@ -80,25 +80,25 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['username_label']?> <?=$VGA_CONTENT['user_caution_txt']?></td>
 					<td>
-						<input type="text" name="username" maxlength="60" value="<?php echo $_POST['username']?>">
+						<input type="text" name="username" size="40" maxlength="60" value="<?php echo $_POST['username']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['email_label']?></td>
 					<td>
-						<input type="text" name="email" maxlength="60" value="<?php echo $_POST['email']?>">
+						<input type="text" name="email" size="40" maxlength="60" value="<?php echo $_POST['email']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['password_label']?></td>
 					<td>
-						<input type="password" name="pass">
+						<input type="password" size="20" name="pass">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['pass_conf_label']?></td>
 					<td>
-						<input type="password" name="pass2">
+						<input type="password" size="20" name="pass2">
 					</td>
 				</tr>
 				<?php if (USE_CAPTCHA) { ?>
