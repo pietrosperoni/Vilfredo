@@ -186,7 +186,7 @@
   'keep_logged_label' => 'Keep me logged in:',
   'or_use_fb_label' => 'Or <b>login</b> with Facebook:',
   'langs_label' => 'Languages:',
-  'user_caution_txt' => '(note this will be published on the site, so don\'t use your email address, unless you want that to be public and potentially taken by spiders)',
+  'user_caution_txt' => '(Don\'t use your email address)',
   'email_label' => 'Email:',
   'pass_conf_label' => 'Confirm Password:',
   'captch_req_label' => 'Please enter the words in the image:',
