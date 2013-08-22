@@ -103,6 +103,7 @@ $default_voting_options = array (
 	'display_confused_voting_option' => 1,
 	'use_voting_comments' => 'No',
 	'anonymize_graph' => 1,
+	'personalize_graph' => 1,
 	'proposal_node_layout' => 'Layers',
 	'user_node_layout' => 'Layers',
 	'pareto_proposal_node_layout' => 'Layers',

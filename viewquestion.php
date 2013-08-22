@@ -1587,13 +1587,20 @@ if ($userid) {
 					//set_log("Prop node layering option = " . $voting_settings['proposal_node_layout']);
 					//set_log("User node layering option = " . $voting_settings['user_node_layout']);
 					
+					$highlightuser1 = 0;
+					if ($userid && $voting_settings['personalize_graph'])
+					{
+						$highlightuser1 = $userid;
+					}
+					
+					
 					$votesgraph = GenerateMapFromArray(
 						$question,
 						$generation,
 						$proposalsEndorsers,
 						$ParetoFront,
 						$room,
-						$userid,
+						$highlightuser1,
 						"M",
 						0,
 						$question_url, 
@@ -1607,7 +1614,7 @@ if ($userid) {
 						$ParetoFrontEndorsers,
 						$ParetoFront,
 						$room,
-						$userid,
+						$highlightuser1,
 						"S",
 						0,
 						$question_url,

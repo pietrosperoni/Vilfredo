@@ -36,6 +36,8 @@ if (isAdmin($userid))
 				($_POST['display_confused_voting_option']) ? 1 : 0;	
 			$voting_settings['use_voting_comments'] =
 				($_POST['use_voting_comments']) ? $_POST['use_voting_comments'] : 'No';
+			$voting_settings['personalize_graph'] =
+				($_POST['personalize_graph']) ? 1 : 0;
 			$voting_settings['anonymize_graph'] =
 				($_POST['anonymize_graph']) ? 1 : 0;
 			$voting_settings['proposal_node_layout'] =
@@ -131,7 +133,9 @@ legend {
 	<p> Display Key Players <input type="checkbox" name="display_key_players" value="1" <?php if ($voting_settings['display_key_players']) echo "checked"; ?> /> </p>
 	<p> Display Confused Voting Option <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </p>
 	
-	<p> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </p>
+	<p> Anonymize Votes in Graph <input type="checkbox" name="personalize_graph" value="1" <?php if ($voting_settings['personalize_graph']) echo "checked"; ?> /> </p>
+	
+	<p> Personalize Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </p>
 	
 	<fieldset>
 	<legend>Voting Comments</legend>
