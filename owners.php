@@ -131,11 +131,14 @@ legend {
 	<div class="options">
 	<p> Display Interactive Graphs <input type="checkbox" name="display_interactive_graphs" value="1" <?php if ($voting_settings['display_interactive_graphs']) echo "checked"; ?> /> </p>
 	<p> Display Key Players <input type="checkbox" name="display_key_players" value="1" <?php if ($voting_settings['display_key_players']) echo "checked"; ?> /> </p>
-	<p> Display Confused Voting Option <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </p>
+	<p> 3 Way Votings (Yes, No, Don't Understand)  <input type="checkbox" name="display_confused_voting_option" value="1" <?php if ($voting_settings['display_confused_voting_option']) echo "checked"; ?> /> </p>
 	
+	<fieldset>
+	<legend>Graph Username Display Options</legend>
 	<p> Personalize Graph <input type="checkbox" name="personalize_graph" value="1" <?php if ($voting_settings['personalize_graph']) echo "checked"; ?> /> </p>
 	
 	<p> Anonymize Votes in Graph <input type="checkbox" name="anonymize_graph" value="1" <?php if ($voting_settings['anonymize_graph']) echo "checked"; ?> /> </p>
+	</fieldset>
 	
 	<fieldset>
 	<legend>Voting Comments</legend>
