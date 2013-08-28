@@ -1789,18 +1789,30 @@ if ($userid) {
 					#$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$ParetoFront,$userid);
 					if (count($HomeWork) > 0)
 					{
-						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";						
+						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";
 						foreach ($HomeWork as $PCD)
 						{
 							$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
 							echo " ".$proposalNumber.", ";
 						}
-						echo "and consider if you could vote it.</div>";					
-					}	
+						echo "and consider if you could vote it.</div>";
+					}
 					else
 					{
-						echo "ATTENTION PARETO FRONT MINUS WITHOUT BEING A KEY PLAYER???";						
-					}				
+						echo "ATTENTION PARETO FRONT MINUS WITHOUT BEING A KEY PLAYER???";
+					}
+
+					echo "<div class=\"feedback\">Another way to simplify the Pareto Front is if you simply stop voting for those proposals: ";
+					foreach ($ParetoFrontMinus as $PCD)
+					{
+						$proposalNumber = WriteProposalNumberInternalLink($PCD,$room);
+						echo " ".$proposalNumber." "; //DEREK CAN YOU PLEASE ADD THE COMMENTS WHY THEY SHOULD NOT VOTE FOR THEM HERE?
+						
+					}
+					echo ".</div>";
+					
+					
+					
 				}
 				#$ParetoFront=CalculateParetoFront($question,$generation); #$ParetoFront=CalculateFullParetoFrontExcluding($proposals,0);
 #				$proposals=GetProposalsInGeneration($question,$generation);				
