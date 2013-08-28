@@ -39,3 +39,25 @@ SET com.`roundid` = opp.`roundid` ;
 DELETE
 FROM `comments` WHERE  
 `id` NOT IN (SELECT DISTINCT `commentid` FROM `oppose`)
+
+
+ALTER TABLE `comments` ADD `originalid` INT( 11 ) NOT NULL ;
+
+ALTER TABLE `oppose` ADD `originalid` INT( 16 ) NOT NULL ;
+
+UPDATE `comments` as com LEFT JOIN
+(
+	SELECT `id`, `originalid` FROM `proposals`
+) as prop ON prop.`id` = com.`proposalid`
+SET com.`originalid` = prop.`originalid` ;
+
+UPDATE `oppose` as opp LEFT JOIN
+(
+	SELECT `id`, `originalid` FROM `proposals`
+) as prop ON prop.`id` = opp.`proposalid`
+SET opp.`originalid` = prop.`originalid` ;
+
+
+
+
+
