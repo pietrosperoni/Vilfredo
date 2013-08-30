@@ -50,13 +50,13 @@ else
 			<td><?=$VGA_CONTENT['username_label']?></td>
 			<td>
 				<input type="hidden" name="user_login_action">
-				<input type="text" name="username" maxlength="40" value="<?=$_POST['username']?>">
+				<input type="text" name="username" maxlength="<?php echo MAX_LEN_USERNAME ?>" value="<?=$_POST['username']?>">
 			</td>
 		</tr>
 		<tr>
 			<td><?=$VGA_CONTENT['password_label']?></td>
 			<td>
-				<input type="password" name="pass" maxlength="50">
+				<input type="password" name="pass" maxlength="<?php echo MAX_LEN_PASSWORD ?>">
 			</td>
 		</tr>
 		<tr>

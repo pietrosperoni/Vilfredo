@@ -83,25 +83,25 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['username_label']?> <?=$VGA_CONTENT['user_caution_txt']?></td>
 					<td>
-						<input class="register" type="text" name="username" size="40" maxlength="60" value="<?php echo $_POST['username']?>">
+						<input class="register" type="text" name="username" size="40" maxlength="<?php echo MAX_LEN_USERNAME ?>" value="<?php echo $_POST['username']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['email_label']?></td>
 					<td>
-						<input class="register" type="text" name="email" size="40" maxlength="60" value="<?php echo $_POST['email']?>">
+						<input class="register" type="text" name="email" size="40" maxlength="<?php echo MAX_LEN_EMAIL ?>" value="<?php echo $_POST['email']?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['password_label']?></td>
 					<td>
-						<input class="register" type="password" size="20" name="pass">
+						<input class="register" type="password" size="20" maxlength="<?php echo MAX_LEN_PASSWORD ?>" name="pass">
 					</td>
 				</tr>
 				<tr>
 					<td><?=$VGA_CONTENT['pass_conf_label']?></td>
 					<td>
-						<input class="register" type="password" size="20" name="pass2">
+						<input class="register" type="password" size="20" maxlength="<?php echo MAX_LEN_PASSWORD ?>" name="pass2">
 					</td>
 				</tr>
 				<?php if (USE_CAPTCHA) { ?>
