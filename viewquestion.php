@@ -996,7 +996,7 @@ function ajax_error(jqxhr, status, error)
 			$ParetoFront=ParetoFront($question,$generation-1);
 			
 			//$allconfusedcomments = getCommentsByProposals($ParetoFront);
-			$commentslist = getCommentsList($ParetoFront);
+			$commentslist = getCommentsList($ParetoFront); // change
 			set_log('$commentslist');
 			set_log($commentslist);
 			
@@ -1482,8 +1482,27 @@ if ($userid) {
 		
 		set_log('$useropposedlist');
 		set_log($useropposedlist);
-
-		$commentslist = getCommentsList($proposallist);
+		
+		
+		if ($voting_settings['display_all_previous_comments'])
+		{
+			set_log("display_all_previous_comments set to true");
+			$origids = getOriginalIDs($proposallist);
+			//$origids = getOriginalIDs($question, $generation);
+			//$origids_mapping = array_flip($origids);
+			$commentslist = getCommentsListAll($origids);
+			
+			//$generations = array($generation, $generation-1);
+			//$gen_comments = getCommentsListForGenerations($question, $generations);
+			
+			//$commentslist = getCommentsListAll($proposallist);
+		}
+		else
+		{
+			set_log("display_all_previous_comments set to false");
+			$commentslist = getCommentsList($proposallist);
+		}
+		
 		set_log('$commentslist');
 		set_log($commentslist);
 		

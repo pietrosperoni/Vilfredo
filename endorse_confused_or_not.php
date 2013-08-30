@@ -1,9 +1,9 @@
 <?php
 include('header.php');
 
-set_log(__FILE__." called....");
+//set_log(__FILE__." called....");
 
-set_log($_POST);
+//set_log($_POST);
 
 //print_array($_POST);
 
@@ -79,6 +79,10 @@ DeleteGraph($question,$roundid);
 $nEndorsers=CountEndorsers($question,$roundid);
 $allproposals = getCurrentProposalIDs($question, $roundid);
 
+$origids = getOriginalIDs($allproposals);
+//set_log('$origids');
+//set_log($origids);
+
 if ($is_anon)
 {
 	//$userid = getAnonymousUserForVoting($allproposals);
@@ -91,51 +95,20 @@ if ($is_anon)
 
 if (!$userid)
 {
-	set_logx("Error: Could not create anonymous user!");
+	set_log("Error: Could not create anonymous user!");
 }
 
 $currentuserendorsements = getUserEndorsedFromList($userid, $allproposals);
-set_log("currentuserendorsements");
-set_log($currentuserendorsements);
+//set_log("currentuserendorsements");
+//set_log($currentuserendorsements);
 $user_comment = (isset($_POST['user_comment'])) ? $_POST['user_comment'] : array();
 $select_comment = (isset($_POST['select_comment'])) ? $_POST['select_comment'] : array();
 $prev_proposal = (isset($_POST['prev_proposal'])) ? $_POST['prev_proposal'] : array();
+
 $endorsedproposals = (isset($_POST['proposal'])) ? $_POST['proposal'] : array();
 $prev_commentid = (isset($_POST['prev_commentid'])) ? $_POST['prev_commentid'] : array();
 
 
-if (isset($user_comment[2265])){
-	printbr("user_comment is set");
-}
-else
-{
-	printbr("user_comment is NOT set");
-}
-if (is_null($user_comment[2265])){
-	printbr("user_comment is null");
-}
-else
-{
-	printbr("user_comment is NOT null");
-}
-if (empty($user_comment[2265])){
-	printbr("user_comment is empty");
-}
-else
-{
-	printbr("user_comment is NOT empty");
-}
-
-if ($user_comment[2265] == ''){
-	printbr("user_comment is a zero-length string");
-}
-else
-{
-	printbr("user_comment is NOT a zero-length string");
-}
-
-//exit;
-//
 // Set endorse, oppoed and comments
 //
 foreach ($allproposals as $p)
@@ -153,21 +126,21 @@ foreach ($allproposals as $p)
 		// User endorses
 		//
 		
-		set_log("prev_proposal is " . $prev_proposal[$p]);
+		//set_log("prev_proposal is " . $prev_proposal[$p]);
 		
 		if ($endorsedproposals[$p] == "1" && !in_array($p, $currentuserendorsements))
 		{
-			set_log("Adding endorsement for proposal $p...");
+			//set_log("Adding endorsement for proposal $p...");
 			addEndorsement($userid, $p);
 			
 			if ($prev_proposal[$p] == '2' || $prev_proposal[$p] == '3')
 			{	// Delete previous oppose entry
-				set_log("Delete previous oppose entry for proposal $p...");
+				//set_log("Delete previous oppose entry for proposal $p...");
 				deleteUserOppose($userid, $p, $generation);
 				// Delete comment if no-one else supports it
 				if (isset($prev_commentid[$p]))
 				{
-					set_log("Try to delete comment {$prev_commentid[$p]} for proposal $p...");
+					//set_log("Try to delete comment {$prev_commentid[$p]} for proposal $p...");
 					deleteComment((int)$prev_commentid[$p]);
 				}
 			}
@@ -175,7 +148,7 @@ foreach ($allproposals as $p)
 		// User Opposes
 		elseif ($endorsedproposals[$p] == "2" || $endorsedproposals[$p] == "3")
 		{
-			set_log("User added or changed Oppose and/or Comment...");
+			//set_log("User added or changed Oppose and/or Comment...");
 		
 			if (in_array($p, $currentuserendorsements))
 			{
@@ -208,22 +181,23 @@ foreach ($allproposals as $p)
 				$new_comment = $user_comment[$p];
 			
 				$commentid = commentExists($p, $generation, $type, $new_comment);
-				set_log("ID of comment search = $commentid");
+				//set_log("ID of comment search = $commentid");
 				if (!$commentid)
 				{
-					set_log("New comment not found - adding to comments");
-					$commentid = addComment($userid, $p, $type, $generation, $user_comment[$p]);
+					//set_log("Adding new comment {$user_comment[$p]}");
+					//set_log("New comment not found - adding to comments for prop ID $p and origid {$origids[$p]}");
+					$commentid = addComment($userid, $p, $type, $generation, $user_comment[$p], $origids[$p]); // addorigid
 				}
 			}
 		
-			set_log("Set user oppose: ");
+			//set_log("Set user oppose: ");
 			// Add new oppose entry or update type and commentid of existing one
-			setUserOppose($userid, $p, $type, $generation, $commentid);
+			setUserOppose($userid, $p, $type, $generation, $origids[$p], $commentid); // addorigid
 			
 			if ($commentid != $previous_commentid)
 			{
 				// Delete comment if no-one else supports it
-				set_log("comment id = $commentid and previous comment id = {$previous_commentid} - try and delete comment...");
+				//set_log("comment id = $commentid and previous comment id = {$previous_commentid} - try and delete comment...");
 				deleteComment($previous_commentid);
 			}
 		}
@@ -232,11 +206,11 @@ foreach ($allproposals as $p)
 	{
 		if ($endorsedproposals[$p] == "1")
 		{
-			set_log("No change for endorsed proposal $p - continue...");
+			//set_log("No change for endorsed proposal $p - continue...");
 		}
 		else
 		{
-			set_log("No change for opposed proposal $p - continue...");
+			//set_log("No change for opposed proposal $p - continue...");
 		}
 		continue;
 	}	

@@ -58,6 +58,10 @@ if (isAdmin($userid))
 			$voting_settings['pareto_user_node_layout'] =
 				($_POST['pareto_user_node_layout']) ? $_POST['pareto_user_node_layout'] : 'Layers';
 				
+			
+			$voting_settings['display_all_previous_comments'] =
+				($_POST['display_all_previous_comments']) ? 1 : 0;
+				
 							
 			foreach ($voting_settings as $setting)
 			{
@@ -159,6 +163,9 @@ legend {
 	<option value="Required" <?php if ($voting_settings['use_voting_comments']=="Required") echo 'selected="selected"'; ?>>Required</option>
 	</select>
 	</p>
+	
+	<p> Show all past comments during voting <input type="checkbox" name="display_all_previous_comments" value="1" <?php if ($voting_settings['display_all_previous_comments']) echo "checked"; ?> /> </p>
+	
 	</fieldset>
 	
 	<fieldset>

@@ -88,7 +88,7 @@ define("AGREE", 1);
 define("DISAGREE", 2);
 define("NOT_UNDERSTAND", 3);
 
-define('USE_CAPTCHA', true);
+define('USE_CAPTCHA', false);
 
 
 // Admin display settings
@@ -107,7 +107,8 @@ $default_voting_options = array (
 	'proposal_node_layout' => 'Layers',
 	'user_node_layout' => 'Layers',
 	'pareto_proposal_node_layout' => 'Layers',
-	'pareto_user_node_layout' => 'Layers'
+	'pareto_user_node_layout' => 'Layers',
+	'display_all_previous_comments' => 0
 );
 
 $voting_settings = array_merge($default_voting_options, fetch_voting_settings());

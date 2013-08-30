@@ -5393,10 +5393,10 @@ function getUserOpposed($userid, $proposalid, $generation)
 	}
 }
 
-function setUserOppose($userid, $proposalid, $type, $generation, $commentid=0)
+function setUserOppose($userid, $proposalid, $type, $generation, $originalid, $commentid=0)
 {							
-	$sql = "INSERT INTO `oppose` (`userid`, `proposalid`, `type`, `roundid`, `commentid`)
-		VALUES ($userid, $proposalid, '$type', $generation, $commentid)
+	$sql = "INSERT INTO `oppose` (`userid`, `proposalid`, `type`, `roundid`, `originalid`, `commentid`)
+		VALUES ($userid, $proposalid, '$type', $generation, $originalid, $commentid)
 		ON DUPLICATE KEY UPDATE `commentid` = $commentid, `type` = '$type'";
 		
 	set_log(__FUNCTION__." :: SQL = $sql");
@@ -5479,10 +5479,10 @@ function addComment_old($userid, $proposalid, $comment, $type, $generation)
 	}
 }
 
-function addComment($userid, $proposalid, $type, $generation, $comment)
+function addComment($userid, $proposalid, $type, $generation, $comment, $originalid)
 {		
-	$sql = sprintf("INSERT INTO `comments` (`userid`, `proposalid`, `type`, `roundid`, `comment`)
-		VALUES ($userid, $proposalid, '$type', $generation, '%s')",
+	$sql = sprintf("INSERT INTO `comments` (`userid`, `proposalid`, `type`, `roundid`, `comment`, `originalid`)
+		VALUES ($userid, $proposalid, '$type', $generation, '%s', $originalid)",
 		mysql_real_escape_string($comment));
 		
 	set_log(__FUNCTION__." :: SQL = $sql");
@@ -5769,6 +5769,114 @@ function getUserComment($userid, $pid, $generation)
 		return mysql_fetch_assoc($result);
 	}
 	return false;
+}
+
+
+function getOriginalIDs($propsalids)
+{
+	$pids = implode(',', $propsalids);
+	$proposals = array();
+	$sql = "SELECT `id`, `originalid` FROM `proposals` 
+			WHERE `id` IN ($pids)
+			ORDER BY `originalid` DESC";
+	
+	set_log(__FUNCTION__.": $sql");
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$proposals[$row['id']] = $row['originalid'];
+		}
+	}
+	return $proposals;
+}
+function getCurrentProposalsOriginalIDs($question, $generation)
+{
+	$proposals = array();
+	$sql = "SELECT `originalid` FROM `proposals` WHERE `experimentid` = $question AND `roundid` = $generation ORDER BY `originalid` DESC";
+	
+	set_log(__FUNCTION__.": $sql");
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$proposals[] = $row['originalid'];
+		}
+	}
+	return $proposals;
+}
+
+
+//$origids = getCurrentProposalOriginalIDs($question, $generation);
+			//$commentslist = getCommentsListAll($origids);
+			
+function getCommentsListAll_new($proposallist)
+{
+	$comments = array();
+	$pids = implode(',', $proposaloriginalids);
+	$sql = "SELECT `c`.* FROM `comments` as `c`
+	WHERE `originalid` IN ($pids) 
+	ORDER BY `created` DESC";
+	
+	set_log(__FUNCTION__." - ".$sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$comments[$row['proposalid']][] = 
+			array('comment' => $row['comment'], 'created' => $row['created'],
+				  'type' => $row['type'], 'id' => $row['id'], 'originalid' => $row['originalid']);
+		}
+	}
+	return $comments;
+}
+
+function getCommentsListAll($proposaloriginalids)
+{
+	$comments = array();
+	$pids = implode(',', $proposaloriginalids);
+	$sql = "SELECT `c`.* FROM `comments` as `c`
+	WHERE `originalid` IN ($pids) 
+	ORDER BY `created` DESC";
+	
+	set_log(__FUNCTION__." - ".$sql);
+	
+	if(!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$current_prop = array_search($row['originalid'], $proposaloriginalids);
+			$comments[$current_prop][] = $row;
+			//$comments[$row['proposalid']][] = $row;
+			/*array('comment' => $row['comment'], 'created' => $row['created'],
+				  'type' => $row['type'], 'id' => $row['id'], 'originalid' => $row['originalid']);*/
+			
+		}
+	}
+	return $comments;
 }
 
 function getCommentsList($proposalids)
