@@ -896,8 +896,19 @@ h1 img {
 	padding:15px;
 	text-align: center;
 	-moz-box-sizing: border-box;
-		-ms-box-sizing: border-box;
-		-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.solvedfinalvotingbox {
+    background-color:#ffff80;
+	width:100%;
+	border:1px solid #B45F04;
+	padding:15px;
+	text-align: center;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
@@ -1280,6 +1291,25 @@ div.paretoproposal {
 	margin-bottom: 10px;
 	padding: 10px;
 	margin-top: 15px;
+}
+
+.votercount {
+    margin: 5px;
+    color: green;
+    font-weight: bold;
+}
+
+div.paretoproposal.winner {
+    border: 1px solid red; 
+    background-color: #C1FFC1;
+    margin-bottom: 50px;
+}
+.finalvotingwinnertxt {
+    background-color: #93DB70;
+    padding: 15px;
+    margin: 5px auto 10px auto;
+    width: 500px;
+    text-align: center;
 }
 
 div.paretoproposal img.usrmsgpic {

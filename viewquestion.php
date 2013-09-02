@@ -763,6 +763,23 @@ function ajax_error(jqxhr, status, error)
 		exit;
 	}
 	
+	$eval_phase = getQuestionPhase($question);
+	
+	if ($eval_phase == 'voting')
+	{
+		$url = "voting.php?q=".$question;
+		$url .= ($room != '') ? '&room='.$room : '';
+		header("Location: ".$url);
+		exit;
+	}
+	elseif ($eval_phase == 'closed')
+	{
+		$url = "viewvotingresults.php?q=".$question;
+		$url .= ($room != '') ? '&room='.$room : '';
+		header("Location: ".$url);
+		exit;
+	}
+	
 	$QuestionInfo = GetQuestion($question);
 	
 	if (!$QuestionInfo)
@@ -1160,6 +1177,12 @@ function ajax_error(jqxhr, status, error)
 			If everybody has endorsed the proposals they wanted to endorse, you can:
 				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
 				<input type="submit" name="submit" id="submit" value="Move On to the Next Phase" />
+			</form>
+			
+			<form autocomplete="off" method="post" action="movetofinalvoting.php">
+			or you can allow endorsers to vote on the current pareto front:
+				<input type="hidden" name="question" id="question" value="<?php echo $question; ?>" />
+				<input type="submit" name="submit" id="submit" value="Move to Final Voting Phase" />
 			</form>
 			<?php
 		}

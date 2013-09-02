@@ -2071,9 +2071,10 @@ function GetProposal($proposal)
 
 function GetQuestion($question)
 {
-	 $sql = "SELECT *
-	     FROM `questions`
-	     WHERE `id` = $question";
+	 $sql = "SELECT `q`.*, `u`.`username`
+	     FROM `questions` AS `q`, `users` AS `u`
+	     WHERE `q`.`id` = $question
+		AND `q`.`usercreatorid` = u.id";
 
 	$result = mysql_query($sql);
 	
@@ -6541,20 +6542,623 @@ function ParetoFront($question,$generation)
 	return $paretofront;
 }
 
+// Return 1 if question record exists, otherwise return 0
+function checkQuestionExists($qid)
+{
+	$sql = "SELECT EXISTS(SELECT 1 FROM questions WHERE id = $qid) AS listed";
+	
+	if ($result = mysql_query($sql))
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['listed'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+// Question Phase ************************************
+function getQuestionPhase($question)
+{
+	$sql = "SELECT `evaluation_phase` FROM `questions`
+			WHERE `id` = $question";
+	
+	if ($result = mysql_query($sql))
+	{	
+		$row = mysql_fetch_assoc($result);
+		return $row['evaluation_phase'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function countFinalVoters($pids)
+{
+	$props = implode(", ", $pids);
+	
+	$sql = "SELECT COUNT(*) AS voters FROM 
+	(SELECT DISTINCT userid FROM finalvotes
+	WHERE `proposalid` IN ($props) ) AS tmp";
+		
+	set_log(__FUNCTION__.": $sql");
+	
+	if ($result = mysql_query($sql))
+	{	
+		$row = mysql_fetch_assoc($result);
+		return $row['voters'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function setQuestionPhase($question, $phase)
+{
+	$sql = "UPDATE `questions`
+		SET `evaluation_phase` = '$phase' 
+		WHERE `id` = $question";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function getQuestionPhase_alt($question)
+{
+	$sql = "SELECT `phase` FROM `questions`
+			WHERE `id` = $question";
+	
+	if ($result = mysql_query($sql))
+	{	
+		$row = mysql_fetch_assoc($result);
+		return $row['phase'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function setQuestionPhase_alt($question, $phase)
+{
+	$sql = "UPDATE `questions`
+		SET `phase` = '$phase' 
+		WHERE `id` = $question";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+// FINAL VOTES ************************************
+function MoveToFinalVoting_alt($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `phase` = 2
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function MoveToFinalVoting($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `evaluation_phase` = 'voting'
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function CloseQuestion($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `evaluation_phase` = 'closed'
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function ReOpenQuestion($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `phase` = 0
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function MoveBackToEvaluation_alt($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `phase` = 1
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function MoveBackToEvaluation($userid, $question)
+{
+	$sql = "UPDATE `questions`
+		SET `evaluation_phase` = 'evaluation'
+		WHERE `id` = $question
+		AND `usercreatorid` = $userid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function getTopPorposals($question)
+{
+	$sql = "SELECT * FROM `proposals`
+			WHERE `questionid` = $question
+			AND `layer` = 1";
+	
+	if ($result = mysql_query($sql))
+	{	
+		$proposals = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($proposals, $row);
+		}
+		return $proposals;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function getWinningVoteForQuestion($qid)
+{	
+	$question = GetQuestion($qid);
+	$pids = CalculatePareto($qid, $question['roundid']);
+	return getWinningVote($pids);
+}
+
+function getFinalVoteWinnerProposal($qid)
+{	
+	$winner = getWinningVoteForQuestion($qid);
+	$winning_prop = GetProposal($winner['proposalid']); 
+	$winning_prop['votes'] = $winner['votes'];
+	return $winning_prop;
+}
+
+function getWinningVote($pids)
+{
+	$props = implode(", ", $pids);
+	$sql = "SELECT `proposalid`, SUM(`vote`) as `votes` 
+		FROM `finalvotes`
+		WHERE `proposalid` IN ($props)
+		GROUP BY `proposalid`
+		ORDER BY `votes` DESC
+		LIMIT 1";
+		
+	set_log(__FUNCTION__.": $sql");
+	
+	if ($result = mysql_query($sql))
+	{	
+		$row = mysql_fetch_assoc($result);
+		return $row;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function getFinalVotes($pids)
+{
+	$props = implode(", ", $pids);
+	$sql = "SELECT `proposalid`, SUM(`vote`) as `votes` 
+		FROM `finalvotes`
+		WHERE `proposalid` IN ($props)
+		GROUP BY `proposalid`
+		ORDER BY `votes` DESC";
+		
+	set_log(__FUNCTION__.": $sql");
+	
+	if ($result = mysql_query($sql))
+	{	
+		$votes = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($votes, $row);
+		}
+		return $votes;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+
+
+function fetchProposalsFromIDs($pids)
+{
+	$props = implode(", ", $pids);
+	$sql = "SELECT * FROM `proposals`
+			WHERE `id` IN ($props)";
+			
+	if ($result = mysql_query($sql))
+	{	
+		$proposals = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$proposals[] = $row;
+		}
+		return $proposals;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function getUserFinalVotes($userid, $pids)
+{
+	$props = implode(", ", $pids);
+	$sql = "SELECT `proposalid`, `vote` FROM `finalvotes`
+		WHERE `userid` = $userid
+		AND `proposalid` IN ($props)";
+		
+	set_log(__FUNCTION__.": $sql");
+	
+	if ($result = mysql_query($sql))
+	{	
+		$votes = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$votes[$row['proposalid']] = $row['vote'];
+		}
+		return $votes;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function setUserFinalVotes($userid, $votes)
+{
+	//set_log(__FUNCTION__." called...");
+	$sql = "INSERT INTO `finalvotes` (`userid`, `proposalid`, `vote`) VALUES ";
+	
+	$len = count($votes);
+	$i = 1;
+	foreach($votes as $pid => $vote)
+	{
+		$sql .= "($userid, $pid, $vote)";
+		$sql .= ($i < $len) ? ', ' : '';
+		$i++;
+	}
+	
+	if ($result = mysql_query($sql))
+	{
+		//set_log("Final votes updated for user $userid for question $question...");
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function updateUserFinalVotes($userid, $votes)
+{	
+	//set_log(__FUNCTION__." called...");
+	$sql = "UPDATE `finalvotes` SET `vote` = 
+		CASE ";
+			
+	foreach($votes as $pid => $vote)
+	{		
+		$sql .= "WHEN `userid` = $userid AND `proposalid` = $pid THEN $vote ";
+	}
+	
+	$sql .= "ELSE `vote`
+		END
+	";
+		
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function setUserFinalVote($userid, $pid, $vote)
+{
+	$sql = "INSERT INTO `finalvotes` (`userid`, `proposalid`, `vote`) VALUES
+		($userid, $pid, $vote)";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function updateUserFinalVote($userid, $pid, $vote)
+{
+	$sql = "UPDATE `finalvotes` SET `vote` = $vote 
+		WHERE `userid` = $userid AND `proposalid` = $pid";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function deleteUserFinalVote($userid, $pid)
+{
+	$sql = "DELETE FROM `finalvotes` 
+		WHERE `userid` = $userid
+		AND `proposalid` = $pid";
+	
+	if ($result = mysql_query($sql))
+	{
+		if (mysql_affected_rows() == 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+// Returns 1 if voted, 0 otherwise
+function hasUserVotedForPropFinal($pid, $userid)
+{
+	set_log(__FUNCTION__." called...");
+	$sql = "SELECT EXISTS(
+				SELECT proposalid FROM `finalvotes`
+				WHERE `userid` = $userid
+				AND `proposalid` = $pid
+			) AS voted
+	";
+	
+	// Save sql to debug error: incorrectly returning "Not voted yet" result
+	set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['voted'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+// Returns 1 if voted, 0 otherwise
+function hasUserVotedFinal($question, $userid)
+{
+	set_log(__FUNCTION__." called...");
+	$sql = "SELECT !EXISTS(
+				SELECT id FROM `proposals`
+				WHERE `questionid` = $question
+				AND `layer` = 1
+				AND `id` NOT IN
+				(
+					SELECT proposalid FROM `finalvotes`
+					WHERE `userid` = $userid
+				)
+			) AS voted
+	";
+	
+	// Save sql to debug error: incorrectly returning "Not voted yet" result
+	//set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['voted'];
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function outstandingFinalVotes($question, $userid)
+{
+	$sql = "SELECT id FROM `proposals`
+			WHERE `questionid` = $question
+			AND `layer` = 1
+			AND id NOT IN
+			(
+				SELECT proposalid FROM finalvotes
+				WHERE userid = $userid
+			)
+	";
+	
+	if ($result = mysql_query($sql))
+	{	
+		$outstanding = array();
+		while ($row = mysql_fetch_assoc($result))
+		{
+			array_push($outstanding, $row);
+		}
+		return $outstanding;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+// ----------------- Final Votes --------------------
+function FetchParetoFrontIDs($question, $generation)
+{
+	// Make sure the PF is already stored in the database
+	CalculateParetoFront($question, $generation);
+	
+	$sql = "SELECT `id` FROM `proposals` 
+		WHERE `experimentid` = $question 
+		AND `roundid` = $generation
+		AND `dominatedby` = 0";
+	
+	$response = mysql_query($sql);
+	$pareto = array();
+	
+	if (!$response)
+	{
+		set_log(__FUNCTION__.": $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($response) == 0)
+	{
+		set_log("No Pareto Front?");
+		return false;
+	}
+	else
+	{
+		while ($row = mysql_fetch_assoc($response))
+		{
+			$pareto[] = $row['id'];
+		}
+		return $pareto;
+	}
+}
+
+function FetchParetoFront($question, $generation)
+{
+	// Make sure the PF is already stored in the database
+	CalculateParetoFront($question, $generation);
+	
+	$sql = "SELECT * FROM `proposals` 
+		WHERE `experimentid` = $question 
+		AND `roundid` = $generation
+		AND `dominatedby` = 0";
+	
+	$response = mysql_query($sql);
+	$pareto = array();
+	
+	if (!$response)
+	{
+		set_log(__FUNCTION__.": $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($response) == 0)
+	{
+		set_log("No Pareto Front?");
+		return false;
+	}
+	else
+	{
+		while ($row = mysql_fetch_assoc($response))
+		{
+			$pareto[] = $row;
+		}
+		return $pareto;
+	}
+}
+
 //  ********************************************/
 //A function, that let you recalculate what the pareto front for a particular generation
 //it is not that useful since we store that information
 //so it is only useful the first time or to check if the pareto front is the same
 //or when we need to recalculate it every time during interactive voting
 //   ********************************************/
-function CalculateParetoFront($question,$generation)
+function CalculateParetoFront($question, $generation)
 {
 	$proposals=array();
 	$dominated=array();
 	$done=array(); //the list of the proposals already considered
-	$sql = "SELECT id FROM proposals 
-		WHERE experimentid = $question AND roundid = $generation";
+	$sql = "SELECT `id` FROM `proposals` 
+		WHERE `experimentid` = $question AND `roundid` = $generation";
 	$response = mysql_query($sql);
+	
+	if (!$response)
+	{
+		set_log(__FUNCTION__.": Error: $sql");
+		return false;
+	}
+	
 	while ($row = mysql_fetch_array($response))
 	{
 		array_push($proposals,$row[0]);
@@ -6581,6 +7185,52 @@ function CalculateParetoFront($question,$generation)
 				array_push($dominated,$p1);
 				$sql = "UPDATE proposals SET dominatedby = ".$p2." WHERE id = ".$p1;
 				mysql_query($sql);
+				break;
+			}
+		}
+	}
+	
+	$paretofront=array_diff($proposals,$dominated);
+	
+	return $paretofront;
+}
+function CalculatePareto($question, $generation)
+{
+	$proposals=array();
+	$dominated=array();
+	$done=array(); //the list of the proposals already considered
+	$sql = "SELECT `id` FROM `proposals` 
+		WHERE `experimentid` = $question AND `roundid` = $generation";
+	$response = mysql_query($sql);
+	
+	if (!$response)
+	{
+		set_log(__FUNCTION__.": Error: $sql");
+		return false;
+	}
+	
+	while ($row = mysql_fetch_array($response))
+	{
+		array_push($proposals,$row[0]);
+	}
+	foreach ($proposals as $p1)
+	{
+		array_push($done,$p1);
+		foreach ($proposals as $p2)
+		{
+			if (in_array($p2,$done)) 
+			{
+				continue;
+			}
+			$dominating=WhoDominatesWho($p1,$p2);
+			if ($dominating==$p1)
+			{
+				array_push($dominated,$p2);
+				continue;
+			}
+			elseif ($dominating==$p2)
+			{
+				array_push($dominated,$p1);
 				break;
 			}
 		}

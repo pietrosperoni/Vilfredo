@@ -37,6 +37,23 @@ var recaptcha_public_key = '<?php echo $recaptcha_public_key;?>';
 $question = fetchValidQuestionFromQuery();
 $room = fetchValidRoomFromQuery();
 
+$eval_phase = getQuestionPhase($question);
+	
+if ($eval_phase == 'voting')
+{
+	$url = "voting.php?q=".$question;
+	$url .= ($room != '') ? '&room='.$room : '';
+	header("Location: ".$url);
+	exit;
+}
+elseif ($eval_phase == 'closed')
+{
+	$url = "viewvotingresults.php?q=".$question;
+	$url .= ($room != '') ? '&room='.$room : '';
+	header("Location: ".$url);
+	exit;
+}
+
 // Return false if bad query parameters passed
 if ($question === false || $room === false )
 {

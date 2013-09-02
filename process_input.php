@@ -76,12 +76,14 @@ function register_user()
 		set_message("error", $msg);
 		$errors = true;
 	}
+	/*
 	if (!checkMinStringLength($pass, MIN_LEN_PASSWORD))
 	{
 		$msg = "Your password should be at least ".MIN_LEN_PASSWORD." characters.";
 		set_message("error", $msg);
 		$errors = true;
 	}
+	*/
 	
 	if (validEmail($username))
 	{

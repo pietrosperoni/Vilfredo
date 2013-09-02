@@ -143,7 +143,6 @@ $room_param = CreateNewQuestionURL();
 
 
 	echo '<div class="leftfloatbox">';
-
 	echo '<div class="proposingbox">';
 
 	echo '<h2> <img src="images/writing.jpg" height=48> ' . $VGA_CONTENT['propose_ans_txt'] . '</h2><p>';
@@ -329,7 +328,7 @@ $room_param = CreateNewQuestionURL();
 		$sql = "SELECT questions.id, questions.title, questions.roundid, questions.phase, 
 		users.username, users.id, questions.minimumtime, questions.maximumtime, questions.room  
 		FROM questions, users 
-		WHERE questions.phase = 1 AND users.id = questions.usercreatorid " . $question_filter . " 
+		WHERE questions.phase = 1 AND users.id = questions.usercreatorid AND questions.evaluation_phase != 'closed'" . $question_filter . " 
 		ORDER BY questions.lastmoveon DESC, questions.roundid DESC, 
 		questions.phase DESC, questions.id DESC ";
 		$response = mysql_query($sql);
@@ -436,18 +435,17 @@ echo '<div class="clearboth">&nbsp;</div>';
 	echo "<p>{$VGA_CONTENT['reopen_txt']}</p>";
 
 	$sql = "SELECT questions.id, questions.title, questions.roundid, 
-		questions.phase, users.username, users.id, questions.room  
+		questions.phase, users.username, users.id, questions.room, questions.evaluation_phase
 		FROM questions, users 
-		WHERE questions.phase = 0 AND users.id = questions.usercreatorid 
+		WHERE questions.phase = 0
+		AND users.id = questions.usercreatorid 
 		$question_filter
 		ORDER BY  questions.lastmoveon DESC, questions.id DESC";
+		
+	//set_log("Get finished questions: $sql");
+	
 	$response = mysql_query($sql);
-	$printed = false;
-	if (!$printed) 
-	{
-		//set_log('$sql = ' . $sql);
-		$printed = true;
-	}
+	
 	while ($row = mysql_fetch_array($response))
 	{
 		echo '<p>';
@@ -464,6 +462,30 @@ echo '<div class="clearboth">&nbsp;</div>';
 		$nrecentendorsers=CountEndorsers($questionid,$generation-1);
 		$nAuthorsNewProposals=count(AuthorsOfNewProposals($questionid,$generation));
 		$nrecentparetofront=count(ParetoFront($questionid,$generation-1));
+		
+		if ($row['evaluation_phase'] == 'closed')
+		{
+			$winning_proposal = getFinalVoteWinnerProposal($questionid);
+			
+			echo '<fieldset class="foottip">';
+			echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/don-piefcone/395175227/"><img src="images/apple.jpg" title="Final Voting Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewvotingresults.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
+
+					$UserString=WriteUserVsReader($thatuserid,$userid);
+					echo RenderQIconInfo($UserString, $room) . '<br />';
+					echo '</td></tr></table>';
+					echo '<div class="invisible" id="footnote' . $row[0] . '">';
+						
+					echo '<ol>';
+					$answerid = $winning_proposal['id'];
+					$answertext = $winning_proposal['blurb'];
+					$votes = $winning_proposal['votes'];
+					set_log("ANSWER TEXT: $answertext");
+					echo '<li>'.$answertext.' - '. $votes.' votes'.'</li>';
+					echo '</ol>';
+					echo '</div>';
+					echo '</fieldset>';
+						
+		}
 		
 		// If there are no new proposals, just the pareto from previous generation
 		if($nAuthorsNewProposals == 0)
@@ -488,7 +510,6 @@ echo '<div class="clearboth">&nbsp;</div>';
 					if (mysql_num_rows($response3) > 1)
 					{
 						echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="' . $VGA_CONTENT['agree_more_title'] . '" height=42 ></a></td><td class="unanimity_info"><a href="viewresults.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
-						#echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/lencioni/2223801603/"><img src="images/fruits.jpg" title="' . $VGA_CONTENT['agree_more_title'] . '" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 						
 						$UserString=WriteUserVsReader($thatuserid,$userid);
 
@@ -496,7 +517,6 @@ echo '<div class="clearboth">&nbsp;</div>';
 					}
 					else
 					{
-						#echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/don-piefcone/395175227/"><img src="images/apple.jpg" title="Generated Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewquestion.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 						echo '<table border=0 class="unanimity"><tr><td><a href="http://www.flickr.com/photos/don-piefcone/395175227/"><img src="images/apple.jpg" title="Generated Answer" height=42 ></a></td><td class="unanimity_info"><a href="viewresults.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
 
 						$UserString=WriteUserVsReader($thatuserid,$userid);
@@ -521,7 +541,6 @@ echo '<div class="clearboth">&nbsp;</div>';
 						$answerid=$row3[0];
 						$answertext=$row3[1];
 						echo '<li>'.$answertext.'</li>';
-#						echo 'ANSWER: '.$answertext.'      ';
 					}
 					echo '</ol>';
 					echo '</div>';
@@ -533,6 +552,72 @@ echo '<div class="clearboth">&nbsp;</div>';
 	}
 	 echo '</div>';
 	 echo '</div>';
+	
+	//========================================================================//
+	echo '<div class="centerbox">';
+	echo '<div class="solvedfinalvotingbox">';
+	echo '<h2><img src="images/voting-hands.jpg" height=48>' . 'Questions solved by final voting' . '</h2><p>';
+	echo "<p>{$VGA_CONTENT['reopen_txt']}</p>";
+
+	$sql = "SELECT questions.id, questions.title, questions.roundid, 
+		questions.phase, users.username, users.id, questions.room, questions.evaluation_phase
+		FROM questions, users 
+		WHERE questions.evaluation_phase = 'closed'
+		AND users.id = questions.usercreatorid 
+		$question_filter
+		ORDER BY  questions.lastmoveon DESC, questions.id DESC";
+		
+	//set_log("Get finished questions: $sql");
+	
+	$response = mysql_query($sql);
+	
+	while ($row = mysql_fetch_array($response))
+	{
+		echo '<p>';
+		$phase=$row[3];
+		$generation=$row[2];
+		$thatusername=$row[4];
+		$thatuserid=$row[5];
+		$questionid=$row[0];
+		$room=$row[6];
+
+		$urlquery = CreateQuestionURL($questionid, $room);
+
+		$nrecentproposals=CountProposals($questionid,$generation);
+		$nrecentendorsers=CountEndorsers($questionid,$generation-1);
+		$nAuthorsNewProposals=count(AuthorsOfNewProposals($questionid,$generation));
+		$nrecentparetofront=count(ParetoFront($questionid,$generation-1));
+		
+		if ($row['evaluation_phase'] == 'closed')
+		{
+			$winning_proposal = getFinalVoteWinnerProposal($questionid);
+			
+			echo '<fieldset class="foottip">';
+			echo '<table border=0 class="unanimity"><tr><td><img src="images/picked.jpg" title="Final Voting Answer" height=42 ></td><td class="unanimity_info"><a href="viewvotingresults.php' . $urlquery . '" tooltip="#footnote' . $row[0] . '">' . $row[1] . '</a> ';
+
+					$UserString=WriteUserVsReader($thatuserid,$userid);
+					echo RenderQIconInfo($UserString, $room) . '<br />';
+					echo '</td></tr></table>';
+					echo '<div class="invisible" id="footnote' . $row[0] . '">';
+						
+					echo '<ol>';
+					$answerid = $winning_proposal['id'];
+					$answertext = $winning_proposal['blurb'];
+					$votes = $winning_proposal['votes'];
+					set_log("ANSWER TEXT: $answertext");
+					echo '<li>'.$answertext.' - '. $votes.' votes'.'</li>';
+					echo '</ol>';
+					echo '</div>';
+					echo '</fieldset>';
+						
+		}
+		echo '</p>';
+	}
+	 echo '</div>';
+	 echo '</div>';
+	//========================================================================//
+	
+	
 	 echo '<div class="clearboth"></div>';
 	 ?></div>
 	 </div><!-- panels -->
