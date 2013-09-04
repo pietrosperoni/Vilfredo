@@ -2054,6 +2054,8 @@ function GetProposal($proposal)
 	 $sql = "SELECT *
 	     FROM `proposals`
 	     WHERE `id` = $proposal";
+	
+	set_log(__FUNCTION__.": $sql");
 
 	$result = mysql_query($sql);
 	
@@ -4282,7 +4284,7 @@ function TimeLastProposalOrEndorsement($question, $phase, $generation)
 {
 	if ($phase)
 	{
-		$sql = "SELECT endorse.endorsementdate FROM proposals, endorse WHERE proposals.experimentid = ".$question." and proposals.roundid = ".$generation." and proposals.id = endorse.proposalid  ORDER BY endorse.endorsementdate  LIMIT 100 ;";
+		$sql = "SELECT endorse.endorsementdate FROM proposals, endorse WHERE proposals.experimentid = ".$question." AND proposals.roundid = ".$generation." and proposals.id = endorse.proposalid  ORDER BY endorse.endorsementdate  LIMIT 100 ;";
 		$response = mysql_query($sql);
 		while ($row = mysql_fetch_array($response))
 		{
@@ -6663,6 +6665,94 @@ function MoveToFinalVoting_alt($userid, $question)
 		return false;
 	}
 }
+
+function AutoMoveDormantToFinalVoting()
+{
+	$sql = "UPDATE `questions` AS `quest`
+			LEFT JOIN
+			(
+				SELECT `experimentid`, COUNT(*) as `new_props` 
+				FROM `proposals` as `prop`, `questions` as `quest`
+				WHERE `prop`.`experimentid` = `quest`.`id`
+				AND `prop`.`roundid` = `quest`.`roundid`
+				AND `quest`.`phase` = 0 AND `quest`.`evaluation_phase` = 'evaluation'
+				AND `prop`.`source` = 0
+				GROUP BY `experimentid`
+			)
+			AS `props` ON `props`.`experimentid` = `quest`.`id`
+			LEFT JOIN
+			(
+				SELECT `experimentid`, COUNT(*) as `pf_props`
+				FROM `proposals` as `prop`, `questions` as `quest`
+				WHERE `prop`.`experimentid` = `quest`.`id`
+				AND `prop`.`roundid` = `quest`.`roundid`
+				AND `quest`.`phase` = 0 AND `quest`.`evaluation_phase` = 'evaluation'
+				AND `prop`.`source` != 0
+				GROUP BY `experimentid`
+			)
+			AS `pf` ON `pf`.`experimentid` = `quest`.`id`
+			SET `quest`.`evaluation_phase` = 'voting'
+			WHERE COALESCE(`props`.`new_props`, 0) = 0
+			AND COALESCE(`pf`.`pf_props`, 0) > 1
+			AND NOW() - `quest`.`lastmoveon` >= `quest`.`maximumtime`";
+	
+	if (mysql_query($sql))
+	{
+		set_log(__FUNCTION__.": ".mysql_affected_rows()." proposals moved to final voting");
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function AutoMoveDormantToFinalVoting_v1()
+{
+	$sql = "UPDATE `questions` AS `quest` 
+			LEFT JOIN
+			(
+				SELECT `experimentid`, COUNT(*) as `new_props` 
+				FROM `proposals` as `prop`, `questions` as `quest`
+				WHERE `prop`.`experimentid` = `quest`.`id`
+				AND `prop`.`roundid` = `quest`.`roundid`
+				AND `quest`.`phase` = 0 AND `quest`.`evaluation_phase` = 'evaluation'
+				AND NOW() - `prop`.`creationtime` <= `quest`.`maximumtime`
+				GROUP BY `experimentid`
+			)
+			AS `props` ON `props`.`experimentid` = `quest`.`id`
+			SET `quest`.`evaluation_phase` = 'voting'
+			WHERE COALESCE(`props`.`new_props`, 0) = 0";
+	
+	if (mysql_query($sql))
+	{
+		set_log(__FUNCTION__.": ".mysql_affected_rows()." proposals moved to final voting");
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function VilfredoMoveToFinalVoting($question)
+{
+	$sql = "UPDATE `questions`
+	SET `evaluation_phase` = 'voting'
+	WHERE `id` = $question";
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
 function MoveToFinalVoting($userid, $question)
 {
 	$sql = "UPDATE `questions`
@@ -6776,13 +6866,26 @@ function getWinningVoteForQuestion($qid)
 	$pids = CalculatePareto($qid, $question['roundid']);
 	return getWinningVote($pids);
 }
+function getParetoCountForQuestion($qid)
+{	
+	$question = GetQuestion($qid);
+	$pids = CalculatePareto($qid, $question['roundid']);
+	return count($pids);
+}
 
 function getFinalVoteWinnerProposal($qid)
 {	
 	$winner = getWinningVoteForQuestion($qid);
-	$winning_prop = GetProposal($winner['proposalid']); 
-	$winning_prop['votes'] = $winner['votes'];
-	return $winning_prop;
+	if ($winner)
+	{
+		$winning_prop = GetProposal($winner['proposalid']); 
+		$winning_prop['votes'] = $winner['votes'];
+		return $winning_prop;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 function getWinningVote($pids)
@@ -6799,8 +6902,15 @@ function getWinningVote($pids)
 	
 	if ($result = mysql_query($sql))
 	{	
-		$row = mysql_fetch_assoc($result);
-		return $row;
+		if (mysql_num_rows($result))
+		{
+			$row = mysql_fetch_assoc($result);
+			return $row;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{

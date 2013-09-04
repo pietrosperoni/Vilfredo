@@ -908,7 +908,7 @@ function ajax_error(jqxhr, status, error)
 	$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 	if (!$lastmoveonTime)
 	{
-		$lastmoveonTime = strtotime( $QuestionInfo['usercreatorid'] );
+		$lastmoveonTime = strtotime( $QuestionInfo['lastmoveon'] ); // huh?
 	}
 
 	$timeelapsed=time()-$lastmoveonTime;
@@ -1088,9 +1088,8 @@ function ajax_error(jqxhr, status, error)
 		}		
 	}
 	
-	echo '</div>';  //MISSING DIV ?
+	echo '</div>';  
 
-	//****** PASTE HERE
 	echo '<div id="actionbox">';
 	echo "<h3>{$VGA_CONTENT['gen_txt']} ".$generation.": ";
 	if ( $phase==0)
@@ -1105,10 +1104,33 @@ function ajax_error(jqxhr, status, error)
 			echo "<p><i>{$VGA_CONTENT['what_to_do_2_txt']}</i></p>";
 		}
 
-		$NProposals=CountProposals($question,$generation);
-		$NAuthors=CountAuthorsOfNewProposals($question,$generation);
+		$NProposals = CountProposals($question, $generation);
+		$NAuthors = CountAuthorsOfNewProposals($question, $generation);
+		
+		// DONOW
+		/*
+		$movetofinalvoting = false;
+		$lastmoveonTime = TimeLastProposalOrEndorsement($question, $phase, $generation);
+		if (!$lastmoveonTime)
+		{
+			$lastmoveonTime = strtotime( $QuestionInfo['lastmoveon'] );
+		}
+		
+		$maxtime = (int)$QuestionInfo['maximumtime'];
+
+		$timeelapsed = time() - $lastmoveonTime;
+		if ($timeelapsed >= $maxtime)
+		{
+			if (VilfredoMoveToFinalVoting($question))
+			{
+				$url = "voting.php?q=".$question;
+				$url .= ($room != '') ? '&room='.$room : '';
+				header("Location: ".$url);
+				exit;
+			}
+		}*/
 	
-		echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".CountAuthorsOfNewProposals($question,$generation)."</span></p>";
+		echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".$NAuthors."</span></p>";
 		echo "<p>{$VGA_CONTENT['num_props_txt']}: <span id=\"np\">".$NProposals."</span></p>";
 	}
 	if ( $phase==1)
@@ -1531,7 +1553,7 @@ if ($userid) {
 		
 		?>
 		<script>
-		votingcommentslist = <?=json_encode($commentslist)?>; // DONOW
+		votingcommentslist = <?=json_encode($commentslist)?>; 
 		var user_commentid = <?=json_encode($user_commentid)?>;
 		</script>
 		<?php
@@ -1935,7 +1957,7 @@ if ($userid) {
 								
 								echo "$uString voted against proposal $proposalNumber ";
 								
-								// Display users comment DONOW
+								// Display users comment 
 								if (isset($ucomments[$dsl]) && $vote=="like")
 								{
 									echo " <span class=\"kpreadcomment\" title=\"{$ucomments[$dsl]['comment']}\">(Show Comment)</span> ";

@@ -911,6 +911,17 @@ h1 img {
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
+.finalvotingbox {
+    background-color:#79CDCD;
+	width:100%;
+	border:1px solid #B45F04;
+	padding:15px;
+	text-align: center;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
 
 /*
 .solvedbox h2,p {
