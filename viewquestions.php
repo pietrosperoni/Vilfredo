@@ -430,6 +430,7 @@ AutoMoveDormantToFinalVoting();
 echo '<div class="clearboth">&nbsp;</div>';
 
 
+
 	# In Final Voting
 	
 	//========================================================================//
@@ -491,6 +492,10 @@ echo '<div class="clearboth">&nbsp;</div>';
 	 echo '</div>';
 	 echo '</div>';
 	//========================================================================//
+	
+	
+	
+	# Solved by Final Voting
 	//========================================================================//
 	echo '<div class="rightfloatbox">';
 	echo '<div class="solvedfinalvotingbox">';
