@@ -931,6 +931,12 @@ function set_trace($msg, $log = false)
 function log_error($msg)
 {
 	$timestamp = date("D M j G:i:s T Y");
+	
+	if (is_array($msg))
+	{
+		$msg = print_r($msg, true);
+	}
+	
 	error_log("log_error: $msg $timestamp \n", 3, ERROR_FILE);
 }
 
