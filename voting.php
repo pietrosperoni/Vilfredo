@@ -18,6 +18,7 @@ $room = fetchValidRoomFromQuery();
 // Return false if bad query parameters passed
 if ($question === false || $room === false)
 {
+	log_error("Parameters not set: question = $question, room = $room");
 	header("Location: error_page.php");
 	exit;
 }
@@ -35,6 +36,7 @@ $QuestionInfo = GetQuestion($question);
 
 if (!$QuestionInfo)
 {
+	log_error("Failed to return question info for QID $question");
 	header("Location: error_page.php");
 	exit;
 }
@@ -88,11 +90,13 @@ set_log('$proposals');
 set_log($proposals);
 shuffle($proposals);
 
-
-//CalculateParetoFrontFromProposals($proposals)
-$uservotes = getUserFinalVotes($userid, $pids);
-set_log('$uservotes');
-set_log($uservotes);
+if ($userid)
+{
+	//CalculateParetoFrontFromProposals($proposals)
+	$uservotes = getUserFinalVotes($userid, $pids);
+	set_log('$uservotes');
+	set_log($uservotes);
+}
 ?>
 
 <link rel="stylesheet" href="css/velocity.css" />
@@ -403,7 +407,7 @@ set_log($uservotes);
 <?php
 if (!$userid)
 {
-	$request = $bubblesdir."/voting.php?qb=$question";
+	$request = $bubblesdir."/voting.php?q=$question";
 	$request .= ($room != '') ? "&room=$room" : '';
 	$_SESSION['request'] = $request;
 ?>
