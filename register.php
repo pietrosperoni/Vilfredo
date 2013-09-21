@@ -2,6 +2,7 @@
 include('header.php');
 
 ?>
+<script type="text/javascript" src="js/<?=SVG_DIR?>/jquery-1.6.2.min.js"></script>
 <style type="text/css">
 input[type='submit'].registerbutton {
 	font-size: 1.2em;
@@ -108,7 +109,18 @@ else
 				<tr>
 					<td><?=$VGA_CONTENT['captch_req_label']?></td>
 					<td>
-						<?php echo recaptcha_get_html($recaptcha_public_key); ?>
+						<?php 
+						
+						if (empty($_SERVER['HTTPS'])) 
+						{
+							echo recaptcha_get_html($recaptcha_public_key); 
+						}
+						else
+						{
+							echo recaptcha_get_html($recaptcha_public_key, null, true); 
+						}
+						
+						?>
 					</td>
 				</tr>
 				<?php } ?>
