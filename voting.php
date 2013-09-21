@@ -425,7 +425,7 @@ else
 <div class="bubblescontent">
 <h2><?=$VGA_CONTENT['welcome_usr_txt']?> <?=$username?></h2>
 
-<?=$VGA_CONTENT['end_bubbling_phase']?>
+<p>The proposing and endorsing phase for this question has ended. It\'s time for you to evaluate the winning proposals from the existing winners.</p><p>Rate each proposal below from 0 to 10, than click the button to register your votes.</p><p>To maximise your influence you should try to have you lowest vote at 0/10 and your highest vote at 10/10.</p>
 
 <div class="votercount"></div>
 
