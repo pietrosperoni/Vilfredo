@@ -155,13 +155,11 @@ $week_and_a_half = $VGA_CONTENT['week and a half'];
     <option value="2419200">4 <?= $VGA_CONTENT['time_weeks_txt'] ?></option>
     <option value="2592000">30 <?= $VGA_CONTENT['time_days_txt'] ?> / 1 month</option>
   <option value="2678400">31 <?= $VGA_CONTENT['time_days_txt'] ?></option>
-</select> <br/>
+</select> <br/><br/>
 <?=$VGA_CONTENT['max_min_exp_txt']?><br/><br/>
 
-<h4><?=$VGA_CONTENT['perm_anon_txt']?></h4>
-<p><?=$VGA_CONTENT['permit_anon_txt']?></p>
-<p><Input type = "Checkbox" Name ="permit_anon_votes" id="permit_anon_votes" title="<?=$VGA_CONTENT['anon_votes_title']?>" value="" /> <?=$VGA_CONTENT['anon_vote_txt']?></p>
-<p><Input type = "Checkbox" Name ="permit_anon_proposals" id="permit_anon_proposals" title="<?=$VGA_CONTENT['anon_props_title']?>" value="" /> <?=$VGA_CONTENT['anon_props_txt']?></p>
+
+	
 
 </div>
 
