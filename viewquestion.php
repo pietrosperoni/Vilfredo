@@ -796,8 +796,8 @@ function ajax_error(jqxhr, status, error)
 	$author=$QuestionInfo['usercreatorid'];
 	$bitlyhash = $QuestionInfo['bitlyhash'];
 	$shorturl = '';
-	$permit_anon_votes = $QuestionInfo['permit_anon_votes'];
-	$permit_anon_proposals = $QuestionInfo['permit_anon_proposals'];
+	$permit_anon_votes = 0; //$QuestionInfo['permit_anon_votes'];
+	$permit_anon_proposals = 0; //$QuestionInfo['permit_anon_proposals'];
 	
 	$question_url = SITE_DOMAIN."/viewquestion.php".CreateQuestionURL($question,$room);
 		
