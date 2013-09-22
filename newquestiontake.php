@@ -24,9 +24,7 @@ if ($userid)
 	$room = FormatRoomId($_POST['room_id']);
 	$title = GetMySQLEscapedPostParam('title');
 	$blurb = GetMySQLEscapedPostParam('question');
-	
-	printbr("Title = $title");
-	
+		
 	$mysql = array();
 	$mysql['room'] = mysql_real_escape_string($room);
 	
@@ -46,8 +44,6 @@ if ($userid)
 		$sql = "INSERT INTO `questions` (`question`, `roundid`, `phase` , `usercreatorid`, `title`, `lastmoveon`, `minimumtime`, `maximumtime`, `room`, `permit_anon_votes`, `permit_anon_proposals`) 
 		VALUES ('$blurb', 1, 0, $userid, '$title', NOW(), $minimumtime, $maximumtime , '{$mysql['room']}', $permit_anon_votes, $permit_anon_proposals)";
 
-		printbr($sql);
-		exit;
 		
 		if (!mysql_query($sql))
 		{
