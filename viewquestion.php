@@ -1106,29 +1106,6 @@ function ajax_error(jqxhr, status, error)
 
 		$NProposals = CountProposals($question, $generation);
 		$NAuthors = CountAuthorsOfNewProposals($question, $generation);
-		
-		// DONOW
-		/*
-		$movetofinalvoting = false;
-		$lastmoveonTime = TimeLastProposalOrEndorsement($question, $phase, $generation);
-		if (!$lastmoveonTime)
-		{
-			$lastmoveonTime = strtotime( $QuestionInfo['lastmoveon'] );
-		}
-		
-		$maxtime = (int)$QuestionInfo['maximumtime'];
-
-		$timeelapsed = time() - $lastmoveonTime;
-		if ($timeelapsed >= $maxtime)
-		{
-			if (VilfredoMoveToFinalVoting($question))
-			{
-				$url = "voting.php?q=".$question;
-				$url .= ($room != '') ? '&room='.$room : '';
-				header("Location: ".$url);
-				exit;
-			}
-		}*/
 	
 		echo "<p>{$VGA_CONTENT['num_authors_txt']}: <span id=\"anp\">".$NAuthors."</span></p>";
 		echo "<p>{$VGA_CONTENT['num_props_txt']}: <span id=\"np\">".$NProposals."</span></p>";
