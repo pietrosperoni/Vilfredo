@@ -68,9 +68,10 @@ function closeCommentsList(comments)
 	var dislikecommentslist = comments.find('.dislikecommentslist');
 	var confusedcommentslist = comments.find('.confusedcommentslist');
 	
-	dislikecommentslist.empty();
-	confusedcommentslist.empty();
-	comments.slideUp(500);
+	comments.slideUp(500, function(){
+		dislikecommentslist.empty();
+		confusedcommentslist.empty();	
+	});
 }
 
 function toggleCommentsList(comments)
@@ -260,7 +261,7 @@ $(function() {
 	$('.commentform textarea').live('click', function(event){
 		var form = $(this).parents('.commentform');
 		var comments = form.siblings('.comments');
-		var radios = comments.find('.select_comment input');
+		var radios = comments.find('.select_comment input'); // here
 		
 		var selectcomments = $(this).parents('.commentform').siblings('.comments').find('.select_comment input');
 		selectcomments.each(function(){
@@ -284,18 +285,18 @@ $(function() {
 			closeCommentsList(comments);
 			
 			$(this).parents('td').siblings('td.proposalcontent').find('.commentform').slideUp(500);
-			/*
+			
 			// Remove comment select buttons
 			comments.find('.dislikecommentslist .select_comment').each(function(i){
 				$(this).fadeOut(1000);
-				$(this).prop('checked', false);
+				$(this).children('input').prop('checked', false);
 			});
 			comments.find('.confusedcommentslist .select_comment').each(function(i){
 				$(this).fadeOut(1000);
-				$(this).prop('checked', false);
+				$(this).children('input').prop('checked', false);
 			});
-			comments.slideUp(1000);
-			*/
+			//comments.slideUp(1000);
+			//
 		}
 		else if ($(this).hasClass('2') || $(this).hasClass('3'))
 		{
@@ -324,14 +325,14 @@ $(function() {
 				});
 				comments.find('.confusedcommentslist .select_comment').each(function(i){
 					$(this).fadeOut(1000);
-					$(this).prop('checked', false);
+					$(this).children('input').prop('checked', false);
 				});
 			}
 			else if ($(this).hasClass('3'))
 			{
 				comments.find('.dislikecommentslist .select_comment').each(function(i){
 					$(this).fadeOut(1000);
-					$(this).prop('checked', false);
+					$(this).children('input').prop('checked', false);
 				});
 				comments.find('.confusedcommentslist .select_comment').each(function(i){
 					$(this).fadeIn(1000);
@@ -341,11 +342,11 @@ $(function() {
 			{
 				comments.find('.dislikecommentslist .select_comment').each(function(i){
 					$(this).fadeOut(1000);
-					$(this).prop('checked', false);
+					$(this).children('input').prop('checked', false);
 				});
 				comments.find('.confusedcommentslist .select_comment').each(function(i){
 					$(this).fadeOut(1000);
-					$(this).prop('checked', false);
+					$(this).children('input').prop('checked', false);
 				});
 			}
 			
@@ -397,7 +398,7 @@ $(function() {
 	
 	// Commet textarea counter
 	$(".commentform textarea").charCount({
-		allowed: 100,		
+		allowed: 300,		
 		warning: 20,
 		counterText: "<?=$VGA_CONTENT['char_count_label']?>" + " "
 	});
@@ -908,7 +909,7 @@ function ajax_error(jqxhr, status, error)
 	$lastmoveonTime=TimeLastProposalOrEndorsement($question, $phase, $generation);
 	if (!$lastmoveonTime)
 	{
-		$lastmoveonTime = strtotime( $QuestionInfo['lastmoveon'] ); // huh?
+		$lastmoveonTime = strtotime( $QuestionInfo['lastmoveon'] );
 	}
 
 	$timeelapsed=time()-$lastmoveonTime;
@@ -1688,7 +1689,7 @@ if ($userid) {
 						$question_url, 
 						$voting_settings['proposal_node_layout'],
 						$voting_settings['user_node_layout'], 
-						$voting_settings['anonymize_graph']);									
+						$voting_settings['anonymize_graph']);	
 					
 					$pfvotesgraph =  GenerateMapFromArray(
 						$question,
@@ -1871,7 +1872,7 @@ if ($userid) {
 				if (sizeof($ParetoFrontMinus))
 				{
 					$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcludingKnowingDiff($proposalsEndorsers,$ParetoFront,$userid,$ParetoFrontMinus);
-					#$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$ParetoFront,$userid);
+						#$HomeWork=CalculateKeyPlayersKnowingPFfromArrayInteractiveExcluding($proposalsEndorsers,$ParetoFront,$userid);
 					if (count($HomeWork) > 0)
 					{
 						echo "<div class=\"feedback\">You are a Key Player. This means that with your vote you could simplify the Pareto Front. Please look at proposal(s) ";

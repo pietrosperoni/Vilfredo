@@ -549,6 +549,9 @@ div.invisible {
 }
 .kpcomment { 
     width: 400px;
+    /* height: 150px; */
+	min-height: 80px;
+    height: auto !important;
     height: 80px;
     background-color: white;
     padding: 5px;
@@ -1119,7 +1122,10 @@ td.votes {
 .commentslist .comment {
 	border: 1px solid gray;
 	width: 400px;
-	height: 80px;
+	/* height: 150px; */
+	min-height: 80px;
+    height: auto !important;
+    height: 80px;
 	background-color: #FAEBD7;
 	float: right;
 	position: relative;
