@@ -1632,6 +1632,50 @@ if ($userid) {
 					}
 					
 					
+					//******
+					// Snapshots
+					//******
+					if (isset($_SESSION["updatemap"]))
+					{
+						set_log('User changed vote - taking map snapshots...');
+						unset($_SESSION["updatemap"]);
+						//
+						$votesgraph = SaveSnapshot(
+							$userid,
+							$question,
+							$generation,
+							$room,
+							"all",
+							$proposalsEndorsers,
+							$ParetoFront,
+							$room,
+							0,
+							"M", 
+							0,
+							$question_url, 
+							"NVotes",
+							"NVotes", 
+							false);	
+					
+						$pfvotesgraph =  SaveSnapshot(
+							$userid,
+							$question,
+							$generation,
+							$room,
+							"pareto",
+							$ParetoFrontEndorsers,
+							$ParetoFront,
+							$room,
+							0,
+							"M",
+							0,
+							$question_url,
+							"NVotes",
+							"NVotes",
+							false);
+					}
+					//******
+					
 					$votesgraph = GenerateMapFromArray(
 						$question,
 						$generation,

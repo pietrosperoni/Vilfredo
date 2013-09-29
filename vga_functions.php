@@ -5560,11 +5560,12 @@ function commentExists($pid, $generation, $type, $comment)
 		return false;
 	}
 	
-	$sql = "SELECT `id` FROM `comments`
+	$sql = sprintf("SELECT `id` FROM `comments`
 	WHERE `proposalid` = $pid 
 	AND `type` = '$type'
 	AND `roundid` = $generation
-	AND `comment` = '$comment'";
+	AND `comment` = '%s'",
+		mysql_real_escape_string($comment));
 	
 	set_log(__FUNCTION__." - ".$sql);
 		
@@ -8363,18 +8364,282 @@ function InsertMapFromArray($question,$generation,$proposalsEndorsers,$paretofro
 function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
 	$svgfile=WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
-		if ($svgfile)
+	
+	if ($svgfile)
+	{
+		return $svgfile;
+	}
+	else
+	{
+		set_log(__FUNCTION__.": WriteGraphVizMapFromArray returned false....");
+		set_log(__FUNCTION__." svgfile = $svgfile");
+		return false;
+	}	
+}
+
+//
+//  ******************************************/
+// Snapshots
+//	Save snapshots after each vote
+// 
+// ******************************************/
+function SaveSnapshot($userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size="L",$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
+{
+	$svgfile=WriteSnapshot($userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
+	
+	if ($svgfile)
+	{
+		return $svgfile;
+	}
+	else
+	{
+		set_log(__FUNCTION__.": WriteSnapshot returned false....");
+		set_log(__FUNCTION__." svgfile = $svgfile");
+		return false;
+	}	
+}
+function WriteSnapshot($userid,$question,$generation,$room,$text,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
+{
+	set_log(__FUNCTION__." called...");
+	
+	$name=MapNameHashFromArray($question,$generation,$room,$proposalsEndorsers,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize,$text);
+	
+	set_log(__FUNCTION__." generated name = $name");
+	
+	// Save file hash
+	$snapshot_filename = SNAPSHOTS_PATH.SnapshotFileName($question,$generation,$room,$text).".json";
+	
+	$filename = SNAPSHOTS_PATH . $name;
+	
+	//set_log(__FUNCTION__." filename (path) = $filename");
+	$sz="11,8";
+	
+	if (file_exists($filename.".svg"))
+	{
+		//set_log(__FUNCTION__.": SVG map exists - returning filename.");
+		return $filename.".svg"; 
+	}
+#	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
+#	{
+#		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
+#		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
+#	}
+	
+	$MapFile = fopen($filename.".dot", "w+b");
+	
+	if ($MapFile === false)
+	{
+		set_log(__FUNCTION__.": Error opening map file! Check write permissions.");
+		return false;
+	}
+	
+	$buf = MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg",$Anonymize);
+	
+	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
+	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
+	
+	
+	//set_log("snapshot_filename = $snapshot_filename");
+	add_snapshot($snapshot_filename, $name);
+	add_dotfile_db($name, $buf);
+	add_snapshot_db($userid, $question, $generation, $text, $name);
+	
+	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $filename.dot -o$filename.svg";
+	//set_log(__FUNCTION__.": DOT STRING = $dot_string");
+	
+	if ($MapFile) 
+	{
+		fputs($MapFile,$buf);
+		fclose($MapFile);
+		$call_dot = system($dot_string);
+		
+		if ($call_dot === false)
 		{
-			return $svgfile;
+			set_log(__FUNCTION__.": DOT Error creating svg file.");
+			return false;
 		}
 		else
 		{
-			set_log(__FUNCTION__.": WriteGraphVizMapFromArray returned false....");
-			set_log(__FUNCTION__." svgfile = $svgfile");
+			set_log(__FUNCTION__.": DOT output: $call_dot");
+		}
+		
+		if (file_exists($filename.".svg"))
+		{		
+			set_log(__FUNCTION__.": SVG file created. Returning filename.");
+			return $filename.".svg";
+		}
+		else
+		{
+			set_log(__FUNCTION__.": Error creating svg file, please check write permissions.");
 			return false;
-		}	
+		}
+	}
+	else 
+	{ 
+		set_log(__FUNCTION__.": Error creating map file, please check write permissions.");
+		return false;
+	}	
 }
 
+function SnapshotFileName($question,$generation,$room,$text)
+{
+#	if ($InternalLinks)	{ $internal="here"; }
+#	else			{ $internal="there"; }
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_TXT".$text;
+	$translated=md5($totranslate);
+#	echo "To translate= $totranslate";
+#	echo "translated= $translated";
+	return $translated;	
+}
+
+function MapNameHashFromArray($question,$generation,$room,$proposalsEndorsers,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize, $text='')
+{
+#	if ($InternalLinks)	{ $internal="here"; }
+#	else			{ $internal="there"; }
+	$totranslate="map_R".$room."_Q".$question."_G".$generation."_".$InternalLinks.$ProposalLevelType.$UserLevelType.$Anonymize.serialize($proposalsEndorsers);
+	if (!empty($text))
+	{
+		$totranslate .= "_TXT".$text;
+	}
+	set_log("To translate: $totranslate");
+	$translated=md5($totranslate);
+#	echo "To translate= $totranslate";
+#	echo "translated= $translated";
+	return $translated;	
+}
+
+function save_snapshots($snapshots, $file)
+{
+	return file_put_contents($file, json_encode($snapshots));
+}
+
+function fetch_snapshots($file)
+{
+	$buffer = @file_get_contents($file);
+	if ($buffer !== false)
+	{
+		$json = @json_decode($buffer, true);
+		if ($json !== null)
+		{
+			return $json;
+		}
+	}
+
+	return array();
+}
+
+function add_snapshot($snapshot_file, $hash)
+{
+	$snapshots = array();
+	if (file_exists($snapshot_file))
+	{
+		$snapshots = fetch_snapshots($snapshot_file);
+	}
+	
+	$snapshots[] = $hash;
+	return save_snapshots($snapshots, $snapshot_file);
+	/*
+	if (!in_array($hash, $snapshots))
+	{
+		$snapshots[] = $hash;
+		return save_snapshots($snapshots, $snapshot_file);
+	}
+	else
+	{
+		set_log(__FUNCTION__.":: Duplicate hash created:: $hash");
+		return false;
+	}
+	*/
+}
+
+function fetch_dotfile($hash)
+{
+	set_log(__FUNCTION__." called...");
+	
+	if ($hash == '')
+	{
+		return false;
+	}
+	
+	$sql = "SELECT `dotstring` FROM `dotfiles`
+			WHERE `hash` = '$hash'";
+			
+	printbr($sql);
+			
+	if (!$result = mysql_query($sql))
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+	elseif (mysql_num_rows($result) > 0)
+	{
+		$row = mysql_fetch_assoc($result);
+		return $row['dotstring'];
+	}
+	else
+	{
+		return false;
+	}
+}
+function add_dotfile_db($hash, $dotstring)
+{
+	$sql = sprintf("INSERT IGNORE INTO `dotfiles`(`hash`, `dotstring`)
+			VALUES ('$hash', '%s')", $dotstring);
+		
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+
+function add_snapshot_db($userid, $question, $generation, $title, $hash)
+{
+	$sql = "INSERT INTO `snapshots`(`questionid`, `title`, `roundid`, `hash`, `userid`)
+			VALUES ($question, '$title', $generation, '$hash', $userid)";
+	
+	set_log($sql);
+	
+	if ($result = mysql_query($sql))
+	{
+		return true;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: " . $sql);
+		return false;
+	}
+}
+function fetch_snapshots_db($question, $generation, $title)
+{
+	$sql = "SELECT * FROM `snapshots` WHERE
+		   `questionid` = $question AND `roundid` = $generation AND `title` = '$title'";
+	
+	$result = mysql_query($sql);
+		
+	if (!$result)
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
+	
+	$snapshots = array();
+	
+	while($info = mysql_fetch_assoc( $result ))
+	{
+		$snapshots[] = $info;
+	}
+	
+	return $snapshots;
+}
+
+// *********************************************************/
+// ********************** Snapshots End ********************/
+// *********************************************************/
 
 function InsertMapX($question,$generation,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false)
 {
@@ -8506,59 +8771,17 @@ function WriteGraphVizMap($question,$generation,$highlightuser1=0,$size="L",$hig
 	return;
 }
 
-
-function WriteGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
-{
-	
-	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
-	$filename="map/".$name;
-	
-	##if($size=="L")     { $sz="11,5.5";	}
-	#if($size=="L")     { $sz="11,8";	}
-	##elseif($size=="M") { $sz= "8,4";	}
-	#elseif($size=="M") { $sz= "8,6";	}
-	##elseif($size=="S") { $sz= "6,3";    }
-	#elseif($size=="S") { $sz= "6,4";    }
-	#elseif($size=="XS"){ $sz= "4,2";    }
-	$sz="11,8";
-	
-	if (file_exists ( $filename.".svg"))		{return $filename.".svg"; }
-	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
-	{
-		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
-	}
-	$MapFile = fopen($filename.".dot", "w+");
-	$buf=MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorsers,$paretofront,$room,/*$highlightuser1=*/$highlightuser1,/*$highlightproposal1=*/$highlightproposal1,/*$size=*/$sz,/*$InternalLinks=*/$InternalLinks,/*$ProposalLevelType=*/$ProposalLevelType,/*$UserLevelType=*/$UserLevelType,/*addressImage=*/$name.".svg");
-	
-	// possible values: $UserLevelType     == "NVotes", "Layers", "Flat"
-	//                  $ProposalLevelType == "NVotes", "Layers"
-	
-	
-	if ($MapFile) 
-	{
-		fputs($MapFile,$buf);
-		fclose($MapFile);
-		system(GRAPHVIZ_DOT_ADDRESS." -Tsvg ".$filename.".dot >".$filename.".svg");
-		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
-	}
-	else { echo "<br /><b>Error creating map file, please check write permissions.</b><br />";}	
-	return;
-}
-
-
-
 function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
-	set_log(__FUNCTION__." called...");
+	//set_log(__FUNCTION__." called...");
 	
-	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize); //fixme
+	$name=MapNameFromArray($question,$generation,$proposalsEndorsers,$highlightuser1,$size,$highlightproposal1,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 	
-	set_log(__FUNCTION__." generated name = $name");
+	//set_log(__FUNCTION__." generated name = $name");
 	
 	$filename="map/".$name;
 	
-	set_log(__FUNCTION__." filename (path) = $filename");
+	//set_log(__FUNCTION__." filename (path) = $filename");
 	
 	##if($size=="L")     { $sz="11,5.5";	}
 	#if($size=="L")     { $sz="11,8";	}
@@ -8571,8 +8794,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	
 	if (file_exists ( $filename.".svg"))
 	{
-		set_log(1);
-		set_log(__FUNCTION__.": SVG map exists - returning filename.");
+		//set_log(__FUNCTION__.": SVG map exists - returning filename.");
 		return $filename.".svg"; 
 	}
 #	if (file_exists ( $filename.".dot") && filesize($filename.".dot") !== 0)
@@ -8585,8 +8807,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	
 	if ($MapFile === false)
 	{
-		set_log(2);
-		set_log(__FUNCTION__.": Error opening map file! Check write permissions.");
+		//set_log(__FUNCTION__.": Error opening map file! Check write permissions.");
 		return false;
 	}
 	
@@ -8596,7 +8817,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
 	
 	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $filename.dot -o$filename.svg";
-	set_log(__FUNCTION__.": DOT STRING = $dot_string");
+	//set_log(__FUNCTION__.": DOT STRING = $dot_string");
 	
 	if ($MapFile) 
 	{
@@ -8607,28 +8828,28 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 		
 		if ($call_dot === false)
 		{
-			set_log(__FUNCTION__.": DOT Error creating svg file.");
+			log_error(__FUNCTION__.": DOT Error creating svg file.");
 			return false;
 		}
 		else
 		{
-			set_log(__FUNCTION__.": DOT output: $call_dot");
+			//set_log(__FUNCTION__.": DOT output: $call_dot");
 		}
 		
 		if (file_exists($filename.".svg"))
 		{
-			set_log(__FUNCTION__.": SVG file created. Returning filename.");
+			//set_log(__FUNCTION__.": SVG file created. Returning filename.");
 			return $filename.".svg";
 		}
 		else
 		{
-			set_log(__FUNCTION__.": Error creating svg file, please check write permissions.");
+			log_error(__FUNCTION__.": Error creating svg file, please check write permissions.");
 			return false;
 		}
 	}
 	else 
 	{ 
-		set_log(__FUNCTION__.": Error creating map file, please check write permissions.");
+		log_error(__FUNCTION__.": Error creating map file, please check write permissions.");
 		return false;
 	}	
 }

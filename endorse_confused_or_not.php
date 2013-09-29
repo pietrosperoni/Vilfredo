@@ -7,6 +7,20 @@ include('header.php');
 
 //print_array($_POST);
 
+
+if (isset($_POST['proposal']) and isset($_POST['prev_proposal']))
+{
+	foreach ($_POST['proposal'] as $key => $value)
+	{
+		if ($_POST['proposal'][$key] != $_POST['prev_proposal'][$key])
+		{
+			set_log("Vote for $key changed...");
+			$_SESSION["updatemap"] = true;
+			break;
+		}
+	}
+}
+
 $question = fetchValidIntValFromPostWithKey('question');
 if ($question === false)
 {
@@ -113,7 +127,7 @@ $prev_commentid = (isset($_POST['prev_commentid'])) ? $_POST['prev_commentid'] :
 //
 foreach ($allproposals as $p)
 {
-	set_log("Processing proposal $p....");
+	//set_log("Processing proposal $p....");
 	if 
 	( 
 		( isset($prev_proposal[$p]) && ($endorsedproposals[$p] != $prev_proposal[$p]) ) ||

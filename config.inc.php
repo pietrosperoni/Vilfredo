@@ -90,6 +90,15 @@ define("NOT_UNDERSTAND", 3);
 
 define('USE_CAPTCHA', false);
 
+define("SNAPSHOTS_PATH", "snapshots/");
+if (!is_dir(SNAPSHOTS_PATH))
+{
+	if (!mkdir(SNAPSHOTS_PATH, 0755, true))
+	{
+		log_error("Failed to create snapshots directory path");
+	}
+}
+
 
 // Admin display settings
 $display_interactive_graphs = True;
