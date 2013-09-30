@@ -12,6 +12,13 @@ include('vga_timeless.php');
 
 set_log(__FILE__." called....");
 
+
+if (!$userid)
+{
+	DoLogin();
+}
+
+
 ?>
 
 <link rel="Stylesheet" type="text/css" href="js/jquery/RichTextEditor/css/jqrte.css">
