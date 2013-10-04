@@ -13,7 +13,7 @@ if ($userid)
 				<ul class="nav" id="top-nav">
 					<li><a href="viewquestions.php?u= <?php echo $userid; ?>">View My Questions</a></li>
 					<li><a href="viewquestions.php?todo=">ToDo List</a></li>
-					<li><a href="http://metagovernment.org/wiki/Vilfredo">about</a></li>
+					<li><a href="https://github.com/pietrosperoni/Vilfredo/wiki">About</a></li>
 					<li>Hello <?php echo get_session_username(); ?></li>
 					<li><a href="editdetails.php">Update Email</a></li>
 					<li><?php echo display_logout_link(); ?></li>							
@@ -41,6 +41,7 @@ else
 				<li><a href="viewquestions.php">View Questions</a></li>
 				<li><a href="login.php">Login</a></li>
 				<li><a href="register.php">Register</a></li>
+				<li><a href="https://github.com/pietrosperoni/Vilfredo/wiki">About</a></li>
 			</ul>
 
 		</div> <!-- header -->
