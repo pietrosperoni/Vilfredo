@@ -117,7 +117,11 @@ Ma sono un insieme rappresentativo di tutti i partecipanti.',
   'leave_blank_txt' => 'Importante: Lascia questo vuoto se vuoi che tutti vedano la tua domanda!',
   'new_quest_exp_txt' => 'Quando poni una domanda, ti viene data l\'opzione di assegnarla a una stanza. Puoi definire il nome della stanza (con caratteri alfanumerici o l\'underscore \'_\' ), o generare un nome casuale. Inoltre stanze che iniziano con l\'underscore non compariranno nelle ricerche future.',
   'min_tme_txt' => 'Tempo Minimo',
-  'permit_anon_txt' => 'Di base solo i membri di Vilfredo possono votare e creare proposte alle domande. Seleziona questa opzione qui sotto per permettere alle persone di votare e/o proporre in forma anonima.',
+  'permit_anon_txt' => 'Di base solo i membri di Vilfredo possono votare e creare proposte alle domande. Seleziona questa opzione qui sotto per permettere alle persone di votare e/o proporre in forma anonima.
+
+<br/><br/>
+
+<b>Nota:</b> A causa di voto in Vilfredo è ora interattivo stiamo vietando voto anonimo per il momento.',
   'anon_votes_title' => 'Seleziona questa opzione se desideri permettere alle persone di votare in forma anonima',
   'anon_props_title' => 'Seleziona questa opzione se desideri permettere alle persone di proporre in forma anonima',
   'invite_exp_txt' => 'Le persone che inviti a presentare proposte. Ciò nonostante vedranno la nuova domanda nella loro lista di cose da fare.',
@@ -187,7 +191,7 @@ Ma sono un insieme rappresentativo di tutti i partecipanti.',
   'keep_logged_label' => 'Ricorda il mio login:',
   'or_use_fb_label' => 'O <b>Accedi</b> con Facebook',
   'langs_label' => 'Lingue:',
-  'user_caution_txt' => '(Non usare il tuo indirizzo email)',
+  'user_caution_txt' => '(nota che questo sarà pubblicato sul sito, in modo da non utilizzare l\'indirizzo email, se non volete che per essere pubblici e potenzialmente presi da ragni)',
   'email_label' => 'E-mail:',
   'pass_conf_label' => 'Conferma Password:',
   'captch_req_label' => 'Inserisci le parole nell\'immagine:',

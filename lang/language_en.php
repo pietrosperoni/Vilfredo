@@ -116,7 +116,11 @@
   'leave_blank_txt' => 'Important: Leave this blank if you want <i>everyone</i> to see your question!',
   'new_quest_exp_txt' => 'When you ask a new question you are given the option to assign it to a room. You can name the room (alpha-numeric characters and underscores only) or generate a random name - good if you want privacy. Only people who know the room will see your question. Furthermore, room names beginning with an underscore \'_\' will not appear in future room searches. This will also be true if you name your room something like \'_Politics\', however such a name will be easily guessed and may still be found. For the moment, in order to view a question in a room you need to enter the question number and the room parameter in the URL, eg',
   'min_tme_txt' => 'Minimum Time:',
-  'permit_anon_txt' => 'By default only members of Vilfredo can vote and create proposals to questions. Select the options below to permit anonymous voting and/or proposing for your question.',
+  'permit_anon_txt' => 'By default only members of Vilfredo can vote and create proposals to questions. Select the options below to permit anonymous voting and/or proposing for your question.
+
+<br/><br/>
+
+<b>Note:</b> Because voting in Vilfredo is now interactive we are disallowing anonymous voting for the time being.',
   'anon_votes_title' => 'Check this box if you wish to permit anonymous users to vote',
   'anon_props_title' => 'Check this box if you wish to permit anonymous users to create proposals',
   'invite_exp_txt' => 'The people you invite to submit proposals, however, <i>will</i> see your new question listed on their ToDo List page.',

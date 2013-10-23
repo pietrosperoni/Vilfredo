@@ -5673,7 +5673,7 @@ function getVotingCommentDetailsForProposalAllGen($originalid) // NEW
 		SELECT `id` FROM `proposals` WHERE
 		`originalid` = $originalid
 	)
-	ORDER BY `com`.`roundid` DESC, `user_count`.`usercount` ASC";
+	ORDER BY `com`.`roundid` DESC, `user_count`.`usercount` DESC";
 	
 	$comments = array();
 	//$comments['dislike'] = array();
@@ -8383,9 +8383,9 @@ function GenerateMapFromArray($question,$generation,$proposalsEndorsers,$paretof
 //	Save snapshots after each vote
 // 
 // ******************************************/
-function SaveSnapshot($userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size="L",$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
+function SaveSnapshot($created,$userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size="L",$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
-	$svgfile=WriteSnapshot($userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
+	$svgfile=WriteSnapshot($created, $userid,$question,$generation,$room,$proposalsEndorsers,$paretofront,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize);
 	
 	if ($svgfile)
 	{
@@ -8398,16 +8398,16 @@ function SaveSnapshot($userid,$question,$generation,$room,$proposalsEndorsers,$p
 		return false;
 	}	
 }
-function WriteSnapshot($userid,$question,$generation,$room,$text,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
+function WriteSnapshot($created,$userid,$question,$generation,$room,$text,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$size="L",$highlightproposal1=0,$InternalLinks=false,$ProposalLevelType="NVotes",$UserLevelType="Layers",$Anonymize=false)
 {
 	set_log(__FUNCTION__." called...");
 	
 	$name=MapNameHashFromArray($question,$generation,$room,$proposalsEndorsers,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize,$text);
-	
+		
 	set_log(__FUNCTION__." generated name = $name");
 	
 	// Save file hash
-	$snapshot_filename = SNAPSHOTS_PATH.SnapshotFileName($question,$generation,$room,$text).".json";
+	//$snapshot_filename = SnapshotFileName($question,$generation,$text).".json";
 	
 	$filename = SNAPSHOTS_PATH . $name;
 	
@@ -8425,7 +8425,7 @@ function WriteSnapshot($userid,$question,$generation,$room,$text,$proposalsEndor
 #		if (file_exists ( $filename.".svg"))	{return $filename.".svg";}
 #	}
 	
-	$MapFile = fopen($filename.".dot", "w+b");
+	$MapFile = fopen($filename.".dot", "w");
 	
 	if ($MapFile === false)
 	{
@@ -8440,9 +8440,9 @@ function WriteSnapshot($userid,$question,$generation,$room,$text,$proposalsEndor
 	
 	
 	//set_log("snapshot_filename = $snapshot_filename");
-	add_snapshot($snapshot_filename, $name);
+	//add_snapshot($snapshot_filename, $name);
 	add_dotfile_db($name, $buf);
-	add_snapshot_db($userid, $question, $generation, $text, $name);
+	add_snapshot_db($userid, $question, $generation, $text, $name, $created);
 	
 	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $filename.dot -o$filename.svg";
 	//set_log(__FUNCTION__.": DOT STRING = $dot_string");
@@ -8481,7 +8481,19 @@ function WriteSnapshot($userid,$question,$generation,$room,$text,$proposalsEndor
 	}	
 }
 
-function SnapshotFileName($question,$generation,$room,$text)
+function SnapshotFileName($question,$generation,$text)
+{
+#	if ($InternalLinks)	{ $internal="here"; }
+#	else			{ $internal="there"; }
+	$totranslate="map_Q".$question."_G".$generation."_TXT".$text;
+	$translated=md5($totranslate);
+#	echo "To translate= $totranslate";
+#	echo "translated= $translated";
+	return $translated;	
+}
+
+
+function SnapshotFileName_1($question,$generation,$room,$text)
 {
 #	if ($InternalLinks)	{ $internal="here"; }
 #	else			{ $internal="there"; }
@@ -8489,8 +8501,9 @@ function SnapshotFileName($question,$generation,$room,$text)
 	$translated=md5($totranslate);
 #	echo "To translate= $totranslate";
 #	echo "translated= $translated";
-	return $translated;	
+	return SNAPSHOTS_PATH.$translated;	
 }
+
 
 function MapNameHashFromArray($question,$generation,$room,$proposalsEndorsers,$size,$InternalLinks,$ProposalLevelType,$UserLevelType,$Anonymize, $text='')
 {
@@ -8524,7 +8537,6 @@ function fetch_snapshots($file)
 			return $json;
 		}
 	}
-
 	return array();
 }
 
@@ -8538,21 +8550,113 @@ function add_snapshot($snapshot_file, $hash)
 	
 	$snapshots[] = $hash;
 	return save_snapshots($snapshots, $snapshot_file);
-	/*
-	if (!in_array($hash, $snapshots))
+}
+
+function cache_snapshots($question, $generation, $title) 
+{
+	$filepath = SNAPSHOTS_PATH;
+	$snapshots = fetch_snapshots_db($question, $generation, $title);
+	$filename = SnapshotFileName($question, $generation, $title).".json";
+	$path = $filepath.$filename;
+	return file_put_contents($path, json_encode($snapshots), LOCK_EX);
+}
+
+function load_snapshots($question, $generation, $title, $refresh=false)
+{
+	$filepath = SNAPSHOTS_PATH;
+	$filename = SnapshotFileName($question, $generation, $title).".json";
+	$path = $filepath.$filename;
+	if (!file_exists($path) or $refresh)
 	{
-		$snapshots[] = $hash;
-		return save_snapshots($snapshots, $snapshot_file);
+		if (!cache_snapshots($question, $generation, $title))
+		{
+			log_error(__FUNCTION__.":: Could not cache snapshots from DB!");
+			return fetch_snapshots_db($question, $generation, $title);
+		}
+	}
+	set_log("Fetching snapshots from $path");
+	return fetch_snapshots($path);
+}
+
+function generate_snapshot($hash)
+{
+	$path = SNAPSHOTS_PATH.$hash;
+	
+	if (file_exists($path.'.svg'))
+	{
+		return true;
+	}
+	elseif (!file_exists($path.'.dot'))
+	{
+		$dotfile = fetch_dotfile_db($hash);
+		if (file_put_contents($path.'.dot', $dotfile) === false)
+		{
+			set_log(__FUNCTION__.": Error opening map file! Check write permissions.");
+			return false;
+		}
+	}
+	
+	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $path.dot -o$path.svg";
+	if (system($dot_string) === false)
+	{
+		log_error(__FUNCTION__.": DOT Error creating svg file.");
+		return false;
 	}
 	else
 	{
-		set_log(__FUNCTION__.":: Duplicate hash created:: $hash");
-		return false;
+		return true;
 	}
-	*/
 }
 
-function fetch_dotfile($hash)
+function fetch_snapshots_db_1($questionid, $title)
+{
+	$sql = "SELECT * FROM `snapshots`
+			WHERE `questionid` = $questionid AND `title` = '$title'";
+			
+	//printbr($sql);
+	
+	$snapshots = array();
+			
+	if ($result = mysql_query($sql))
+	{
+		while ($row = mysql_fetch_assoc($result))
+		{
+			$snapshots[] = $row;
+		}
+		return $snapshots;
+	}
+	else
+	{
+		db_error(__FUNCTION__ . " SQL: $sql");
+		return false;
+	}
+}
+
+function fetch_snapshots_db($question, $generation, $title)
+{
+	$sql = "SELECT s.*, u.username FROM `snapshots` s, users u WHERE
+		   `questionid` = $question AND `roundid` = $generation AND `title` = '$title'
+			AND s.userid = u.id";
+	
+	$result = mysql_query($sql);
+		
+	if (!$result)
+	{
+		handle_db_error($result, $sql);
+		return false;
+	}
+	
+	$snapshots = array();
+	
+	while($info = mysql_fetch_assoc( $result ))
+	{
+		$snapshots[] = $info;
+	}
+	
+	return $snapshots;
+}
+
+function fetch_dotfile_db($hash)
 {
 	set_log(__FUNCTION__." called...");
 	
@@ -8564,7 +8668,7 @@ function fetch_dotfile($hash)
 	$sql = "SELECT `dotstring` FROM `dotfiles`
 			WHERE `hash` = '$hash'";
 			
-	printbr($sql);
+	//printbr($sql);
 			
 	if (!$result = mysql_query($sql))
 	{
@@ -8584,7 +8688,7 @@ function fetch_dotfile($hash)
 function add_dotfile_db($hash, $dotstring)
 {
 	$sql = sprintf("INSERT IGNORE INTO `dotfiles`(`hash`, `dotstring`)
-			VALUES ('$hash', '%s')", $dotstring);
+			VALUES ('$hash', '%s')", mysql_real_escape_string($dotstring));
 		
 	if ($result = mysql_query($sql))
 	{
@@ -8597,10 +8701,10 @@ function add_dotfile_db($hash, $dotstring)
 	}
 }
 
-function add_snapshot_db($userid, $question, $generation, $title, $hash)
+function add_snapshot_db($userid, $question, $generation, $title, $hash, $created)
 {
-	$sql = "INSERT INTO `snapshots`(`questionid`, `title`, `roundid`, `hash`, `userid`)
-			VALUES ($question, '$title', $generation, '$hash', $userid)";
+	$sql = "INSERT INTO `snapshots`(`questionid`, `title`, `roundid`, `hash`, `userid`, `created`, `creationtime`)
+			VALUES ($question, '$title', $generation, '$hash', $userid, $created, UTC_TIMESTAMP())";
 	
 	set_log($sql);
 	
@@ -8613,28 +8717,6 @@ function add_snapshot_db($userid, $question, $generation, $title, $hash)
 		db_error(__FUNCTION__ . " SQL: " . $sql);
 		return false;
 	}
-}
-function fetch_snapshots_db($question, $generation, $title)
-{
-	$sql = "SELECT * FROM `snapshots` WHERE
-		   `questionid` = $question AND `roundid` = $generation AND `title` = '$title'";
-	
-	$result = mysql_query($sql);
-		
-	if (!$result)
-	{
-		handle_db_error($result, $sql);
-		return false;
-	}
-	
-	$snapshots = array();
-	
-	while($info = mysql_fetch_assoc( $result ))
-	{
-		$snapshots[] = $info;
-	}
-	
-	return $snapshots;
 }
 
 // *********************************************************/
@@ -8781,7 +8863,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	
 	$filename="map/".$name;
 	
-	//set_log(__FUNCTION__." filename (path) = $filename");
+	set_log(__FUNCTION__." filename (path) = $filename");
 	
 	##if($size=="L")     { $sz="11,5.5";	}
 	#if($size=="L")     { $sz="11,8";	}
@@ -8817,7 +8899,7 @@ function WriteGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$pa
 	//                  $ProposalLevelType == "NVotes", "Layers", "Flat"
 	
 	$dot_string = GRAPHVIZ_DOT_ADDRESS." -Tsvg $filename.dot -o$filename.svg";
-	//set_log(__FUNCTION__.": DOT STRING = $dot_string");
+	set_log(__FUNCTION__.": DOT STRING = $dot_string");
 	
 	if ($MapFile) 
 	{
@@ -10105,6 +10187,7 @@ function MakeGraphVizMapFromArrayForSVG($question,$generation,$proposalsEndorser
 //possible values: $ProposalLevelType == "NVotes", "Layers", "Flat"
 
 
+// DONOW
 function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$InternalLinks=false,$ProposalLevelType="Layers",$UserLevelType="NVotes",$addressImage="", $Anonymize=true)
 #	function MakeGraphVizMapFromArray($question,$generation,$proposalsEndorsers,$paretofront,$room,$highlightuser1=0,$highlightproposal1=0,$size="11,5.5",$ShowNSupporters=true,$ShowAllEndorsments=false,$bundles=true,$InternalLinks=false,$UserLevelType="Layers")
 {

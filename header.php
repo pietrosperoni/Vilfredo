@@ -213,6 +213,7 @@ if ($userid)
 		if ($userid && isAdmin($userid))
 		{ ?>
 			<li><a href="owners.php">Vilfredo Admin</a></li>
+			<li><a href="timeline.php">Timeline</a></li>
 		<?php
 		}
 		?>

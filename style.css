@@ -1144,12 +1144,18 @@ td.votes {
 .confused h3 {
     color: #0020cc;
 }
+.support h3 {
+    color: green;
+}
 
 .disagree .comment {
     border: 1px solid #b20000;
 }
 .confused .comment {
     border: 1px solid #0020cc;
+}
+.support .comment {
+    border: 1px solid green;
 }
 
 .space {

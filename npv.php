@@ -35,6 +35,11 @@ var all_comments = [];
 //if ($userid)
 //{	
 	
+if (!$userid)
+{
+	DoLogin();
+}
+	
 $proposal = GetParamFromQuery(QUERY_KEY_PROPOSAL);
 if (!HasProposalAccess())
 {

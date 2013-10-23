@@ -771,6 +771,7 @@ function ajax_error(jqxhr, status, error)
 		exit;
 	}
 	
+	/*
 	$eval_phase = getQuestionPhase($question);
 	
 	if ($eval_phase == 'voting')
@@ -787,6 +788,7 @@ function ajax_error(jqxhr, status, error)
 		header("Location: ".$url);
 		exit;
 	}
+	*/
 	
 	$QuestionInfo = GetQuestion($question);
 	
@@ -1647,8 +1649,11 @@ if ($userid) {
 					{
 						set_log('User changed vote - taking map snapshots...');
 						unset($_SESSION["updatemap"]);
+						$created = time();
+						set_log("Snapshotes taken at timestamp $created UTC");
 						//
 						$votesgraph = SaveSnapshot(
+							$created,
 							$userid,
 							$question,
 							$generation,
@@ -1666,6 +1671,7 @@ if ($userid) {
 							false);	
 					
 						$pfvotesgraph =  SaveSnapshot(
+							$created,
 							$userid,
 							$question,
 							$generation,
@@ -2132,7 +2138,7 @@ if ($userid) {
 				echo '</div>';
 				?>	
 			
-				
+				<!-- Voting Phase -->
 				<div class="comments">
 				
 					<div class="commentsleft disagree">
