@@ -1,4 +1,4 @@
-ALTER TABLE `comments` CHANGE `type` `type` ENUM( 'confused', 'dislike', 'support', 'question', 'answer' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL 
+ALTER TABLE `comments` CHANGE `type` `type` ENUM( 'confused', 'dislike', 'support', 'question', 'answer' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 
 ALTER TABLE `comments` ADD `replyto` INT( 11 ) NOT NULL DEFAULT '0';
 
